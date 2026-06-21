@@ -268,7 +268,7 @@
               <button class="btn btn-secondary" onclick="planShiftWeek(1)">Nächste Woche →</button>
               <button class="btn btn-accent" id="autoPlanBtn" onclick="runAutoPlan()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                Auto-Plan erstellen
+                Routen optimieren
               </button>
             </div>
           </div>
@@ -1234,11 +1234,18 @@
               <input type="number" id="wizDuration" value="1.5" min="0.25" step="0.25" oninput="wizCalcPrice()" />
             </div>
           </div>
-          <div class="field">
-            <label>Preis (Dauer × Stundensatz)</label>
-            <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
-              <strong id="wizPriceCalc" style="font-size:18px; color:var(--brand-primary);">CHF —</strong>
-              <span id="wizPriceHint" style="font-size:12px; color:var(--text-subtle);"></span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="field">
+              <label>Preis (Dauer × Stundensatz)</label>
+              <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
+                <strong id="wizPriceCalc" style="font-size:18px; color:var(--brand-primary);">CHF —</strong>
+                <span id="wizPriceHint" style="font-size:11px; color:var(--text-subtle);"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Übergabe bis (optional)</label>
+              <input type="time" id="wizDeadline" />
+              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">Fester Termin (z. B. Wohnungsabgabe) — wird bei Routenoptimierung eingehalten.</div>
             </div>
           </div>
           <div class="field">
@@ -4819,17 +4826,135 @@
       }, 2800);
     }
 
-    // ============ Auto-Plan ============
-    function runAutoPlan() {
+    // ============ Routenoptimierung pro Team ============
+    const GEO_KEY = 'cc-geocache-v1';
+    function loadGeoCache() { try { return JSON.parse(localStorage.getItem(GEO_KEY)) || {}; } catch { return {}; } }
+    function saveGeoCache(c) { localStorage.setItem(GEO_KEY, JSON.stringify(c)); }
+    async function geocodeAddress(address) {
+      if (!address || !address.trim()) return null;
+      const cache = loadGeoCache();
+      const key = address.trim().toLowerCase();
+      if (cache[key] !== undefined) return cache[key]; // kann auch null sein (nicht gefunden)
+      try {
+        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ch&q=' + encodeURIComponent(address);
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const data = await res.json();
+        const coord = (data && data[0]) ? { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) } : null;
+        cache[key] = coord; saveGeoCache(cache);
+        return coord;
+      } catch (e) { return null; }
+    }
+    function haversineKm(a, b) {
+      if (!a || !b) return 0;
+      const R = 6371, toRad = x => x * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat), dLon = toRad(b.lon - a.lon);
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(h));
+    }
+    function travelMinutes(a, b) {
+      if (!a || !b) return 8; // Standard-Fahrzeit wenn Koordinate fehlt
+      return Math.round(haversineKm(a, b) / 25 * 60) + 3; // ~25 km/h Stadt + 3 min Parken/Puffer
+    }
+    function permute(arr) {
+      if (arr.length <= 1) return [arr];
+      const res = [];
+      for (let i = 0; i < arr.length; i++) {
+        const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+        for (const p of permute(rest)) res.push([arr[i]].concat(p));
+      }
+      return res;
+    }
+    function greedyNN(jobs) {
+      const remaining = jobs.slice().sort((a, b) => (a.deadlineMin ?? 1e9) - (b.deadlineMin ?? 1e9));
+      const order = [remaining.shift()];
+      while (remaining.length) {
+        const last = order[order.length - 1];
+        remaining.sort((a, b) => travelMinutes(last.coord, a.coord) - travelMinutes(last.coord, b.coord));
+        order.push(remaining.shift());
+      }
+      return order;
+    }
+    function optimizeTeamOrder(jobs) {
+      const n = jobs.length;
+      if (n <= 1) return { order: jobs.slice(), travel: 0, lateness: 0 };
+      const t0 = Math.min(...jobs.map(j => parseHM(j.start)));
+      const evaluate = (order) => {
+        let t = t0, travel = 0, lateness = 0;
+        for (let i = 0; i < order.length; i++) {
+          if (i > 0) { const tt = travelMinutes(order[i - 1].coord, order[i].coord); t += tt; travel += tt; }
+          const end = t + (order[i].duration || 60);
+          if (order[i].deadlineMin != null && end > order[i].deadlineMin) lateness += (end - order[i].deadlineMin);
+          t = end;
+        }
+        return { travel, lateness };
+      };
+      const candidates = (n <= 7) ? permute(jobs) : [greedyNN(jobs)];
+      let best = null, bestScore = Infinity;
+      for (const ord of candidates) {
+        const { travel, lateness } = evaluate(ord);
+        const score = lateness * 100000 + travel; // Übergabe-Termine zuerst, dann Fahrweg minimieren
+        if (score < bestScore) { bestScore = score; best = { order: ord, travel, lateness }; }
+      }
+      return best;
+    }
+
+    async function runAutoPlan() {
       const btn = document.getElementById('autoPlanBtn');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Berechne optimale Routen…';
-      setTimeout(() => {
-        btn.innerHTML = original;
-        btn.disabled = false;
-        toast('Plan erstellt — 134 Einsätze, 2h 14min gespart');
-      }, 1600);
+      btn.innerHTML = '<span class="spinner"></span> Berechne Routen…';
+      try {
+        const dateKey = isoDate(planCurrentDate);
+        const allJobs = getJobsForDate(planCurrentDate);
+        if (allJobs.length === 0) { toast('Keine Einsätze an diesem Tag'); return; }
+
+        // nach Team gruppieren (Jobs ohne Team = eigene Gruppe)
+        const byTeam = {};
+        allJobs.forEach(j => { const k = j.team || '_none'; (byTeam[k] = byTeam[k] || []).push(j); });
+
+        let travelBefore = 0, travelAfter = 0, optimizedTeams = 0, lateWarn = false;
+        for (const teamId of Object.keys(byTeam)) {
+          const jobs = byTeam[teamId];
+          // Adressen geocoden (Nominatim: max 1/s → kleine Pause bei neuen Adressen)
+          for (const j of jobs) {
+            const cache = loadGeoCache();
+            const wasCached = cache[(j.ort || '').trim().toLowerCase()] !== undefined;
+            j.coord = await geocodeAddress(j.ort);
+            j.deadlineMin = j.deadline ? parseHM(j.deadline) : null;
+            if (!wasCached && j.ort) await new Promise(r => setTimeout(r, 1100));
+          }
+          // Fahrzeit VORHER (aktuelle Reihenfolge nach Startzeit)
+          const before = jobs.slice().sort((a, b) => parseHM(a.start) - parseHM(b.start));
+          for (let i = 1; i < before.length; i++) travelBefore += travelMinutes(before[i - 1].coord, before[i].coord);
+
+          const opt = optimizeTeamOrder(jobs);
+          travelAfter += opt.travel;
+          if (opt.lateness > 0) lateWarn = true;
+
+          // Neue Startzeiten entlang optimierter Reihenfolge setzen
+          let t = Math.min(...jobs.map(j => parseHM(j.start)));
+          opt.order.forEach((j, i) => {
+            if (i > 0) t += travelMinutes(opt.order[i - 1].coord, j.coord);
+            const start = fmtHM(t);
+            if (j._added) updatePlanJob(dateKey, j._jobId, { start });
+            else setJobOverride(dateKey, j._idx, { start });
+            t += (j.duration || 60);
+          });
+          if (jobs.length >= 2) optimizedTeams++;
+        }
+
+        renderPlanung();
+        const saved = Math.max(0, Math.round(travelBefore - travelAfter));
+        let msg = optimizedTeams > 0
+          ? `✓ ${optimizedTeams} Route${optimizedTeams > 1 ? 'n' : ''} optimiert` + (saved > 0 ? ` · ~${saved} min Fahrzeit gespart` : '')
+          : '✓ Routen aktualisiert';
+        if (lateWarn) msg += ' · ⚠ Übergabe-Termine knapp';
+        toast(msg);
+      } catch (e) {
+        toast('Optimierung fehlgeschlagen: ' + e.message, 'error');
+      } finally {
+        btn.innerHTML = original; btn.disabled = false;
+      }
     }
 
     // ============ Neuer Auftrag speichern ============
@@ -6122,6 +6247,7 @@ Aarau · ${datum}`
       const duration = Math.round(hours * 60); // Stunden → Minuten
       const team = document.getElementById('wizardTeamSelect')?.value || null;
       const note = (document.getElementById('wizNote')?.value || '').trim();
+      const deadline = document.getElementById('wizDeadline')?.value || null;
       const finalPrice = wizCalcPrice();
 
       // Echten Einsatz anlegen → erscheint im Routenplaner am gewählten Tag
@@ -6136,6 +6262,7 @@ Aarau · ${datum}`
         price: finalPrice,
         crew: 1,
         paymethod: 'rechnung',
+        deadline: deadline,
         noteCrew: note,
         noteOffice: ''
       });
@@ -6157,7 +6284,7 @@ Aarau · ${datum}`
         document.querySelector('.wizard-page[data-page="1"]').classList.add('active');
         document.getElementById('wizBack').style.display = 'none';
         document.getElementById('wizNext').textContent = 'Weiter →';
-        ['termName', 'wizAddress', 'wizNote'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        ['termName', 'wizAddress', 'wizNote', 'wizDeadline'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         const wd = document.getElementById('wizDate'); if (wd) wd.value = '';
       }, 400);
     }
