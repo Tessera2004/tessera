@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clean & Umzug Profis — Aarau</title>
+  <title>Tessera — Aarau</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
@@ -16,8 +16,8 @@
     <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark-svg" title="Clean & Umzug Profis">
-          <!-- Wordmark-Platzhalter — ersetzbar durch echtes Logo von Clean & Umzug Profis -->
+        <div class="brand-mark-svg" title="Tessera">
+          <!-- Wordmark-Platzhalter — ersetzbar durch echtes Logo von Tessera -->
           <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
             <!-- Bold C-Arc (Clean) -->
             <path d="M25 9.5 Q 17 5, 10.5 11 Q 6 16, 10.5 21 Q 17 27, 25 22.5"
@@ -28,7 +28,7 @@
           </svg>
         </div>
         <div>
-          <div class="brand-name">Clean &amp; Umzug Profis</div>
+          <div class="brand-name">Tessera</div>
           <div class="brand-sub">Aarau</div>
         </div>
       </div>
@@ -5221,7 +5221,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir freuen uns auf Ihre Rückmeldung.
 
 Mit freundlichen Grüßen
-Clean & Umzug Profis
+Tessera
 Aarau · ${datum}`,
 
         end: `Sehr geehrte/r ${kunde},
@@ -5243,7 +5243,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir garantieren eine abnahmefähige Wohnung — andernfalls Nachreinigung kostenfrei.
 
 Mit freundlichen Grüßen
-Clean & Umzug Profis
+Tessera
 Aarau · ${datum}`,
 
         fenster: `Sehr geehrte/r ${kunde},
@@ -5264,7 +5264,7 @@ Mindestbuchung: ${getPrice('fenster-min')} Stunden
 Das Angebot ist gültig bis ${gueltig}.
 
 Mit freundlichen Grüßen
-Clean & Umzug Profis
+Tessera
 Aarau · ${datum}`,
 
         bau: `Sehr geehrte Bauleitung,
@@ -5286,7 +5286,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir koordinieren uns gerne direkt mit den Gewerken vor Ort.
 
 Mit freundlichen Grüßen
-Clean & Umzug Profis
+Tessera
 Aarau · ${datum}`,
 
         fassade: `Sehr geehrte/r ${kunde},
@@ -5307,7 +5307,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Vor Beginn führen wir eine Probefläche aus.
 
 Mit freundlichen Grüßen
-Clean & Umzug Profis
+Tessera
 Aarau · ${datum}`
       };
 
@@ -5552,7 +5552,7 @@ Aarau · ${datum}`
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.setTextColor(225, 29, 42); // brand red
-      doc.text('Clean & Umzug Profis', M, y);
+      doc.text('Tessera', M, y);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(120);
@@ -5684,7 +5684,7 @@ Aarau · ${datum}`
       doc.setFontSize(8.5);
       doc.setTextColor(120);
       doc.text('Datum / Unterschrift Kunde', M, y + 4);
-      doc.text('Clean & Umzug Profis', W - M, y + 4, { align: 'right' });
+      doc.text('Tessera', W - M, y + 4, { align: 'right' });
 
       // Save
       const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');
