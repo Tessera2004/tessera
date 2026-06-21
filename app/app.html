@@ -115,10 +115,14 @@
         </div>
       </div>
     </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <!-- ============ MAIN ============ -->
     <main class="main">
       <header class="topbar">
+        <button class="nav-toggle" id="navToggle" aria-label="Menü öffnen" onclick="toggleSidebar()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <div class="topbar-title" id="topbarTitle">Dashboard</div>
         <div class="topbar-actions">
           <div class="search">
@@ -2531,6 +2535,24 @@
       if (item) item.click();
     }
 
+    // ============ MOBILE-DRAWER ============
+    const appShell = document.querySelector('.app-shell');
+    function openSidebar() {
+      appShell.classList.add('nav-open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      appShell.classList.remove('nav-open');
+      document.body.style.overflow = '';
+    }
+    function toggleSidebar() {
+      appShell.classList.contains('nav-open') ? closeSidebar() : openSidebar();
+    }
+    // ESC schließt den Drawer
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeSidebar();
+    });
+
     navItems.forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
@@ -2541,6 +2563,7 @@
         document.querySelector(`.view[data-view="${target}"]`).classList.add('active');
         titleEl.textContent = titles[target] || '';
         window.scrollTo(0, 0);
+        closeSidebar();
         if (target === 'team') renderTeamGrid();
       });
     });

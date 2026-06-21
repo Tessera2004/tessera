@@ -2717,6 +2717,34 @@ tr:hover td { background: var(--bg); }
    Responsive
    ============================================ */
 
+/* Hamburger + Drawer-Overlay — auf Desktop ausgeblendet */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-right: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle:hover { background: var(--surface-2); }
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
 @media (max-width: 1100px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
@@ -2724,10 +2752,77 @@ tr:hover td { background: var(--bg); }
 
 @media (max-width: 768px) {
   .app-shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
-  .content { padding: var(--space-5); }
-  .topbar { padding: 0 var(--space-5); }
+
+  /* Sidebar wird zum Slide-in-Drawer */
+  .nav-toggle { display: inline-flex; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 84vw;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  }
+  .app-shell.nav-open .sidebar { transform: translateX(0); }
+
+  .sidebar-overlay { display: block; }
+  .app-shell.nav-open .sidebar-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Topbar kompakter, Aktionen verschlanken */
+  .content { padding: var(--space-5) var(--space-4); }
+  .topbar { padding: 0 var(--space-4); gap: var(--space-2); }
+  .topbar-actions { gap: var(--space-2); }
   .search { display: none; }
+  .user-switcher .user-meta { display: none; }
+  .user-chip { padding: 4px; }
+
+  /* Tabellen horizontal scrollbar statt abgeschnitten */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-wrap table { min-width: 600px; }
+
+  /* Modals fast vollbreit, mehr Höhe */
+  .modal-backdrop { padding: 12px; align-items: flex-end; }
+  .modal { max-width: 100%; border-radius: var(--radius-lg); }
+  .modal-body { max-height: 70vh; }
+
+  /* Page-Header stapeln, Aktions-Buttons umbrechen */
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+  .page-header > div:last-child {
+    flex-wrap: wrap;
+  }
+  .page-title { font-size: 22px; }
+
+  /* Status-/Toolbar-Leisten umbrechen statt überlaufen */
+  .plan-status-card { flex-wrap: wrap; }
+  .plan-status-card > button { margin-left: 0 !important; }
+
   .login-shell { grid-template-columns: 1fr; }
   .login-visual { display: none; }
+}
+
+/* Sehr kleine Screens: voluminöse Buttons reduzieren */
+@media (max-width: 480px) {
+  .topbar .btn-accent {
+    padding: 8px 10px;
+    font-size: 0;
+  }
+  .topbar .btn-accent::before {
+    content: "+";
+    font-size: 18px;
+    font-weight: 600;
+  }
 }
