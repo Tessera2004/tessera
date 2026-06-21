@@ -1217,24 +1217,32 @@
             <label>Kunde</label>
             <input type="text" placeholder="Name oder bestehenden Kunden wählen…" />
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
             <div class="field">
               <label>Datum</label>
-              <input type="date" value="2026-06-22" />
+              <input type="date" id="wizDate" />
             </div>
             <div class="field">
-              <label>Zugewiesenes Team</label>
-              <select id="wizardTeamSelect" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
-                <option value="">🤖 Auto-Zuweisung (empfohlen)</option>
-              </select>
-              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">
-                🚗 = fährt selbst · ⚠️ = braucht Mitfahrgelegenheit
-              </div>
+              <label>Startzeit</label>
+              <input type="time" id="wizStart" value="08:00" />
+            </div>
+            <div class="field">
+              <label>Dauer (Min)</label>
+              <input type="number" id="wizDuration" value="90" min="15" step="15" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Zugewiesenes Team</label>
+            <select id="wizardTeamSelect" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
+              <option value="">🤖 Auto-Zuweisung (empfohlen)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">
+              🚗 = fährt selbst · ⚠️ = braucht Mitfahrgelegenheit
             </div>
           </div>
           <div class="field">
             <label>Notizen / Sonderwünsche</label>
-            <input type="text" placeholder="Schlüssel beim Hausmeister, Code 1234, Hund vorhanden, …" />
+            <input type="text" id="wizNote" placeholder="Schlüssel beim Hausmeister, Code 1234, Hund vorhanden, …" />
           </div>
         </div>
 
@@ -1602,7 +1610,7 @@
         <div id="jobEditPhoneLog" class="je-phone-log"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="resetJobEdit()" style="margin-right: auto;">Auf Standard zurücksetzen</button>
+        <button class="btn btn-ghost" id="jobEditResetBtn" onclick="resetJobEdit()" style="margin-right: auto;">Auf Standard zurücksetzen</button>
         <button class="btn btn-secondary" onclick="closeModal('jobEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveJobEdit()">Speichern</button>
       </div>
@@ -2817,6 +2825,34 @@
       else all[dateKey] = data;
       saveDayCrews(all);
     }
+    // ============ Selbst angelegte Aufträge (pro Datum) ============
+    const PLAN_JOBS_KEY = 'cc-plan-jobs-v1';
+    function loadPlanJobs() {
+      try { return JSON.parse(localStorage.getItem(PLAN_JOBS_KEY)) || {}; }
+      catch { return {}; }
+    }
+    function savePlanJobsAll(d) { localStorage.setItem(PLAN_JOBS_KEY, JSON.stringify(d)); }
+    function addPlanJob(dateKey, job) {
+      const all = loadPlanJobs();
+      if (!all[dateKey]) all[dateKey] = [];
+      all[dateKey].push(job);
+      savePlanJobsAll(all);
+    }
+    function updatePlanJob(dateKey, jobId, patch) {
+      const all = loadPlanJobs();
+      const arr = all[dateKey] || [];
+      const i = arr.findIndex(j => j.id === jobId);
+      if (i >= 0) { arr[i] = { ...arr[i], ...patch }; savePlanJobsAll(all); }
+    }
+    function deletePlanJob(dateKey, jobId) {
+      const all = loadPlanJobs();
+      if (all[dateKey]) {
+        all[dateKey] = all[dateKey].filter(j => j.id !== jobId);
+        if (!all[dateKey].length) delete all[dateKey];
+        savePlanJobsAll(all);
+      }
+    }
+
     // Mitarbeiter eines Teams an einem bestimmten Tag (Tages-Crew überschreibt Stamm)
     function teamMembersOnDay(teamId, dateKey) {
       const dc = getDayCrew(dateKey);
@@ -2870,7 +2906,7 @@
       const dateKey = isoDate(d);
       const overrides = loadPlanOverrides()[dateKey] || {};
       const customers = loadCustomers();
-      return (PLAN_JOB_PATTERNS[dow] || []).map((j, i) => {
+      const patternJobs = (PLAN_JOB_PATTERNS[dow] || []).map((j, i) => {
         const ov = overrides[i] || {};
         // 1) Kunden-Defaults zuerst (wenn customerId vorhanden) — Pattern kann überschreiben, Override gewinnt am Ende
         let base = {};
@@ -2914,6 +2950,32 @@
         merged._dateKey = dateKey;
         return merged;
       });
+
+      // Selbst angelegte Aufträge (cc-plan-jobs-v1) anhängen
+      const addedJobs = (loadPlanJobs()[dateKey] || []).map((j) => {
+        const cust = j.customerId ? customers.find(c => c.id === j.customerId) : null;
+        const merged = { ...j, customerId: j.customerId || null, _customer: cust || null, _added: true, _jobId: j.id, _dateKey: dateKey };
+        const team = PLAN_TEAMS.find(t => t.id === merged.team);
+        if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
+          const teamEmps = team ? teamMembersOnDay(team.id, dateKey) : [];
+          const n = merged.crew != null ? Math.min(merged.crew, teamEmps.length) : teamEmps.length;
+          merged.assigned = teamEmps.slice(0, n).map(e => e.id);
+        } else {
+          merged.assigned = merged.assigned.filter(id => !empIsAbsent(id, dateKey));
+        }
+        merged.crew = merged.assigned.length;
+        if (merged.paymethod == null) merged.paymethod = 'rechnung';
+        if (merged.price == null) merged.price = 0;
+        if (merged.noteOffice == null) merged.noteOffice = '';
+        if (merged.noteCrew == null) merged.noteCrew = '';
+        if (merged.svc == null) merged.svc = 'unterhalt';
+        return merged;
+      });
+
+      const result = patternJobs.concat(addedJobs);
+      // _idx = Position im zurückgegebenen Array (Job-Editor lädt per Position)
+      result.forEach((j, idx) => { j._idx = idx; });
+      return result;
     }
     function getTeamById(id) { return PLAN_TEAMS.find(t => t.id === id); }
 
@@ -3190,7 +3252,7 @@
             return e ? empShort(e) + (e.canDrive ? ' 🚗' : '') : '?';
           }).join(', ');
           return `<div class="job-card svc-${j.svc}" onclick="openJobEditor('${j._dateKey}', ${j._idx})" title="Klicken zum Bearbeiten">
-            <div class="jteam" style="background: ${team.color};">${team.short}</div>
+            <div class="jteam" style="background: ${team ? team.color : '#9CA3AF'};">${team ? team.short : '–'}</div>
             <div class="jbody">
               <div class="jname">${j.objekt}</div>
               <div class="jmeta">${j.ort}</div>
@@ -3392,7 +3454,9 @@
       const jobs = getJobsForDate(new Date(dateKey));
       const j = jobs[idx];
       if (!j) return;
-      editingJob = { dateKey, idx };
+      editingJob = { dateKey, idx, added: !!j._added, jobId: j._jobId || null };
+      const resetBtn = document.getElementById('jobEditResetBtn');
+      if (resetBtn) resetBtn.textContent = j._added ? '🗑 Auftrag löschen' : 'Auf Standard zurücksetzen';
       document.getElementById('jobEditorTitle').textContent = j.objekt;
       document.getElementById('jobEditorSubtitle').textContent = `${j.ort} · ${fmtDayHeader(new Date(dateKey))}`;
       document.getElementById('jobEditStart').value = j.start;
@@ -3566,10 +3630,12 @@
       }
       const firstEmp = empById(assigned[0]);
       const teamId = firstEmp ? firstEmp.teamId : editingJob.team;
-      setJobOverride(editingJob.dateKey, editingJob.idx, {
-        start, duration, team: teamId, assigned,
-        price, paymethod, noteOffice, noteCrew
-      });
+      const patch = { start, duration, team: teamId, assigned, price, paymethod, noteOffice, noteCrew };
+      if (editingJob.added) {
+        updatePlanJob(editingJob.dateKey, editingJob.jobId, patch);
+      } else {
+        setJobOverride(editingJob.dateKey, editingJob.idx, patch);
+      }
       closeModal('jobEditor');
       editingJob = null;
       renderPlanung();
@@ -3578,6 +3644,15 @@
 
     function resetJobEdit() {
       if (!editingJob) return;
+      // Selbst angelegter Auftrag → löschen. Pattern-Job → auf Standard zurücksetzen.
+      if (editingJob.added) {
+        deletePlanJob(editingJob.dateKey, editingJob.jobId);
+        closeModal('jobEditor');
+        editingJob = null;
+        renderPlanung();
+        toast('Auftrag gelöscht');
+        return;
+      }
       const all = loadPlanOverrides();
       if (all[editingJob.dateKey]) {
         delete all[editingJob.dateKey][editingJob.idx];
@@ -4558,7 +4633,11 @@
     // ============ Modals ============
     function openModal(id) {
       document.getElementById('modal-' + id).classList.add('open');
-      if (id === 'newAuftrag') populateWizardTeams();
+      if (id === 'newAuftrag') {
+        populateWizardTeams();
+        const wd = document.getElementById('wizDate');
+        if (wd && !wd.value) wd.value = isoDate(planCurrentDate);
+      }
     }
 
     function populateWizardTeams() {
@@ -5862,14 +5941,44 @@ Aarau · ${datum}`
     renderOffertList();
 
     function submitAuftrag() {
-      const name = document.getElementById('termName')?.value || 'Neuer Auftrag';
+      const name = (document.getElementById('termName')?.value || '').trim();
+      const addr = (document.getElementById('wizAddress')?.value || '').trim();
+      const objekt = name || addr || (serviceLabels[wizService] || 'Neuer Auftrag');
+      const dateInput = document.getElementById('wizDate');
+      const dateKey = (dateInput && dateInput.value) ? dateInput.value : isoDate(planCurrentDate);
+      const start = (document.getElementById('wizStart')?.value) || '08:00';
+      const duration = parseInt(document.getElementById('wizDuration')?.value, 10) || 90;
+      const team = document.getElementById('wizardTeamSelect')?.value || null;
+      const note = (document.getElementById('wizNote')?.value || '').trim();
       const p = calcPriceForService();
       const finalPrice = priceOverrideActive
         ? (parseFloat(document.getElementById('priceOverride').value) || 0)
         : (p ? p.total : 0);
+
+      // Echten Einsatz anlegen → erscheint im Routenplaner am gewählten Tag
+      addPlanJob(dateKey, {
+        id: 'j' + Date.now(),
+        objekt,
+        ort: addr,
+        start,
+        duration,
+        team: team || null,
+        svc: wizService || 'unterhalt',
+        price: finalPrice,
+        crew: 1,
+        paymethod: 'rechnung',
+        noteCrew: note,
+        noteOffice: ''
+      });
+
       closeModal('newAuftrag');
-      toast(`✓ ${serviceLabels[wizService] || 'Auftrag'} angelegt — ${finalPrice.toFixed(2)} €`);
-      // reset wizard
+      // Planer auf das Auftragsdatum stellen und anzeigen
+      planSetDate(dateKey);
+      navTo('planung');
+      const dLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit' });
+      toast(`✓ Auftrag „${objekt}" angelegt — im Planer am ${dLabel}`);
+
+      // Wizard zurücksetzen
       setTimeout(() => {
         wizCurrent = 1;
         wizService = null;
@@ -5879,6 +5988,8 @@ Aarau · ${datum}`
         document.querySelector('.wizard-page[data-page="1"]').classList.add('active');
         document.getElementById('wizBack').style.display = 'none';
         document.getElementById('wizNext').textContent = 'Weiter →';
+        ['termName', 'wizAddress', 'wizNote'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        const wd = document.getElementById('wizDate'); if (wd) wd.value = '';
       }, 400);
     }
   </script>
