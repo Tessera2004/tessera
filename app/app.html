@@ -81,6 +81,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
             Büro-Team
           </a>
+          <a class="nav-item" data-view="abos">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Abo-Verträge
+          </a>
         </div>
 
         <div class="nav-section">
@@ -672,6 +676,18 @@
           <p style="font-size:12px; color:var(--text-subtle); margin-top:10px;">
             Trage die tatsächlich gebrauchten Stunden in die <strong>Ist&nbsp;h</strong>-Spalte ein — alles andere rechnet sich automatisch. Später füllt die Zeiterfassung der Reiniger-App diese Werte selbst.
           </p>
+        </section>
+
+        <!-- ============ ABO-VERTRÄGE (Serien) ============ -->
+        <section class="view" data-view="abos">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Abo-Verträge</h1>
+              <p class="page-subtitle">Alle wiederkehrenden Aufträge auf einen Blick — Intervall, nächster Termin, Team. Eine Serie endest du mit einem Klick.</p>
+            </div>
+            <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
+          </div>
+          <div id="aboList" style="display:flex; flex-direction:column; gap:12px;"></div>
         </section>
 
         <!-- ============ OFFERTEN ============ -->
@@ -1658,6 +1674,21 @@
         <!-- Kunden-Karte (auto-gezogen aus Kundenstamm) -->
         <div id="jobEditCustomerCard" class="je-customer-card"></div>
 
+        <!-- Serien-Banner (nur bei Abo/Serie) -->
+        <div id="jobEditSeriesBanner" style="display:none; margin-bottom:14px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2);">
+          <div style="font-size:13px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:8px;">
+            🔁 <span id="jobEditSeriesInfo">Teil einer Serie</span>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label style="font-size:12px;">Änderung / Löschung gilt für</label>
+            <select id="jobEditSeriesScope" style="padding:8px 10px; border:1.5px solid var(--border-strong); border-radius:8px; background:var(--surface); font-size:13.5px; color:var(--text); width:100%;">
+              <option value="this">Nur diesen Termin</option>
+              <option value="future">Diesen + alle künftigen</option>
+              <option value="all">Ganze Serie</option>
+            </select>
+          </div>
+        </div>
+
         <!-- Zeit + Dauer + Preis -->
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
           <div class="field">
@@ -2603,6 +2634,7 @@
       mitarbeiter: 'Mitarbeiter',
       kunden: 'Kunden',
       team: 'Büro-Team',
+      abos: 'Abo-Verträge',
       berichte: 'Nachweise & Berichte',
       zeiten: 'Zeiterfassung',
       nachkalkulation: 'Soll-Ist-Nachkalkulation',
@@ -3622,9 +3654,22 @@
       const jobs = getJobsForDate(new Date(dateKey));
       const j = jobs[idx];
       if (!j) return;
-      editingJob = { dateKey, idx, added: !!j._added, jobId: j._jobId || null };
+      editingJob = { dateKey, idx, added: !!j._added, jobId: j._jobId || null, seriesId: j.seriesId || null };
       const resetBtn = document.getElementById('jobEditResetBtn');
-      if (resetBtn) resetBtn.textContent = j._added ? '🗑 Auftrag löschen' : 'Auf Standard zurücksetzen';
+      if (resetBtn) resetBtn.textContent = j.seriesId ? '🗑 Löschen' : (j._added ? '🗑 Auftrag löschen' : 'Auf Standard zurücksetzen');
+
+      // Serien-Banner
+      const banner = document.getElementById('jobEditSeriesBanner');
+      if (j.seriesId) {
+        const members = findSeriesJobs(j.seriesId, null);
+        const future = members.filter(m => m.dateKey >= dateKey).length;
+        const lbl = REPEAT_LABELS[j.recurring] ? REPEAT_LABELS[j.recurring].replace(/^./, c => c.toUpperCase()) : 'Wiederkehrende';
+        document.getElementById('jobEditSeriesInfo').textContent = `${lbl} Serie · ${members.length} Termine (${future} ab hier)`;
+        document.getElementById('jobEditSeriesScope').value = 'this';
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
       document.getElementById('jobEditorTitle').textContent = j.objekt;
       document.getElementById('jobEditorSubtitle').textContent = `${j.ort} · ${fmtDayHeader(new Date(dateKey))}`;
       document.getElementById('jobEditStart').value = j.start;
@@ -3814,26 +3859,39 @@
       const firstEmp = empById(assigned[0]);
       const teamId = firstEmp ? firstEmp.teamId : editingJob.team;
       const patch = { start, duration, team: teamId, assigned, price, paymethod, noteOffice, noteCrew };
+      const scope = editingJob.seriesId ? (document.getElementById('jobEditSeriesScope').value || 'this') : 'this';
+      let msg = '✓ Einsatz aktualisiert';
       if (editingJob.added) {
-        updatePlanJob(editingJob.dateKey, editingJob.jobId, patch);
+        if (editingJob.seriesId && scope !== 'this') {
+          patchSeries(editingJob.seriesId, scope === 'future' ? editingJob.dateKey : null, patch);
+          msg = scope === 'future' ? '✓ Diesen + künftige Termine aktualisiert' : '✓ Ganze Serie aktualisiert';
+        } else {
+          updatePlanJob(editingJob.dateKey, editingJob.jobId, patch);
+        }
       } else {
         setJobOverride(editingJob.dateKey, editingJob.idx, patch);
       }
       closeModal('jobEditor');
       editingJob = null;
       renderPlanung();
-      toast('✓ Einsatz aktualisiert');
+      toast(msg);
     }
 
     function resetJobEdit() {
       if (!editingJob) return;
       // Selbst angelegter Auftrag → löschen. Pattern-Job → auf Standard zurücksetzen.
       if (editingJob.added) {
-        deletePlanJob(editingJob.dateKey, editingJob.jobId);
+        const scope = editingJob.seriesId ? (document.getElementById('jobEditSeriesScope').value || 'this') : 'this';
+        if (editingJob.seriesId && scope !== 'this') {
+          deleteSeries(editingJob.seriesId, scope === 'future' ? editingJob.dateKey : null);
+          toast(scope === 'future' ? 'Serie ab diesem Termin beendet' : 'Ganze Serie gelöscht');
+        } else {
+          deletePlanJob(editingJob.dateKey, editingJob.jobId);
+          toast('Auftrag gelöscht');
+        }
         closeModal('jobEditor');
         editingJob = null;
         renderPlanung();
-        toast('Auftrag gelöscht');
         return;
       }
       const all = loadPlanOverrides();
@@ -5333,6 +5391,77 @@
       setTimeout(renderNachkalkulation, 50);
     });
 
+    // ============ Abo-Verträge (Serien-Übersicht) ============
+    function renderAbos() {
+      const list = document.getElementById('aboList');
+      if (!list) return;
+      const series = getAllSeries();
+      const today = isoDate(new Date());
+      if (series.length === 0) {
+        list.innerHTML = `<div class="card" style="text-align:center; padding:48px 24px; color:var(--text-subtle); border-style:dashed;">
+          Noch keine Abo-Verträge. Lege einen Auftrag mit Wiederholung an — er erscheint dann hier.</div>`;
+        return;
+      }
+      // aktive (mit künftigen Terminen) zuerst
+      series.sort((a, b) => {
+        const an = a.dates.filter(d => d >= today)[0] || '9999';
+        const bn = b.dates.filter(d => d >= today)[0] || '9999';
+        return an.localeCompare(bn);
+      });
+      list.innerHTML = series.map(s => {
+        const future = s.dates.filter(d => d >= today);
+        const next = future[0] || null;
+        const teamName = s.team ? ((PLAN_TEAMS.find(t => t.id === s.team) || {}).name || '—') : '🤖 Auto';
+        const intervalLbl = REPEAT_LABELS[s.recurring] ? REPEAT_LABELS[s.recurring].replace(/^./, c => c.toUpperCase()) : 'Serie';
+        const nextLbl = next
+          ? new Date(next + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + (s.start || '')
+          : '<span style="color:var(--text-subtle);">keine künftigen Termine</span>';
+        const status = future.length > 0
+          ? `<span class="badge badge-success">aktiv</span>`
+          : `<span class="badge badge-muted">beendet</span>`;
+        return `<div class="card" style="padding:16px 20px; display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;">
+          <div style="min-width:0;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+              <span style="font-weight:600; font-size:14.5px;">${escapeHtml(s.objekt || '—')}</span>
+              ${status}
+            </div>
+            <div style="font-size:12.5px; color:var(--text-subtle);">
+              🔁 ${intervalLbl} · ${future.length} künftige / ${s.dates.length} total · 👥 ${escapeHtml(teamName)}
+              ${s.price ? '· ' + Number(s.price).toFixed(0) + '.– CHF/Termin' : ''}
+            </div>
+            <div style="font-size:12.5px; color:var(--text-muted); margin-top:3px;">Nächster: ${nextLbl}</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            ${next ? `<button class="btn btn-ghost btn-sm" onclick="aboGoToNext('${s.seriesId}')">Im Planer öffnen</button>` : ''}
+            ${future.length > 0 ? `<button class="btn btn-secondary btn-sm" onclick="aboEndSeries('${s.seriesId}')">Serie beenden</button>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function aboGoToNext(seriesId) {
+      const s = getAllSeries().find(x => x.seriesId === seriesId);
+      if (!s) return;
+      const today = isoDate(new Date());
+      const next = s.dates.filter(d => d >= today)[0] || s.dates[s.dates.length - 1];
+      planSetDate(next);
+      navTo('planung');
+    }
+    function aboEndSeries(seriesId) {
+      const s = getAllSeries().find(x => x.seriesId === seriesId);
+      if (!s) return;
+      const today = isoDate(new Date());
+      const future = s.dates.filter(d => d >= today).length;
+      if (!confirm(`Abo „${s.objekt}" beenden?\n${future} künftige Termine werden aus dem Planer entfernt. Vergangene Termine bleiben für die Abrechnung erhalten.`)) return;
+      deleteSeries(seriesId, today);
+      renderAbos();
+      toast(`✓ Abo „${s.objekt}" beendet — ${future} Termine entfernt`);
+    }
+
+    document.querySelector('.nav-item[data-view="abos"]')?.addEventListener('click', () => {
+      setTimeout(renderAbos, 50);
+    });
+
     // ============ Adress-Autocomplete (echte Adressen via OpenStreetMap) ============
     function attachAddressAutocomplete(input) {
       if (!input || input._acAttached) return;
@@ -6503,6 +6632,59 @@ Aarau · ${datum}`
       hint.textContent = 'Bis ' + last.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
+    // Bestes Team für eine Serie wählen (wenig Konflikte, wenig Last, viele Mitglieder)
+    function pickBestTeamForSeries(dateKeys, start, duration) {
+      const candidates = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
+      if (!candidates.length) return null;
+      const s = parseHM(start), e = s + (duration || 0);
+      const all = loadPlanJobs();
+      let best = null, bestScore = Infinity;
+      candidates.forEach(t => {
+        let conflicts = 0, load = 0;
+        dateKeys.forEach(dk => {
+          const dayJobs = (all[dk] || []).filter(j => j.team === t.id);
+          load += dayJobs.length;
+          dayJobs.forEach(j => {
+            const js = parseHM(j.start), je = js + (j.duration || 0);
+            if (js < e && je > s) conflicts++;   // zeitliche Überschneidung
+          });
+        });
+        const members = EMPLOYEES.filter(emp => emp.teamId === t.id).length;
+        const score = conflicts * 1000 + load * 10 - members;
+        if (score < bestScore) { bestScore = score; best = t; }
+      });
+      return best ? best.id : null;
+    }
+
+    // ---- Serien-Verwaltung: finden / patchen / löschen / gruppieren ----
+    function findSeriesJobs(seriesId, fromDateKey) {
+      const all = loadPlanJobs();
+      const res = [];
+      Object.keys(all).forEach(dk => {
+        if (fromDateKey && dk < fromDateKey) return;       // ISO-Datum: String-Vergleich ok
+        (all[dk] || []).forEach(j => { if (j.seriesId === seriesId) res.push({ dateKey: dk, jobId: j.id }); });
+      });
+      return res;
+    }
+    function patchSeries(seriesId, fromDateKey, patch) {
+      findSeriesJobs(seriesId, fromDateKey).forEach(({ dateKey, jobId }) => updatePlanJob(dateKey, jobId, patch));
+    }
+    function deleteSeries(seriesId, fromDateKey) {
+      findSeriesJobs(seriesId, fromDateKey).forEach(({ dateKey, jobId }) => deletePlanJob(dateKey, jobId));
+    }
+    function getAllSeries() {
+      const all = loadPlanJobs();
+      const map = {};
+      Object.keys(all).forEach(dk => {
+        (all[dk] || []).forEach(j => {
+          if (!j.seriesId) return;
+          if (!map[j.seriesId]) map[j.seriesId] = { seriesId: j.seriesId, objekt: j.objekt, ort: j.ort, recurring: j.recurring, team: j.team, price: j.price, start: j.start, dates: [] };
+          map[j.seriesId].dates.push(dk);
+        });
+      });
+      return Object.values(map).map(s => { s.dates.sort(); return s; });
+    }
+
     function submitAuftrag() {
       const name = (document.getElementById('termName')?.value || '').trim();
       const addr = (document.getElementById('wizAddress')?.value || '').trim();
@@ -6523,16 +6705,27 @@ Aarau · ${datum}`
       const seriesId = repeat !== 'none' ? ('serie-' + Date.now()) : null;
       const baseDate = new Date(dateKey + 'T00:00:00');
 
+      // Alle Serien-Tage vorab sammeln
+      const dateKeys = [];
+      for (let i = 0; i < count; i++) dateKeys.push(isoDate(nextRepeatDate(baseDate, repeat, i)));
+
+      // Auto-Zuweisung: bei einer Serie ohne Team automatisch ein festes Team wählen
+      let assignTeam = team || null;
+      let autoTeamName = null;
+      if (!assignTeam && repeat !== 'none') {
+        assignTeam = pickBestTeamForSeries(dateKeys, start, duration);
+        if (assignTeam) autoTeamName = (PLAN_TEAMS.find(t => t.id === assignTeam) || {}).name || null;
+      }
+
       // Echte Einsätze anlegen → erscheinen im Routenplaner an jedem Serien-Tag
-      for (let i = 0; i < count; i++) {
-        const dk = isoDate(nextRepeatDate(baseDate, repeat, i));
+      dateKeys.forEach((dk, i) => {
         addPlanJob(dk, {
           id: 'j' + Date.now() + '-' + i,
           objekt,
           ort: addr,
           start,
           duration,
-          team: team || null,
+          team: assignTeam || null,
           svc: wizService || 'unterhalt',
           price: finalPrice,
           crew: 1,
@@ -6543,7 +6736,7 @@ Aarau · ${datum}`
           recurring: repeat !== 'none' ? repeat : undefined,
           seriesId: seriesId || undefined
         });
-      }
+      });
 
       closeModal('newAuftrag');
       // Planer auf das (erste) Auftragsdatum stellen und anzeigen
@@ -6553,7 +6746,8 @@ Aarau · ${datum}`
       if (repeat === 'none') {
         toast(`✓ Auftrag „${objekt}" angelegt — im Planer am ${dLabel}`);
       } else {
-        toast(`✓ Serie „${objekt}" angelegt — ${count} Termine (${REPEAT_LABELS[repeat]}), ab ${dLabel}`);
+        const teamSuffix = autoTeamName ? ` · ${autoTeamName} zugewiesen` : '';
+        toast(`✓ Serie „${objekt}" angelegt — ${count} Termine (${REPEAT_LABELS[repeat]}), ab ${dLabel}${teamSuffix}`);
       }
 
       // Wizard zurücksetzen
