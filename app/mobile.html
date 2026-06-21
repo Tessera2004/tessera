@@ -52,6 +52,67 @@
     }
     .m-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .stop.checked .stop-actions { display: none; }
+
+    /* ---------- Material-Checkliste vor Routenstart ---------- */
+    .checklist-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      max-width: 420px; margin: 0 auto;   /* deckt sich mit dem Device-Frame */
+      background: var(--bg);
+      display: none; flex-direction: column;
+      padding: 26px 20px 24px;
+      overflow-y: auto;
+    }
+    .checklist-overlay.open { display: flex; }
+    .cl-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+    }
+    .cl-title { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+    .cl-sub { font-size: 13.5px; color: var(--text-muted); margin: 5px 0 20px; line-height: 1.4; }
+    .cl-list { display: flex; flex-direction: column; gap: 10px; }
+    .cl-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .cl-item.checked { border-color: var(--success); background: var(--success-soft); }
+    .cl-box {
+      width: 24px; height: 24px; border-radius: 7px;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: #fff;
+    }
+    .cl-box svg { opacity: 0; }
+    .cl-item.checked .cl-box { background: var(--success); border-color: var(--success); }
+    .cl-item.checked .cl-box svg { opacity: 1; }
+    .cl-label { flex: 1; font-size: 14.5px; font-weight: 500; color: var(--text); }
+    .cl-item.checked .cl-label { color: var(--success); }
+    .cl-del {
+      display: none; background: none; border: none; cursor: pointer;
+      color: var(--text-subtle); padding: 4px; flex-shrink: 0;
+    }
+    .checklist-overlay.editing .cl-del { display: flex; }
+    .checklist-overlay.editing .cl-item { cursor: default; }
+    .cl-add { display: none; gap: 8px; margin-top: 10px; }
+    .checklist-overlay.editing .cl-add { display: flex; }
+    .cl-add input {
+      flex: 1; padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 12px; font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text);
+    }
+    .cl-add input:focus { outline: none; border-color: var(--accent); }
+    .cl-footer { margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .cl-progress { font-size: 12.5px; color: var(--text-subtle); text-align: center; }
+    .cl-start { width: 100%; padding: 15px; font-size: 15px; }
+    .cl-start:disabled { opacity: 0.45; cursor: not-allowed; }
+    .cl-edit-toggle {
+      background: none; border: none; color: var(--accent);
+      font-size: 13px; font-weight: 600; cursor: pointer; align-self: center;
+    }
   </style>
 </head>
 <body>
@@ -92,7 +153,13 @@
     </div>
 
     <div class="mobile-route">
-      <div class="mobile-route-title">Heute · Mi 19. Juni 2026</div>
+      <div class="mobile-route-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <span>Heute · Mi 19. Juni 2026</span>
+        <button onclick="openChecklist()" style="background:none; border:none; color:var(--accent); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Material-Check
+        </button>
+      </div>
 
       <div class="stop done">
         <div>
@@ -186,6 +253,25 @@
       <div id="qr-reader"></div>
       <div class="qr-status" id="qrStatus">Kamera wird gestartet …</div>
       <button class="btn btn-secondary qr-close" onclick="closeScanner()">Abbrechen</button>
+    </div>
+
+    <!-- Material-Checkliste vor Routenstart -->
+    <div class="checklist-overlay" id="checklistOverlay">
+      <div class="cl-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="cl-title">Bevor du losfährst</div>
+      <div class="cl-sub">Kurz durchgehen — hast du alles dabei? Erst dann startet dein Tag.</div>
+      <div class="cl-list" id="clList"><!-- via JS --></div>
+      <div class="cl-add">
+        <input type="text" id="clNewItem" placeholder="Eigenen Punkt hinzufügen…" onkeydown="if(event.key==='Enter')addChecklistItem()" />
+        <button class="btn btn-accent" onclick="addChecklistItem()" style="padding:0 16px;">+</button>
+      </div>
+      <div class="cl-footer">
+        <button class="cl-edit-toggle" id="clEditBtn" onclick="toggleChecklistEdit()">Liste bearbeiten</button>
+        <div class="cl-progress" id="clProgress"></div>
+        <button class="btn btn-accent cl-start" id="clStartBtn" onclick="startDay()" disabled>Tag starten</button>
+      </div>
     </div>
 
     <input type="file" id="fotoInput" accept="image/*" capture="environment" multiple style="display:none" />
@@ -282,6 +368,111 @@
       toast(`✓ ${n} Foto${n > 1 ? 's' : ''} hochgeladen`);
       e.target.value = '';
     });
+
+    /* ---------- Material-Checkliste vor Routenstart ---------- */
+    const CL_ITEMS_KEY = 'tessera_checklist_items';
+    const CL_DONE_KEY  = 'tessera_checklist_done';
+    const CL_DEFAULT = [
+      'Staubsauger & Ersatzbeutel an Bord',
+      'Fensterwischer & Abzieher',
+      'Reinigungsmittel & Tücher',
+      'Müllsäcke',
+      'Fahrzeug vollgetankt',
+      'Schlüssel & Zugangscodes dabei'
+    ];
+
+    function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+    function loadChecklistItems() {
+      try {
+        const raw = localStorage.getItem(CL_ITEMS_KEY);
+        if (raw) { const arr = JSON.parse(raw); if (Array.isArray(arr) && arr.length) return arr; }
+      } catch (e) {}
+      return CL_DEFAULT.slice();
+    }
+    function saveChecklistItems(items) {
+      localStorage.setItem(CL_ITEMS_KEY, JSON.stringify(items));
+    }
+
+    let clItems = loadChecklistItems();
+    let clChecked = clItems.map(() => false); // Haken gelten nur für die aktuelle Session
+
+    function renderChecklist() {
+      const list = document.getElementById('clList');
+      list.innerHTML = '';
+      clItems.forEach((label, i) => {
+        const row = document.createElement('div');
+        row.className = 'cl-item' + (clChecked[i] ? ' checked' : '');
+        row.onclick = (e) => {
+          if (e.target.closest('.cl-del')) return;          // im Edit-Modus nicht abhaken
+          if (document.getElementById('checklistOverlay').classList.contains('editing')) return;
+          clChecked[i] = !clChecked[i];
+          renderChecklist();
+        };
+        row.innerHTML =
+          '<div class="cl-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+          '<div class="cl-label"></div>' +
+          '<button class="cl-del" title="Entfernen" onclick="removeChecklistItem(' + i + ')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+        row.querySelector('.cl-label').textContent = label;
+        list.appendChild(row);
+      });
+      updateChecklistState();
+    }
+
+    function updateChecklistState() {
+      const done = clChecked.filter(Boolean).length;
+      const total = clItems.length;
+      document.getElementById('clProgress').textContent = done + ' von ' + total + ' abgehakt';
+      const allDone = total > 0 && done === total;
+      const btn = document.getElementById('clStartBtn');
+      btn.disabled = !allDone;
+      btn.textContent = allDone ? 'Tag starten' : 'Noch ' + (total - done) + ' offen';
+    }
+
+    function addChecklistItem() {
+      const inp = document.getElementById('clNewItem');
+      const val = (inp.value || '').trim();
+      if (!val) return;
+      clItems.push(val);
+      clChecked.push(false);
+      saveChecklistItems(clItems);
+      inp.value = '';
+      renderChecklist();
+    }
+
+    function removeChecklistItem(i) {
+      clItems.splice(i, 1);
+      clChecked.splice(i, 1);
+      saveChecklistItems(clItems);
+      renderChecklist();
+    }
+
+    function toggleChecklistEdit() {
+      const ov = document.getElementById('checklistOverlay');
+      const editing = ov.classList.toggle('editing');
+      document.getElementById('clEditBtn').textContent = editing ? 'Fertig bearbeiten' : 'Liste bearbeiten';
+    }
+
+    function openChecklist() {
+      renderChecklist();
+      document.getElementById('checklistOverlay').classList.add('open');
+    }
+
+    function startDay() {
+      if (clChecked.filter(Boolean).length !== clItems.length) return;
+      localStorage.setItem(CL_DONE_KEY, todayStr());
+      document.getElementById('checklistOverlay').classList.remove('open', 'editing');
+      document.getElementById('clEditBtn').textContent = 'Liste bearbeiten';
+      toast('✓ Material bestätigt — guten Einsatz!');
+    }
+
+    // Beim Öffnen der App: einmal pro Tag das Material-Tor zeigen
+    (function initChecklist() {
+      renderChecklist();
+      if (localStorage.getItem(CL_DONE_KEY) !== todayStr()) {
+        document.getElementById('checklistOverlay').classList.add('open');
+      }
+    })();
 
     /* ---------- Problem melden ---------- */
     function meldeProblem() {
