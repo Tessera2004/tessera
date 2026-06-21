@@ -1699,21 +1699,17 @@
             <select id="mitTeam"></select>
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field">
-            <label>Status</label>
-            <select id="mitStatus">
-              <option value="aktiv">Aktiv</option>
-              <option value="abwesend">Abwesend (Krank/Ferien)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label style="display: flex; align-items: center; gap: 8px; padding-top: 30px; cursor: pointer;">
-              <input type="checkbox" id="mitCanDrive" />
-              <span>🚗 Fahrer (mit Führerschein)</span>
-            </label>
-          </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="mitStatus">
+            <option value="aktiv">Aktiv</option>
+            <option value="abwesend">Abwesend (Krank/Ferien)</option>
+          </select>
         </div>
+        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; margin-top: 4px;">
+          <input type="checkbox" id="mitCanDrive" style="width: 18px; height: 18px; flex-shrink: 0;" />
+          <span style="font-size: 14px;">🚗 <strong>Fahrer</strong> — hat Führerschein und darf das Auto fahren</span>
+        </label>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="mitDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteMitarbeiter()">Löschen</button>
@@ -2847,7 +2843,13 @@
     let planCurrentDate = new Date();
     planCurrentDate.setHours(0,0,0,0);
 
-    function isoDate(d) { return d.toISOString().slice(0,10); }
+    function isoDate(d) {
+      // Lokales Datum (NICHT UTC) — sonst Off-by-one in CH-Zeitzone
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
     function fmtDayHeader(d) {
       return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     }
@@ -3218,7 +3220,9 @@
     }
 
     function planSetDate(isoStr) {
-      planCurrentDate = new Date(isoStr);
+      // Lokal parsen (Y, M, D) statt new Date(isoStr) (=UTC) → kein Tag-Versatz
+      const [y, m, d] = String(isoStr).split('-').map(Number);
+      planCurrentDate = new Date(y, m - 1, d);
       planCurrentDate.setHours(0,0,0,0);
       renderPlanung();
     }
