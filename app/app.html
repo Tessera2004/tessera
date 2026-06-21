@@ -1313,6 +1313,23 @@
               <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">Fester Termin (z. B. Wohnungsabgabe) — wird bei Routenoptimierung eingehalten.</div>
             </div>
           </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="field">
+              <label>Wiederholung</label>
+              <select id="wizRepeat" onchange="wizToggleRepeat()" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
+                <option value="none">Einmalig</option>
+                <option value="weekly">Wöchentlich</option>
+                <option value="biweekly">Alle 2 Wochen</option>
+                <option value="monthly">Monatlich</option>
+              </select>
+              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">Serie wird automatisch im Planer geblockt.</div>
+            </div>
+            <div class="field" id="wizRepeatCountWrap" style="display:none;">
+              <label>Anzahl Termine</label>
+              <input type="number" id="wizRepeatCount" value="8" min="2" max="52" oninput="wizUpdateRepeatHint()" />
+              <div id="wizRepeatHint" style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;"></div>
+            </div>
+          </div>
           <div class="field">
             <label>Zugewiesenes Team</label>
             <select id="wizardTeamSelect" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
@@ -6461,6 +6478,31 @@ Aarau · ${datum}`
     // Initial rendern
     renderOffertList();
 
+    // ---- Wiederkehrende Aufträge (Serien) ----
+    const REPEAT_LABELS = { weekly: 'wöchentlich', biweekly: 'alle 2 Wochen', monthly: 'monatlich' };
+    function nextRepeatDate(baseDate, mode, i) {
+      const d = new Date(baseDate);
+      if (mode === 'weekly') d.setDate(d.getDate() + 7 * i);
+      else if (mode === 'biweekly') d.setDate(d.getDate() + 14 * i);
+      else if (mode === 'monthly') d.setMonth(d.getMonth() + i);
+      return d;
+    }
+    function wizToggleRepeat() {
+      const mode = document.getElementById('wizRepeat').value;
+      document.getElementById('wizRepeatCountWrap').style.display = mode === 'none' ? 'none' : 'block';
+      if (mode !== 'none') wizUpdateRepeatHint();
+    }
+    function wizUpdateRepeatHint() {
+      const mode = document.getElementById('wizRepeat').value;
+      if (mode === 'none') return;
+      const hint = document.getElementById('wizRepeatHint');
+      const count = Math.max(1, Math.min(52, parseInt(document.getElementById('wizRepeatCount').value) || 1));
+      const dv = document.getElementById('wizDate').value;
+      const base = dv ? new Date(dv + 'T00:00:00') : new Date(planCurrentDate);
+      const last = nextRepeatDate(base, mode, count - 1);
+      hint.textContent = 'Bis ' + last.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
     function submitAuftrag() {
       const name = (document.getElementById('termName')?.value || '').trim();
       const addr = (document.getElementById('wizAddress')?.value || '').trim();
@@ -6475,34 +6517,51 @@ Aarau · ${datum}`
       const deadline = document.getElementById('wizDeadline')?.value || null;
       const finalPrice = wizCalcPrice();
 
-      // Echten Einsatz anlegen → erscheint im Routenplaner am gewählten Tag
-      addPlanJob(dateKey, {
-        id: 'j' + Date.now(),
-        objekt,
-        ort: addr,
-        start,
-        duration,
-        team: team || null,
-        svc: wizService || 'unterhalt',
-        price: finalPrice,
-        crew: 1,
-        paymethod: 'rechnung',
-        deadline: deadline,
-        noteCrew: note,
-        noteOffice: ''
-      });
+      // Wiederholung: aus einem Termin eine Serie machen
+      const repeat = document.getElementById('wizRepeat')?.value || 'none';
+      const count = repeat === 'none' ? 1 : Math.max(1, Math.min(52, parseInt(document.getElementById('wizRepeatCount')?.value) || 1));
+      const seriesId = repeat !== 'none' ? ('serie-' + Date.now()) : null;
+      const baseDate = new Date(dateKey + 'T00:00:00');
+
+      // Echte Einsätze anlegen → erscheinen im Routenplaner an jedem Serien-Tag
+      for (let i = 0; i < count; i++) {
+        const dk = isoDate(nextRepeatDate(baseDate, repeat, i));
+        addPlanJob(dk, {
+          id: 'j' + Date.now() + '-' + i,
+          objekt,
+          ort: addr,
+          start,
+          duration,
+          team: team || null,
+          svc: wizService || 'unterhalt',
+          price: finalPrice,
+          crew: 1,
+          paymethod: 'rechnung',
+          deadline: deadline,
+          noteCrew: note,
+          noteOffice: '',
+          recurring: repeat !== 'none' ? repeat : undefined,
+          seriesId: seriesId || undefined
+        });
+      }
 
       closeModal('newAuftrag');
-      // Planer auf das Auftragsdatum stellen und anzeigen
+      // Planer auf das (erste) Auftragsdatum stellen und anzeigen
       planSetDate(dateKey);
       navTo('planung');
       const dLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit' });
-      toast(`✓ Auftrag „${objekt}" angelegt — im Planer am ${dLabel}`);
+      if (repeat === 'none') {
+        toast(`✓ Auftrag „${objekt}" angelegt — im Planer am ${dLabel}`);
+      } else {
+        toast(`✓ Serie „${objekt}" angelegt — ${count} Termine (${REPEAT_LABELS[repeat]}), ab ${dLabel}`);
+      }
 
       // Wizard zurücksetzen
       setTimeout(() => {
         wizCurrent = 1;
         wizService = null;
+        const repeatSel = document.getElementById('wizRepeat');
+        if (repeatSel) { repeatSel.value = 'none'; document.getElementById('wizRepeatCountWrap').style.display = 'none'; }
         document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
         document.querySelectorAll('.wstep').forEach(s => { s.classList.remove('done'); s.classList.toggle('active', s.dataset.step === '1'); });
         document.querySelectorAll('.wizard-page').forEach(p => p.classList.remove('active'));
