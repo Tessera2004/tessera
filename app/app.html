@@ -1211,7 +1211,7 @@
           </div>
           <div class="field">
             <label>Adresse</label>
-            <input type="text" placeholder="Straße Hausnr., PLZ Ort" />
+            <input type="text" id="wizAddress" placeholder="Straße Hausnr., PLZ Ort" />
           </div>
           <div class="field">
             <label>Kunde</label>
@@ -4743,6 +4743,74 @@
       setTimeout(renderZeiten, 50);
     });
     renderZeiten();
+
+    // ============ Adress-Autocomplete (echte Adressen via OpenStreetMap) ============
+    function attachAddressAutocomplete(input) {
+      if (!input || input._acAttached) return;
+      input._acAttached = true;
+      input.setAttribute('autocomplete', 'off');
+      const box = document.createElement('div');
+      box.style.cssText = 'position:absolute;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,0.22);margin-top:4px;max-height:240px;overflow:auto;display:none;';
+      document.body.appendChild(box);
+      let timer = null, ctrl = null, items = [], active = -1;
+      const hide = () => { box.style.display = 'none'; active = -1; };
+      const place = () => {
+        const r = input.getBoundingClientRect();
+        box.style.left = (r.left + window.scrollX) + 'px';
+        box.style.top = (r.bottom + window.scrollY) + 'px';
+        box.style.width = r.width + 'px';
+      };
+      const fmt = (r) => {
+        const a = r.address || {};
+        const strasse = [a.road, a.house_number].filter(Boolean).join(' ');
+        const ort = [a.postcode, a.city || a.town || a.village || a.municipality].filter(Boolean).join(' ');
+        return [strasse, ort].filter(Boolean).join(', ') || r.display_name;
+      };
+      const choose = (i) => {
+        const it = items[i]; if (!it) return;
+        input.value = it.label; hide();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      const render = () => {
+        if (!items.length) { hide(); return; }
+        box.innerHTML = items.map((it, i) =>
+          `<div data-i="${i}" style="padding:9px 12px;font-size:13.5px;cursor:pointer;border-bottom:1px solid var(--border);${i === active ? 'background:var(--bg-subtle,#eef);' : ''}">📍 ${escapeHtml(it.label)}</div>`
+        ).join('');
+        place(); box.style.display = 'block';
+        box.querySelectorAll('[data-i]').forEach((el) =>
+          el.addEventListener('mousedown', (e) => { e.preventDefault(); choose(+el.dataset.i); }));
+      };
+      input.addEventListener('input', () => {
+        const q = input.value.trim();
+        clearTimeout(timer);
+        if (q.length < 4) { hide(); return; }
+        timer = setTimeout(async () => {
+          try {
+            if (ctrl) ctrl.abort(); ctrl = new AbortController();
+            const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&countrycodes=ch&accept-language=de&q=' + encodeURIComponent(q);
+            const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            const seen = new Set();
+            items = data.map(r => ({ label: fmt(r) })).filter(v => { if (seen.has(v.label)) return false; seen.add(v.label); return true; });
+            active = -1; render();
+          } catch (e) { /* abgebrochen oder offline */ }
+        }, 350);
+      });
+      input.addEventListener('keydown', (e) => {
+        if (box.style.display === 'none') return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, items.length - 1); render(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); render(); }
+        else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); choose(active); }
+        else if (e.key === 'Escape') { hide(); }
+      });
+      input.addEventListener('blur', () => setTimeout(hide, 150));
+      window.addEventListener('scroll', () => { if (box.style.display !== 'none') place(); }, true);
+    }
+    ['custAddress', 'offAdresse', 'wizAddress'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) attachAddressAutocomplete(el);
+    });
 
     let editingReportId = null;
     let repPhotos = [];
