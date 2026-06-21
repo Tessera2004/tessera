@@ -94,6 +94,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             Zeiterfassung
           </a>
+          <a class="nav-item" data-view="nachkalkulation">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Nachkalkulation
+          </a>
         </div>
 
         <div class="nav-section">
@@ -611,6 +615,63 @@
               </tbody>
             </table>
           </div>
+        </section>
+
+        <!-- ============ NACHKALKULATION (Soll-Ist) ============ -->
+        <section class="view" data-view="nachkalkulation">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Soll-Ist-Nachkalkulation</h1>
+              <p class="page-subtitle">Geplante Stunden aus der Planung vs. tatsächlich gebrauchte Zeit — wo verdienst du, wo zahlst du drauf?</p>
+            </div>
+            <input type="month" id="nkMonth" class="nk-month" onchange="renderNachkalkulation()" />
+          </div>
+
+          <div class="kpi-grid" style="margin-bottom: var(--space-6);">
+            <div class="kpi">
+              <div class="kpi-label">Soll-Stunden</div>
+              <div class="kpi-value" id="nkSoll">0.0 h</div>
+              <div class="kpi-meta">geplant im Monat</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Ist-Stunden</div>
+              <div class="kpi-value" id="nkIst">0.0 h</div>
+              <div class="kpi-meta" id="nkIstMeta">erfasst</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Differenz</div>
+              <div class="kpi-value" id="nkDiff">0.0 h</div>
+              <div class="kpi-meta" id="nkDiffMeta">Ist − Soll</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Effektiver Stundensatz</div>
+              <div class="kpi-value" id="nkRate">– CHF</div>
+              <div class="kpi-meta" id="nkRateMeta">Umsatz ÷ Ist-Stunden</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Objekt / Kunde</th>
+                  <th style="text-align:right;">Soll&nbsp;h</th>
+                  <th style="text-align:right;">Ist&nbsp;h</th>
+                  <th style="text-align:right;">Δ&nbsp;h</th>
+                  <th style="text-align:right;">Umsatz</th>
+                  <th style="text-align:right;">eff.&nbsp;CHF/h</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="nkBody">
+                <tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-subtle);">Lade…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-size:12px; color:var(--text-subtle); margin-top:10px;">
+            Trage die tatsächlich gebrauchten Stunden in die <strong>Ist&nbsp;h</strong>-Spalte ein — alles andere rechnet sich automatisch. Später füllt die Zeiterfassung der Reiniger-App diese Werte selbst.
+          </p>
         </section>
 
         <!-- ============ OFFERTEN ============ -->
@@ -2527,6 +2588,7 @@
       team: 'Büro-Team',
       berichte: 'Nachweise & Berichte',
       zeiten: 'Zeiterfassung',
+      nachkalkulation: 'Soll-Ist-Nachkalkulation',
       einstellungen: 'Einstellungen'
     };
 
@@ -5113,6 +5175,146 @@
       setTimeout(renderZeiten, 50);
     });
     renderZeiten();
+
+    // ============ Soll-Ist-Nachkalkulation ============
+    const IST_KEY = 'cc-ist-hours-v1';
+    function loadIstHours() {
+      try { return JSON.parse(localStorage.getItem(IST_KEY)) || {}; } catch { return {}; }
+    }
+    function saveIstHours(o) { localStorage.setItem(IST_KEY, JSON.stringify(o)); }
+    // Stabiler Schlüssel pro Job: Datum + Objekt + Startzeit
+    function nkJobKey(j) { return (j._dateKey || '') + '|' + (j.objekt || '?') + '|' + (j.start || ''); }
+    function nkGetIst(j) { const v = loadIstHours()[nkJobKey(j)]; return (v == null ? null : Number(v)); }
+    function nkSetIst(key, val) {
+      const o = loadIstHours();
+      const h = parseFloat(String(val).replace(',', '.'));
+      if (val === '' || isNaN(h) || h < 0) { delete o[key]; } else { o[key] = h; }
+      saveIstHours(o);
+    }
+
+    function nkMonthDefault() {
+      const d = planCurrentDate || new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    }
+    function fmtH(h) { return (Math.round(h * 10) / 10).toFixed(1) + ' h'; }
+
+    function nkCollectJobs(ym) {
+      const [y, m] = ym.split('-').map(Number);
+      const start = new Date(y, m - 1, 1);
+      const end = new Date(y, m, 0);
+      const out = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        getJobsForDate(new Date(d)).forEach(j => out.push(j));
+      }
+      // Nach Datum + Startzeit sortieren
+      out.sort((a, b) => (a._dateKey || '').localeCompare(b._dateKey || '') || String(a.start).localeCompare(String(b.start)));
+      return out;
+    }
+
+    function renderNachkalkulation() {
+      const monthInput = document.getElementById('nkMonth');
+      const body = document.getElementById('nkBody');
+      if (!monthInput || !body) return;
+      if (!monthInput.value) monthInput.value = nkMonthDefault();
+      const ym = monthInput.value;
+
+      const jobs = nkCollectJobs(ym);
+      if (jobs.length === 0) {
+        body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-subtle);">Keine geplanten Einsätze in diesem Monat.</td></tr>`;
+        document.getElementById('nkSoll').textContent = '0.0 h';
+        document.getElementById('nkIst').textContent = '0.0 h';
+        document.getElementById('nkDiff').textContent = '0.0 h';
+        document.getElementById('nkRate').textContent = '– CHF';
+        document.getElementById('nkIstMeta').textContent = 'erfasst';
+        document.getElementById('nkDiffMeta').textContent = 'Ist − Soll';
+        document.getElementById('nkRateMeta').textContent = 'Umsatz ÷ Ist-Stunden';
+        return;
+      }
+
+      let sumSoll = 0, sumIst = 0, sumPriceWithIst = 0, erfasst = 0, ueber = 0;
+      const rows = jobs.map(j => {
+        const sollH = (j.duration || 0) / 60;
+        const price = Number(j.price || 0);
+        const ist = nkGetIst(j);
+        const key = nkJobKey(j);
+        sumSoll += sollH;
+
+        const dLabel = (() => {
+          const parts = (j._dateKey || '').split('-');
+          return parts.length === 3 ? parts[2] + '.' + parts[1] + '.' : (j._dateKey || '');
+        })();
+        const kunde = j._customer ? customerDisplayName(j._customer) : (j.objekt || '—');
+
+        let deltaCell = '<span style="color:var(--text-subtle);">—</span>';
+        let rateCell = '<span style="color:var(--text-subtle);">—</span>';
+        let statusCell = '<span class="badge badge-neutral" style="background:var(--surface-2); color:var(--text-subtle);">offen</span>';
+
+        if (ist != null) {
+          erfasst++;
+          sumIst += ist;
+          sumPriceWithIst += price;
+          const delta = ist - sollH;
+          const cls = delta > 0.001 ? 'nk-pos' : (delta < -0.001 ? 'nk-neg' : '');
+          const sign = delta > 0 ? '+' : '';
+          deltaCell = `<span class="${cls}">${sign}${(Math.round(delta * 10) / 10).toFixed(1)}</span>`;
+          const effRate = ist > 0 ? price / ist : 0;
+          rateCell = ist > 0 ? effRate.toFixed(0) + '.–' : '—';
+          // Status: Toleranz 10 %
+          const tol = sollH * 0.1;
+          if (delta <= tol) {
+            statusCell = '<span class="badge badge-success">Im Budget</span>';
+          } else if (delta <= sollH * 0.25) {
+            statusCell = '<span class="badge badge-warning">Knapp</span>';
+          } else {
+            statusCell = '<span class="badge badge-danger">Über Budget</span>';
+            ueber++;
+          }
+        }
+
+        return `<tr>
+          <td>${dLabel}</td>
+          <td><strong>${escapeHtml(j.objekt || '—')}</strong>${kunde && kunde !== j.objekt ? `<br/><span style="font-size:12px;color:var(--text-subtle);">${escapeHtml(kunde)}</span>` : ''}</td>
+          <td style="text-align:right;">${(Math.round(sollH * 10) / 10).toFixed(1)}</td>
+          <td style="text-align:right;"><input class="nk-ist-input${ist != null ? ' filled' : ''}" type="number" min="0" step="0.25" value="${ist != null ? ist : ''}" placeholder="–" data-key="${escapeHtml(key)}" /></td>
+          <td style="text-align:right;">${deltaCell}</td>
+          <td style="text-align:right;">${price ? price.toFixed(0) + '.–' : '—'}</td>
+          <td style="text-align:right;">${rateCell}</td>
+          <td>${statusCell}</td>
+        </tr>`;
+      }).join('');
+
+      body.innerHTML = rows;
+
+      // Eingaben verdrahten
+      body.querySelectorAll('.nk-ist-input').forEach(inp => {
+        inp.addEventListener('change', () => {
+          nkSetIst(inp.dataset.key, inp.value);
+          renderNachkalkulation();
+        });
+      });
+
+      // Summen
+      const diff = sumIst - sumSoll;
+      document.getElementById('nkSoll').textContent = fmtH(sumSoll);
+      document.getElementById('nkIst').textContent = fmtH(sumIst);
+      document.getElementById('nkIstMeta').textContent = erfasst + ' von ' + jobs.length + ' Einsätzen erfasst';
+      const diffEl = document.getElementById('nkDiff');
+      diffEl.textContent = (diff > 0 ? '+' : '') + fmtH(diff).replace(' h', '') + ' h';
+      diffEl.style.color = diff > 0.05 ? 'var(--danger)' : (diff < -0.05 ? 'var(--success)' : 'var(--text)');
+      document.getElementById('nkDiffMeta').textContent = ueber > 0 ? (ueber + (ueber === 1 ? ' Einsatz' : ' Einsätze') + ' über Budget') : 'Ist − Soll';
+      const rateEl = document.getElementById('nkRate');
+      if (sumIst > 0) {
+        rateEl.textContent = (sumPriceWithIst / sumIst).toFixed(0) + '.– CHF';
+        document.getElementById('nkRateMeta').textContent = 'effektiv pro Ist-Stunde';
+      } else {
+        rateEl.textContent = '– CHF';
+        document.getElementById('nkRateMeta').textContent = 'Ist-Stunden eintragen';
+      }
+    }
+
+    document.querySelector('.nav-item[data-view="nachkalkulation"]')?.addEventListener('click', () => {
+      setTimeout(renderNachkalkulation, 50);
+    });
 
     // ============ Adress-Autocomplete (echte Adressen via OpenStreetMap) ============
     function attachAddressAutocomplete(input) {

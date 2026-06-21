@@ -1337,6 +1337,33 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
 }
 
+/* ---- Nachkalkulation ---- */
+.nk-month {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.nk-ist-input {
+  width: 70px;
+  padding: 5px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: right;
+}
+.nk-ist-input:focus { outline: none; border-color: var(--accent); }
+.nk-ist-input.filled { border-color: var(--success); }
+.nk-pos { color: var(--danger); font-weight: 600; }   /* länger gebraucht = schlecht */
+.nk-neg { color: var(--success); font-weight: 600; }  /* schneller fertig = gut */
+
 table {
   width: 100%;
   border-collapse: collapse;
