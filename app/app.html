@@ -1227,8 +1227,15 @@
               <input type="time" id="wizStart" value="08:00" />
             </div>
             <div class="field">
-              <label>Dauer (Min)</label>
-              <input type="number" id="wizDuration" value="90" min="15" step="15" />
+              <label>Dauer (Stunden)</label>
+              <input type="number" id="wizDuration" value="1.5" min="0.25" step="0.25" oninput="wizCalcPrice()" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Preis (Dauer × Stundensatz)</label>
+            <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
+              <strong id="wizPriceCalc" style="font-size:18px; color:var(--brand-primary);">CHF —</strong>
+              <span id="wizPriceHint" style="font-size:12px; color:var(--text-subtle);"></span>
             </div>
           </div>
           <div class="field">
@@ -5056,7 +5063,7 @@
 
       // titles per step
       if (wizCurrent === 1) document.getElementById('wizSub').textContent = 'Wähle die Reinigungsart aus';
-      if (wizCurrent === 3) document.getElementById('wizSub').textContent = 'Termin und Adresse';
+      if (wizCurrent === 3) { document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis'; wizCalcPrice(); }
 
       // buttons
       document.getElementById('wizBack').style.display = wizCurrent > 1 ? 'inline-flex' : 'none';
@@ -5153,6 +5160,34 @@
     }
 
     let priceOverrideActive = false;
+
+    // Preis im Wizard-Schritt 3: Dauer (Stunden) × Stundensatz (+ Anfahrtspauschale)
+    function wizCalcPrice() {
+      const hoursEl = document.getElementById('wizDuration');
+      const out = document.getElementById('wizPriceCalc');
+      const hint = document.getElementById('wizPriceHint');
+      if (!hoursEl) return 0;
+      const hours = parseFloat(hoursEl.value) || 0;
+      const svc = wizService || 'unterhalt';
+      const rate = getPrice(svc + '-rate') || getPrice('unterhalt-rate') || 35;
+      const minHours = getPrice(svc + '-min') || 0;
+      const fee = getPrice(svc + '-fee') || 0;
+      if (priceOverrideActive) {
+        const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
+        if (out) out.textContent = 'CHF ' + ov.toFixed(2);
+        if (hint) hint.textContent = 'eigener Preis';
+        return ov;
+      }
+      const billed = Math.max(hours, minHours);
+      const price = Math.round((billed * rate + fee) * 20) / 20; // auf 5 Rappen
+      if (out) out.textContent = 'CHF ' + price.toFixed(2);
+      if (hint) {
+        const hoursTxt = String(billed).replace('.', ',');
+        hint.textContent = `${hoursTxt} Std × CHF ${rate}` + (fee ? ` + ${fee} Anfahrt` : '') +
+          (minHours && hours < minHours ? ` (Min. ${minHours} Std)` : '');
+      }
+      return price;
+    }
 
     function calcPriceForService() {
       if (!wizService) return null;
@@ -5947,13 +5982,11 @@ Aarau · ${datum}`
       const dateInput = document.getElementById('wizDate');
       const dateKey = (dateInput && dateInput.value) ? dateInput.value : isoDate(planCurrentDate);
       const start = (document.getElementById('wizStart')?.value) || '08:00';
-      const duration = parseInt(document.getElementById('wizDuration')?.value, 10) || 90;
+      const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
+      const duration = Math.round(hours * 60); // Stunden → Minuten
       const team = document.getElementById('wizardTeamSelect')?.value || null;
       const note = (document.getElementById('wizNote')?.value || '').trim();
-      const p = calcPriceForService();
-      const finalPrice = priceOverrideActive
-        ? (parseFloat(document.getElementById('priceOverride').value) || 0)
-        : (p ? p.total : 0);
+      const finalPrice = wizCalcPrice();
 
       // Echten Einsatz anlegen → erscheint im Routenplaner am gewählten Tag
       addPlanJob(dateKey, {
