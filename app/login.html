@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clean &amp; Umzug Profis — Anmelden</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-form-col">
+      <div class="login-box">
+        <div class="brand" style="padding: 0; border: none; margin-bottom: 40px;">
+          <div class="brand-mark-svg" style="width: 44px; height: 44px;">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+              <path d="M25 9.5 Q 17 5, 10.5 11 Q 6 16, 10.5 21 Q 17 27, 25 22.5" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M18 12.5 L19 15.5 L22 16.5 L19 17.5 L18 20.5 L17 17.5 L14 16.5 L17 15.5 Z" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">Clean &amp; Umzug Profis</div>
+            <div class="brand-sub">Aarau · Disposition · Nachweis</div>
+          </div>
+        </div>
+
+        <h1 class="login-title">Willkommen zurück</h1>
+        <p class="login-sub">Melde dich an, um deine Planung zu öffnen.</p>
+
+        <form class="login-form" onsubmit="event.preventDefault(); window.location.href='app.html'">
+          <div class="field">
+            <label for="email">E-Mail</label>
+            <input type="email" id="email" placeholder="dein.name@cu-profis.ch" value="brian@cu-profis.ch" required />
+          </div>
+          <div class="field">
+            <label for="password">Passwort</label>
+            <input type="password" id="password" placeholder="••••••••" value="demo1234" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="height: 42px; margin-top: 8px;">
+            Anmelden
+          </button>
+        </form>
+
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
+          Noch kein Konto? <a href="#" style="color: var(--accent); font-weight: 500;">14 Tage kostenlos testen</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-visual">
+      <div>
+        <div class="brand" style="padding: 0; border: none;">
+          <div class="brand-mark-svg" style="width: 44px; height: 44px; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+              <path d="M25 9.5 Q 17 5, 10.5 11 Q 6 16, 10.5 21 Q 17 27, 25 22.5" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M18 12.5 L19 15.5 L22 16.5 L19 17.5 L18 20.5 L17 17.5 L14 16.5 L17 15.5 Z" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name" style="color: white;">Clean &amp; Umzug Profis</div>
+            <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Aarau</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="login-quote">
+          „Routen in 30 Sekunden statt 3 Stunden geplant — das Team weiß früher Bescheid, der Kunde sieht es im Nachweis."
+        </p>
+        <div class="login-quote-author">Brian K. — Disposition, Clean &amp; Umzug Profis Aarau</div>
+      </div>
+
+      <div class="login-feature-list">
+        <div class="login-feature">
+          <div class="login-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div>Automatische Routenplanung in Sekunden</div>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div>QR-Anwesenheit & Foto-Nachweis — Mindestlohn-konform</div>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div>Reiniger-App ohne App-Store — Link öffnen, fertig</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

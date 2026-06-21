@@ -1,0 +1,23 @@
+<svg width="280" height="64" viewBox="0 0 280 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tessera">
+  <title>Tessera</title>
+
+  <!-- Mark: 2x2 mosaic, bottom-right tile is Swiss flag -->
+  <g>
+    <rect x="6"  y="14" width="20" height="20" rx="4" fill="#1A1F3A"/>
+    <rect x="30" y="14" width="20" height="20" rx="4" fill="#1A1F3A"/>
+    <rect x="6"  y="38" width="20" height="20" rx="4" fill="#1A1F3A"/>
+    <g>
+      <rect x="30" y="38" width="20" height="20" rx="4" fill="#DA291C"/>
+      <rect x="34" y="46" width="12" height="4" fill="#FFFFFF"/>
+      <rect x="38" y="42" width="4"  height="12" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Wordmark: geometric sans, lowercase, modern SaaS feel -->
+  <text x="70" y="46"
+        font-family="Inter, 'SF Pro Display', -apple-system, system-ui, sans-serif"
+        font-size="34"
+        font-weight="600"
+        letter-spacing="-1"
+        fill="#1A1F3A">tessera</text>
+</svg>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mein Tag — Clean &amp; Umzug Profis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: #F1F5F9; }
+    .device-frame {
+      max-width: 420px;
+      margin: 20px auto;
+      background: var(--surface);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      min-height: 90vh;
+    }
+    @media (max-width: 480px) {
+      body { background: var(--surface); }
+      .device-frame { margin: 0; border-radius: 0; box-shadow: none; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+
+    <div class="mobile-header" style="border-radius: 0;">
+      <div class="mobile-greeting">Guten Morgen ☀️</div>
+      <div class="mobile-name">Anna Müller</div>
+
+      <div class="mobile-stats">
+        <div>
+          <div class="mobile-stat-val">5</div>
+          <div class="mobile-stat-label">Objekte</div>
+        </div>
+        <div>
+          <div class="mobile-stat-val">06:30</div>
+          <div class="mobile-stat-label">Start</div>
+        </div>
+        <div>
+          <div class="mobile-stat-val">14:30</div>
+          <div class="mobile-stat-label">Ende</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-route">
+      <div class="mobile-route-title">Heute · Mi 19. Juni 2026</div>
+
+      <div class="stop done">
+        <div>
+          <div class="stop-time">06:30</div>
+          <div class="stop-duration">90 min</div>
+        </div>
+        <div class="stop-body">
+          <div class="stop-name">Bürohaus Marienplatz</div>
+          <div class="stop-addr">Marienplatz 8, 80331 München</div>
+          <div style="font-size: 11px; color: var(--success); font-weight: 600;">✓ Abgeschlossen · 12/12 Punkte</div>
+        </div>
+      </div>
+
+      <div class="stop active">
+        <div>
+          <div class="stop-time">08:15</div>
+          <div class="stop-duration">60 min</div>
+        </div>
+        <div class="stop-body">
+          <div class="stop-name">Kanzlei Berger & Partner</div>
+          <div class="stop-addr">Theatinerstr. 3, 80333 München</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+            <strong style="color: var(--accent);">Jetzt aktiv</strong> · Bitte vor Verlassen Fotos hochladen
+          </div>
+          <div class="stop-actions">
+            <button class="btn btn-accent" style="flex: 1;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              QR scannen
+            </button>
+            <button class="btn btn-secondary" style="flex: 1;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Fotos
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div>
+          <div class="stop-time">10:00</div>
+          <div class="stop-duration">120 min</div>
+        </div>
+        <div class="stop-body">
+          <div class="stop-name">Fitnessstudio Premium</div>
+          <div class="stop-addr">Leopoldstr. 200, 80804 München</div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 8 min Fahrzeit · Schlüssel: Empfang</div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div>
+          <div class="stop-time">12:30</div>
+          <div class="stop-duration">45 min</div>
+        </div>
+        <div class="stop-body">
+          <div class="stop-name">Apotheke Süd</div>
+          <div class="stop-addr">Lindwurmstr. 88, 80337 München</div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 15 min Fahrzeit · Code: 3491</div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div>
+          <div class="stop-time">13:30</div>
+          <div class="stop-duration">60 min</div>
+        </div>
+        <div class="stop-body">
+          <div class="stop-name">Zahnarztpraxis Dr. Yilmaz</div>
+          <div class="stop-addr">Goethestr. 22, 80336 München</div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 6 min Fahrzeit · Sonderwunsch: Behandlungsstuhl Desinfektion</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="padding: 16px 20px 28px; border-top: 1px solid var(--border); background: var(--bg);">
+      <button style="width: 100%; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Problem melden / Krank
+      </button>
+      <div style="font-size: 11px; color: var(--text-subtle); text-align: center; margin-top: 12px;">
+        Clean &amp; Umzug Profis · Mitarbeiter-Ansicht · v1.0
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

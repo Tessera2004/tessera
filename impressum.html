@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Impressum — Tessera</title>
+  <link rel="icon" type="image/svg+xml" href="logo/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-sub intro-done">
+
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="nav scrolled" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="logo/tessera-mark.svg" alt="" width="32" height="32" />
+        <span>tessera</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#branchen" data-i18n="nav.branchen">Branchen</a>
+        <a href="index.html#funktionen" data-i18n="nav.how">Wie es funktioniert</a>
+        <a href="index.html#module" data-i18n="nav.module">Module</a>
+        <a href="index.html#preise" data-i18n="nav.preise">Preise</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
+        <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="sub-page">
+    <div class="container container-narrow">
+      <a href="index.html" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Zurück zur Startseite
+      </a>
+
+      <div class="sub-head">
+        <div class="eyebrow">Rechtliches</div>
+        <h1>Impressum</h1>
+        <p class="section-sub">Angaben gemäß Schweizer Bundesgesetz gegen den unlauteren Wettbewerb (UWG).</p>
+      </div>
+
+      <article class="legal-body">
+        <h2>Anbieter</h2>
+        <p data-cfg-only="einzelunternehmen">
+          Einzelunternehmen <span data-cfg="brand">Tessera</span><br/>
+          Inhaber: <span data-cfg="owner">[Vor- und Nachname]</span><br/>
+          <span data-cfg="street">[Strasse]</span><br/>
+          <span data-cfg="zip">4614</span> <span data-cfg="city">Hägendorf</span><br/>
+          <span data-cfg="country">Schweiz</span>
+        </p>
+        <p data-cfg-only="gmbh">
+          <span data-cfg="brand">Tessera</span> GmbH<br/>
+          <span data-cfg="street">[Strasse]</span><br/>
+          <span data-cfg="zip">4614</span> <span data-cfg="city">Hägendorf</span><br/>
+          <span data-cfg="country">Schweiz</span>
+        </p>
+
+        <h2>Kontakt</h2>
+        <p>
+          E-Mail: <a data-cfg="email">info.tessera@gmail.com</a><br/>
+          Telefon: <a data-cfg="phone">+41 …</a>
+        </p>
+
+        <div data-cfg-only="einzelunternehmen">
+          <h2>Rechtsform</h2>
+          <p>
+            <span data-cfg="brand">Tessera</span> wird als Einzelunternehmen im Sinne von Art. 945 OR betrieben.
+            Verantwortlich für sämtliche Inhalte und Geschäftshandlungen ist
+            <span data-cfg="owner">[Vor- und Nachname]</span>.
+          </p>
+        </div>
+
+        <div data-cfg-only="gmbh">
+          <h2>Handelsregister</h2>
+          <p>
+            Eingetragen im Handelsregister des Kantons Solothurn<br/>
+            <span data-cfg-row><span data-cfg="uid" data-cfg-hide-if-empty>UID</span></span>
+          </p>
+          <h2>Vertretungsberechtigte Person</h2>
+          <p><span data-cfg="owner">[Name]</span>, Geschäftsführer</p>
+        </div>
+
+        <div data-cfg-row>
+          <h2>MWST</h2>
+          <p>MWST-Nr.: <span data-cfg="mwst" data-cfg-hide-if-empty>CHE-… MWST</span></p>
+        </div>
+
+        <h2>Haftungsausschluss</h2>
+        <p>
+          Der Anbieter übernimmt keinerlei Gewähr hinsichtlich der inhaltlichen Richtigkeit, Genauigkeit, Aktualität, Zuverlässigkeit
+          und Vollständigkeit der Informationen. Haftungsansprüche gegen den Anbieter wegen Schäden materieller oder immaterieller Art,
+          welche aus dem Zugriff oder der Nutzung bzw. Nichtnutzung der veröffentlichten Informationen entstanden sind, werden
+          ausgeschlossen.
+        </p>
+
+        <h2>Haftung für Links</h2>
+        <p>
+          Verweise und Links auf Webseiten Dritter liegen ausserhalb unseres Verantwortungsbereichs. Es wird jegliche Verantwortung
+          für solche Webseiten abgelehnt. Der Zugriff und die Nutzung solcher Webseiten erfolgen auf eigene Gefahr.
+        </p>
+
+        <h2>Urheberrechte</h2>
+        <p>
+          Die Urheber- und alle anderen Rechte an Inhalten, Bildern, Fotos oder anderen Dateien auf dieser Website gehören ausschliesslich
+          der <span data-cfg="legalName">Tessera GmbH</span> oder den speziell genannten Rechtsinhabern. Für die Reproduktion jeglicher
+          Elemente ist die schriftliche Zustimmung der Urheberrechtsträger im Voraus einzuholen.
+        </p>
+
+        <p class="legal-meta">Stand: Juni 2026</p>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer footer-mini">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">Tessera</span> · <span data-cfg="city">Aarau</span>, <span data-cfg="country">Schweiz</span></span>
+        <div class="footer-mini-links">
+          <a href="impressum.html" data-i18n="footer.imprint">Impressum</a>
+          <a href="agb.html" data-i18n="footer.terms">AGB</a>
+          <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="i18n.js"></script>
+</body>
+</html>

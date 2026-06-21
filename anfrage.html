@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tessera Anfrage — Frühzugang, Custom-Branche oder Beratung. Antwort innerhalb 1 Werktag." />
+  <title>Anfrage stellen — Tessera</title>
+  <link rel="icon" type="image/svg+xml" href="logo/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-sub intro-done">
+
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="nav scrolled" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="logo/tessera-mark.svg" alt="" width="32" height="32" />
+        <span>tessera</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#branchen" data-i18n="nav.branchen">Branchen</a>
+        <a href="index.html#funktionen" data-i18n="nav.how">Wie es funktioniert</a>
+        <a href="index.html#module" data-i18n="nav.module">Module</a>
+        <a href="index.html#preise" data-i18n="nav.preise">Preise</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
+        <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+      </div>
+      <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="sub-page">
+    <div class="container">
+
+      <a href="index.html" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Zurück zur Startseite
+      </a>
+
+      <div class="sub-head">
+        <div class="eyebrow">Anfrage</div>
+        <h1 id="anfrageTitle">Lass uns reden.</h1>
+        <p class="section-sub" id="anfrageSub">
+          Sag uns kurz, was du brauchst. Wir melden uns innerhalb eines Werktags — versprochen.
+        </p>
+      </div>
+
+      <div class="form-wrap">
+        <form class="form" id="anfrageForm" novalidate>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span>Vorname</span>
+              <input type="text" name="firstName" required autocomplete="given-name" />
+            </label>
+            <label class="form-field">
+              <span>Nachname</span>
+              <input type="text" name="lastName" required autocomplete="family-name" />
+            </label>
+          </div>
+
+          <label class="form-field">
+            <span>Firma</span>
+            <input type="text" name="company" required autocomplete="organization" />
+          </label>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span>E-Mail</span>
+              <input type="email" name="email" required autocomplete="email" />
+            </label>
+            <label class="form-field">
+              <span>Telefon (optional)</span>
+              <input type="tel" name="phone" autocomplete="tel" />
+            </label>
+          </div>
+
+          <label class="form-field">
+            <span>Branche</span>
+            <select name="branche" id="brancheSelect">
+              <option value="reinigung">🧹 Reinigung</option>
+              <option value="handwerk">🔧 Handwerk</option>
+              <option value="immobilien">🏠 Immobilien</option>
+              <option value="custom">✨ Andere — sag uns welche</option>
+            </select>
+          </label>
+
+          <label class="form-field" id="customBrancheField" hidden>
+            <span>Welche Branche?</span>
+            <input type="text" name="customBranche" placeholder="z. B. Gärtnerei, Pflege, Transport" />
+          </label>
+
+          <label class="form-field">
+            <span>Was beschäftigt dich gerade?</span>
+            <textarea name="message" rows="5" placeholder="Was läuft heute mühsam im Büro? Welche Module würden helfen?" required></textarea>
+          </label>
+
+          <label class="form-checkbox">
+            <input type="checkbox" name="consent" required />
+            <span>Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage verwendet werden. <a href="datenschutz.html">Datenschutz</a></span>
+          </label>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block">
+            Anfrage absenden
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+
+          <p class="form-meta">
+            Lieber direkt schreiben? <a data-cfg="email">hallo@tessera.ch</a>
+          </p>
+        </form>
+
+        <aside class="form-side">
+          <div class="form-side-card">
+            <h3>Was passiert nach der Anfrage?</h3>
+            <ol class="steps-mini">
+              <li><strong>Innerhalb 1 Werktag</strong> meldet sich jemand von uns per Mail.</li>
+              <li>15 min Call, in dem wir verstehen, was du brauchst — keine Verkaufspräsentation.</li>
+              <li>Du bekommst eine Testumgebung mit deinen Modulen — 14 Tage gratis.</li>
+            </ol>
+          </div>
+          <div class="form-side-card form-side-quiet">
+            <h4>🔒 Was wir mit deinen Daten machen</h4>
+            <p>Wir speichern deine Anfrage zur Bearbeitung. Keine Newsletter ohne dein Ja, kein Verkauf an Dritte. Löschung jederzeit auf Zuruf.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="form-success" id="formSuccess" hidden>
+        <div class="success-icon">✓</div>
+        <h2>Danke, wir sind dran.</h2>
+        <p>Deine Anfrage ist angekommen. Du bekommst innerhalb eines Werktags Antwort auf deine E-Mail.</p>
+        <a href="index.html" class="btn btn-primary">Zurück zur Startseite</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer footer-mini">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">Tessera</span> · <span data-cfg="city">Aarau</span>, <span data-cfg="country">Schweiz</span></span>
+        <div class="footer-mini-links">
+          <a href="impressum.html" data-i18n="footer.imprint">Impressum</a>
+          <a href="agb.html" data-i18n="footer.terms">AGB</a>
+          <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="i18n.js"></script>
+  <script src="main.js" defer></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const branche = params.get('branche');
+      const paket = params.get('paket');
+      const sel = document.getElementById('brancheSelect');
+      const title = document.getElementById('anfrageTitle');
+      const sub = document.getElementById('anfrageSub');
+      const customField = document.getElementById('customBrancheField');
+
+      const setCustomVisibility = () => {
+        if (!sel || !customField) return;
+        customField.hidden = sel.value !== 'custom';
+      };
+
+      if (branche && sel) {
+        const opt = Array.from(sel.options).find((o) => o.value === branche);
+        if (opt) sel.value = branche;
+        if (branche === 'handwerk' && title) {
+          title.textContent = 'Frühzugang Handwerk-Modul';
+          sub.textContent = 'Wir bauen gerade die Handwerk-Variante. Sag uns, was dir wichtig ist — du bist mit dabei, sobald wir live gehen.';
+        } else if (branche === 'immobilien' && title) {
+          title.textContent = 'Frühzugang Immobilien-Modul';
+          sub.textContent = 'Die Immobilien-Variante kommt Q4 2026. Trag dich ein, dann gestaltest du sie mit.';
+        }
+      }
+      if (paket === 'custom' && title) {
+        title.textContent = 'Deine Konfiguration starten';
+        sub.textContent = 'Du hast die Module gewählt — wir richten dir die Testumgebung ein.';
+      }
+
+      if (sel) sel.addEventListener('change', setCustomVisibility);
+      setCustomVisibility();
+
+      const form = document.getElementById('anfrageForm');
+      const success = document.getElementById('formSuccess');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (!form.reportValidity()) return;
+          form.parentElement.hidden = true;
+          if (success) success.hidden = false;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

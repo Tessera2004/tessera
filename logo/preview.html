@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tessera — Logo-Vorschau</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <style>
+    :root {
+      --navy: #1A1F3A;
+      --swiss: #DA291C;
+      --bg: #F8F9FB;
+      --text: #1A1F3A;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 48px 32px;
+      line-height: 1.5;
+    }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .sub { color: var(--muted); margin-bottom: 40px; font-size: 14px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card.dark { background: var(--navy); color: white; border-color: var(--navy); }
+    .card.swiss { background: var(--swiss); color: white; border-color: var(--swiss); }
+    .card h2 {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .card.dark h2, .card.swiss h2 { color: rgba(255,255,255,0.7); }
+    .showcase {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 0;
+      min-height: 120px;
+    }
+    .meta { font-size: 12px; color: var(--muted); font-family: 'SF Mono', Menlo, monospace; }
+    .card.dark .meta, .card.swiss .meta { color: rgba(255,255,255,0.6); }
+
+    .sizes {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 24px 0;
+    }
+    .size-row { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .size-row span { font-size: 11px; color: var(--muted); font-family: monospace; }
+
+    .palette {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .swatch {
+      flex: 1;
+      padding: 16px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: monospace;
+      color: white;
+    }
+    .swatch.navy { background: var(--navy); }
+    .swatch.swiss { background: var(--swiss); }
+    .swatch.white { background: white; color: var(--text); border: 1px solid var(--border); }
+
+    .browser-mock {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .browser-bar {
+      background: #F3F4F6;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .browser-dot { width: 10px; height: 10px; border-radius: 50%; background: #D1D5DB; }
+    .tab-favicon { width: 14px; height: 14px; }
+    .browser-body { padding: 32px; text-align: center; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Tessera · Logo-Vorschau</h1>
+  <p class="sub">Mosaik aus 4 Fliesen · Schweizer Kreuz in der unteren rechten Tessera</p>
+
+  <div class="grid">
+    <!-- Vollständiges Logo -->
+    <div class="card">
+      <h2>Logo · Hell</h2>
+      <div class="showcase">
+        <img src="tessera-logo.svg" width="280" alt="Tessera Logo" />
+      </div>
+      <div class="meta">tessera-logo.svg · für helle Hintergründe</div>
+    </div>
+
+    <div class="card dark">
+      <h2>Logo · Dunkel</h2>
+      <div class="showcase">
+        <img src="tessera-logo-light.svg" width="280" alt="Tessera Logo light" />
+      </div>
+      <div class="meta">tessera-logo-light.svg · für dunkle Hintergründe</div>
+    </div>
+
+    <!-- Mark allein -->
+    <div class="card">
+      <h2>Mark / Icon</h2>
+      <div class="showcase">
+        <img src="tessera-mark.svg" width="96" alt="Tessera Mark" />
+      </div>
+      <div class="meta">tessera-mark.svg · Avatar, Social-Profilbild</div>
+    </div>
+
+    <!-- Größen -->
+    <div class="card">
+      <h2>Skalierung</h2>
+      <div class="sizes">
+        <div class="size-row">
+          <img src="favicon.svg" width="16" alt="" />
+          <span>16</span>
+        </div>
+        <div class="size-row">
+          <img src="favicon.svg" width="32" alt="" />
+          <span>32</span>
+        </div>
+        <div class="size-row">
+          <img src="tessera-mark.svg" width="48" alt="" />
+          <span>48</span>
+        </div>
+        <div class="size-row">
+          <img src="tessera-mark.svg" width="64" alt="" />
+          <span>64</span>
+        </div>
+        <div class="size-row">
+          <img src="tessera-mark.svg" width="96" alt="" />
+          <span>96</span>
+        </div>
+      </div>
+      <div class="meta">funktioniert von Favicon bis App-Icon</div>
+    </div>
+
+    <!-- Browser-Tab Mockup -->
+    <div class="card">
+      <h2>Im Browser-Tab</h2>
+      <div class="browser-mock">
+        <div class="browser-bar">
+          <span class="browser-dot"></span>
+          <span class="browser-dot"></span>
+          <span class="browser-dot"></span>
+          <img src="favicon.svg" class="tab-favicon" alt="" />
+          <span>Tessera — Software für KMU</span>
+        </div>
+        <div class="browser-body">tessera.io</div>
+      </div>
+      <div class="meta">favicon.svg im Tab</div>
+    </div>
+
+    <!-- Farb-Palette -->
+    <div class="card">
+      <h2>Farb-Palette</h2>
+      <div class="palette">
+        <div class="swatch navy">#1A1F3A<br/>Navy</div>
+        <div class="swatch swiss">#DA291C<br/>Swiss Red</div>
+        <div class="swatch white">#FFFFFF<br/>White</div>
+      </div>
+      <div class="meta" style="margin-top: 12px;">Premium-Navy als Brand, Schweizer Rot als Akzent</div>
+    </div>
+  </div>
+</body>
+</html>

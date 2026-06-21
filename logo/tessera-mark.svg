@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tessera logo mark">
+  <title>Tessera</title>
+  <!-- Dark-mode mark: light tiles + 1 Swiss-red tile -->
+  <rect x="6"  y="6"  width="24" height="24" rx="5" fill="#F1F3F8"/>
+  <rect x="34" y="6"  width="24" height="24" rx="5" fill="#F1F3F8"/>
+  <rect x="6"  y="34" width="24" height="24" rx="5" fill="#F1F3F8"/>
+  <g>
+    <rect x="34" y="34" width="24" height="24" rx="5" fill="#DA291C"/>
+    <rect x="40" y="44" width="12" height="4" fill="#FFFFFF"/>
+    <rect x="44" y="40" width="4"  height="12" fill="#FFFFFF"/>
+  </g>
+</svg>
