@@ -333,7 +333,10 @@
               <h1 class="page-title">Mitarbeiter</h1>
               <p class="page-subtitle" id="mitSubtitle">— Reiniger</p>
             </div>
-            <button class="btn btn-accent" onclick="openMitarbeiterModal(null)">+ Mitarbeiter hinzufügen</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-secondary" onclick="openTeamManager()">Teams verwalten</button>
+              <button class="btn btn-accent" onclick="openMitarbeiterModal(null)">+ Mitarbeiter hinzufügen</button>
+            </div>
           </div>
 
           <div id="mitGrid" class="emp-grid"></div>
@@ -1711,7 +1714,7 @@
           </div>
           <div class="field">
             <label>Team-Zuweisung</label>
-            <select id="mitTeam"></select>
+            <select id="mitTeam" onchange="mitTeamChanged()"></select>
           </div>
         </div>
         <div class="field">
@@ -1730,6 +1733,31 @@
         <button class="btn btn-ghost" id="mitDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteMitarbeiter()">Löschen</button>
         <button class="btn btn-secondary" onclick="closeModal('mitarbeiterEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveMitarbeiter()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teams verwalten -->
+  <div class="modal-backdrop" id="modal-teamManager" onclick="if(event.target===this)closeModal('teamManager')">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Teams verwalten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Eigene Teams anlegen, umbenennen, Farbe wählen</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('teamManager')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="teamManagerList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
+        <div style="display:flex; gap:8px; align-items:center; border-top:1px solid var(--border); padding-top:14px;">
+          <input type="text" id="newTeamName" placeholder="Neues Team — z. B. „Auto 1" oder „Team Anna"" style="flex:1;" />
+          <button class="btn btn-accent" onclick="addTeamFromManager()">+ Team</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('teamManager')">Fertig</button>
       </div>
     </div>
   </div>
@@ -2774,19 +2802,43 @@
       });
     }
 
-    const PLAN_TEAMS = [
-      { id: 't1', short: 'MÜ', name: 'Team Müller',  color: '#E11D2A' },
-      { id: 't2', short: 'CO', name: 'Team Costa',   color: '#3B82F6' },
-      { id: 't3', short: 'WE', name: 'Team Weber',   color: '#10B981' },
-      { id: 't4', short: 'BR', name: 'Team Brunner', color: '#F59E0B' },
-      { id: 't5', short: 'NO', name: 'Team Novak',   color: '#8B5CF6' }
-    ];
-    // Abgeleitet: members + canDrive aus EMPLOYEES (wird via rebuildTeamMembers() neu berechnet bei Änderung)
-    PLAN_TEAMS.forEach(t => {
-      const emps = empsByTeam(t.id);
-      t.members = emps;
-      t.canDrive = emps.some(e => e.canDrive);
-    });
+    // Teams: leer-startend, vom Nutzer selbst angelegt/benannt. In localStorage.
+    const TEAMS_KEY = 'cc-teams-v1';
+    let PLAN_TEAMS = (() => {
+      try { const v = JSON.parse(localStorage.getItem(TEAMS_KEY)); if (Array.isArray(v)) return v; } catch {}
+      return []; // keine Vorgaben — jede Firma benennt ihre Teams selbst
+    })();
+    const TEAM_COLORS = ['#E11D2A', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#0EA5E9', '#14B8A6'];
+    function teamInitials(name) {
+      const w = (name || '').trim().split(/\s+/).filter(Boolean);
+      const letters = w.length >= 2 ? (w[0][0] + w[1][0]) : (name || '').trim().slice(0, 2);
+      return (letters || 'T').toUpperCase();
+    }
+    function saveTeams() {
+      localStorage.setItem(TEAMS_KEY, JSON.stringify(
+        PLAN_TEAMS.map(t => ({ id: t.id, name: t.name, short: t.short, color: t.color }))
+      ));
+    }
+    function addTeam(name, color) {
+      const id = 't' + Date.now();
+      PLAN_TEAMS.push({ id, name: name || 'Neues Team', short: teamInitials(name || 'Team'), color: color || TEAM_COLORS[PLAN_TEAMS.length % TEAM_COLORS.length] });
+      saveTeams(); rebuildTeamMembers();
+      return id;
+    }
+    function renameTeam(id, name, color) {
+      const t = PLAN_TEAMS.find(x => x.id === id);
+      if (!t) return;
+      if (name != null && name.trim()) { t.name = name.trim(); t.short = teamInitials(name); }
+      if (color) t.color = color;
+      saveTeams();
+    }
+    function deleteTeam(id) {
+      PLAN_TEAMS = PLAN_TEAMS.filter(t => t.id !== id);
+      EMPLOYEES.forEach(e => { if (e.teamId === id) e.teamId = null; });
+      saveEmployees(); saveTeams(); rebuildTeamMembers();
+    }
+    // Abgeleitet: members + canDrive aus EMPLOYEES
+    rebuildTeamMembers();
 
     // dayOffset = Tage relativ zu HEUTE (-7 = vor 1 Woche, 0 = heute, +7 = in 1 Woche)
     // Job-Daten werden über dayOffset → "Tagesmuster" gemappt damit egal welche Woche es Inhalte gibt
@@ -3556,29 +3608,44 @@
     function renderEmployeePicker(selectedIds) {
       const wrap = document.getElementById('jobEditEmployees');
       const selSet = new Set(selectedIds || []);
-      wrap.innerHTML = PLAN_TEAMS.map(team => {
+      const rowsHtml = (members) => members.map(e => {
+        const isOn = selSet.has(e.id);
+        const icon = e.canDrive ? '🚗' : '⚠️';
+        const title = e.canDrive ? 'Fahrer' : 'braucht Mitfahrgelegenheit';
+        return `<label class="emp-picker-row ${isOn ? 'is-on' : ''}">
+          <input type="checkbox" data-emp="${e.id}" ${isOn ? 'checked' : ''} onchange="empPickerChanged()" />
+          <span class="emp-picker-icon" title="${title}">${icon}</span>
+          <span class="emp-picker-name">${empName(e)}</span>
+        </label>`;
+      }).join('');
+
+      let html = PLAN_TEAMS.map(team => {
         const members = team.members;
-        const allSelected = members.every(e => selSet.has(e.id));
+        const allSelected = members.length > 0 && members.every(e => selSet.has(e.id));
         return `<div class="emp-picker-team">
           <div class="emp-picker-head">
             <span class="emp-picker-dot" style="background: ${team.color};"></span>
             <span class="emp-picker-teamname">${team.name}</span>
             <button type="button" class="emp-picker-all" onclick="empPickerToggleTeam('${team.id}')">${allSelected ? 'Team abwählen' : 'Ganzes Team'}</button>
           </div>
-          <div class="emp-picker-rows">
-            ${members.map(e => {
-              const isOn = selSet.has(e.id);
-              const icon = e.canDrive ? '🚗' : '⚠️';
-              const title = e.canDrive ? 'Fahrer' : 'braucht Mitfahrgelegenheit';
-              return `<label class="emp-picker-row ${isOn ? 'is-on' : ''}">
-                <input type="checkbox" data-emp="${e.id}" ${isOn ? 'checked' : ''} onchange="empPickerChanged()" />
-                <span class="emp-picker-icon" title="${title}">${icon}</span>
-                <span class="emp-picker-name">${empName(e)}</span>
-              </label>`;
-            }).join('')}
-          </div>
+          <div class="emp-picker-rows">${rowsHtml(members)}</div>
         </div>`;
       }).join('');
+
+      // Mitarbeiter ohne (gültiges) Team
+      const teamIds = new Set(PLAN_TEAMS.map(t => t.id));
+      const ohneTeam = EMPLOYEES.filter(e => !e.teamId || !teamIds.has(e.teamId));
+      if (ohneTeam.length) {
+        html += `<div class="emp-picker-team">
+          <div class="emp-picker-head">
+            <span class="emp-picker-dot" style="background: #9CA3AF;"></span>
+            <span class="emp-picker-teamname">Ohne Team</span>
+          </div>
+          <div class="emp-picker-rows">${rowsHtml(ohneTeam)}</div>
+        </div>`;
+      }
+      if (!html) html = '<div style="color:var(--text-subtle);font-size:13px;padding:8px;">Noch keine Mitarbeiter. Lege erst Mitarbeiter an.</div>';
+      wrap.innerHTML = html;
       updateAssignedCount();
     }
 
@@ -4537,14 +4604,16 @@
     function openMitarbeiterModal(id) {
       editingMitId = id || null;
       const e = id ? empById(id) : null;
-      // Team-Dropdown füllen
+      // Team-Dropdown füllen (kein Team + bestehende + neues Team anlegen)
       const teamSel = document.getElementById('mitTeam');
-      teamSel.innerHTML = PLAN_TEAMS.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      teamSel.innerHTML = '<option value="">— kein Team —</option>'
+        + PLAN_TEAMS.map(t => `<option value="${t.id}">${t.name}</option>`).join('')
+        + '<option value="__new__">➕ Neues Team anlegen…</option>';
       document.getElementById('mitModalTitle').textContent = e ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter';
       document.getElementById('mitFirstname').value = e?.firstName || '';
       document.getElementById('mitLastname').value = e?.lastName || '';
       document.getElementById('mitRole').value = e?.role || 'Reinigungskraft';
-      document.getElementById('mitTeam').value = e?.teamId || PLAN_TEAMS[0].id;
+      document.getElementById('mitTeam').value = e?.teamId || (PLAN_TEAMS[0] ? PLAN_TEAMS[0].id : '');
       document.getElementById('mitStatus').value = e?.status || 'aktiv';
       document.getElementById('mitCanDrive').checked = !!e?.canDrive;
       document.getElementById('mitDeleteBtn').style.display = e ? 'inline-flex' : 'none';
@@ -4552,6 +4621,73 @@
       renderMitPhotoPreview();
       openModal('mitarbeiterEditor');
     }
+    function fillMitTeamSelect(selectedId) {
+      const sel = document.getElementById('mitTeam');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">— kein Team —</option>'
+        + PLAN_TEAMS.map(t => `<option value="${t.id}">${t.name}</option>`).join('')
+        + '<option value="__new__">➕ Neues Team anlegen…</option>';
+      if (selectedId != null) sel.value = selectedId;
+    }
+    function mitTeamChanged() {
+      const sel = document.getElementById('mitTeam');
+      if (sel.value !== '__new__') return;
+      const name = prompt('Name des neuen Teams (z. B. „Team Anna" oder „Auto 1"):');
+      if (name && name.trim()) {
+        const id = addTeam(name.trim());
+        fillMitTeamSelect(id);
+      } else {
+        sel.value = '';
+      }
+    }
+    // ============ Teams verwalten ============
+    function openTeamManager() { renderTeamManager(); openModal('teamManager'); }
+    function renderTeamManager() {
+      const wrap = document.getElementById('teamManagerList');
+      if (!wrap) return;
+      if (PLAN_TEAMS.length === 0) {
+        wrap.innerHTML = '<div style="color:var(--text-subtle);font-size:13px;padding:8px 0;">Noch keine Teams. Lege unten dein erstes Team an.</div>';
+        return;
+      }
+      wrap.innerHTML = PLAN_TEAMS.map(t => {
+        const count = empsByTeam(t.id).length;
+        const dots = TEAM_COLORS.map(c =>
+          `<button type="button" title="Farbe" onclick="setTeamColor('${t.id}','${c}')" style="width:18px;height:18px;border-radius:50%;border:2px solid ${t.color === c ? 'var(--text)' : 'transparent'};background:${c};cursor:pointer;padding:0;"></button>`
+        ).join('');
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:${t.color};flex-shrink:0;"></span>
+          <input type="text" value="${escapeHtml(t.name)}" onchange="renameTeamFromManager('${t.id}', this.value)" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text);" />
+          <span style="font-size:11.5px;color:var(--text-subtle);white-space:nowrap;">${count} Pers.</span>
+          <div style="display:flex;gap:3px;">${dots}</div>
+          <button type="button" onclick="deleteTeamFromManager('${t.id}')" title="Team löschen" style="border:none;background:none;cursor:pointer;color:var(--danger);font-size:15px;padding:2px;">🗑</button>
+        </div>`;
+      }).join('');
+    }
+    function addTeamFromManager() {
+      const inp = document.getElementById('newTeamName');
+      const n = (inp.value || '').trim();
+      if (!n) { toast('Bitte Teamname eingeben', 'error'); return; }
+      addTeam(n); inp.value = '';
+      renderTeamManager(); refreshAfterTeamChange();
+      toast('✓ Team angelegt');
+    }
+    function renameTeamFromManager(id, name) {
+      if (name && name.trim()) { renameTeam(id, name.trim()); refreshAfterTeamChange(); }
+    }
+    function setTeamColor(id, color) { renameTeam(id, null, color); renderTeamManager(); refreshAfterTeamChange(); }
+    function deleteTeamFromManager(id) {
+      const t = PLAN_TEAMS.find(x => x.id === id);
+      if (!t) return;
+      if (!confirm(`Team „${t.name}" löschen? Mitarbeiter bleiben bestehen, verlieren aber die Team-Zuordnung.`)) return;
+      deleteTeam(id);
+      renderTeamManager(); refreshAfterTeamChange();
+      toast('Team gelöscht');
+    }
+    function refreshAfterTeamChange() {
+      if (typeof renderMitarbeiter === 'function') renderMitarbeiter();
+      if (typeof renderPlanung === 'function') renderPlanung();
+    }
+
     function saveMitarbeiter() {
       const firstName = document.getElementById('mitFirstname').value.trim();
       const lastName = document.getElementById('mitLastname').value.trim();
