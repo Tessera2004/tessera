@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .auth-msg { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 4px; display: none; line-height: 1.45; }
+    .auth-msg.show { display: block; }
+    .auth-msg.err { background: rgba(225,29,42,0.10); color: var(--danger); }
+    .auth-msg.ok  { background: rgba(16,185,129,0.12); color: var(--success); }
+    .auth-toggle-link { color: var(--accent); font-weight: 600; cursor: pointer; }
+    [hidden] { display: none !important; }
+  </style>
 </head>
 <body>
   <div class="login-shell">
@@ -16,35 +24,86 @@
         <div class="brand" style="padding: 0; border: none; margin-bottom: 40px;">
           <div class="brand-mark-svg" style="width: 44px; height: 44px;">
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-              <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/><rect x="16" y="3" width="13" height="13" rx="3" fill="white"/><rect x="3" y="16" width="13" height="13" rx="3" fill="white"/><rect x="16" y="16" width="13" height="13" rx="3" fill="white"/><rect x="19.5" y="21.5" width="6" height="2" fill="#E11D2A"/><rect x="21.5" y="19.5" width="2" height="6" fill="#E11D2A"/>
+              <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
+              <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
+              <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
+              <rect x="16" y="16" width="13" height="13" rx="3" fill="white"/>
+              <rect x="19.5" y="21.5" width="6" height="2" fill="#E11D2A"/>
+              <rect x="21.5" y="19.5" width="2" height="6" fill="#E11D2A"/>
             </svg>
           </div>
           <div>
             <div class="brand-name">Tessera</div>
-            <div class="brand-sub">Aarau · Disposition · Nachweis</div>
+            <div class="brand-sub">Disposition · Nachweis · Mehr</div>
           </div>
         </div>
 
-        <h1 class="login-title">Willkommen zurück</h1>
-        <p class="login-sub">Melde dich an, um deine Planung zu öffnen.</p>
+        <!-- ===== ANMELDEN ===== -->
+        <div id="loginView">
+          <h1 class="login-title">Willkommen zurück</h1>
+          <p class="login-sub">Melde dich an, um deine Planung zu öffnen.</p>
 
-        <form class="login-form" onsubmit="event.preventDefault(); window.location.href='app.html'">
-          <div class="field">
-            <label for="email">E-Mail</label>
-            <input type="email" id="email" placeholder="dein.name@tessera.ch" value="brian@tessera.ch" required />
-          </div>
-          <div class="field">
-            <label for="password">Passwort</label>
-            <input type="password" id="password" placeholder="••••••••" value="demo1234" required />
-          </div>
-          <button type="submit" class="btn btn-primary" style="height: 42px; margin-top: 8px;">
-            Anmelden
-          </button>
-        </form>
+          <form class="login-form" id="loginForm">
+            <div class="field">
+              <label for="loginEmail">E-Mail</label>
+              <input type="email" id="loginEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="loginPassword">Passwort</label>
+              <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
+            </div>
+            <div class="auth-msg" id="loginMsg"></div>
+            <button type="submit" class="btn btn-primary" id="loginBtn" style="height: 42px; margin-top: 8px;">
+              Anmelden
+            </button>
+          </form>
 
-        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
-          Noch kein Konto? <a href="app.html" style="color: var(--accent); font-weight: 500;">14 Tage kostenlos testen</a>
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
+            Noch kein Konto? <span class="auth-toggle-link" onclick="showSignup()">14 Tage kostenlos testen</span>
+          </div>
         </div>
+
+        <!-- ===== REGISTRIEREN ===== -->
+        <div id="signupView" hidden>
+          <h1 class="login-title">Konto erstellen</h1>
+          <p class="login-sub">14 Tage gratis. Keine Kreditkarte.</p>
+
+          <form class="login-form" id="signupForm">
+            <div class="field">
+              <label for="suCompany">Firmenname</label>
+              <input type="text" id="suCompany" placeholder="z. B. Müller Reinigung GmbH" required />
+            </div>
+            <div class="field">
+              <label for="suBranche">Branche</label>
+              <select id="suBranche">
+                <option value="reinigung">🧹 Reinigung</option>
+                <option value="handwerk">🔧 Handwerk</option>
+                <option value="immobilien">🏠 Immobilien</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="suName">Dein Name</label>
+              <input type="text" id="suName" placeholder="Vor- und Nachname" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="suEmail">E-Mail</label>
+              <input type="email" id="suEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="suPassword">Passwort wählen</label>
+              <input type="password" id="suPassword" placeholder="mind. 6 Zeichen" autocomplete="new-password" minlength="6" required />
+            </div>
+            <div class="auth-msg" id="signupMsg"></div>
+            <button type="submit" class="btn btn-primary" id="signupBtn" style="height: 42px; margin-top: 8px;">
+              Konto erstellen
+            </button>
+          </form>
+
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
+            Schon ein Konto? <span class="auth-toggle-link" onclick="showLogin()">Anmelden</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -53,12 +112,17 @@
         <div class="brand" style="padding: 0; border: none;">
           <div class="brand-mark-svg" style="width: 44px; height: 44px; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);">
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-              <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/><rect x="16" y="3" width="13" height="13" rx="3" fill="white"/><rect x="3" y="16" width="13" height="13" rx="3" fill="white"/><rect x="16" y="16" width="13" height="13" rx="3" fill="white"/><rect x="19.5" y="21.5" width="6" height="2" fill="#E11D2A"/><rect x="21.5" y="19.5" width="2" height="6" fill="#E11D2A"/>
+              <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
+              <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
+              <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
+              <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
+              <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
+              <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
             </svg>
           </div>
           <div>
             <div class="brand-name" style="color: white;">Tessera</div>
-            <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Aarau</div>
+            <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Made in Switzerland</div>
           </div>
         </div>
       </div>
@@ -67,36 +131,99 @@
         <p class="login-quote">
           „Routen in 30 Sekunden statt 3 Stunden geplant — das Team weiß früher Bescheid, der Kunde sieht es im Nachweis."
         </p>
-        <div class="login-quote-author">Brian K. — Disposition, Tessera Aarau</div>
+        <div class="login-quote-author">Eine Plattform für jede Branche</div>
       </div>
 
       <div class="login-feature-list">
         <div class="login-feature">
           <div class="login-feature-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
           <div>Automatische Routenplanung in Sekunden</div>
         </div>
         <div class="login-feature">
           <div class="login-feature-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <div>QR-Anwesenheit & Foto-Nachweis — Mindestlohn-konform</div>
+          <div>QR-Anwesenheit &amp; Foto-Nachweis — Mindestlohn-konform</div>
         </div>
         <div class="login-feature">
           <div class="login-feature-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <div>Reiniger-App ohne App-Store — Link öffnen, fertig</div>
+          <div>Daten in der Schweiz · DSG-konform</div>
         </div>
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    function showSignup() { document.getElementById('loginView').hidden = true;  document.getElementById('signupView').hidden = false; }
+    function showLogin()  { document.getElementById('signupView').hidden = true; document.getElementById('loginView').hidden  = false; }
+
+    function msg(el, text, kind) {
+      el.textContent = text;
+      el.className = 'auth-msg show ' + (kind || 'err');
+    }
+    function clearMsg(el) { el.className = 'auth-msg'; }
+
+    // Schon eingeloggt? → direkt in die App
+    (async () => {
+      const s = await window.tesseraSession();
+      if (s) window.location.href = 'app.html';
+    })();
+
+    // ---- Anmelden ----
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const box = document.getElementById('loginMsg');
+      clearMsg(box);
+      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      btn.disabled = true; btn.textContent = 'Anmelden …';
+      const { error } = await window.SB.auth.signInWithPassword({
+        email: document.getElementById('loginEmail').value.trim(),
+        password: document.getElementById('loginPassword').value
+      });
+      if (error) {
+        msg(box, /Invalid login/i.test(error.message) ? 'E-Mail oder Passwort falsch.' : error.message);
+        btn.disabled = false; btn.textContent = 'Anmelden';
+      } else {
+        window.location.href = 'app.html';
+      }
+    });
+
+    // ---- Registrieren ----
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('signupBtn');
+      const box = document.getElementById('signupMsg');
+      clearMsg(box);
+      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      btn.disabled = true; btn.textContent = 'Konto wird erstellt …';
+      const { data, error } = await window.SB.auth.signUp({
+        email: document.getElementById('suEmail').value.trim(),
+        password: document.getElementById('suPassword').value,
+        options: {
+          data: {
+            company: document.getElementById('suCompany').value.trim(),
+            branche: document.getElementById('suBranche').value,
+            name: document.getElementById('suName').value.trim()
+          }
+        }
+      });
+      if (error) {
+        msg(box, error.message);
+        btn.disabled = false; btn.textContent = 'Konto erstellen';
+      } else if (data.session) {
+        window.location.href = 'app.html';
+      } else {
+        msg(box, '✓ Konto erstellt! Bitte bestätige den Link in deiner E-Mail, dann kannst du dich anmelden.', 'ok');
+        btn.disabled = false; btn.textContent = 'Konto erstellen';
+      }
+    });
+  </script>
 </body>
 </html>
