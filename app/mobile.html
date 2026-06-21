@@ -18,17 +18,60 @@
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
       min-height: 90vh;
+      position: relative;
     }
     @media (max-width: 480px) {
       body { background: var(--surface); }
       .device-frame { margin: 0; border-radius: 0; box-shadow: none; min-height: 100vh; }
     }
+    /* Brand-Zeile im Kopf */
+    .m-brand { display: flex; align-items: center; gap: 9px; margin-bottom: 18px; }
+    .m-brand-chip { width: 30px; height: 30px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .m-brand-name { font-weight: 700; font-size: 16px; color: #fff; letter-spacing: -0.3px; }
+    /* QR-Scanner Overlay */
+    .qr-overlay {
+      position: absolute; inset: 0; z-index: 50;
+      background: rgba(10,14,31,0.92); backdrop-filter: blur(4px);
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
+    }
+    .qr-overlay.open { display: flex; }
+    .qr-title { color: #fff; font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .qr-sub { color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 20px; }
+    #qr-reader { width: 100%; max-width: 300px; border-radius: 16px; overflow: hidden; background: #000; }
+    #qr-reader video { border-radius: 16px; display: block; width: 100%; }
+    .qr-status { color: #fff; font-size: 14px; margin-top: 18px; min-height: 20px; }
+    .qr-status.ok { color: #34D399; font-weight: 600; }
+    .qr-status.err { color: #FCA5A5; }
+    .qr-close { margin-top: 22px; }
+    .m-toast {
+      position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+      background: #1A1F3A; color: #fff; padding: 12px 18px; border-radius: 12px;
+      font-size: 13.5px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      opacity: 0; transition: all 0.3s ease; z-index: 100; pointer-events: none; max-width: 90%;
+    }
+    .m-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .stop.checked .stop-actions { display: none; }
   </style>
 </head>
 <body>
-  <div class="device-frame">
+  <div class="device-frame" id="frame">
 
     <div class="mobile-header" style="border-radius: 0;">
+      <div class="m-brand">
+        <div class="m-brand-chip">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect x="3" y="3" width="13" height="13" rx="3" fill="#1A1F3A"/>
+            <rect x="16" y="3" width="13" height="13" rx="3" fill="#1A1F3A"/>
+            <rect x="3" y="16" width="13" height="13" rx="3" fill="#1A1F3A"/>
+            <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
+            <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
+            <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
+          </svg>
+        </div>
+        <span class="m-brand-name">Tessera</span>
+      </div>
+
       <div class="mobile-greeting">Guten Morgen ☀️</div>
       <div class="mobile-name">Anna Müller</div>
 
@@ -58,32 +101,33 @@
         </div>
         <div class="stop-body">
           <div class="stop-name">Bürohaus Marienplatz</div>
-          <div class="stop-addr">Marienplatz 8, 80331 München</div>
+          <div class="stop-addr">Marienplatz 8, 5000 Aarau</div>
           <div style="font-size: 11px; color: var(--success); font-weight: 600;">✓ Abgeschlossen · 12/12 Punkte</div>
         </div>
       </div>
 
-      <div class="stop active">
+      <div class="stop active" id="activeStop">
         <div>
           <div class="stop-time">08:15</div>
           <div class="stop-duration">60 min</div>
         </div>
         <div class="stop-body">
-          <div class="stop-name">Kanzlei Berger & Partner</div>
-          <div class="stop-addr">Theatinerstr. 3, 80333 München</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
-            <strong style="color: var(--accent);">Jetzt aktiv</strong> · Bitte vor Verlassen Fotos hochladen
+          <div class="stop-name">Kanzlei Berger &amp; Partner</div>
+          <div class="stop-addr">Bahnhofstr. 3, 5000 Aarau</div>
+          <div class="stop-hint" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+            <strong style="color: var(--accent);">Jetzt aktiv</strong> · Bitte vor Verlassen einchecken &amp; Fotos hochladen
           </div>
           <div class="stop-actions">
-            <button class="btn btn-accent" style="flex: 1;">
+            <button class="btn btn-accent" style="flex: 1;" onclick="openScanner()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               QR scannen
             </button>
-            <button class="btn btn-secondary" style="flex: 1;">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('fotoInput').click()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
               Fotos
             </button>
           </div>
+          <div class="stop-foto-count" style="display:none; font-size:11.5px; color:var(--success); font-weight:600; margin-top:8px;"></div>
         </div>
       </div>
 
@@ -94,7 +138,7 @@
         </div>
         <div class="stop-body">
           <div class="stop-name">Fitnessstudio Premium</div>
-          <div class="stop-addr">Leopoldstr. 200, 80804 München</div>
+          <div class="stop-addr">Bahnhofplatz 1, 5000 Aarau</div>
           <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 8 min Fahrzeit · Schlüssel: Empfang</div>
         </div>
       </div>
@@ -106,7 +150,7 @@
         </div>
         <div class="stop-body">
           <div class="stop-name">Apotheke Süd</div>
-          <div class="stop-addr">Lindwurmstr. 88, 80337 München</div>
+          <div class="stop-addr">Pelzgasse 18, 5000 Aarau</div>
           <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 15 min Fahrzeit · Code: 3491</div>
         </div>
       </div>
@@ -117,8 +161,8 @@
           <div class="stop-duration">60 min</div>
         </div>
         <div class="stop-body">
-          <div class="stop-name">Zahnarztpraxis Dr. Yilmaz</div>
-          <div class="stop-addr">Goethestr. 22, 80336 München</div>
+          <div class="stop-name">Zahnarztpraxis Dr. Lang</div>
+          <div class="stop-addr">Laurenzenvorstadt 22, 5000 Aarau</div>
           <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 6 min Fahrzeit · Sonderwunsch: Behandlungsstuhl Desinfektion</div>
         </div>
       </div>
@@ -126,7 +170,7 @@
     </div>
 
     <div style="padding: 16px 20px 28px; border-top: 1px solid var(--border); background: var(--bg);">
-      <button style="width: 100%; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text);">
+      <button onclick="meldeProblem()" style="width: 100%; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text); cursor: pointer;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Problem melden / Krank
       </button>
@@ -135,6 +179,117 @@
       </div>
     </div>
 
+    <!-- QR-Scanner -->
+    <div class="qr-overlay" id="qrOverlay">
+      <div class="qr-title">QR-Code am Objekt scannen</div>
+      <div class="qr-sub">Halte die Kamera auf den QR-Aufkleber beim Eingang.</div>
+      <div id="qr-reader"></div>
+      <div class="qr-status" id="qrStatus">Kamera wird gestartet …</div>
+      <button class="btn btn-secondary qr-close" onclick="closeScanner()">Abbrechen</button>
+    </div>
+
+    <input type="file" id="fotoInput" accept="image/*" capture="environment" multiple style="display:none" />
   </div>
+
+  <div class="m-toast" id="mToast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script>
+    function toast(msg) {
+      const t = document.getElementById('mToast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._h);
+      t._h = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    function nowTime() {
+      return new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Markiert den aktiven Stop als eingecheckt
+    function markCheckedIn(code) {
+      const stop = document.getElementById('activeStop');
+      if (!stop) return;
+      const hint = stop.querySelector('.stop-hint');
+      if (hint) {
+        hint.innerHTML = `<strong style="color: var(--success);">✓ Eingecheckt um ${nowTime()}</strong>` + (code ? ` · ${code}` : '');
+      }
+      stop.classList.add('checked');
+    }
+
+    /* ---------- QR-Scanner ---------- */
+    let html5Qr = null;
+    function openScanner() {
+      const overlay = document.getElementById('qrOverlay');
+      const status = document.getElementById('qrStatus');
+      overlay.classList.add('open');
+      status.className = 'qr-status';
+      status.textContent = 'Kamera wird gestartet …';
+
+      if (!window.Html5Qrcode) {
+        status.className = 'qr-status err';
+        status.textContent = 'Scanner konnte nicht geladen werden (Internet?).';
+        return;
+      }
+      html5Qr = new Html5Qrcode('qr-reader');
+      html5Qr.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          // Erfolg
+          status.className = 'qr-status ok';
+          status.textContent = '✓ Erkannt: ' + decodedText;
+          if (navigator.vibrate) navigator.vibrate(120);
+          markCheckedIn(decodedText);
+          setTimeout(() => { closeScanner(); toast('✓ Anwesenheit erfasst — ' + decodedText); }, 900);
+        },
+        () => { /* pro Frame ohne Treffer – ignorieren */ }
+      ).then(() => {
+        status.textContent = 'Kamera bereit – QR-Code anvisieren.';
+      }).catch((err) => {
+        status.className = 'qr-status err';
+        if (String(err).match(/NotAllowed|Permission/i)) {
+          status.textContent = 'Kamera-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
+        } else if (String(err).match(/NotFound|Requested device/i)) {
+          status.textContent = 'Keine Kamera gefunden.';
+        } else {
+          status.textContent = 'Kamera konnte nicht gestartet werden.';
+        }
+      });
+    }
+
+    function closeScanner() {
+      const overlay = document.getElementById('qrOverlay');
+      const stop = () => overlay.classList.remove('open');
+      if (html5Qr) {
+        html5Qr.stop().then(() => { html5Qr.clear(); html5Qr = null; stop(); }).catch(stop);
+      } else {
+        stop();
+      }
+    }
+
+    /* ---------- Fotos ---------- */
+    document.getElementById('fotoInput').addEventListener('change', (e) => {
+      const n = (e.target.files || []).length;
+      if (!n) return;
+      const stop = document.getElementById('activeStop');
+      const cnt = stop ? stop.querySelector('.stop-foto-count') : null;
+      if (cnt) {
+        cnt.style.display = 'block';
+        cnt.textContent = `✓ ${n} Foto${n > 1 ? 's' : ''} hochgeladen um ${nowTime()}`;
+      }
+      toast(`✓ ${n} Foto${n > 1 ? 's' : ''} hochgeladen`);
+      e.target.value = '';
+    });
+
+    /* ---------- Problem melden ---------- */
+    function meldeProblem() {
+      const grund = prompt('Was möchtest du melden?\n(z. B. „Krank", „Schlüssel fehlt", „Verspätung")');
+      if (grund && grund.trim()) {
+        toast('✓ Gemeldet: ' + grund.trim() + ' — Büro ist informiert');
+      }
+    }
+  </script>
 </body>
 </html>
