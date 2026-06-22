@@ -35,7 +35,7 @@
           </svg>
         </div>
         <div>
-          <div class="brand-name">MosaOS</div>
+          <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
           <div class="brand-sub">Aarau</div>
         </div>
       </div>
@@ -5902,7 +5902,14 @@
       contact: 'info@mosaos.ch · +41 62 824 00 00'
     };
     function loadCompany() {
-      try { return Object.assign({}, DEFAULT_COMPANY, JSON.parse(localStorage.getItem(COMPANY_KEY)) || {}); }
+      try {
+        const stored = JSON.parse(localStorage.getItem(COMPANY_KEY)) || {};
+        if (stored.name && /tessera/i.test(stored.name)) {
+          localStorage.removeItem(COMPANY_KEY);
+          return { ...DEFAULT_COMPANY };
+        }
+        return Object.assign({}, DEFAULT_COMPANY, stored);
+      }
       catch { return { ...DEFAULT_COMPANY }; }
     }
     function saveCompany(c) { localStorage.setItem(COMPANY_KEY, JSON.stringify(c)); }
@@ -6347,7 +6354,13 @@
 
       // titles per step
       if (wizCurrent === 1) document.getElementById('wizSub').textContent = 'Wähle die Reinigungsart aus';
-      if (wizCurrent === 3) { document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis'; wizCalcPrice(); wizCheckAvailability(); }
+      if (wizCurrent === 3) {
+        document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis';
+        // Step 2 → Step 3: Minuten aus Service-Optionen in Stunden-Feld übernehmen
+        _syncWizDuration();
+        wizCalcPrice();
+        wizCheckAvailability();
+      }
 
       // buttons
       document.getElementById('wizBack').style.display = wizCurrent > 1 ? 'inline-flex' : 'none';
@@ -6444,6 +6457,15 @@
     }
 
     let priceOverrideActive = false;
+
+    // Überträgt die in Schritt 2 eingegebenen Minuten als Stunden in das wizDuration-Feld
+    function _syncWizDuration() {
+      if (!wizService || wizService === 'fassade') return;
+      const p = calcPriceForService();
+      if (!p?.mins) return;
+      const durEl = document.getElementById('wizDuration');
+      if (durEl) durEl.value = Math.round(p.mins / 60 * 4) / 4 || 0.25;
+    }
 
     // Preis im Wizard-Schritt 3: Dauer (Stunden) × Stundensatz (+ Anfahrtspauschale)
     function wizCalcPrice() {
@@ -6555,6 +6577,7 @@
 
       return {
         total: subtotal,
+        mins: mins,
         dur: `${Math.floor(mins/60)}h ${mins%60}min`,
         rateStr: `${rate.toFixed(2)} €/h × ${billedHours.toFixed(1)} h`,
         fee: fee,
@@ -6671,6 +6694,8 @@
       const preis = data.preis ? `${parseFloat(data.preis).toFixed(2)} €` : '[Preis]';
       const datum = formatDateDE(data.datum || todayISO());
       const gueltig = formatDateDE(validUntilISO(30));
+      const co = loadCompany();
+      const coSig = `${co.name || 'MosaOS'}\n${[co.addr1, co.addr2].filter(Boolean).join(', ')} · ${datum}`;
 
       const templates = {
         unterhalt: `Sehr geehrte/r ${kunde},
@@ -6692,8 +6717,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir freuen uns auf Ihre Rückmeldung.
 
 Mit freundlichen Grüßen
-MosaOS
-Aarau · ${datum}`,
+${coSig}`,
 
         end: `Sehr geehrte/r ${kunde},
 
@@ -6714,8 +6738,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir garantieren eine abnahmefähige Wohnung — andernfalls Nachreinigung kostenfrei.
 
 Mit freundlichen Grüßen
-MosaOS
-Aarau · ${datum}`,
+${coSig}`,
 
         fenster: `Sehr geehrte/r ${kunde},
 
@@ -6735,8 +6758,7 @@ Mindestbuchung: ${getPrice('fenster-min')} Stunden
 Das Angebot ist gültig bis ${gueltig}.
 
 Mit freundlichen Grüßen
-MosaOS
-Aarau · ${datum}`,
+${coSig}`,
 
         bau: `Sehr geehrte Bauleitung,
 
@@ -6757,8 +6779,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir koordinieren uns gerne direkt mit den Gewerken vor Ort.
 
 Mit freundlichen Grüßen
-MosaOS
-Aarau · ${datum}`,
+${coSig}`,
 
         fassade: `Sehr geehrte/r ${kunde},
 
@@ -6778,8 +6799,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Vor Beginn führen wir eine Probefläche aus.
 
 Mit freundlichen Grüßen
-MosaOS
-Aarau · ${datum}`
+${coSig}`
       };
 
       return templates[svc] || templates.unterhalt;
@@ -7020,19 +7040,20 @@ Aarau · ${datum}`
       let y = M;
 
       // === Header: Firma ===
+      const co = loadCompany();
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.setTextColor(225, 29, 42); // brand red
-      doc.text('MosaOS', M, y);
+      doc.text(co.name || 'Firma', M, y);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(120);
-      doc.text('Reinigung · Umzug · Aarau', M, y + 5);
+      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), M, y + 5);
       // Rechts: Kontakt
       doc.setFontSize(8.5);
-      doc.text('Bahnhofstrasse 10, 5000 Aarau', W - M, y, { align: 'right' });
-      doc.text('+41 62 824 00 00 · info@cleanumzug.ch', W - M, y + 4, { align: 'right' });
-      doc.text('MWST CHE-123.456.789', W - M, y + 8, { align: 'right' });
+      doc.text(`${co.addr1 || ''}, ${co.addr2 || ''}`, W - M, y, { align: 'right' });
+      if (co.contact) doc.text(co.contact, W - M, y + 4, { align: 'right' });
+      if (co.mwst) doc.text('MWST ' + co.mwst, W - M, y + 8, { align: 'right' });
       y += 18;
 
       // Trennlinie
@@ -7155,7 +7176,7 @@ Aarau · ${datum}`
       doc.setFontSize(8.5);
       doc.setTextColor(120);
       doc.text('Datum / Unterschrift Kunde', M, y + 4);
-      doc.text('MosaOS', W - M, y + 4, { align: 'right' });
+      doc.text(co.name || 'MosaOS', W - M, y + 4, { align: 'right' });
 
       // Save
       const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');
