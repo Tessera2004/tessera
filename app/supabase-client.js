@@ -1,5 +1,5 @@
 /* ============================================================
-   Tessera — Supabase-Verbindung (gemeinsam für alle Seiten)
+   MosaOS — Supabase-Verbindung (gemeinsam für alle Seiten)
    Diese Werte sind öffentlich-sicher (publishable key).
    Die echte Absicherung macht die Mandanten-Trennung (RLS)
    in der Datenbank.
@@ -12,7 +12,7 @@ window.SB = (window.supabase && window.supabase.createClient)
   : null;
 
 /* Kleiner Helfer: aktuelle Session holen (oder null) */
-window.tesseraSession = async function () {
+window.mosaosSession = async function () {
   if (!window.SB) return null;
   const { data } = await window.SB.auth.getSession();
   return data ? data.session : null;

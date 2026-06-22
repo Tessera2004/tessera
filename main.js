@@ -1,5 +1,5 @@
 /* ============================================================
-   Tessera — Marketing-Site Interactivity
+   MosaOS — Marketing-Site Interactivity
    ============================================================ */
 
 (() => {
@@ -138,7 +138,7 @@
   };
   const getCurrency = () => {
     let region = 'CH';
-    try { region = (window.TESSERA_I18N && window.TESSERA_I18N.detectRegion()) || 'CH'; } catch {}
+    try { region = (window.MOSAOS_I18N && window.MOSAOS_I18N.detectRegion()) || 'CH'; } catch {}
     return CURRENCY[REGION_CCY[region] || 'CHF'] || CURRENCY.CHF;
   };
   // CHF-Betrag in Anzeigewährung umrechnen (auf ganze Zahl gerundet)
@@ -167,8 +167,8 @@
   const t = (key, fallback) => {
     try {
       const lang = document.documentElement.lang || 'de';
-      const d = (window.TESSERA_I18N && window.TESSERA_I18N.dict && window.TESSERA_I18N.dict[lang]) || null;
-      const fb = (window.TESSERA_I18N && window.TESSERA_I18N.dict && window.TESSERA_I18N.dict.de) || {};
+      const d = (window.MOSAOS_I18N && window.MOSAOS_I18N.dict && window.MOSAOS_I18N.dict[lang]) || null;
+      const fb = (window.MOSAOS_I18N && window.MOSAOS_I18N.dict && window.MOSAOS_I18N.dict.de) || {};
       return (d && d[key] != null ? d[key] : (fb[key] != null ? fb[key] : fallback));
     } catch { return fallback; }
   };
@@ -282,7 +282,7 @@
     });
     renderMixer('reinigung');
     // Bei Sprach-/Währungswechsel neu rendern
-    window.TESSERA_MIXER_REFRESH = () => renderMixer(currentBranche);
+    window.MOSAOS_MIXER_REFRESH = () => renderMixer(currentBranche);
   }
 
   /* --------- 5. Mobile Burger --------- */

@@ -1,18 +1,18 @@
 /* ============================================================
-   TESSERA · Firmendaten
+   MOSAOS · Firmendaten
    ------------------------------------------------------------
    Hier trägst du deine Firmenangaben EINMAL ein.
    Sie werden automatisch in Impressum, AGB, Datenschutz, Footer
    und Anfrage-Mail eingesetzt. Du musst die HTML-Dateien nicht
    mehr einzeln bearbeiten.
    ============================================================ */
-window.TESSERA_CONFIG = {
+window.MOSAOS_CONFIG = {
   // ---------- Rechtsform ----------
   // 'einzelunternehmen' oder 'gmbh' — bestimmt was im Impressum angezeigt wird
   legalForm: 'einzelunternehmen',
 
   // ---------- Geschäft ----------
-  brand: 'Tessera',                  // Produktname / Geschäftsbezeichnung
+  brand: 'MosaOS',                  // Produktname / Geschäftsbezeichnung
   owner: 'Brian Knuchel',            // ← DEIN NAME als Inhaber (Pflicht bei Einzelunternehmen)
   street: 'Sandgrube 21',
   zip: '4614',
@@ -24,8 +24,8 @@ window.TESSERA_CONFIG = {
   mwst: '',                          // z.B. 'CHE-123.456.789 MWST' — leer = wird nicht angezeigt
 
   // ---------- Kontakt ----------
-  email: 'help.tessera@gmail.com',
-  emailPrivacy: 'help.tessera@gmail.com',
+  email: 'help.mosaos@gmail.com',
+  emailPrivacy: 'help.mosaos@gmail.com',
   phone: '+41 76 526 59 75',
 
   // ---------- Social ----------
@@ -42,7 +42,7 @@ window.TESSERA_CONFIG = {
 
 /* Auto-Einsetzen aller [data-cfg="..."] Elemente */
 (function () {
-  const cfg = window.TESSERA_CONFIG;
+  const cfg = window.MOSAOS_CONFIG;
   const get = (path) => path.split('.').reduce((acc, k) => (acc ? acc[k] : null), cfg);
   document.addEventListener('DOMContentLoaded', () => {
     // Body-Klasse für Rechtsform — CSS/HTML können je nach Form anders rendern

@@ -1,5 +1,5 @@
 /* ============================================================
-   TESSERA · i18n
+   MOSAOS · i18n
    ------------------------------------------------------------
    Sprache wird automatisch nach Browser/Region erkannt.
    Switch im Footer überschreibt manuell (in localStorage).
@@ -34,14 +34,14 @@
 
       'branchen.eyebrow': 'Branchen',
       'branchen.title': 'Für deine Branche gebaut.',
-      'branchen.sub': 'Statt Software, die für alle und niemanden ist: jede Tessera-Variante kennt die Eigenheiten deines Geschäfts. Drei Branchen sind live, weitere kommen — oder wir bauen deine.',
+      'branchen.sub': 'Statt Software, die für alle und niemanden ist: jede MosaOS-Variante kennt die Eigenheiten deines Geschäfts. Drei Branchen sind live, weitere kommen — oder wir bauen deine.',
 
       'how.eyebrow': 'So funktioniert es',
       'how.title': 'In drei Schritten startklar.',
       'how.sub': 'Kein Verkaufsgespräch nötig. Kein Onboarding-Workshop. Du klickst dich selbst durch.',
 
       'module.eyebrow': 'Module',
-      'module.title': 'Stell dir deine Tessera zusammen.',
+      'module.title': 'Stell dir deine MosaOS zusammen.',
       'module.sub': 'Klick die Module an, die du brauchst. Der Preis aktualisiert sich live.',
 
       'cta.title': 'Bereit, dein Büro endlich aufzuräumen?',
@@ -103,7 +103,7 @@
       'mix.tab.reinigung': '🧹 Reinigung',
       'mix.tab.handwerk': '🔧 Handwerk',
       'mix.tab.immo': '🏠 Immobilien',
-      'mix.summary.label': 'Deine Tessera',
+      'mix.summary.label': 'Deine MosaOS',
       'mix.summary.meta': '+ pro Mitarbeiter CHF 4 / Monat<br/>14 Tage gratis · jederzeit kündbar',
       'mix.summary.cta': 'Mit dieser Konfiguration starten',
       'mix.summary.demo': 'Erst die Demo testen',
@@ -159,14 +159,14 @@
 
       'branchen.eyebrow': 'Secteurs',
       'branchen.title': 'Conçu pour votre secteur.',
-      'branchen.sub': 'Au lieu d\'un logiciel générique : chaque variante de Tessera connaît les spécificités de votre métier. Trois secteurs sont en ligne, d\'autres arrivent — ou nous construisons le vôtre.',
+      'branchen.sub': 'Au lieu d\'un logiciel générique : chaque variante de MosaOS connaît les spécificités de votre métier. Trois secteurs sont en ligne, d\'autres arrivent — ou nous construisons le vôtre.',
 
       'how.eyebrow': 'Comment ça marche',
       'how.title': 'Prêt en trois étapes.',
       'how.sub': 'Pas d\'entretien commercial. Pas d\'atelier d\'onboarding. Vous découvrez par vous-même.',
 
       'module.eyebrow': 'Modules',
-      'module.title': 'Composez votre Tessera.',
+      'module.title': 'Composez votre MosaOS.',
       'module.sub': 'Cliquez sur les modules dont vous avez besoin. Le prix s\'actualise en direct.',
 
       'cta.title': 'Prêt à ranger votre bureau ?',
@@ -228,7 +228,7 @@
       'mix.tab.reinigung': '🧹 Nettoyage',
       'mix.tab.handwerk': '🔧 Artisanat',
       'mix.tab.immo': '🏠 Immobilier',
-      'mix.summary.label': 'Votre Tessera',
+      'mix.summary.label': 'Votre MosaOS',
       'mix.summary.meta': '+ CHF 4 / mois par collaborateur<br/>14 jours gratuits · résiliable à tout moment',
       'mix.summary.cta': 'Démarrer avec cette configuration',
       'mix.summary.demo': 'Essayer d\'abord la démo',
@@ -284,14 +284,14 @@
 
       'branchen.eyebrow': 'Settori',
       'branchen.title': 'Costruito per il tuo settore.',
-      'branchen.sub': 'Non un software per tutti e per nessuno: ogni variante di Tessera conosce le specificità del tuo lavoro. Tre settori sono live, altri arriveranno — o costruiamo il tuo.',
+      'branchen.sub': 'Non un software per tutti e per nessuno: ogni variante di MosaOS conosce le specificità del tuo lavoro. Tre settori sono live, altri arriveranno — o costruiamo il tuo.',
 
       'how.eyebrow': 'Come funziona',
       'how.title': 'Pronto in tre passi.',
       'how.sub': 'Niente colloquio di vendita. Niente workshop di onboarding. Clicchi e provi da solo.',
 
       'module.eyebrow': 'Moduli',
-      'module.title': 'Componi la tua Tessera.',
+      'module.title': 'Componi la tua MosaOS.',
       'module.sub': 'Clicca i moduli che ti servono. Il prezzo si aggiorna in tempo reale.',
 
       'cta.title': 'Pronto a mettere ordine in ufficio?',
@@ -353,7 +353,7 @@
       'mix.tab.reinigung': '🧹 Pulizie',
       'mix.tab.handwerk': '🔧 Artigianato',
       'mix.tab.immo': '🏠 Immobiliare',
-      'mix.summary.label': 'La tua Tessera',
+      'mix.summary.label': 'La tua MosaOS',
       'mix.summary.meta': '+ CHF 4 / mese per collaboratore<br/>14 giorni gratis · disdetta in ogni momento',
       'mix.summary.cta': 'Avvia con questa configurazione',
       'mix.summary.demo': 'Prima prova la demo',
@@ -409,14 +409,14 @@
 
       'branchen.eyebrow': 'Sectores',
       'branchen.title': 'Construido para tu sector.',
-      'branchen.sub': 'En vez de software para todos y para nadie, cada variante de Tessera conoce las particularidades de tu negocio. Tres sectores están en producción, llegan más — o construimos el tuyo.',
+      'branchen.sub': 'En vez de software para todos y para nadie, cada variante de MosaOS conoce las particularidades de tu negocio. Tres sectores están en producción, llegan más — o construimos el tuyo.',
 
       'how.eyebrow': 'Cómo funciona',
       'how.title': 'Listo en tres pasos.',
       'how.sub': 'Sin llamada comercial. Sin taller de onboarding. Tú mismo lo pruebas.',
 
       'module.eyebrow': 'Módulos',
-      'module.title': 'Compón tu Tessera.',
+      'module.title': 'Compón tu MosaOS.',
       'module.sub': 'Marca los módulos que necesites. El precio se actualiza en directo.',
 
       'cta.title': '¿Listo para ordenar tu oficina?',
@@ -478,7 +478,7 @@
       'mix.tab.reinigung': '🧹 Limpieza',
       'mix.tab.handwerk': '🔧 Oficios',
       'mix.tab.immo': '🏠 Inmobiliario',
-      'mix.summary.label': 'Tu Tessera',
+      'mix.summary.label': 'Tu MosaOS',
       'mix.summary.meta': '+ CHF 4 / mes por colaborador<br/>14 días gratis · cancelable en cualquier momento',
       'mix.summary.cta': 'Empezar con esta configuración',
       'mix.summary.demo': 'Probar primero la demo',
@@ -534,14 +534,14 @@
 
       'branchen.eyebrow': 'Industries',
       'branchen.title': 'Built for your industry.',
-      'branchen.sub': 'Instead of software made for everyone and no one, each Tessera variant knows the specifics of your trade. Three industries are live, more are coming — or we build yours.',
+      'branchen.sub': 'Instead of software made for everyone and no one, each MosaOS variant knows the specifics of your trade. Three industries are live, more are coming — or we build yours.',
 
       'how.eyebrow': 'How it works',
       'how.title': 'Ready in three steps.',
       'how.sub': 'No sales call required. No onboarding workshop. You click through yourself.',
 
       'module.eyebrow': 'Modules',
-      'module.title': 'Assemble your Tessera.',
+      'module.title': 'Assemble your MosaOS.',
       'module.sub': 'Tick the modules you need. Price updates live.',
 
       'cta.title': 'Ready to tidy up your office?',
@@ -603,7 +603,7 @@
       'mix.tab.reinigung': '🧹 Cleaning',
       'mix.tab.handwerk': '🔧 Trades',
       'mix.tab.immo': '🏠 Real estate',
-      'mix.summary.label': 'Your Tessera',
+      'mix.summary.label': 'Your MosaOS',
       'mix.summary.meta': '+ CHF 4 / month per user<br/>14 days free · cancel anytime',
       'mix.summary.cta': 'Start with this configuration',
       'mix.summary.demo': 'Try the demo first',
@@ -634,8 +634,8 @@
   };
 
   const SUPPORTED = ['de', 'fr', 'it', 'es', 'en'];
-  const LS_KEY = 'tessera-lang';
-  const LS_REGION = 'tessera-region';
+  const LS_KEY = 'mosaos-lang';
+  const LS_REGION = 'mosaos-region';
 
   /* Region (Ländercode) aus Browser-Locale extrahieren — z.B. de-CH → CH, es-ES → ES */
   function detectRegion() {
@@ -690,7 +690,7 @@
       b.classList.toggle('active', b.dataset.lang === lang);
     });
     // Mixer neu rendern, falls geladen
-    if (window.TESSERA_MIXER_REFRESH) window.TESSERA_MIXER_REFRESH();
+    if (window.MOSAOS_MIXER_REFRESH) window.MOSAOS_MIXER_REFRESH();
   }
 
   function set(lang) {
@@ -699,7 +699,7 @@
     apply(lang);
   }
 
-  window.TESSERA_I18N = { detect, detectRegion, apply, set, supported: SUPPORTED, dict: DICT };
+  window.MOSAOS_I18N = { detect, detectRegion, apply, set, supported: SUPPORTED, dict: DICT };
 
   document.addEventListener('DOMContentLoaded', () => {
     apply(detect());

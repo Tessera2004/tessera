@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tessera — Anmelden</title>
+  <title>MosaOS — Anmelden</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
@@ -33,7 +33,7 @@
             </svg>
           </div>
           <div>
-            <div class="brand-name">Tessera</div>
+            <div class="brand-name">MosaOS</div>
             <div class="brand-sub">Disposition · Nachweis · Mehr</div>
           </div>
         </div>
@@ -121,7 +121,7 @@
             </svg>
           </div>
           <div>
-            <div class="brand-name" style="color: white;">Tessera</div>
+            <div class="brand-name" style="color: white;">MosaOS</div>
             <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Made in Switzerland</div>
           </div>
         </div>
@@ -171,7 +171,7 @@
 
     // Schon eingeloggt? → direkt in die App
     (async () => {
-      const s = await window.tesseraSession();
+      const s = await window.mosaosSession();
       if (s) window.location.href = 'app.html';
     })();
 

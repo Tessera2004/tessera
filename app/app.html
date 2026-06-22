@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tessera — Aarau</title>
+  <title>MosaOS — Aarau</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
@@ -18,10 +18,10 @@
     <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark-svg" title="Tessera">
-          <!-- Wordmark-Platzhalter — ersetzbar durch echtes Logo von Tessera -->
+        <div class="brand-mark-svg" title="MosaOS">
+          <!-- Wordmark-Platzhalter — ersetzbar durch echtes Logo von MosaOS -->
           <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-            <!-- Tessera-Mosaik: 4 Kacheln, vierte mit Schweizerkreuz -->
+            <!-- MosaOS-Mosaik: 4 Kacheln, vierte mit Schweizerkreuz -->
             <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
             <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
             <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
@@ -31,7 +31,7 @@
           </svg>
         </div>
         <div>
-          <div class="brand-name">Tessera</div>
+          <div class="brand-name">MosaOS</div>
           <div class="brand-sub">Aarau</div>
         </div>
       </div>
@@ -5501,13 +5501,13 @@
     // ============ Firma & QR-Rechnung ============
     const COMPANY_KEY = 'cc-company-v1';
     const DEFAULT_COMPANY = {
-      name: 'Tessera AG',
+      name: 'MosaOS AG',
       addr1: 'Bahnhofstrasse 10',
       addr2: '5000 Aarau',
       country: 'CH',
       iban: 'CH93 0076 2011 6238 5295 7',   // Demo-IBAN — bitte ersetzen
       mwst: 'CHE-123.456.789',
-      contact: 'info@tessera.ch · +41 62 824 00 00'
+      contact: 'info@mosaos.ch · +41 62 824 00 00'
     };
     function loadCompany() {
       try { return Object.assign({}, DEFAULT_COMPANY, JSON.parse(localStorage.getItem(COMPANY_KEY)) || {}); }
@@ -6300,7 +6300,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir freuen uns auf Ihre Rückmeldung.
 
 Mit freundlichen Grüßen
-Tessera
+MosaOS
 Aarau · ${datum}`,
 
         end: `Sehr geehrte/r ${kunde},
@@ -6322,7 +6322,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir garantieren eine abnahmefähige Wohnung — andernfalls Nachreinigung kostenfrei.
 
 Mit freundlichen Grüßen
-Tessera
+MosaOS
 Aarau · ${datum}`,
 
         fenster: `Sehr geehrte/r ${kunde},
@@ -6343,7 +6343,7 @@ Mindestbuchung: ${getPrice('fenster-min')} Stunden
 Das Angebot ist gültig bis ${gueltig}.
 
 Mit freundlichen Grüßen
-Tessera
+MosaOS
 Aarau · ${datum}`,
 
         bau: `Sehr geehrte Bauleitung,
@@ -6365,7 +6365,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Wir koordinieren uns gerne direkt mit den Gewerken vor Ort.
 
 Mit freundlichen Grüßen
-Tessera
+MosaOS
 Aarau · ${datum}`,
 
         fassade: `Sehr geehrte/r ${kunde},
@@ -6386,7 +6386,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Vor Beginn führen wir eine Probefläche aus.
 
 Mit freundlichen Grüßen
-Tessera
+MosaOS
 Aarau · ${datum}`
       };
 
@@ -6631,7 +6631,7 @@ Aarau · ${datum}`
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.setTextColor(225, 29, 42); // brand red
-      doc.text('Tessera', M, y);
+      doc.text('MosaOS', M, y);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(120);
@@ -6763,7 +6763,7 @@ Aarau · ${datum}`
       doc.setFontSize(8.5);
       doc.setTextColor(120);
       doc.text('Datum / Unterschrift Kunde', M, y + 4);
-      doc.text('Tessera', W - M, y + 4, { align: 'right' });
+      doc.text('MosaOS', W - M, y + 4, { align: 'right' });
 
       // Save
       const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');
