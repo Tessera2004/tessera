@@ -3444,6 +3444,11 @@
       applyCurrentUserToUI();
     }
     function setCurrentUser(id) {
+      if (window._authLocked) {
+        toast('Im angemeldeten Modus ist deine Rolle fest mit deinem Login verknüpft.');
+        closeUserMenu();
+        return;
+      }
       const users = loadUsers();
       const u = users.find(x => x.id === id);
       if (!u) return;
@@ -3452,6 +3457,27 @@
       applyCurrentUserToUI();
       toast(`Eingeloggt als ${getUserName(u)}`);
       closeUserMenu();
+    }
+
+    // Verknüpft den Supabase-Login mit einem Büro-Profil/Rolle und sperrt den Umschalter.
+    // Ohne Login (lokale Demo) bleibt der Umschalter frei.
+    window._authLocked = false;
+    function applyAuthProfile() {
+      const email = window._authEmail;
+      if (!email) { window._authLocked = false; return; }
+      window._authLocked = true;
+      const users = loadUsers();
+      const match = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
+      if (match) {
+        currentUser = match;
+        localStorage.setItem('cc-currentUser', match.id);
+      } else {
+        // Eingeloggt, aber kein Büro-Profil mit dieser E-Mail → Rolle aus tenant_users
+        // (Owner = admin, Eingeladene = ihre Rolle); sonst sichere Read-only-Identität.
+        const role = (window._authRole && ROLE_DEFS[window._authRole]) ? window._authRole : 'readonly';
+        currentUser = { id: 'auth-user', firstname: email.split('@')[0], lastname: '', email, role };
+      }
+      applyCurrentUserToUI();
     }
     function applyCurrentUserToUI() {
       if (!currentUser) return;
@@ -3492,6 +3518,19 @@
     function renderUserMenu() {
       const list = document.getElementById('userMenuList');
       if (!list) return;
+      // Angemeldet: feste Identität, kein Umschalten
+      if (window._authLocked && currentUser) {
+        const col = getUserColor(currentUser);
+        list.innerHTML = `<div class="user-menu-item active" style="cursor:default;">
+          <span class="user-avatar" style="background: linear-gradient(135deg, ${col}, color-mix(in srgb, ${col} 70%, black));">${getUserInitials(currentUser)}</span>
+          <span style="display:flex; flex-direction:column; line-height:1.2; min-width:0;">
+            <span style="font-weight:600; font-size:13px;">${getUserName(currentUser)}</span>
+            <span style="font-size:11px; color:var(--text-subtle); overflow:hidden; text-overflow:ellipsis;">${currentUser.email || ''}</span>
+          </span>
+          <span class="um-role">${ROLE_DEFS[currentUser.role]?.label || currentUser.role}</span>
+        </div>`;
+        return;
+      }
       const users = loadUsers();
       list.innerHTML = users.map(u => {
         const isMe = currentUser && u.id === currentUser.id;
@@ -8614,11 +8653,12 @@ ${coSig}`
         if (!session) return null;
         const { data } = await sb
           .from('tenant_users')
-          .select('tenant_id')
+          .select('tenant_id, role')
           .eq('user_id', session.user.id)
           .single();
         if (data?.tenant_id) {
           window._tenantId = data.tenant_id;
+          window._authRole = data.role || null;
         }
       } catch {}
       return window._tenantId;
@@ -8949,19 +8989,22 @@ ${coSig}`
     (async () => {
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
-      refreshAuthStatus();
-      applyFeatureFlags();
-      // Nach Backend-Sync betroffene Ansichten neu zeichnen, falls Daten kamen
+      await refreshAuthStatus();
+      // Backend-Daten in localStorage? Profile neu laden (Demo-Default)
       if (window._dbReady) {
         try {
           TASKS = loadTasks();
           if (typeof loadCurrentUser === 'function') loadCurrentUser();
-          if (typeof renderDashboard === 'function') renderDashboard();
-          // Aktive Ansicht neu rendern (re-klickt aktiven Nav-Eintrag)
-          const active = document.querySelector('.nav-item.active[data-view]');
-          if (active) active.click();
         } catch {}
       }
+      // Login → festes Büro-Profil + Rolle, Umschalter sperren (gewinnt über Demo-Auswahl)
+      applyAuthProfile();
+      applyFeatureFlags();
+      try {
+        if (typeof renderDashboard === 'function') renderDashboard();
+        const active = document.querySelector('.nav-item.active[data-view]');
+        if (active) active.click();
+      } catch {}
     })();
 
   </script>
