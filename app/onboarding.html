@@ -210,16 +210,22 @@
       <div class="ob-brand">
         <div class="ob-brand-mark">
           <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-            <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
-            <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
-            <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
-            <rect x="16" y="16" width="13" height="13" rx="3" fill="white"/>
-            <rect x="19.5" y="21.5" width="6" height="2" fill="#E11D2A"/>
-            <rect x="21.5" y="19.5" width="2" height="6" fill="#E11D2A"/>
+            <defs>
+              <pattern id="moTileOb" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="4" height="4" fill="white"/>
+                <line x1="0" y1="0" x2="0" y2="4" stroke="#E11D2A" stroke-width="0.8" opacity="0.11"/>
+              </pattern>
+            </defs>
+            <rect x="3" y="3" width="13" height="13" rx="3" fill="url(#moTileOb)"/>
+            <rect x="16" y="3" width="13" height="13" rx="3" fill="url(#moTileOb)"/>
+            <rect x="3" y="16" width="13" height="13" rx="3" fill="url(#moTileOb)"/>
+            <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
+            <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
+            <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
           </svg>
         </div>
         <div>
-          <div class="brand-name">MosaOS</div>
+          <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
           <div class="brand-sub">Einrichtung</div>
         </div>
       </div>
@@ -429,7 +435,7 @@
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <div class="ob-done-title">MosaOS ist bereit!</div>
+          <div class="ob-done-title">Mosa<span style="color:#E11D2A">OS</span> ist bereit!</div>
           <div class="ob-done-sub" id="doneSub">Firmenprofil, Preise und Team sind eingerichtet.</div>
           <div class="ob-summary" id="obSummary">
             <dl id="summaryDl"></dl>

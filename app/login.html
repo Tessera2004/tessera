@@ -24,12 +24,18 @@
         <div class="brand" style="padding: 0; border: none; margin-bottom: 40px;">
           <div class="brand-mark-svg" style="width: 44px; height: 44px;">
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-              <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
-              <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
-              <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
-              <rect x="16" y="16" width="13" height="13" rx="3" fill="white"/>
-              <rect x="19.5" y="21.5" width="6" height="2" fill="#E11D2A"/>
-              <rect x="21.5" y="19.5" width="2" height="6" fill="#E11D2A"/>
+              <defs>
+                <pattern id="moTileLogin" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect width="4" height="4" fill="white"/>
+                  <line x1="0" y1="0" x2="0" y2="4" stroke="#E11D2A" stroke-width="0.8" opacity="0.11"/>
+                </pattern>
+              </defs>
+              <rect x="3" y="3" width="13" height="13" rx="3" fill="url(#moTileLogin)"/>
+              <rect x="16" y="3" width="13" height="13" rx="3" fill="url(#moTileLogin)"/>
+              <rect x="3" y="16" width="13" height="13" rx="3" fill="url(#moTileLogin)"/>
+              <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
+              <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
+              <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
             </svg>
           </div>
           <div>
@@ -113,9 +119,15 @@
         <div class="brand" style="padding: 0; border: none;">
           <div class="brand-mark-svg" style="width: 44px; height: 44px; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);">
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-              <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
-              <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
-              <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
+              <defs>
+                <pattern id="moTileLoginV" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect width="4" height="4" fill="white"/>
+                  <line x1="0" y1="0" x2="0" y2="4" stroke="#0F172A" stroke-width="0.8" opacity="0.10"/>
+                </pattern>
+              </defs>
+              <rect x="3" y="3" width="13" height="13" rx="3" fill="url(#moTileLoginV)"/>
+              <rect x="16" y="3" width="13" height="13" rx="3" fill="url(#moTileLoginV)"/>
+              <rect x="3" y="16" width="13" height="13" rx="3" fill="url(#moTileLoginV)"/>
               <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
               <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
               <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>

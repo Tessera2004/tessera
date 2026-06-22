@@ -1,9 +1,15 @@
-<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tessera logo mark">
-  <title>Tessera</title>
-  <!-- Dark-mode mark: light tiles + 1 Swiss-red tile -->
-  <rect x="6"  y="6"  width="24" height="24" rx="5" fill="#F1F3F8"/>
-  <rect x="34" y="6"  width="24" height="24" rx="5" fill="#F1F3F8"/>
-  <rect x="6"  y="34" width="24" height="24" rx="5" fill="#F1F3F8"/>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MosaOS logo mark">
+  <title>MosaOS</title>
+  <!-- Mark: helle Kacheln mit dezentem Muster + 1 Swiss-rote Kachel -->
+  <defs>
+    <pattern id="moTileSite" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#F1F3F8"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#DA291C" stroke-width="1.2" opacity="0.10"/>
+    </pattern>
+  </defs>
+  <rect x="6"  y="6"  width="24" height="24" rx="5" fill="url(#moTileSite)"/>
+  <rect x="34" y="6"  width="24" height="24" rx="5" fill="url(#moTileSite)"/>
+  <rect x="6"  y="34" width="24" height="24" rx="5" fill="url(#moTileSite)"/>
   <g>
     <rect x="34" y="34" width="24" height="24" rx="5" fill="#DA291C"/>
     <rect x="40" y="44" width="12" height="4" fill="#FFFFFF"/>
