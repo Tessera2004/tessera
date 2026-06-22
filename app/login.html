@@ -33,7 +33,7 @@
             </svg>
           </div>
           <div>
-            <div class="brand-name">MosaOS</div>
+            <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
             <div class="brand-sub">Disposition · Nachweis · Mehr</div>
           </div>
         </div>
@@ -52,6 +52,13 @@
               <label for="loginPassword">Passwort</label>
               <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
             </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:2px;">
+              <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-subtle);cursor:pointer;user-select:none;">
+                <input type="checkbox" id="rememberMe" checked style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;" />
+                Angemeldet bleiben
+              </label>
+              <span class="auth-toggle-link" style="font-size:12.5px;" onclick="showReset()">Passwort vergessen?</span>
+            </div>
             <div class="auth-msg" id="loginMsg"></div>
             <button type="submit" class="btn btn-primary" id="loginBtn" style="height: 42px; margin-top: 8px;">
               Anmelden
@@ -61,6 +68,41 @@
           <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
             Noch kein Konto? <a class="auth-toggle-link" href="onboarding.html">Firma einrichten →</a>
           </div>
+        </div>
+
+        <!-- ===== PASSWORT VERGESSEN ===== -->
+        <div id="resetView" hidden>
+          <h1 class="login-title">Passwort zurücksetzen</h1>
+          <p class="login-sub">Wir senden dir einen Link zum Zurücksetzen an deine E-Mail.</p>
+          <form class="login-form" id="resetForm">
+            <div class="field">
+              <label for="resetEmail">E-Mail</label>
+              <input type="email" id="resetEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+            </div>
+            <div class="auth-msg" id="resetMsg"></div>
+            <button type="submit" class="btn btn-primary" id="resetBtn" style="height: 42px; margin-top: 8px;">
+              Link senden
+            </button>
+          </form>
+          <div style="margin-top: 24px; font-size: 12.5px; color: var(--text-subtle); text-align: center;">
+            <span class="auth-toggle-link" onclick="showLogin()">← Zurück zum Anmelden</span>
+          </div>
+        </div>
+
+        <!-- ===== NEUES PASSWORT (nach Reset-Link) ===== -->
+        <div id="newPassView" hidden>
+          <h1 class="login-title">Neues Passwort</h1>
+          <p class="login-sub">Wähle ein neues Passwort für dein Konto.</p>
+          <form class="login-form" id="newPassForm">
+            <div class="field">
+              <label for="newPass">Neues Passwort</label>
+              <input type="password" id="newPass" placeholder="Mind. 8 Zeichen" autocomplete="new-password" minlength="8" required />
+            </div>
+            <div class="auth-msg" id="newPassMsg"></div>
+            <button type="submit" class="btn btn-primary" id="newPassBtn" style="height: 42px; margin-top: 8px;">
+              Passwort speichern
+            </button>
+          </form>
         </div>
 
       </div>
@@ -80,7 +122,7 @@
             </svg>
           </div>
           <div>
-            <div class="brand-name" style="color: white;">MosaOS</div>
+            <div class="brand-name" style="color: white;">Mosa<span style="color:#E11D2A">OS</span></div>
             <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Made in Switzerland</div>
           </div>
         </div>
@@ -125,8 +167,40 @@
     }
     function clearMsg(el) { el.className = 'auth-msg'; }
 
-    // Schon eingeloggt? → direkt in die App
+    function showView(id) {
+      ['loginView', 'resetView', 'newPassView'].forEach(v => {
+        document.getElementById(v).hidden = (v !== id);
+      });
+    }
+    function showLogin() { showView('loginView'); }
+    function showReset() {
+      // E-Mail aus Login-Feld übernehmen, falls vorhanden
+      const e = document.getElementById('loginEmail').value.trim();
+      if (e) document.getElementById('resetEmail').value = e;
+      showView('resetView');
+    }
+
+    // „Angemeldet bleiben": setzt das Flag, das ALLE Seiten lesen (supabase-client.js),
+    // und erstellt den Client mit dem passenden Storage, damit app.html dieselbe Session findet.
+    function clientFor(remember) {
+      localStorage.setItem('mosaos_remember', remember ? '1' : '0');
+      if (!window.supabase) return window.SB;
+      return window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY, {
+        auth: { persistSession: true, storage: remember ? window.localStorage : window.sessionStorage }
+      });
+    }
+
+    // Reset-Link geöffnet? Supabase feuert PASSWORD_RECOVERY → neues Passwort setzen.
+    let inRecovery = false;
+    if (window.SB) {
+      window.SB.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY') { inRecovery = true; showView('newPassView'); }
+      });
+    }
+
+    // Schon eingeloggt? → direkt in die App (außer wir sind im Reset-Flow)
     (async () => {
+      if (location.hash.includes('type=recovery')) return; // Recovery-Event abwarten
       const s = await window.mosaosSession();
       if (s) window.location.href = 'app.html';
     })();
@@ -138,8 +212,10 @@
       const box = document.getElementById('loginMsg');
       clearMsg(box);
       if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      const remember = document.getElementById('rememberMe').checked;
+      const sb = clientFor(remember);
       btn.disabled = true; btn.textContent = 'Anmelden …';
-      const { error } = await window.SB.auth.signInWithPassword({
+      const { error } = await sb.auth.signInWithPassword({
         email: document.getElementById('loginEmail').value.trim(),
         password: document.getElementById('loginPassword').value
       });
@@ -148,6 +224,40 @@
         btn.disabled = false; btn.textContent = 'Anmelden';
       } else {
         window.location.href = 'app.html';
+      }
+    });
+
+    // ---- Passwort vergessen: Reset-Mail senden ----
+    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('resetBtn');
+      const box = document.getElementById('resetMsg');
+      clearMsg(box);
+      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      const email = document.getElementById('resetEmail').value.trim();
+      btn.disabled = true; btn.textContent = 'Senden …';
+      const { error } = await window.SB.auth.resetPasswordForEmail(email, {
+        redirectTo: location.origin + location.pathname
+      });
+      btn.disabled = false; btn.textContent = 'Link senden';
+      if (error) { msg(box, error.message); }
+      else { msg(box, 'Falls ein Konto existiert, ist die E-Mail unterwegs. Prüfe dein Postfach.', 'ok'); }
+    });
+
+    // ---- Neues Passwort speichern (nach Reset-Link) ----
+    document.getElementById('newPassForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('newPassBtn');
+      const box = document.getElementById('newPassMsg');
+      clearMsg(box);
+      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      const pw = document.getElementById('newPass').value;
+      btn.disabled = true; btn.textContent = 'Speichern …';
+      const { error } = await window.SB.auth.updateUser({ password: pw });
+      if (error) { msg(box, error.message); btn.disabled = false; btn.textContent = 'Passwort speichern'; }
+      else {
+        msg(box, '✓ Passwort geändert. Weiterleitung …', 'ok');
+        setTimeout(() => { window.location.href = 'app.html'; }, 1200);
       }
     });
 

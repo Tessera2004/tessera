@@ -15,6 +15,7 @@
   <!-- Supabase für Zeiterfassung (timelog + Storage) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
   <script src="mail-config.js"></script>
   <script src="db-sync.js"></script>
 </head>
@@ -179,6 +180,12 @@
               <button class="user-menu-item" onclick="closeUserMenu(); navTo('team')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
                 Team verwalten
+              </button>
+              <div class="user-menu-divider"></div>
+              <div id="authStatusRow" style="padding:6px 12px 2px;font-size:11px;color:var(--text-subtle);"></div>
+              <button class="user-menu-item" id="authActionBtn" onclick="onAuthAction()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span id="authActionLabel">Abmelden</span>
               </button>
             </div>
           </div>
@@ -8147,6 +8154,37 @@ ${coSig}`
       return window._tenantId;
     }
 
+    // ── Login-Status / Abmelden ──────────────────────────────
+    window._authEmail = null;
+
+    async function refreshAuthStatus() {
+      const sb = getSupabase();
+      const rowEl = document.getElementById('authStatusRow');
+      const lblEl = document.getElementById('authActionLabel');
+      let session = null;
+      if (sb) { try { session = (await sb.auth.getSession()).data.session; } catch {} }
+      window._authEmail = session?.user?.email || null;
+      if (window._authEmail) {
+        if (rowEl) rowEl.textContent = window._authEmail + (window._dbReady ? ' · synchronisiert' : '');
+        if (lblEl) lblEl.textContent = 'Abmelden';
+      } else {
+        if (rowEl) rowEl.textContent = 'Nicht angemeldet · nur lokal';
+        if (lblEl) lblEl.textContent = 'Anmelden';
+      }
+    }
+
+    async function onAuthAction() {
+      closeUserMenu();
+      const sb = getSupabase();
+      if (window._authEmail && sb) {
+        if (!confirm('Wirklich abmelden? Lokale Daten bleiben auf diesem Gerät erhalten.')) return;
+        try { await sb.auth.signOut(); } catch {}
+        window.location.href = 'login.html';
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+
     // ============================================================
     // JOB QR-CODE
     // ============================================================
@@ -8440,6 +8478,7 @@ ${coSig}`
     (async () => {
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
+      refreshAuthStatus();
       // Nach Backend-Sync betroffene Ansichten neu zeichnen, falls Daten kamen
       if (window._dbReady) {
         try {
