@@ -59,48 +59,7 @@
           </form>
 
           <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
-            Noch kein Konto? <span class="auth-toggle-link" onclick="showSignup()">14 Tage kostenlos testen</span>
-          </div>
-        </div>
-
-        <!-- ===== REGISTRIEREN ===== -->
-        <div id="signupView" hidden>
-          <h1 class="login-title">Konto erstellen</h1>
-          <p class="login-sub">14 Tage gratis. Keine Kreditkarte.</p>
-
-          <form class="login-form" id="signupForm">
-            <div class="field">
-              <label for="suCompany">Firmenname</label>
-              <input type="text" id="suCompany" placeholder="z. B. Müller Reinigung GmbH" required />
-            </div>
-            <div class="field">
-              <label for="suBranche">Branche</label>
-              <select id="suBranche">
-                <option value="reinigung">🧹 Reinigung</option>
-                <option value="handwerk">🔧 Handwerk</option>
-                <option value="immobilien">🏠 Immobilien</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="suName">Dein Name</label>
-              <input type="text" id="suName" placeholder="Vor- und Nachname" autocomplete="name" required />
-            </div>
-            <div class="field">
-              <label for="suEmail">E-Mail</label>
-              <input type="email" id="suEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
-            </div>
-            <div class="field">
-              <label for="suPassword">Passwort wählen</label>
-              <input type="password" id="suPassword" placeholder="mind. 6 Zeichen" autocomplete="new-password" minlength="6" required />
-            </div>
-            <div class="auth-msg" id="signupMsg"></div>
-            <button type="submit" class="btn btn-primary" id="signupBtn" style="height: 42px; margin-top: 8px;">
-              Konto erstellen
-            </button>
-          </form>
-
-          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
-            Schon ein Konto? <span class="auth-toggle-link" onclick="showLogin()">Anmelden</span>
+            Noch kein Konto? <a class="auth-toggle-link" href="onboarding.html">Firma einrichten →</a>
           </div>
         </div>
 
@@ -160,9 +119,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
   <script>
-    function showSignup() { document.getElementById('loginView').hidden = true;  document.getElementById('signupView').hidden = false; }
-    function showLogin()  { document.getElementById('signupView').hidden = true; document.getElementById('loginView').hidden  = false; }
-
     function msg(el, text, kind) {
       el.textContent = text;
       el.className = 'auth-msg show ' + (kind || 'err');
@@ -195,35 +151,6 @@
       }
     });
 
-    // ---- Registrieren ----
-    document.getElementById('signupForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('signupBtn');
-      const box = document.getElementById('signupMsg');
-      clearMsg(box);
-      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
-      btn.disabled = true; btn.textContent = 'Konto wird erstellt …';
-      const { data, error } = await window.SB.auth.signUp({
-        email: document.getElementById('suEmail').value.trim(),
-        password: document.getElementById('suPassword').value,
-        options: {
-          data: {
-            company: document.getElementById('suCompany').value.trim(),
-            branche: document.getElementById('suBranche').value,
-            name: document.getElementById('suName').value.trim()
-          }
-        }
-      });
-      if (error) {
-        msg(box, error.message);
-        btn.disabled = false; btn.textContent = 'Konto erstellen';
-      } else if (data.session) {
-        window.location.href = 'app.html';
-      } else {
-        msg(box, '✓ Konto erstellt! Bitte bestätige den Link in deiner E-Mail, dann kannst du dich anmelden.', 'ok');
-        btn.disabled = false; btn.textContent = 'Konto erstellen';
-      }
-    });
   </script>
 </body>
 </html>

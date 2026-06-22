@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MosaOS — Einrichtung</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .ob-shell {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 16px 80px;
+      background: var(--bg);
+    }
+    .ob-card {
+      width: 100%;
+      max-width: 520px;
+    }
+    .ob-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .ob-brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: #E11D2A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ob-step-header {
+      margin-bottom: 24px;
+    }
+    .ob-step-label {
+      font-size: 11px;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .ob-bars {
+      display: flex;
+      gap: 5px;
+    }
+    .ob-bar {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      transition: background 0.25s, opacity 0.25s;
+    }
+    .ob-bar.done   { background: #E11D2A; opacity: 1; }
+    .ob-bar.active { background: #E11D2A; opacity: 0.45; }
+    .ob-panel {
+      display: none;
+    }
+    .ob-panel.active {
+      display: block;
+    }
+    .ob-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+    .ob-sub {
+      font-size: 13px;
+      color: var(--text-subtle);
+      margin: 0 0 24px;
+      line-height: 1.55;
+    }
+    .ob-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      gap: 8px;
+    }
+    .ob-back {
+      font-size: 13px;
+      color: var(--text-subtle);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .ob-back:hover { color: var(--text); }
+    .ob-msg {
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      line-height: 1.45;
+      display: none;
+    }
+    .ob-msg.show { display: block; }
+    .ob-msg.err  { background: rgba(225,29,42,0.10); color: var(--danger); }
+    .ob-msg.ok   { background: rgba(16,185,129,0.12); color: var(--success); }
+    .ob-group-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 20px 0 10px;
+    }
+    .ob-group-title:first-of-type { margin-top: 0; }
+    .ob-price-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px 10px;
+      margin-bottom: 2px;
+    }
+    .ob-price-row .field {
+      margin: 0;
+    }
+    .ob-price-row label {
+      font-size: 11.5px;
+    }
+    .ob-done-wrap {
+      text-align: center;
+      padding: 12px 0 0;
+    }
+    .ob-done-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(16,185,129,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .ob-done-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .ob-done-sub {
+      font-size: 13.5px;
+      color: var(--text-subtle);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .ob-summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .ob-summary dl { margin: 0; }
+    .ob-summary dt {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-subtle);
+      margin-top: 10px;
+    }
+    .ob-summary dt:first-child { margin-top: 0; }
+    .ob-summary dd {
+      margin: 2px 0 0;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    .ob-skip-link {
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .ob-skip-link:hover { text-decoration: underline; }
+    .ob-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .ob-two-col .field { margin: 0; }
+    @media (max-width: 420px) {
+      .ob-two-col { grid-template-columns: 1fr; }
+      .ob-price-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ob-shell">
+    <div class="ob-card">
+
+      <!-- Brand header -->
+      <div class="ob-brand">
+        <div class="ob-brand-mark">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+            <rect x="3" y="3" width="13" height="13" rx="3" fill="white"/>
+            <rect x="16" y="3" width="13" height="13" rx="3" fill="white"/>
+            <rect x="3" y="16" width="13" height="13" rx="3" fill="white"/>
+            <rect x="16" y="16" width="13" height="13" rx="3" fill="white"/>
+            <rect x="19.5" y="21.5" width="6" height="2" fill="#E11D2A"/>
+            <rect x="21.5" y="19.5" width="2" height="6" fill="#E11D2A"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">MosaOS</div>
+          <div class="brand-sub">Einrichtung</div>
+        </div>
+      </div>
+
+      <!-- Step progress -->
+      <div class="ob-step-header">
+        <div class="ob-step-label" id="stepLabel">Schritt 1 von 4</div>
+        <div class="ob-bars">
+          <div class="ob-bar active" id="bar1"></div>
+          <div class="ob-bar" id="bar2"></div>
+          <div class="ob-bar" id="bar3"></div>
+          <div class="ob-bar" id="bar4"></div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 1: Konto ===== -->
+      <div class="ob-panel active" id="panel1">
+        <h2 class="ob-title">Konto erstellen</h2>
+        <p class="ob-sub">Dein Login für die App und die Zeiterfassung deiner Mitarbeiter.</p>
+        <form id="accountForm" class="login-form">
+          <div class="field">
+            <label for="obEmail">E-Mail-Adresse</label>
+            <input type="email" id="obEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="obPassword">Passwort wählen</label>
+            <input type="password" id="obPassword" placeholder="mind. 6 Zeichen" autocomplete="new-password" minlength="6" required />
+          </div>
+          <div class="ob-msg" id="accountMsg"></div>
+          <div class="ob-footer">
+            <a href="login.html" style="font-size:13px;color:var(--text-subtle);text-decoration:none;">← Zurück zum Login</a>
+            <button type="submit" class="btn btn-primary" id="accountBtn" style="min-width:120px;">Weiter →</button>
+          </div>
+        </form>
+        <div style="margin-top:18px;text-align:center;">
+          <button class="ob-skip-link" onclick="skipToStep2()">Kein Supabase — lokal einrichten</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 2: Firmenprofil ===== -->
+      <div class="ob-panel" id="panel2">
+        <h2 class="ob-title">Firmenprofil</h2>
+        <p class="ob-sub">Erscheint auf allen Rechnungen und dem Swiss QR-Einzahlschein.</p>
+        <form id="companyForm" class="login-form">
+          <div class="field">
+            <label for="obCoName">Firmenname *</label>
+            <input type="text" id="obCoName" placeholder="z. B. Müller Reinigung GmbH" required />
+          </div>
+          <div class="field">
+            <label for="obCoAddr1">Strasse &amp; Hausnummer</label>
+            <input type="text" id="obCoAddr1" placeholder="Bahnhofstrasse 10" />
+          </div>
+          <div class="field">
+            <label for="obCoAddr2">PLZ &amp; Ort</label>
+            <input type="text" id="obCoAddr2" placeholder="5000 Aarau" />
+          </div>
+          <div class="field">
+            <label for="obCoIban">IBAN <span style="font-weight:400;color:var(--text-subtle)">(Swiss QR-Rechnung)</span></label>
+            <input type="text" id="obCoIban" placeholder="CH93 0076 2011 6238 5295 7" />
+          </div>
+          <div class="ob-two-col">
+            <div class="field">
+              <label for="obCoMwst">MWST-Nummer</label>
+              <input type="text" id="obCoMwst" placeholder="CHE-123.456.789" />
+            </div>
+            <div class="field">
+              <label for="obCoCountry">Land</label>
+              <select id="obCoCountry">
+                <option value="CH" selected>Schweiz (CH)</option>
+                <option value="DE">Deutschland (DE)</option>
+                <option value="AT">Österreich (AT)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="obCoContact">Kontakt <span style="font-weight:400;color:var(--text-subtle)">(E-Mail · Telefon)</span></label>
+            <input type="text" id="obCoContact" placeholder="info@firma.ch · +41 62 000 00 00" />
+          </div>
+          <div class="ob-msg" id="companyMsg"></div>
+          <div class="ob-footer">
+            <button type="button" class="ob-back" onclick="goStep(1)" id="companyBack">← Zurück</button>
+            <button type="submit" class="btn btn-primary" style="min-width:120px;">Weiter →</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ===== STEP 3: Stundenpreise ===== -->
+      <div class="ob-panel" id="panel3">
+        <h2 class="ob-title">Stundenpreise</h2>
+        <p class="ob-sub">Standardwerte für die Auftragsberechnung — jederzeit unter Einstellungen änderbar.</p>
+        <form id="pricesForm" class="login-form">
+
+          <div class="ob-group-title">Unterhaltsreinigung</div>
+          <div class="ob-price-row">
+            <div class="field">
+              <label>CHF / Std.</label>
+              <input type="number" step="0.5" min="0" id="pr-unterhalt-rate" value="35" />
+            </div>
+            <div class="field">
+              <label>Min. Stunden</label>
+              <input type="number" step="0.5" min="0" id="pr-unterhalt-min" value="1" />
+            </div>
+            <div class="field">
+              <label>Anfahrt CHF</label>
+              <input type="number" step="5" min="0" id="pr-unterhalt-fee" value="0" />
+            </div>
+          </div>
+
+          <div class="ob-group-title">Endreinigung</div>
+          <div class="ob-price-row">
+            <div class="field">
+              <label>CHF / Std.</label>
+              <input type="number" step="0.5" min="0" id="pr-end-rate" value="45" />
+            </div>
+            <div class="field">
+              <label>Min. Stunden</label>
+              <input type="number" step="0.5" min="0" id="pr-end-min" value="3" />
+            </div>
+            <div class="field">
+              <label>Anfahrt CHF</label>
+              <input type="number" step="5" min="0" id="pr-end-fee" value="25" />
+            </div>
+          </div>
+
+          <div class="ob-group-title">Fensterreinigung</div>
+          <div class="ob-price-row">
+            <div class="field">
+              <label>CHF / Std.</label>
+              <input type="number" step="0.5" min="0" id="pr-fenster-rate" value="40" />
+            </div>
+            <div class="field">
+              <label>Min. Stunden</label>
+              <input type="number" step="0.5" min="0" id="pr-fenster-min" value="2" />
+            </div>
+            <div class="field">
+              <label>Anfahrt CHF</label>
+              <input type="number" step="5" min="0" id="pr-fenster-fee" value="20" />
+            </div>
+          </div>
+
+          <div class="ob-group-title">Baureinigung</div>
+          <div class="ob-price-row">
+            <div class="field">
+              <label>CHF / Std.</label>
+              <input type="number" step="0.5" min="0" id="pr-bau-rate" value="48" />
+            </div>
+            <div class="field">
+              <label>Min. Stunden</label>
+              <input type="number" step="0.5" min="0" id="pr-bau-min" value="4" />
+            </div>
+            <div class="field">
+              <label>Anfahrt CHF</label>
+              <input type="number" step="5" min="0" id="pr-bau-fee" value="35" />
+            </div>
+          </div>
+
+          <div class="ob-footer">
+            <button type="button" class="ob-back" onclick="goStep(2)">← Zurück</button>
+            <button type="submit" class="btn btn-primary" style="min-width:120px;">Weiter →</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ===== STEP 4: Erster Mitarbeiter (optional) ===== -->
+      <div class="ob-panel" id="panel4">
+        <h2 class="ob-title">Erster Mitarbeiter</h2>
+        <p class="ob-sub">Optional — weitere Teammitglieder können jederzeit unter Büro-Team hinzugefügt werden.</p>
+        <form id="userForm" class="login-form">
+          <div class="ob-two-col">
+            <div class="field">
+              <label for="obUFirst">Vorname</label>
+              <input type="text" id="obUFirst" placeholder="Sandra" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="obULast">Nachname</label>
+              <input type="text" id="obULast" placeholder="Meier" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="obUEmail">E-Mail</label>
+            <input type="email" id="obUEmail" placeholder="sandra@firma.ch" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="obURole">Rolle</label>
+            <select id="obURole">
+              <option value="admin">Admin — Voller Zugriff</option>
+              <option value="disposition" selected>Disposition — Aufträge &amp; Objekte</option>
+              <option value="buchhaltung">Buchhaltung — Offerten &amp; Preise</option>
+              <option value="readonly">Nur Ansicht</option>
+            </select>
+          </div>
+          <div class="ob-footer">
+            <button type="button" class="ob-back" onclick="goStep(3)">← Zurück</button>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn" onclick="finishOnboarding()" style="background:var(--surface);color:var(--text);border:1px solid var(--border-strong);">Überspringen</button>
+              <button type="submit" class="btn btn-primary" style="min-width:120px;">Fertig →</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ===== DONE ===== -->
+      <div class="ob-panel" id="panelDone">
+        <div class="ob-done-wrap">
+          <div class="ob-done-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="ob-done-title">MosaOS ist bereit!</div>
+          <div class="ob-done-sub" id="doneSub">Firmenprofil, Preise und Team sind eingerichtet.</div>
+          <div class="ob-summary" id="obSummary">
+            <dl id="summaryDl"></dl>
+          </div>
+          <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;font-weight:600;" onclick="window.location.href='app.html'">
+            App öffnen →
+          </button>
+          <div style="margin-top:14px;font-size:12px;color:var(--text-subtle);">
+            Alle Einstellungen können jederzeit in der App unter <strong>Einstellungen</strong> geändert werden.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    let step1Skipped = false;
+
+    // If already logged in → skip account creation
+    (async () => {
+      if (!window.SB) {
+        setMsg('accountMsg', 'Kein Supabase konfiguriert. Du kannst Firma und Preise trotzdem lokal einrichten.', 'ok');
+        return;
+      }
+      const session = await window.mosaosSession();
+      if (session) {
+        skipToStep2();
+      }
+    })();
+
+    // ── Step navigation ──────────────────────────────────────────
+    const STEPS = [1, 2, 3, 4];
+
+    function goStep(n) {
+      // Hide all panels
+      document.querySelectorAll('.ob-panel').forEach(p => p.classList.remove('active'));
+      const panelId = 'panel' + n;
+      const panel = document.getElementById(panelId);
+      if (panel) panel.classList.add('active');
+
+      // Update back button visibility for step 2 when step 1 was skipped
+      const companyBack = document.getElementById('companyBack');
+      if (companyBack) companyBack.style.visibility = step1Skipped ? 'hidden' : '';
+
+      // Progress bars
+      const effectiveN = step1Skipped ? n - 1 : n;
+      const total = step1Skipped ? 3 : 4;
+      document.getElementById('stepLabel').textContent = `Schritt ${Math.max(1, effectiveN)} von ${total}`;
+
+      for (let i = 1; i <= 4; i++) {
+        const bar = document.getElementById('bar' + i);
+        if (!bar) continue;
+        const barPos = step1Skipped ? i - 1 : i;
+        if (barPos < effectiveN)       bar.className = 'ob-bar done';
+        else if (barPos === effectiveN) bar.className = 'ob-bar active';
+        else                            bar.className = 'ob-bar';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showDone() {
+      document.querySelectorAll('.ob-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panelDone').classList.add('active');
+      // All bars done
+      for (let i = 1; i <= 4; i++) {
+        const bar = document.getElementById('bar' + i);
+        if (bar) bar.className = 'ob-bar done';
+      }
+      document.getElementById('stepLabel').textContent = 'Einrichtung abgeschlossen';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setMsg(id, text, kind) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'ob-msg show ' + (kind || 'err');
+    }
+    function clearMsg(id) {
+      const el = document.getElementById(id);
+      if (el) el.className = 'ob-msg';
+    }
+
+    // ── Step 1: Account ──────────────────────────────────────────
+    document.getElementById('accountForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMsg('accountMsg');
+      const btn = document.getElementById('accountBtn');
+      const email = document.getElementById('obEmail').value.trim();
+      const pass  = document.getElementById('obPassword').value;
+
+      if (!window.SB) {
+        // No Supabase → silently skip to step 2
+        skipToStep2();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Konto erstellen …';
+
+      const { data, error } = await window.SB.auth.signUp({ email, password: pass });
+
+      btn.disabled = false;
+      btn.textContent = 'Weiter →';
+
+      if (error) {
+        setMsg('accountMsg', error.message);
+        return;
+      }
+
+      if (!data.session) {
+        // Email confirmation required — still proceed with local setup
+        setMsg('accountMsg', '✓ Bestätigungs-E-Mail gesendet. Bitte bestätige deine Adresse — du kannst das Profil trotzdem jetzt einrichten.', 'ok');
+        setTimeout(() => goStep(2), 1600);
+        return;
+      }
+
+      goStep(2);
+    });
+
+    function skipToStep2() {
+      step1Skipped = true;
+      goStep(2);
+    }
+
+    // ── Step 2: Firmenprofil ─────────────────────────────────────
+    document.getElementById('companyForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      clearMsg('companyMsg');
+      const name = document.getElementById('obCoName').value.trim();
+      if (!name) { setMsg('companyMsg', 'Firmenname ist erforderlich.'); return; }
+
+      const company = {
+        name,
+        addr1:   document.getElementById('obCoAddr1').value.trim(),
+        addr2:   document.getElementById('obCoAddr2').value.trim(),
+        iban:    document.getElementById('obCoIban').value.trim(),
+        mwst:    document.getElementById('obCoMwst').value.trim(),
+        contact: document.getElementById('obCoContact').value.trim(),
+        country: document.getElementById('obCoCountry').value,
+      };
+      localStorage.setItem('cc-company-v1', JSON.stringify(company));
+      goStep(3);
+    });
+
+    // ── Step 3: Preise ───────────────────────────────────────────
+    document.getElementById('pricesForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const g = id => parseFloat(document.getElementById('pr-' + id)?.value) || 0;
+      const prices = {
+        'unterhalt-rate': g('unterhalt-rate'),
+        'unterhalt-min':  g('unterhalt-min'),
+        'unterhalt-fee':  g('unterhalt-fee'),
+        'end-rate':       g('end-rate'),
+        'end-min':        g('end-min'),
+        'end-fee':        g('end-fee'),
+        'fenster-rate':   g('fenster-rate'),
+        'fenster-min':    g('fenster-min'),
+        'fenster-fee':    g('fenster-fee'),
+        'bau-rate':       g('bau-rate'),
+        'bau-min':        g('bau-min'),
+        'bau-fee':        g('bau-fee'),
+        // Fields not shown in onboarding — carry defaults from app
+        'fenster-leiter': 15,
+        'fassade-stator': 8.5,
+        'fassade-algen':  3.5,
+        'fassade-impraeg': 4.0,
+        'fassade-min':    800,
+      };
+      localStorage.setItem('cc-prices', JSON.stringify(prices));
+      goStep(4);
+    });
+
+    // ── Step 4: Mitarbeiter ──────────────────────────────────────
+    document.getElementById('userForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const first = document.getElementById('obUFirst').value.trim();
+      const last  = document.getElementById('obULast').value.trim();
+      const email = document.getElementById('obUEmail').value.trim();
+      const role  = document.getElementById('obURole').value;
+      if (first || last) {
+        saveFirstUser({ firstname: first, lastname: last, email, role });
+      }
+      finishOnboarding();
+    });
+
+    function saveFirstUser(u) {
+      // Replace the demo placeholder users with the real first employee
+      const existing = JSON.parse(localStorage.getItem('cc-users') || 'null');
+      // Keep any non-demo users (demo users have @firma.ch emails)
+      const cleaned = existing ? existing.filter(x => !x.email?.endsWith('@firma.ch')) : [];
+      cleaned.unshift({
+        id: 'u' + Date.now(),
+        firstname: u.firstname,
+        lastname:  u.lastname,
+        email:     u.email,
+        role:      u.role,
+      });
+      localStorage.setItem('cc-users', JSON.stringify(cleaned));
+    }
+
+    function finishOnboarding() {
+      localStorage.setItem('cc-onboarding-done', '1');
+
+      // Build summary
+      const company = JSON.parse(localStorage.getItem('cc-company-v1') || '{}');
+      const prices  = JSON.parse(localStorage.getItem('cc-prices') || '{}');
+      const users   = JSON.parse(localStorage.getItem('cc-users') || '[]');
+      const nonDemo = users.filter(x => !x.email?.endsWith('@firma.ch'));
+
+      const dl = document.getElementById('summaryDl');
+      dl.innerHTML = '';
+      const row = (label, value) => {
+        const dt = document.createElement('dt'); dt.textContent = label;
+        const dd = document.createElement('dd'); dd.textContent = value || '—';
+        dl.appendChild(dt); dl.appendChild(dd);
+      };
+      row('Firma', company.name);
+      row('Adresse', [company.addr1, company.addr2].filter(Boolean).join(', '));
+      row('IBAN', company.iban || '(noch nicht eingetragen)');
+      row('Unterhaltsreinigung', prices['unterhalt-rate'] ? `CHF ${prices['unterhalt-rate']}/h` : '—');
+      row('Endreinigung', prices['end-rate'] ? `CHF ${prices['end-rate']}/h` : '—');
+      if (nonDemo.length > 0) {
+        row('1. Mitarbeiter', `${nonDemo[0].firstname} ${nonDemo[0].lastname}`.trim());
+      }
+
+      showDone();
+    }
+  </script>
+</body>
+</html>
