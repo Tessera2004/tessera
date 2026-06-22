@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -266,16 +267,18 @@
   // ── Supabase ──────────────────────────────────────────────────
   function getSb() {
     const cfg = window.MOSAOS_SUPABASE;
-    if (!cfg?.url || !cfg?.anonKey) return null;
-    if (!window.supabase) return null;
-    return window.supabase.createClient(cfg.url, cfg.anonKey);
+    if (cfg?.url && cfg?.anonKey && window.supabase) {
+      return window.supabase.createClient(cfg.url, cfg.anonKey);
+    }
+    return window.SB || null;  // fallback: supabase-client.js
   }
 
   // ── State ──────────────────────────────────────────────────────
-  let JOB = null;       // decoded payload
-  let STATE = 'idle';   // idle → checkedin → photo → done
-  let SB_ROW_ID = null; // timelog row UUID
-  let SNAP_BLOB = null; // captured photo blob
+  let JOB = null;         // decoded payload
+  let TENANT_ID = null;   // aus QR-Payload (tid), für timelog + Storage
+  let STATE = 'idle';     // idle → checkedin → photo → done
+  let SB_ROW_ID = null;   // timelog row UUID
+  let SNAP_BLOB = null;   // captured photo blob
   let elapsedTimer = null;
 
   // ── Parse URL param ───────────────────────────────────────────
@@ -294,6 +297,9 @@
     if (JOB.exp && Date.now() / 1000 > JOB.exp) {
       showError('Dieser QR-Code ist abgelaufen (24h Gültigkeit). Das Büro kann im Job-Editor einen neuen generieren.'); return;
     }
+
+    // Mandanten-ID aus QR-Payload (wird bei timelog-Insert mitgeschickt)
+    TENANT_ID = JOB.tid || null;
 
     // Job-Karte befüllen
     text('ciJobTitle', JOB.jl || JOB.jk || 'Einsatz');
@@ -342,11 +348,12 @@
     if (sb) {
       try {
         const { data, error } = await sb.from('timelog').insert({
-          job_key: JOB.jk,
-          job_label: JOB.jl,
-          employee_id: empId === '__manual__' ? null : empId,
+          tenant_id:    TENANT_ID,
+          job_key:      JOB.jk,
+          job_label:    JOB.jl,
+          employee_id:  empId === '__manual__' ? null : empId,
           employee_name: empName,
-          check_in: checkIn
+          check_in:     checkIn
         }).select('id').single();
         if (error) throw error;
         SB_ROW_ID = data.id;
@@ -436,7 +443,8 @@
 
     if (sb && SNAP_BLOB) {
       try {
-        const fileName = `${rowId || Date.now()}_${Date.now()}.jpg`;
+        const prefix = TENANT_ID ? `${TENANT_ID}/` : '';
+        const fileName = `${prefix}${rowId || Date.now()}_${Date.now()}.jpg`;
         const { data: upData, error: upErr } = await sb.storage.from('checkin-photos').upload(fileName, SNAP_BLOB, { contentType: 'image/jpeg', upsert: false });
         if (!upErr && upData) {
           const { data: urlData } = sb.storage.from('checkin-photos').getPublicUrl(upData.path);
