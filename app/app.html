@@ -16,6 +16,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="mail-config.js"></script>
+  <script src="db-sync.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -3116,7 +3117,7 @@
       }
       try { return JSON.parse(raw); } catch { return DEFAULT_USERS.slice(); }
     }
-    function saveUsers(users) { localStorage.setItem('cc-users', JSON.stringify(users)); }
+    function saveUsers(users) { localStorage.setItem('cc-users', JSON.stringify(users)); window.MosaDB?.push('office_users', users); }
     function getUserInitials(u) {
       return ((u.firstname || '?')[0] + (u.lastname || '')[0]).toUpperCase();
     }
@@ -3317,6 +3318,7 @@
       if (!confirm(`Mitarbeiter "${getUserName(u)}" wirklich löschen?`)) return;
       const next = users.filter(x => x.id !== editingUserId);
       saveUsers(next);
+      window.MosaDB?.remove('office_users', editingUserId);
       renderTeamGrid();
       closeModal('userEditor');
       toast('✓ Mitarbeiter gelöscht');
@@ -3339,6 +3341,7 @@
     })();
     function saveEmployees() {
       localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(EMPLOYEES));
+      window.MosaDB?.push('employees', EMPLOYEES);
     }
     function empName(e) { return `${e.firstName} ${e.lastName}`; }
     function empShort(e) { return `${e.firstName[0]}. ${e.lastName}`; }
@@ -3365,9 +3368,9 @@
       return (letters || 'T').toUpperCase();
     }
     function saveTeams() {
-      localStorage.setItem(TEAMS_KEY, JSON.stringify(
-        PLAN_TEAMS.map(t => ({ id: t.id, name: t.name, short: t.short, color: t.color }))
-      ));
+      const arr = PLAN_TEAMS.map(t => ({ id: t.id, name: t.name, short: t.short, color: t.color }));
+      localStorage.setItem(TEAMS_KEY, JSON.stringify(arr));
+      window.MosaDB?.push('teams', arr);
     }
     function addTeam(name, color) {
       const id = 't' + Date.now();
@@ -3386,6 +3389,7 @@
       PLAN_TEAMS = PLAN_TEAMS.filter(t => t.id !== id);
       EMPLOYEES.forEach(e => { if (e.teamId === id) e.teamId = null; });
       saveEmployees(); saveTeams(); rebuildTeamMembers();
+      window.MosaDB?.remove('teams', id);
     }
     // Abgeleitet: members + canDrive aus EMPLOYEES
     rebuildTeamMembers();
@@ -3440,7 +3444,7 @@
       try { return JSON.parse(localStorage.getItem(PLAN_JOBS_KEY)) || {}; }
       catch { return {}; }
     }
-    function savePlanJobsAll(d) { localStorage.setItem(PLAN_JOBS_KEY, JSON.stringify(d)); }
+    function savePlanJobsAll(d) { localStorage.setItem(PLAN_JOBS_KEY, JSON.stringify(d)); window.MosaDB?.push('plan_jobs', d); }
     function addPlanJob(dateKey, job) {
       const all = loadPlanJobs();
       if (!all[dateKey]) all[dateKey] = [];
@@ -3459,6 +3463,7 @@
         all[dateKey] = all[dateKey].filter(j => j.id !== jobId);
         if (!all[dateKey].length) delete all[dateKey];
         savePlanJobsAll(all);
+        window.MosaDB?.remove('plan_jobs', jobId);
       }
     }
 
@@ -4362,6 +4367,7 @@
     }
     function saveCustomers(list) {
       localStorage.setItem(CUSTOMERS_KEY, JSON.stringify(list));
+      window.MosaDB?.push('customers', list);
     }
     function customerDisplayName(c) {
       return c.lastName ? `${c.firstName} ${c.lastName}` : c.firstName;
@@ -4462,6 +4468,7 @@
       if (!confirm(`Kunde "${customerDisplayName(c)}" wirklich löschen? Telefon-Historie geht verloren.`)) return;
       const next = list.filter(x => x.id !== editingCustomerId);
       saveCustomers(next);
+      window.MosaDB?.remove('customers', editingCustomerId);
       closeModal('customerEditor');
       editingCustomerId = null;
       renderKunden();
@@ -4651,7 +4658,7 @@
       localStorage.setItem(TASKS_KEY, JSON.stringify(DEFAULT_TASKS));
       return JSON.parse(JSON.stringify(DEFAULT_TASKS));
     }
-    function saveTasks(arr) { localStorage.setItem(TASKS_KEY, JSON.stringify(arr)); }
+    function saveTasks(arr) { localStorage.setItem(TASKS_KEY, JSON.stringify(arr)); window.MosaDB?.push('tasks', arr); }
     let TASKS = loadTasks();
 
     function taskAssigneeLabel(uid) {
@@ -4898,6 +4905,7 @@
       if (!confirm('Aufgabe wirklich löschen?')) return;
       TASKS = TASKS.filter(t => t.id !== editingTaskId);
       saveTasks(TASKS);
+      window.MosaDB?.remove('tasks', editingTaskId);
       closeModal('taskEditor');
       editingTaskId = null;
       renderAufgaben();
@@ -5327,6 +5335,7 @@
       if (!confirm(`„${empName(e)}" wirklich löschen?`)) return;
       EMPLOYEES = EMPLOYEES.filter(x => x.id !== editingMitId);
       saveEmployees();
+      window.MosaDB?.remove('employees', editingMitId);
       rebuildTeamMembers();
       closeModal('mitarbeiterEditor');
       editingMitId = null;
@@ -5960,7 +5969,7 @@
       }
       catch { return { ...DEFAULT_COMPANY }; }
     }
-    function saveCompany(c) { localStorage.setItem(COMPANY_KEY, JSON.stringify(c)); }
+    function saveCompany(c) { localStorage.setItem(COMPANY_KEY, JSON.stringify(c)); window.MosaDB?.push('company_profile', c); }
     function fillCompanyForm() {
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
@@ -6520,6 +6529,7 @@
     function savePrices() {
       if (!requirePerm('edit_prices', 'Preise')) return;
       onPriceChange();
+      try { window.MosaDB?.push('company_prices', JSON.parse(localStorage.getItem('cc-prices')) || {}); } catch {}
       toast(`✓ Preise gespeichert (von ${getUserName(currentUser)}) — gelten ab nächstem Auftrag`);
     }
 
@@ -8426,7 +8436,21 @@ ${coSig}`
     })();
 
     // Mandanten-ID einmalig beim Startup laden (silent, kein Fehler wenn nicht konfiguriert)
-    (async () => { await loadTenantId(); })();
+    (async () => {
+      await loadTenantId();
+      try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
+      // Nach Backend-Sync betroffene Ansichten neu zeichnen, falls Daten kamen
+      if (window._dbReady) {
+        try {
+          TASKS = loadTasks();
+          if (typeof loadCurrentUser === 'function') loadCurrentUser();
+          if (typeof renderDashboard === 'function') renderDashboard();
+          // Aktive Ansicht neu rendern (re-klickt aktiven Nav-Eintrag)
+          const active = document.querySelector('.nav-item.active[data-view]');
+          if (active) active.click();
+        } catch {}
+      }
+    })();
 
   </script>
 </body>
