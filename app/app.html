@@ -12,6 +12,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <!-- Supabase für Zeiterfassung (timelog + Storage) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="mail-config.js"></script>
 </head>
 <body>
@@ -109,6 +112,11 @@
           <a class="nav-item" data-view="nachkalkulation">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             Nachkalkulation
+          </a>
+          <a class="nav-item" data-view="rechnungen">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+            Rechnungen
+            <span class="nav-badge" id="rechnungenBadge" style="display:none;">0</span>
           </a>
         </div>
 
@@ -650,9 +658,14 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Zeiterfassung</h1>
-              <p class="page-subtitle">Mindestlohn-konforme Arbeitszeitdokumentation · KW 25</p>
+              <p class="page-subtitle" id="zeitenSubtitle">Einsatzzeiten via QR-Check-in · Wochenübersicht</p>
             </div>
-            <button class="btn btn-secondary">CSV-Export für Steuerberater</button>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-secondary" onclick="zeitenPrevWeek()">← Vorwoche</button>
+              <span id="zeitenWeekLabel" style="font-size:13px;font-weight:600;white-space:nowrap;"></span>
+              <button class="btn btn-secondary" onclick="zeitenNextWeek()">Nächste →</button>
+              <button class="btn btn-secondary" onclick="zeitenExportCsv()">CSV-Export</button>
+            </div>
           </div>
 
           <div class="table-wrap">
@@ -660,18 +673,18 @@
               <thead>
                 <tr>
                   <th>Mitarbeiter</th>
-                  <th>Mo</th>
-                  <th>Di</th>
-                  <th>Mi</th>
-                  <th>Do</th>
-                  <th>Fr</th>
-                  <th>Sa</th>
-                  <th>So</th>
-                  <th style="text-align: right;">Summe</th>
+                  <th id="zhMo">Mo</th>
+                  <th id="zhDi">Di</th>
+                  <th id="zhMi">Mi</th>
+                  <th id="zhDo">Do</th>
+                  <th id="zhFr">Fr</th>
+                  <th id="zhSa">Sa</th>
+                  <th id="zhSo">So</th>
+                  <th style="text-align:right;">Summe</th>
                 </tr>
               </thead>
               <tbody id="zeitenBody">
-                <tr><td colspan="9" style="text-align:center; padding:28px; color:var(--text-subtle);">Noch keine Mitarbeiter erfasst.</td></tr>
+                <tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-subtle);">Lade…</td></tr>
               </tbody>
             </table>
           </div>
@@ -772,6 +785,39 @@
             <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px;">Noch keine Offerten</div>
             <div style="font-size: 13px; color: var(--text-muted); max-width: 360px; margin: 0 auto 16px;">Klick auf „Neue Offerte" — der vorgefertigte Text passt sich automatisch an die gewählte Reinigungsart an.</div>
             <button class="btn btn-accent" onclick="openOffertEditor()">+ Erste Offerte erstellen</button>
+          </div>
+        </section>
+
+        <!-- ============ RECHNUNGEN ============ -->
+        <section class="view" data-view="rechnungen">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Rechnungen</h1>
+              <p class="page-subtitle">Alle Einsätze mit Zahlart „Rechnung" · Status verfolgen · PDF generieren</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="month" id="invMonth" onchange="renderRechnungen()" style="padding:8px 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;" />
+              <button class="btn btn-accent" onclick="generateAllOpenInvoices()">PDF alle offenen ↓</button>
+            </div>
+          </div>
+
+          <div id="invSummary"></div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Objekt / Kunde</th>
+                  <th style="text-align:right;">Betrag (CHF inkl.)</th>
+                  <th>Status</th>
+                  <th style="text-align:right;">Aktion</th>
+                </tr>
+              </thead>
+              <tbody id="invBody">
+                <tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text-subtle);">Lade…</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -1820,6 +1866,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="jobEditResetBtn" onclick="resetJobEdit()" style="margin-right: auto;">Auf Standard zurücksetzen</button>
+        <button class="btn btn-secondary" id="jobEditQrBtn" onclick="openJobQrModal()">QR ↗</button>
         <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()">🧾 Rechnung</button>
         <button class="btn btn-secondary" onclick="closeModal('jobEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveJobEdit()">Speichern</button>
@@ -2233,6 +2280,31 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('mailImap')">Abbrechen</button>
         <button class="btn btn-accent" id="imapConnectBtn" onclick="connectImap()">Verbinden</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job-QR-Code Modal -->
+  <div class="modal-backdrop" id="modal-jobQr" onclick="if(event.target===this)closeModal('jobQr')">
+    <div class="modal" style="max-width:380px;text-align:center;">
+      <div class="modal-header" style="justify-content:space-between;">
+        <div>
+          <div class="modal-title">QR-Code für Mitarbeiter</div>
+          <div style="font-size:12px;color:var(--text-subtle);margin-top:2px;">Beim Ankommen scannen → Zeiterfassung startet</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('jobQr')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding-top:8px;">
+        <canvas id="jobQrCanvas" style="width:220px;height:220px;border-radius:12px;background:#fff;padding:10px;display:block;margin:0 auto;"></canvas>
+        <div id="jobQrLabel" style="font-size:13px;font-weight:600;color:var(--text);margin:14px 0 4px;"></div>
+        <div style="font-size:12px;color:var(--text-subtle);margin-bottom:12px;">24h gültig · kein Login nötig</div>
+        <a id="jobQrLink" href="#" target="_blank" style="font-size:12px;color:var(--accent);display:block;margin-bottom:6px;">Link direkt öffnen (für Tests) →</a>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('jobQr')">Schliessen</button>
+        <button class="btn btn-accent" onclick="window.print()">Drucken</button>
       </div>
     </div>
   </div>
@@ -2870,6 +2942,22 @@
       font-size: 12.5px; color: var(--text);
     }
     .mail-account-pill .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    /* === Rechnungs-Dashboard === */
+    .inv-status-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .inv-status-badge:hover { opacity: 0.75; }
+    .inv-status-offen    { background: color-mix(in srgb, var(--warning, #f59e0b) 15%, transparent); color: #b45309; }
+    .inv-status-gesendet { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
+    .inv-status-bezahlt  { background: color-mix(in srgb, var(--success, #22c55e) 15%, transparent); color: #166534; }
+    [data-theme="dark"] .inv-status-offen    { color: #fbbf24; }
+    [data-theme="dark"] .inv-status-gesendet { color: var(--accent); }
+    [data-theme="dark"] .inv-status-bezahlt  { color: #4ade80; }
+    /* Zeiten Wochennavigation */
+    #zeitenWeekLabel { font-variant-numeric: tabular-nums; }
+    /* Mail filter tabs — placed here to avoid duplicate rule */
     .mail-filter-tabs { display: flex; gap: 4px; }
     .mail-filter-tabs button {
       padding: 7px 13px; border: 1px solid var(--border-strong);
@@ -2940,7 +3028,8 @@
       einstellungen: 'Einstellungen',
       email: 'E-Mail',
       aufgaben: 'Aufgaben',
-      anrufprotokoll: 'Anrufprotokoll'
+      anrufprotokoll: 'Anrufprotokoll',
+      rechnungen: 'Rechnungen'
     };
 
     function navTo(view) {
@@ -5569,24 +5658,7 @@
     renderDashboard();
 
     // ============ Zeiterfassung (Liste aus Mitarbeitern) ============
-    function renderZeiten() {
-      const body = document.getElementById('zeitenBody');
-      if (!body) return;
-      if (EMPLOYEES.length === 0) {
-        body.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:28px; color:var(--text-subtle);">Noch keine Mitarbeiter erfasst.</td></tr>`;
-        return;
-      }
-      body.innerHTML = EMPLOYEES.map(e => `
-        <tr>
-          <td><strong>${escapeHtml(empName(e))}</strong><br/><span style="font-size: 12px; color: var(--text-subtle);">${escapeHtml(e.role || 'Reinigungskraft')}</span></td>
-          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
-          <td style="text-align: right;"><strong>0.0 h</strong></td>
-        </tr>`).join('');
-    }
-    document.querySelector('.nav-item[data-view="zeiten"]')?.addEventListener('click', () => {
-      setTimeout(renderZeiten, 50);
-    });
-    renderZeiten();
+    // renderZeiten() und zugehöriger Nav-Listener sind weiter unten definiert (Supabase-Version)
 
     // ============ Soll-Ist-Nachkalkulation ============
     const IST_KEY = 'cc-ist-hours-v1';
@@ -7921,6 +7993,293 @@ Aarau · ${datum}`
       toast('Postfach getrennt');
       renderMailView();
     }
+
+    // ============================================================
+    // SUPABASE CLIENT
+    // ============================================================
+    function getSupabase() {
+      const cfg = window.MOSAOS_SUPABASE;
+      if (!cfg?.url || !cfg?.anonKey) return null;
+      if (!window.supabase) return null;
+      if (!window._sbClient) window._sbClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+      return window._sbClient;
+    }
+
+    // ============================================================
+    // JOB QR-CODE
+    // ============================================================
+    function buildCheckinPayload(job, dateKey) {
+      const emps = loadUsers().map(u => ({ id: u.id, n: u.firstname + ' ' + u.lastname }));
+      return {
+        jk: nkJobKey({ ...job, _dateKey: dateKey }),
+        jl: `${job.objekt || 'Einsatz'}${job.start ? ' · ' + job.start : ''}${job.end ? '–' + job.end : ''}`,
+        d:  dateKey,
+        emps,
+        exp: Math.floor(Date.now() / 1000) + 86400
+      };
+    }
+
+    function openJobQrModal() {
+      if (!editingJob) return;
+      const jobs = getJobsForDate(new Date(editingJob.dateKey));
+      const job = jobs[editingJob.idx];
+      if (!job) { toast('Einsatz nicht gefunden', 'error'); return; }
+      if (typeof qrcode !== 'function') { toast('QR-Bibliothek lädt noch', 'error'); return; }
+
+      const payload = buildCheckinPayload(job, editingJob.dateKey);
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const base = window.location.href.replace(/[^/]*$/, '');
+      const url  = base + 'checkin.html?d=' + b64;
+
+      const label = document.getElementById('jobQrLabel');
+      if (label) label.textContent = payload.jl;
+
+      const link = document.getElementById('jobQrLink');
+      if (link) { link.href = url; }
+
+      // QR auf Canvas zeichnen
+      const canvas = document.getElementById('jobQrCanvas');
+      if (canvas) {
+        const qr = qrcode(0, 'M');
+        qr.addData(url); qr.make();
+        const count = qr.getModuleCount();
+        const size = 200, cell = size / count;
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = '#000';
+        for (let r = 0; r < count; r++)
+          for (let c = 0; c < count; c++)
+            if (qr.isDark(r, c)) ctx.fillRect(c * cell, r * cell, cell, cell);
+      }
+      openModal('jobQr');
+    }
+
+    // ============================================================
+    // ZEITERFASSUNG — Wochennavigation + Supabase-Fetch
+    // ============================================================
+    let zeitenWeekStart = null;
+
+    function getMondayOf(date) {
+      const d = new Date(date);
+      const day = d.getDay(); // 0=So
+      const diff = (day === 0 ? -6 : 1 - day);
+      d.setDate(d.getDate() + diff);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function zeitenPrevWeek() {
+      if (!zeitenWeekStart) zeitenWeekStart = getMondayOf(new Date());
+      zeitenWeekStart.setDate(zeitenWeekStart.getDate() - 7);
+      renderZeiten();
+    }
+    function zeitenNextWeek() {
+      if (!zeitenWeekStart) zeitenWeekStart = getMondayOf(new Date());
+      zeitenWeekStart.setDate(zeitenWeekStart.getDate() + 7);
+      renderZeiten();
+    }
+
+    function zeitenExportCsv() {
+      const body = document.getElementById('zeitenBody');
+      if (!body) return;
+      const rows = [['Mitarbeiter', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So', 'Summe']];
+      body.querySelectorAll('tr').forEach(tr => {
+        rows.push(Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim().replace(/\n.*/,'')));
+      });
+      const csv = rows.map(r => r.map(c => '"' + c.replace(/"/g,'""') + '"').join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('﻿' + csv);
+      a.download = 'zeiterfassung.csv';
+      a.click();
+    }
+
+    async function renderZeiten() {
+      const body = document.getElementById('zeitenBody');
+      if (!body) return;
+
+      if (!zeitenWeekStart) zeitenWeekStart = getMondayOf(new Date());
+      const ws = new Date(zeitenWeekStart);
+
+      // Wochentag-Header + Label
+      const DAY_NAMES = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      const weekDays = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(ws); d.setDate(ws.getDate() + i);
+        return d;
+      });
+      weekDays.forEach((d, i) => {
+        const th = document.getElementById(['zhMo','zhDi','zhMi','zhDo','zhFr','zhSa','zhSo'][i]);
+        if (th) th.textContent = DAY_NAMES[i] + ' ' + d.getDate() + '.';
+      });
+      const lbl = document.getElementById('zeitenWeekLabel');
+      if (lbl) {
+        const opt = { day: '2-digit', month: '2-digit' };
+        lbl.textContent = `KW ${getWeekNumber(ws)} · ${ws.toLocaleDateString('de-CH', opt)} – ${weekDays[6].toLocaleDateString('de-CH', opt)}`;
+      }
+      const sub = document.getElementById('zeitenSubtitle');
+      if (sub) sub.textContent = window.MOSAOS_SUPABASE?.url ? 'Live-Daten aus Supabase timelog' : 'Supabase nicht konfiguriert — Platzhalter';
+
+      const isoWeekDays = weekDays.map(d => d.toISOString().slice(0, 10));
+
+      if (EMPLOYEES.length === 0) {
+        body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-subtle);">Noch keine Mitarbeiter erfasst.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--text-subtle);">Lade…</td></tr>`;
+
+      // Supabase-Abfrage
+      let timelogs = [];
+      const sb = getSupabase();
+      if (sb) {
+        try {
+          const from = isoWeekDays[0] + 'T00:00:00';
+          const to   = isoWeekDays[6] + 'T23:59:59';
+          const { data } = await sb.from('timelog').select('*').gte('check_in', from).lte('check_in', to);
+          if (data) timelogs = data;
+        } catch {}
+      }
+
+      const fmtMins = m => m > 0 ? `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}` : '—';
+
+      body.innerHTML = EMPLOYEES.map(e => {
+        const dayMins = isoWeekDays.map(dk => {
+          const logs = timelogs.filter(l => l.employee_id === e.id && (l.check_in||'').startsWith(dk));
+          return logs.reduce((s, l) => s + (l.duration_m || 0), 0);
+        });
+        const totalMins = dayMins.reduce((a, b) => a + b, 0);
+        return `<tr>
+          <td><strong>${escapeHtml(empName(e))}</strong><br/><span style="font-size:12px;color:var(--text-subtle);">${escapeHtml(e.role||'')}</span></td>
+          ${dayMins.map(m => `<td style="text-align:center;${m>0?'color:var(--accent);font-weight:600;':''}">${fmtMins(m)}</td>`).join('')}
+          <td style="text-align:right;"><strong>${totalMins > 0 ? (totalMins/60).toFixed(1) + ' h' : '0.0 h'}</strong></td>
+        </tr>`;
+      }).join('') + (!sb ? `<tr><td colspan="9" style="text-align:center;padding:10px;color:var(--text-subtle);font-size:12px;">Supabase-Zugangsdaten in supabase-config.js eintragen, damit QR-Check-ins hier erscheinen.</td></tr>` : '');
+    }
+
+    document.querySelector('.nav-item[data-view="zeiten"]')?.addEventListener('click', () => {
+      setTimeout(renderZeiten, 40);
+    });
+
+    // ============================================================
+    // RECHNUNGS-DASHBOARD
+    // ============================================================
+    const INVOICE_STATUS_KEY = 'cc-invoice-status-v1';
+    function loadInvoiceStatuses()     { try { return JSON.parse(localStorage.getItem(INVOICE_STATUS_KEY)) || {}; } catch { return {}; } }
+    function saveInvoiceStatuses(s)    { localStorage.setItem(INVOICE_STATUS_KEY, JSON.stringify(s)); }
+    function getInvoiceStatus(jobKey)  { return loadInvoiceStatuses()[jobKey] || 'offen'; }
+    function setInvoiceStatus(k, st)   { const s = loadInvoiceStatuses(); s[k] = st; saveInvoiceStatuses(s); renderRechnungen(); }
+    function cycleInvoiceStatus(k)     { const cur = getInvoiceStatus(k); setInvoiceStatus(k, cur === 'offen' ? 'gesendet' : cur === 'gesendet' ? 'bezahlt' : 'offen'); }
+
+    function collectRechnungsJobs(ym) {
+      const [y, m] = ym.split('-').map(Number);
+      const start = new Date(y, m-1, 1), end = new Date(y, m, 0);
+      const out = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate()+1)) {
+        const dk = isoDate(new Date(d));
+        getJobsForDate(new Date(dk)).forEach(j => {
+          if ((j.paymethod || 'rechnung') === 'rechnung') {
+            out.push({ ...j, _dateKey: dk, _jobKey: nkJobKey({ ...j, _dateKey: dk }) });
+          }
+        });
+      }
+      return out.sort((a,b) => a._dateKey.localeCompare(b._dateKey));
+    }
+
+    function renderRechnungen() {
+      const selEl = document.getElementById('invMonth');
+      if (!selEl) return;
+      if (!selEl.value) selEl.value = nkMonthDefault();
+      const ym = selEl.value;
+      const jobs = collectRechnungsJobs(ym);
+      const statuses = loadInvoiceStatuses();
+      const sumOf = arr => arr.reduce((s, j) => s + (Number(j.price||0) * 1.081), 0);
+      const fmtChf = n => n.toFixed(2) + ' CHF';
+
+      const offen    = jobs.filter(j => (statuses[j._jobKey]||'offen') === 'offen');
+      const gesendet = jobs.filter(j => statuses[j._jobKey] === 'gesendet');
+      const bezahlt  = jobs.filter(j => statuses[j._jobKey] === 'bezahlt');
+
+      // Badge
+      const badge = document.getElementById('rechnungenBadge');
+      if (badge) { badge.textContent = offen.length; badge.style.display = offen.length ? '' : 'none'; }
+
+      // KPI Summary
+      const sumEl = document.getElementById('invSummary');
+      if (sumEl) {
+        const kpi = (lbl, val, sub) => `<div class="kpi"><div class="kpi-label">${lbl}</div><div class="kpi-value" style="font-size:18px;">${val}</div>${sub?`<div class="kpi-meta">${sub} Rechnung${sub!='1'?'en':''}</div>`:''}</div>`;
+        sumEl.innerHTML = `<div class="kpi-grid" style="margin-bottom:20px;">
+          ${kpi('Offen', fmtChf(sumOf(offen)), offen.length)}
+          ${kpi('Gesendet', fmtChf(sumOf(gesendet)), gesendet.length)}
+          ${kpi('Bezahlt', fmtChf(sumOf(bezahlt)), bezahlt.length)}
+          ${kpi('Total Monat', fmtChf(sumOf(jobs)), jobs.length)}
+        </div>`;
+      }
+
+      const body = document.getElementById('invBody');
+      if (!body) return;
+      if (!jobs.length) {
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-subtle);">Keine Rechnungen im ausgewählten Monat.<br><span style="font-size:12px;">Einsätze mit Zahlart „Rechnung" erscheinen hier automatisch.</span></td></tr>`;
+        return;
+      }
+      const ST_LABELS = { offen: 'Offen', gesendet: 'Gesendet', bezahlt: 'Bezahlt ✓' };
+      body.innerHTML = jobs.map(j => {
+        const st     = statuses[j._jobKey] || 'offen';
+        const netto  = Number(j.price || 0);
+        const brutto = (netto * 1.081).toFixed(2);
+        const dFmt   = new Date(j._dateKey + 'T00:00:00').toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+        const custName = j._customer ? customerDisplayName(j._customer) : (j.objekt || '—');
+        const jkSafe = j._jobKey.replace(/'/g, "\\'");
+        const dkSafe = j._dateKey;
+        return `<tr>
+          <td>${dFmt}</td>
+          <td><strong>${escapeHtml(j.objekt||'—')}</strong><br><span style="font-size:11.5px;color:var(--text-subtle);">${escapeHtml(custName)}</span></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums;">${brutto}</td>
+          <td><span class="inv-status-badge inv-status-${st}" onclick="cycleInvoiceStatus('${jkSafe}')" title="Klicken zum Wechseln: offen → gesendet → bezahlt">${ST_LABELS[st]}</span></td>
+          <td style="text-align:right;">
+            ${st !== 'bezahlt'
+              ? `<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="generateInvoiceForJobFromKey('${jkSafe}','${dkSafe}')">PDF ↓</button>`
+              : '<span style="color:var(--text-subtle);font-size:12px;">—</span>'}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function generateInvoiceForJobFromKey(jobKey, dateKey) {
+      const jobs = getJobsForDate(new Date(dateKey));
+      const j = jobs.find(x => nkJobKey({ ...x, _dateKey: dateKey }) === jobKey);
+      if (!j) { toast('Einsatz nicht gefunden', 'error'); return; }
+      generateInvoiceForJob(j, dateKey);
+      // Nach PDF-Download als gesendet markieren
+      setTimeout(() => setInvoiceStatus(jobKey, 'gesendet'), 1500);
+    }
+
+    async function generateAllOpenInvoices() {
+      const selEl = document.getElementById('invMonth');
+      const ym = selEl?.value || nkMonthDefault();
+      const statuses = loadInvoiceStatuses();
+      const jobs = collectRechnungsJobs(ym).filter(j => (statuses[j._jobKey]||'offen') === 'offen');
+      if (!jobs.length) { toast('Keine offenen Rechnungen im Monat'); return; }
+      toast(`Erstelle ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} …`);
+      for (const j of jobs) {
+        await generateInvoiceForJob(j, j._dateKey);
+        await new Promise(r => setTimeout(r, 500));
+        setInvoiceStatus(j._jobKey, 'gesendet');
+      }
+      toast(`✓ ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} erstellt & auf „Gesendet" gesetzt`);
+    }
+
+    document.querySelector('.nav-item[data-view="rechnungen"]')?.addEventListener('click', () => {
+      setTimeout(renderRechnungen, 40);
+    });
+
+    // initial badge
+    (function initRechnungenBadge() {
+      const ym = nkMonthDefault();
+      const s  = loadInvoiceStatuses();
+      const n  = collectRechnungsJobs(ym).filter(j => (s[j._jobKey]||'offen') === 'offen').length;
+      const b  = document.getElementById('rechnungenBadge');
+      if (b && n > 0) { b.textContent = n; b.style.display = ''; }
+    })();
 
     // Nav-Click Handler
     document.querySelector('.nav-item[data-view="email"]')?.addEventListener('click', () => {

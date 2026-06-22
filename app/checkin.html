@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Einchecken — MosaOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 0;
+    }
+    .frame {
+      width: 100%; max-width: 440px;
+      min-height: 100vh;
+      background: #1e293b;
+      display: flex; flex-direction: column;
+    }
+    /* Header */
+    .ci-header {
+      background: #e11d2a;
+      padding: 20px 20px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .ci-logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff;
+    }
+    .ci-header-title { font-size: 17px; font-weight: 700; color: #fff; }
+    .ci-header-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+
+    /* Main content */
+    .ci-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* Job card */
+    .job-card {
+      background: #0f172a; border-radius: 14px; padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .job-card-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .job-card-title { font-size: 18px; font-weight: 700; color: #f1f5f9; line-height: 1.3; }
+    .job-card-meta { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+    .job-card-date { font-size: 12px; color: #475569; margin-top: 4px; }
+
+    /* Field */
+    .ci-field { display: flex; flex-direction: column; gap: 6px; }
+    .ci-label { font-size: 12px; font-weight: 600; color: #94a3b8; }
+    .ci-select {
+      padding: 12px 14px; border-radius: 10px;
+      background: #0f172a; border: 1px solid rgba(255,255,255,0.12);
+      color: #f1f5f9; font-size: 15px; font-family: inherit;
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    /* Big buttons */
+    .btn-big {
+      display: block; width: 100%;
+      padding: 16px; border-radius: 14px;
+      font-size: 16px; font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-big:active { transform: scale(0.97); }
+    .btn-big:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-checkin  { background: #22c55e; color: #fff; }
+    .btn-checkout { background: #e11d2a; color: #fff; }
+    .btn-photo    { background: #3b82f6; color: #fff; }
+    .btn-secondary-small {
+      padding: 10px 16px; border-radius: 10px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      color: #94a3b8; font-size: 14px; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-secondary-small:hover { background: rgba(255,255,255,0.12); }
+
+    /* Status card */
+    .status-card {
+      border-radius: 14px; padding: 18px;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.25);
+      display: none;
+    }
+    .status-card.visible { display: block; }
+    .status-card .sc-label { font-size: 11px; font-weight: 600; color: #4ade80; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+    .status-card .sc-time { font-size: 24px; font-weight: 700; color: #f1f5f9; font-variant-numeric: tabular-nums; }
+    .status-card .sc-name { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+    .status-card.checkout { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.25); }
+    .status-card.checkout .sc-label { color: #fbbf24; }
+    .status-card.done { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.25); }
+    .status-card.done .sc-label { color: #818cf8; }
+
+    /* Camera overlay */
+    .cam-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: #000;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .cam-overlay.open { display: flex; }
+    #camVideo { width: 100%; max-width: 440px; max-height: 70vh; object-fit: cover; }
+    .cam-actions { display: flex; gap: 16px; margin-top: 20px; padding: 0 20px; width: 100%; max-width: 440px; }
+    .cam-snap-btn {
+      flex: 1; padding: 16px; border-radius: 14px;
+      background: #e11d2a; color: #fff; border: none;
+      font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer;
+    }
+    .cam-cancel-btn {
+      padding: 16px 20px; border-radius: 14px;
+      background: rgba(255,255,255,0.1); color: #fff; border: none;
+      font-size: 15px; font-family: inherit; cursor: pointer;
+    }
+    canvas#snapCanvas { display: none; }
+
+    /* Photo preview */
+    .photo-preview { border-radius: 12px; overflow: hidden; margin-top: 4px; }
+    .photo-preview img { width: 100%; display: block; }
+
+    /* Error / info */
+    .ci-error {
+      background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 12px; padding: 16px;
+      color: #fca5a5; font-size: 14px; line-height: 1.5;
+    }
+    .ci-info {
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 12px; padding: 14px;
+      color: #93c5fd; font-size: 13px; line-height: 1.5;
+    }
+
+    /* Toast */
+    .ci-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #1e293b; border: 1px solid rgba(255,255,255,0.12);
+      color: #f1f5f9; padding: 12px 20px; border-radius: 12px;
+      font-size: 14px; font-weight: 500;
+      opacity: 0; transition: all 0.25s; z-index: 200; pointer-events: none;
+      white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .ci-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .ci-toast.err { background: #7f1d1d; border-color: rgba(239,68,68,0.4); }
+
+    .divider { height: 1px; background: rgba(255,255,255,0.07); }
+    .elapsed { font-size: 12px; color: #475569; text-align: center; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+<div class="frame">
+  <div class="ci-header">
+    <div class="ci-logo">M</div>
+    <div>
+      <div class="ci-header-title">MosaOS Zeiterfassung</div>
+      <div class="ci-header-sub">Einsatz-Check-in · Check-out</div>
+    </div>
+  </div>
+
+  <div class="ci-body">
+
+    <!-- Fehlerzustand -->
+    <div class="ci-error" id="ciError" style="display:none;"></div>
+
+    <!-- Job-Info -->
+    <div class="job-card" id="ciJobCard" style="display:none;">
+      <div class="job-card-label">Einsatz</div>
+      <div class="job-card-title" id="ciJobTitle">—</div>
+      <div class="job-card-meta" id="ciJobMeta"></div>
+      <div class="job-card-date" id="ciJobDate"></div>
+    </div>
+
+    <!-- Mitarbeiter-Auswahl -->
+    <div class="ci-field" id="ciEmpField" style="display:none;">
+      <div class="ci-label">Ich bin …</div>
+      <select id="ciEmpSelect" class="ci-select">
+        <option value="">Bitte auswählen …</option>
+      </select>
+    </div>
+
+    <!-- Status: Eingecheckt -->
+    <div class="status-card" id="ciStatusIn">
+      <div class="sc-label">Eingecheckt seit</div>
+      <div class="sc-time" id="ciCheckinTime">—</div>
+      <div class="sc-name" id="ciCheckinName"></div>
+      <div class="elapsed" id="ciElapsed"></div>
+    </div>
+
+    <!-- Foto-Vorschau -->
+    <div class="photo-preview" id="ciPhotoPreview" style="display:none;">
+      <img id="ciPhotoImg" src="" alt="Abschlussfoto" />
+    </div>
+
+    <!-- Status: Ausgecheckt -->
+    <div class="status-card checkout" id="ciStatusOut" style="display:none;">
+      <div class="sc-label">Einsatz abgeschlossen</div>
+      <div class="sc-time" id="ciCheckoutTime">—</div>
+      <div class="sc-name" id="ciCheckoutDuration"></div>
+    </div>
+
+    <!-- Done -->
+    <div class="status-card done" id="ciStatusDone" style="display:none;">
+      <div class="sc-label">✓ Alles gespeichert</div>
+      <div class="sc-time" style="font-size:15px;margin-top:4px;">Zeit erfasst & Foto hochgeladen.</div>
+      <div class="sc-name">Das Fenster kann geschlossen werden.</div>
+    </div>
+
+    <!-- Supabase nicht konfiguriert -->
+    <div class="ci-info" id="ciNoSupabase" style="display:none;">
+      Supabase noch nicht konfiguriert — Zeiten werden lokal erfasst.<br>
+      Büro-Admin: <code>supabase-config.js</code> ausfüllen.
+    </div>
+
+    <div class="divider" id="ciDivider" style="display:none;"></div>
+
+    <!-- Aktions-Buttons -->
+    <button class="btn-big btn-checkin"  id="btnCheckin"  onclick="doCheckin()"  style="display:none;">Einchecken ✓</button>
+    <button class="btn-big btn-photo"    id="btnPhoto"    onclick="openCamera()" style="display:none;">Abschlussfoto aufnehmen 📷</button>
+    <button class="btn-big btn-checkout" id="btnCheckout" onclick="doCheckout()" style="display:none; margin-top:8px;">Einsatz beenden</button>
+
+  </div><!-- ci-body -->
+</div><!-- frame -->
+
+<!-- Kamera-Overlay -->
+<div class="cam-overlay" id="camOverlay">
+  <video id="camVideo" autoplay playsinline muted></video>
+  <canvas id="snapCanvas"></canvas>
+  <div class="cam-actions">
+    <button class="cam-snap-btn" onclick="snapPhoto()">Foto aufnehmen</button>
+    <button class="cam-cancel-btn" onclick="closeCamera()">Abbrechen</button>
+  </div>
+</div>
+
+<div class="ci-toast" id="ciToast"></div>
+
+<script>
+  // ── Helpers ──────────────────────────────────────────────────
+  function toast(msg, isErr) {
+    const t = document.getElementById('ciToast');
+    t.textContent = msg;
+    t.className = 'ci-toast show' + (isErr ? ' err' : '');
+    clearTimeout(t._h);
+    t._h = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function show(id) { const el = document.getElementById(id); if (el) el.style.display = ''; }
+  function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+  function text(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+  function fmtTime(iso) {
+    return new Date(iso).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+  }
+  function fmtDuration(minStart, minEnd) {
+    const diff = Math.round((new Date(minEnd) - new Date(minStart)) / 60000);
+    return Math.floor(diff / 60) + 'h ' + String(diff % 60).padStart(2, '0') + 'min';
+  }
+
+  // ── Supabase ──────────────────────────────────────────────────
+  function getSb() {
+    const cfg = window.MOSAOS_SUPABASE;
+    if (!cfg?.url || !cfg?.anonKey) return null;
+    if (!window.supabase) return null;
+    return window.supabase.createClient(cfg.url, cfg.anonKey);
+  }
+
+  // ── State ──────────────────────────────────────────────────────
+  let JOB = null;       // decoded payload
+  let STATE = 'idle';   // idle → checkedin → photo → done
+  let SB_ROW_ID = null; // timelog row UUID
+  let SNAP_BLOB = null; // captured photo blob
+  let elapsedTimer = null;
+
+  // ── Parse URL param ───────────────────────────────────────────
+  function init() {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('d');
+    if (!raw) { showError('Kein gültiger Einsatz-Link. Bitte QR-Code scannen oder vom Büro einen neuen Link anfordern.'); return; }
+
+    try {
+      JOB = JSON.parse(decodeURIComponent(escape(atob(raw))));
+    } catch {
+      showError('QR-Code konnte nicht gelesen werden. Bitte neuen Code generieren.'); return;
+    }
+
+    // Ablauf prüfen (exp = Unix-Timestamp Sekunden)
+    if (JOB.exp && Date.now() / 1000 > JOB.exp) {
+      showError('Dieser QR-Code ist abgelaufen (24h Gültigkeit). Das Büro kann im Job-Editor einen neuen generieren.'); return;
+    }
+
+    // Job-Karte befüllen
+    text('ciJobTitle', JOB.jl || JOB.jk || 'Einsatz');
+    text('ciJobDate',  JOB.d ? new Date(JOB.d + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : '');
+    show('ciJobCard');
+
+    // Mitarbeiter-Dropdown
+    const sel = document.getElementById('ciEmpSelect');
+    if (JOB.emps && JOB.emps.length) {
+      JOB.emps.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.id; opt.textContent = e.n;
+        sel.appendChild(opt);
+      });
+    } else {
+      // Fallback: Freitextfeld (wenn Mitarbeiterliste nicht im QR)
+      sel.innerHTML = '<option value="__manual__">Eigener Name unten</option>';
+    }
+    show('ciEmpField');
+
+    if (!getSb()) show('ciNoSupabase');
+
+    show('ciDivider');
+    show('btnCheckin');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('ciError');
+    el.textContent = msg;
+    el.style.display = '';
+  }
+
+  // ── Check-in ─────────────────────────────────────────────────
+  async function doCheckin() {
+    const sel = document.getElementById('ciEmpSelect');
+    const empId = sel.value;
+    const empName = sel.options[sel.selectedIndex]?.text || '—';
+    if (!empId) { toast('Bitte Mitarbeiter wählen', true); return; }
+
+    const btn = document.getElementById('btnCheckin');
+    btn.disabled = true; btn.textContent = 'Wird gespeichert …';
+
+    const checkIn = new Date().toISOString();
+
+    const sb = getSb();
+    if (sb) {
+      try {
+        const { data, error } = await sb.from('timelog').insert({
+          job_key: JOB.jk,
+          job_label: JOB.jl,
+          employee_id: empId === '__manual__' ? null : empId,
+          employee_name: empName,
+          check_in: checkIn
+        }).select('id').single();
+        if (error) throw error;
+        SB_ROW_ID = data.id;
+      } catch (e) {
+        toast('Speichern fehlgeschlagen: ' + e.message, true);
+        btn.disabled = false; btn.textContent = 'Einchecken ✓';
+        return;
+      }
+    }
+
+    // Lokaler Fallback
+    sessionStorage.setItem('ci_checkin', checkIn);
+    sessionStorage.setItem('ci_empName', empName);
+    sessionStorage.setItem('ci_jobKey', JOB.jk);
+    if (SB_ROW_ID) sessionStorage.setItem('ci_rowId', SB_ROW_ID);
+
+    STATE = 'checkedin';
+    hide('ciEmpField'); hide('btnCheckin'); hide('ciNoSupabase');
+    text('ciCheckinTime', fmtTime(checkIn));
+    text('ciCheckinName', empName);
+    document.getElementById('ciStatusIn').classList.add('visible');
+    show('ciDivider');
+    show('btnPhoto');
+
+    // Elapsed timer
+    const startMs = new Date(checkIn).getTime();
+    elapsedTimer = setInterval(() => {
+      const diff = Math.round((Date.now() - startMs) / 1000);
+      const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), s = diff % 60;
+      text('ciElapsed', `Laufzeit: ${h ? h + 'h ' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+    }, 1000);
+
+    toast(sb ? '✓ Eingecheckt & gespeichert' : '✓ Eingecheckt (lokal)');
+  }
+
+  // ── Kamera ───────────────────────────────────────────────────
+  let camStream = null;
+  function openCamera() {
+    const overlay = document.getElementById('camOverlay');
+    overlay.classList.add('open');
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } } })
+      .then(stream => {
+        camStream = stream;
+        document.getElementById('camVideo').srcObject = stream;
+      })
+      .catch(err => {
+        overlay.classList.remove('open');
+        if (err.name === 'NotAllowedError') toast('Kamera-Zugriff verweigert — bitte in den Einstellungen erlauben', true);
+        else toast('Kamera nicht verfügbar: ' + err.message, true);
+      });
+  }
+
+  function closeCamera() {
+    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+    document.getElementById('camOverlay').classList.remove('open');
+  }
+
+  function snapPhoto() {
+    const video = document.getElementById('camVideo');
+    const canvas = document.getElementById('snapCanvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+      SNAP_BLOB = blob;
+      const url = URL.createObjectURL(blob);
+      document.getElementById('ciPhotoImg').src = url;
+      show('ciPhotoPreview');
+      show('btnCheckout');
+    }, 'image/jpeg', 0.82);
+    closeCamera();
+    toast('✓ Foto aufgenommen');
+  }
+
+  // ── Check-out ────────────────────────────────────────────────
+  async function doCheckout() {
+    const btn = document.getElementById('btnCheckout');
+    btn.disabled = true; btn.textContent = 'Speichere …';
+
+    const checkIn = sessionStorage.getItem('ci_checkin') || new Date().toISOString();
+    const checkOut = new Date().toISOString();
+    const durationM = Math.round((new Date(checkOut) - new Date(checkIn)) / 60000);
+    const rowId = SB_ROW_ID || sessionStorage.getItem('ci_rowId');
+
+    const sb = getSb();
+    let photoUrl = null;
+
+    if (sb && SNAP_BLOB) {
+      try {
+        const fileName = `${rowId || Date.now()}_${Date.now()}.jpg`;
+        const { data: upData, error: upErr } = await sb.storage.from('checkin-photos').upload(fileName, SNAP_BLOB, { contentType: 'image/jpeg', upsert: false });
+        if (!upErr && upData) {
+          const { data: urlData } = sb.storage.from('checkin-photos').getPublicUrl(upData.path);
+          photoUrl = urlData?.publicUrl || null;
+        }
+      } catch {}
+    }
+
+    if (sb && rowId) {
+      try {
+        await sb.from('timelog').update({
+          check_out: checkOut,
+          duration_m: durationM,
+          photo_url: photoUrl
+        }).eq('id', rowId);
+      } catch (e) {
+        toast('Fehler beim Speichern: ' + e.message, true);
+        btn.disabled = false; btn.textContent = 'Einsatz beenden';
+        return;
+      }
+    }
+
+    clearInterval(elapsedTimer);
+    STATE = 'done';
+    hide('btnPhoto'); hide('btnCheckout'); hide('ciDivider');
+
+    text('ciCheckoutTime', fmtTime(checkOut));
+    text('ciCheckoutDuration', fmtDuration(checkIn, checkOut) + ' · ' + (sessionStorage.getItem('ci_empName') || ''));
+    show('ciStatusOut');
+    show('ciStatusDone');
+
+    toast(sb ? '✓ Alles gespeichert' : '✓ Checkout lokal erfasst');
+    sessionStorage.clear();
+  }
+
+  // ── Start ─────────────────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>
