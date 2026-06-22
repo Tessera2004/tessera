@@ -137,6 +137,7 @@
  *     profile     JSONB DEFAULT '{}',
  *     prices      JSONB DEFAULT '{}',
  *     features    JSONB DEFAULT '{}',
+ *     roles       JSONB DEFAULT '[]',
  *     updated_at  TIMESTAMPTZ DEFAULT NOW()
  *   );
  *   ALTER TABLE company_settings ENABLE ROW LEVEL SECURITY;
@@ -327,9 +328,11 @@
         const p = settR.data.profile;
         const pr = settR.data.prices;
         const ft = settR.data.features;
+        const rl = settR.data.roles;
         if (p && Object.keys(p).length) localStorage.setItem('cc-company-v1', JSON.stringify(p));
         if (pr && Object.keys(pr).length) localStorage.setItem('cc-prices', JSON.stringify(pr));
         if (ft && Object.keys(ft).length) localStorage.setItem('cc-features-v1', JSON.stringify(ft));
+        if (Array.isArray(rl) && rl.length) localStorage.setItem('cc-roles-v1', JSON.stringify(rl));
       }
 
       window._dbReady = true;
@@ -367,14 +370,15 @@
       } else if (type === 'report_one') {
         // Einzelner Bericht (mobile.html: ein Protokoll, nicht das ganze Array)
         await sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' });
-      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features') {
+      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features' || type === 'company_roles') {
         // Lese erst die anderen Felder, damit sie nicht überschrieben werden
-        const { data: cur } = await sb.from('company_settings').select('profile,prices,features')
+        const { data: cur } = await sb.from('company_settings').select('profile,prices,features,roles')
           .eq('tenant_id', tid).maybeSingle();
         const row = { tenant_id: tid,
           profile:  type === 'company_profile'  ? data : (cur?.profile  || {}),
           prices:   type === 'company_prices'   ? data : (cur?.prices   || {}),
           features: type === 'company_features' ? data : (cur?.features || {}),
+          roles:    type === 'company_roles'    ? data : (cur?.roles    || []),
           updated_at: new Date().toISOString() };
         await sb.from('company_settings').upsert(row, { onConflict: 'tenant_id' });
       }

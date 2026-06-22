@@ -1109,24 +1109,11 @@
           </div>
 
           <!-- Rollen-Erklärung -->
-          <div class="roles-legend">
-            <div class="role-card" data-role-card="admin">
-              <div class="role-card-head"><span class="role-dot" style="background: #7c3aed;"></span><strong>Admin</strong></div>
-              <div class="role-card-perms">Alles — Preise, Offerten, Löschen, Team verwalten.</div>
-            </div>
-            <div class="role-card" data-role-card="disposition">
-              <div class="role-card-head"><span class="role-dot" style="background: #0ea5e9;"></span><strong>Disposition</strong></div>
-              <div class="role-card-perms">Aufträge, Objekte, Offerten bearbeiten. Keine Preise, kein Team.</div>
-            </div>
-            <div class="role-card" data-role-card="buchhaltung">
-              <div class="role-card-head"><span class="role-dot" style="background: #10b981;"></span><strong>Buchhaltung</strong></div>
-              <div class="role-card-perms">Offerten + Preise bearbeiten. Keine Disposition, kein Team.</div>
-            </div>
-            <div class="role-card" data-role-card="readonly">
-              <div class="role-card-head"><span class="role-dot" style="background: #f59e0b;"></span><strong>Read-only</strong></div>
-              <div class="role-card-perms">Nur Ansicht — kein Speichern, kein Löschen.</div>
-            </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="font-size:13px; font-weight:600; color:var(--text-subtle);">Rollen & Rechte</div>
+            <button class="btn btn-secondary" id="manageRolesBtn" style="font-size:12.5px; padding:6px 12px;" onclick="openRoleManager()">⚙ Rollen verwalten</button>
           </div>
+          <div class="roles-legend" id="rolesLegend"></div>
 
           <!-- Team-Liste -->
           <div class="team-grid" id="teamGrid">
@@ -2249,12 +2236,7 @@
         </div>
         <div class="field">
           <label>Rolle</label>
-          <div class="opt-row">
-            <button type="button" class="opt-chip on" data-role="admin" onclick="selectUserRole(this,'admin')">Admin</button>
-            <button type="button" class="opt-chip" data-role="disposition" onclick="selectUserRole(this,'disposition')">Disposition</button>
-            <button type="button" class="opt-chip" data-role="buchhaltung" onclick="selectUserRole(this,'buchhaltung')">Buchhaltung</button>
-            <button type="button" class="opt-chip" data-role="readonly" onclick="selectUserRole(this,'readonly')">Read-only</button>
-          </div>
+          <div class="opt-row" id="userRoleChips"></div>
           <div id="userRoleHint" style="font-size: 12px; color: var(--text-subtle); margin-top: 8px; padding: 10px 12px; background: var(--surface-2); border-radius: 6px;">
             <!-- Beschreibung via JS -->
           </div>
@@ -2297,12 +2279,7 @@
         </div>
         <div class="field">
           <label>Rolle</label>
-          <div class="opt-row">
-            <button type="button" class="opt-chip" data-invrole="admin" onclick="selectInviteRole(this,'admin')">Admin</button>
-            <button type="button" class="opt-chip" data-invrole="disposition" onclick="selectInviteRole(this,'disposition')">Disposition</button>
-            <button type="button" class="opt-chip" data-invrole="buchhaltung" onclick="selectInviteRole(this,'buchhaltung')">Buchhaltung</button>
-            <button type="button" class="opt-chip on" data-invrole="readonly" onclick="selectInviteRole(this,'readonly')">Read-only</button>
-          </div>
+          <div class="opt-row" id="inviteRoleChips"></div>
           <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;">Reiniger im Aussendienst (nur Mobile-App): Read-only genügt.</div>
         </div>
         <div id="inviteError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
@@ -2310,6 +2287,63 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('inviteUser')">Abbrechen</button>
         <button class="btn btn-accent" id="inviteSendBtn" onclick="sendInvite()">Einladung erstellen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rollen verwalten -->
+  <div class="modal-backdrop" id="modal-roleManager" onclick="if(event.target===this)closeModal('roleManager')">
+    <div class="modal" style="max-width: 560px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Rollen verwalten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Lege eigene Rollen mit genau den Rechten an, die deine Firma braucht.</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('roleManager')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="roleManagerList" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <button class="btn btn-secondary" style="margin-top:14px;" onclick="openRoleEditor()">＋ Neue Rolle</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('roleManager')">Schliessen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rolle anlegen / bearbeiten -->
+  <div class="modal-backdrop" id="modal-roleEditor" onclick="if(event.target===this)closeModal('roleEditor')">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="roleEditorTitle">Neue Rolle</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Name, Farbe und Rechte festlegen.</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('roleEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Name der Rolle *</label>
+          <input type="text" id="roleName" placeholder="z. B. Teamleiter" />
+        </div>
+        <div class="field">
+          <label>Farbe</label>
+          <div class="opt-row" id="roleColorChips"></div>
+        </div>
+        <div class="field">
+          <label>Rechte</label>
+          <div id="rolePermList" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;"></div>
+        </div>
+        <div id="roleEditorError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="roleDeleteBtn" style="display:none; color:var(--danger); margin-right:auto;" onclick="deleteRole()">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('roleEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveRole()">Speichern</button>
       </div>
     </div>
   </div>
@@ -3228,18 +3262,148 @@
     }
 
     // ============ USER / ROLLEN / RECHTE ============
-    const ROLE_DEFS = {
-      admin:       { label: 'Admin',       color: '#7c3aed', perms: ['edit_offerts','delete_offerts','edit_prices','edit_users','edit_objekte','edit_auftrag'] },
-      disposition: { label: 'Disposition', color: '#0ea5e9', perms: ['edit_offerts','edit_objekte','edit_auftrag'] },
-      buchhaltung: { label: 'Buchhaltung', color: '#10b981', perms: ['edit_offerts','edit_prices'] },
-      readonly:    { label: 'Read-only',   color: '#f59e0b', perms: [] }
+    // Vorgegebene Rollen (nicht löschbar). Eigene Rollen kommen aus cc-roles-v1 dazu.
+    const BUILTIN_ROLE_DEFS = {
+      admin:       { label: 'Admin',       color: '#7c3aed', perms: ['edit_offerts','delete_offerts','edit_prices','edit_users','edit_objekte','edit_auftrag'], builtin: true },
+      disposition: { label: 'Disposition', color: '#0ea5e9', perms: ['edit_offerts','edit_objekte','edit_auftrag'], builtin: true },
+      buchhaltung: { label: 'Buchhaltung', color: '#10b981', perms: ['edit_offerts','edit_prices'], builtin: true },
+      readonly:    { label: 'Read-only',   color: '#f59e0b', perms: [], builtin: true }
     };
+    const ALL_PERMISSIONS = [
+      { key: 'edit_auftrag',   label: 'Aufträge bearbeiten' },
+      { key: 'edit_offerts',   label: 'Offerten schreiben' },
+      { key: 'edit_prices',    label: 'Preise ändern' },
+      { key: 'edit_objekte',   label: 'Kunden / Objekte bearbeiten' },
+      { key: 'edit_users',     label: 'Team & Rollen verwalten' },
+      { key: 'delete_offerts', label: 'Löschen' }
+    ];
+    const ROLES_KEY = 'cc-roles-v1';
+    function loadCustomRoles() {
+      try { const v = JSON.parse(localStorage.getItem(ROLES_KEY)); if (Array.isArray(v)) return v; } catch {}
+      return [];
+    }
+    function saveCustomRoles(arr) {
+      localStorage.setItem(ROLES_KEY, JSON.stringify(arr));
+      window.MosaDB?.push('company_roles', arr);
+      rebuildRoleDefs();
+    }
+    let ROLE_DEFS = {};
+    function rebuildRoleDefs() {
+      ROLE_DEFS = JSON.parse(JSON.stringify(BUILTIN_ROLE_DEFS));
+      loadCustomRoles().forEach(r => {
+        if (!r.key) return;
+        ROLE_DEFS[r.key] = { label: r.label || r.key, color: r.color || '#6b7280', perms: Array.isArray(r.perms) ? r.perms : [], custom: true };
+      });
+    }
+    rebuildRoleDefs();
     const ROLE_DESCRIPTIONS = {
       admin: 'Voller Zugriff — Aufträge, Offerten, Preise, Team verwalten, Löschen.',
       disposition: 'Aufträge anlegen/ändern, Objekte verwalten, Offerten schreiben. Keine Preise, kein Team.',
       buchhaltung: 'Offerten + Preise bearbeiten. Keine Auftragsplanung, kein Team.',
       readonly: 'Nur Ansicht — kann nichts speichern, ändern oder löschen.'
     };
+    function roleDescription(key) {
+      if (ROLE_DESCRIPTIONS[key]) return ROLE_DESCRIPTIONS[key];
+      const def = ROLE_DEFS[key];
+      if (!def) return '';
+      if (!def.perms.length) return 'Nur Ansicht — kann nichts ändern.';
+      return 'Darf: ' + def.perms.map(p => ALL_PERMISSIONS.find(x => x.key === p)?.label || p).join(', ') + '.';
+    }
+
+    // --- Rollen-Verwaltung (eigene Rollen anlegen) ---
+    const ROLE_COLOR_CHOICES = ['#7c3aed', '#0ea5e9', '#10b981', '#f59e0b', '#E11D2A', '#EC4899', '#14B8A6', '#6366F1'];
+    let editingRoleKey = null;
+    let roleEditorColor = ROLE_COLOR_CHOICES[0];
+
+    function renderRolesLegend() {
+      const wrap = document.getElementById('rolesLegend');
+      if (!wrap) return;
+      wrap.innerHTML = Object.entries(ROLE_DEFS).map(([key, def]) => `
+        <div class="role-card" data-role-card="${key}">
+          <div class="role-card-head"><span class="role-dot" style="background:${def.color};"></span><strong>${escapeHtml(def.label)}</strong></div>
+          <div class="role-card-perms">${escapeHtml(roleDescription(key))}</div>
+        </div>`).join('');
+    }
+    function openRoleManager() {
+      if (!requirePerm('edit_users', 'Rollen verwalten')) return;
+      renderRoleManager();
+      openModal('roleManager');
+    }
+    function renderRoleManager() {
+      const list = document.getElementById('roleManagerList');
+      if (!list) return;
+      list.innerHTML = Object.entries(ROLE_DEFS).map(([key, def]) => `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
+          <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+            <span style="width:12px;height:12px;border-radius:50%;background:${def.color};flex:none;"></span>
+            <div style="min-width:0;">
+              <div style="font-weight:600;font-size:13.5px;">${escapeHtml(def.label)} ${def.builtin ? '<span style="font-size:11px;color:var(--text-subtle);font-weight:400;">· Standard</span>' : ''}</div>
+              <div style="font-size:12px;color:var(--text-subtle);">${def.perms.length} Recht${def.perms.length === 1 ? '' : 'e'}</div>
+            </div>
+          </div>
+          ${def.builtin ? '' : `<button class="btn btn-ghost" style="font-size:12.5px;" onclick="openRoleEditor('${key}')">Bearbeiten</button>`}
+        </div>`).join('');
+    }
+    function openRoleEditor(key = null) {
+      editingRoleKey = key;
+      const def = key ? ROLE_DEFS[key] : null;
+      document.getElementById('roleEditorTitle').textContent = def ? 'Rolle bearbeiten' : 'Neue Rolle';
+      document.getElementById('roleName').value = def ? def.label : '';
+      document.getElementById('roleEditorError').style.display = 'none';
+      roleEditorColor = def ? def.color : ROLE_COLOR_CHOICES[0];
+      document.getElementById('roleDeleteBtn').style.display = def ? 'inline-flex' : 'none';
+      document.getElementById('roleColorChips').innerHTML = ROLE_COLOR_CHOICES.map(c =>
+        `<button type="button" class="opt-chip ${c === roleEditorColor ? 'on' : ''}" data-rolecolor="${c}" onclick="selectRoleColor('${c}')" style="padding:6px 10px;"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${c};vertical-align:middle;"></span></button>`
+      ).join('');
+      const perms = def ? def.perms : [];
+      document.getElementById('rolePermList').innerHTML = ALL_PERMISSIONS.map(p =>
+        `<label style="display:flex;align-items:center;gap:9px;font-size:13.5px;cursor:pointer;">
+          <input type="checkbox" data-roleperm="${p.key}" ${perms.includes(p.key) ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--accent);" /> ${p.label}
+        </label>`).join('');
+      closeModal('roleManager');
+      openModal('roleEditor');
+    }
+    function selectRoleColor(c) {
+      roleEditorColor = c;
+      document.querySelectorAll('[data-rolecolor]').forEach(b => b.classList.toggle('on', b.dataset.rolecolor === c));
+    }
+    function saveRole() {
+      const errEl = document.getElementById('roleEditorError');
+      const name = document.getElementById('roleName').value.trim();
+      errEl.style.display = 'none';
+      if (!name) { errEl.textContent = 'Bitte einen Namen eingeben.'; errEl.style.display = 'block'; return; }
+      const perms = [...document.querySelectorAll('[data-roleperm]:checked')].map(c => c.dataset.roleperm);
+      const custom = loadCustomRoles();
+      if (editingRoleKey) {
+        const r = custom.find(x => x.key === editingRoleKey);
+        if (r) { r.label = name; r.color = roleEditorColor; r.perms = perms; }
+      } else {
+        custom.push({ key: 'role_' + Date.now(), label: name, color: roleEditorColor, perms });
+      }
+      saveCustomRoles(custom);
+      applyCurrentUserToUI();
+      renderTeamGrid();
+      renderRolesLegend();
+      closeModal('roleEditor');
+      toast('✓ Rolle gespeichert');
+    }
+    function deleteRole() {
+      if (!editingRoleKey) return;
+      const inUse = loadUsers().filter(u => u.role === editingRoleKey);
+      if (inUse.length && !confirm(`${inUse.length} Person(en) haben diese Rolle. Beim Löschen werden sie auf „Read-only" gesetzt. Fortfahren?`)) return;
+      saveCustomRoles(loadCustomRoles().filter(x => x.key !== editingRoleKey));
+      if (inUse.length) {
+        const users = loadUsers();
+        users.forEach(u => { if (u.role === editingRoleKey) u.role = 'readonly'; });
+        saveUsers(users);
+        if (currentUser && currentUser.role === editingRoleKey) currentUser.role = 'readonly';
+      }
+      applyCurrentUserToUI();
+      renderTeamGrid();
+      renderRolesLegend();
+      closeModal('roleEditor');
+      toast('Rolle gelöscht');
+    }
     const DEFAULT_USERS = [
       { id: 'u1', firstname: 'Brian',  lastname: 'Knuchel',  email: 'brian@firma.ch',  role: 'admin'       },
       { id: 'u2', firstname: 'Sandra', lastname: 'Meier',    email: 'sandra@firma.ch', role: 'disposition' },
@@ -3341,6 +3505,9 @@
       document.getElementById('addUserBtn').style.display = canManage ? 'inline-flex' : 'none';
       const invBtn = document.getElementById('inviteBtn');
       if (invBtn) invBtn.style.display = canManage ? 'inline-flex' : 'none';
+      const rolesBtn = document.getElementById('manageRolesBtn');
+      if (rolesBtn) rolesBtn.style.display = canManage ? 'inline-flex' : 'none';
+      renderRolesLegend();
       renderInvites();
       wrap.innerHTML = users.map(u => {
         const isMe = currentUser && u.id === currentUser.id;
@@ -3382,16 +3549,23 @@
     // --- Mitarbeiter einladen (Supabase invites → Trigger ordnet beim Registrieren zu) ---
     let inviteRole = 'readonly';
     function selectInviteRole(btn, role) {
-      document.querySelectorAll('[data-invrole]').forEach(c => c.classList.remove('on'));
+      document.querySelectorAll('#inviteRoleChips [data-invrole]').forEach(c => c.classList.remove('on'));
       btn.classList.add('on');
       inviteRole = role;
+    }
+    function renderInviteRoleChips() {
+      const wrap = document.getElementById('inviteRoleChips');
+      if (!wrap) return;
+      wrap.innerHTML = Object.keys(ROLE_DEFS).map(key =>
+        `<button type="button" class="opt-chip ${key === inviteRole ? 'on' : ''}" data-invrole="${key}" onclick="selectInviteRole(this,'${key}')">${escapeHtml(ROLE_DEFS[key].label)}</button>`
+      ).join('');
     }
     function openInviteModal() {
       if (!requirePerm('edit_users', 'das Team verwalten')) return;
       ['inviteFirstname', 'inviteLastname', 'inviteEmail'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
       document.getElementById('inviteError').style.display = 'none';
       inviteRole = 'readonly';
-      document.querySelectorAll('[data-invrole]').forEach(c => c.classList.toggle('on', c.dataset.invrole === 'readonly'));
+      renderInviteRoleChips();
       openModal('inviteUser');
     }
     async function sendInvite() {
@@ -3487,15 +3661,22 @@
         editingUserRole = 'admin';
         document.getElementById('userDeleteBtn').style.display = 'none';
       }
-      // Rolle-Chips setzen
-      document.querySelectorAll('[data-role]').forEach(c => c.classList.toggle('on', c.dataset.role === editingUserRole));
-      document.getElementById('userRoleHint').textContent = ROLE_DESCRIPTIONS[editingUserRole];
+      // Rolle-Chips dynamisch rendern (Builtin + eigene Rollen)
+      renderUserRoleChips();
+      document.getElementById('userRoleHint').textContent = roleDescription(editingUserRole);
       openModal('userEditor');
+    }
+    function renderUserRoleChips() {
+      const wrap = document.getElementById('userRoleChips');
+      if (!wrap) return;
+      wrap.innerHTML = Object.keys(ROLE_DEFS).map(key =>
+        `<button type="button" class="opt-chip ${key === editingUserRole ? 'on' : ''}" data-role="${key}" onclick="selectUserRole(this,'${key}')">${escapeHtml(ROLE_DEFS[key].label)}</button>`
+      ).join('');
     }
     function selectUserRole(el, role) {
       editingUserRole = role;
-      document.querySelectorAll('[data-role]').forEach(c => c.classList.toggle('on', c === el));
-      document.getElementById('userRoleHint').textContent = ROLE_DESCRIPTIONS[role];
+      document.querySelectorAll('#userRoleChips [data-role]').forEach(c => c.classList.toggle('on', c === el));
+      document.getElementById('userRoleHint').textContent = roleDescription(role);
     }
     function saveUser() {
       const fn = document.getElementById('userFirstname').value.trim();
