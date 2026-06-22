@@ -3946,10 +3946,10 @@
 
         const team = PLAN_TEAMS.find(t => t.id === merged.team);
         if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
-          // Tages-Crew berücksichtigen (überschreibt Stamm-Team-Zuordnung für diesen Tag)
+          // Team zugewiesen → GANZES Team arbeitet den Auftrag (bleibt für den Tag stabil,
+          // wird NICHT durch defaultCrew auf 1 zugeschnitten). Tages-Crew/Abwesenheit zählt.
           const teamEmps = team ? teamMembersOnDay(team.id, dateKey) : [];
-          const n = merged.crew != null ? Math.min(merged.crew, teamEmps.length) : teamEmps.length;
-          merged.assigned = teamEmps.slice(0, n).map(e => e.id);
+          merged.assigned = teamEmps.map(e => e.id);
         } else {
           // Falls assigned bereits gesetzt: abwesende Mitarbeiter rausfiltern
           merged.assigned = merged.assigned.filter(id => !empIsAbsent(id, dateKey));
@@ -3972,9 +3972,9 @@
         const merged = { ...j, customerId: j.customerId || null, _customer: cust || null, _added: true, _jobId: j.id, _dateKey: dateKey };
         const team = PLAN_TEAMS.find(t => t.id === merged.team);
         if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
+          // Team zugewiesen → ganzes Team (stabil für den Tag), nicht auf crew zugeschnitten
           const teamEmps = team ? teamMembersOnDay(team.id, dateKey) : [];
-          const n = merged.crew != null ? Math.min(merged.crew, teamEmps.length) : teamEmps.length;
-          merged.assigned = teamEmps.slice(0, n).map(e => e.id);
+          merged.assigned = teamEmps.map(e => e.id);
         } else {
           merged.assigned = merged.assigned.filter(id => !empIsAbsent(id, dateKey));
         }
