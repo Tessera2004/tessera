@@ -108,6 +108,29 @@
  *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
  *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
  *
+ *   -- Berichte / Nachweise / Abnahmeprotokolle (inkl. Unterschrift)
+ *   CREATE TABLE IF NOT EXISTS reports (
+ *     id            TEXT PRIMARY KEY,
+ *     tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     objekt        TEXT, employee TEXT,
+ *     date          TEXT, time TEXT,
+ *     status        TEXT DEFAULT 'vollstaendig',
+ *     note          TEXT,
+ *     photos        JSONB DEFAULT '[]',
+ *     signature_img TEXT,
+ *     tasks         JSONB DEFAULT '[]',
+ *     photo_count   INTEGER,
+ *     is_protocol   BOOLEAN DEFAULT false,
+ *     signed        BOOLEAN DEFAULT false,
+ *     created_at    TIMESTAMPTZ DEFAULT NOW(),
+ *     updated_at    TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "rep_tenant" ON reports;
+ *   CREATE POLICY "rep_tenant" ON reports FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
  *   -- Firmenprofil + Preise (1 Zeile pro Mandant)
  *   CREATE TABLE IF NOT EXISTS company_settings (
  *     tenant_id   UUID PRIMARY KEY REFERENCES tenants(id) ON DELETE CASCADE,
@@ -179,6 +202,14 @@
       linkType: r.link_type, sourceMail: r.source_mail, created: r.created_at };
   }
 
+  function rowToReport(r) {
+    return { id: r.id, objekt: r.objekt, employee: r.employee, date: r.date,
+      time: r.time, status: r.status || 'vollstaendig', note: r.note,
+      photos: r.photos || [], signatureImg: r.signature_img,
+      tasks: r.tasks || [], photoCount: r.photo_count,
+      isProtocol: r.is_protocol || false, signed: r.signed || false };
+  }
+
   function unflattenJobs(rows) {
     const dict = {};
     (rows || []).forEach(r => {
@@ -229,6 +260,16 @@
       updated_at: new Date().toISOString() };
   }
 
+  function reportToRow(r, tid) {
+    return { id: r.id, tenant_id: tid, objekt: r.objekt || null,
+      employee: r.employee || null, date: r.date || null, time: r.time || null,
+      status: r.status || 'vollstaendig', note: r.note || null,
+      photos: r.photos || [], signature_img: r.signatureImg || null,
+      tasks: r.tasks || [], photo_count: r.photoCount || null,
+      is_protocol: r.isProtocol || false, signed: r.signed || false,
+      updated_at: new Date().toISOString() };
+  }
+
   function flattenJobs(dict, tid) {
     const rows = [];
     Object.entries(dict || {}).forEach(([dateKey, jobs]) => {
@@ -256,13 +297,14 @@
     if (!tid) { window._dbReady = false; return; }
 
     try {
-      const [ouR, empR, teamR, custR, jobR, taskR, settR] = await Promise.all([
+      const [ouR, empR, teamR, custR, jobR, taskR, repR, settR] = await Promise.all([
         sb.from('office_users').select('*').eq('tenant_id', tid),
         sb.from('employees').select('*').eq('tenant_id', tid),
         sb.from('teams').select('*').eq('tenant_id', tid),
         sb.from('customers').select('*').eq('tenant_id', tid),
         sb.from('plan_jobs').select('*').eq('tenant_id', tid),
         sb.from('tasks').select('*').eq('tenant_id', tid),
+        sb.from('reports').select('*').eq('tenant_id', tid),
         sb.from('company_settings').select('*').eq('tenant_id', tid).maybeSingle()
       ]);
 
@@ -278,6 +320,8 @@
         localStorage.setItem('cc-plan-jobs-v1', JSON.stringify(unflattenJobs(jobR.data)));
       if (taskR.data?.length)
         localStorage.setItem('cc-tasks-v1', JSON.stringify(taskR.data.map(rowToTask)));
+      if (repR.data?.length)
+        localStorage.setItem('cc-reports-v1', JSON.stringify(repR.data.map(rowToReport)));
       if (settR.data) {
         const p = settR.data.profile;
         const pr = settR.data.prices;
@@ -287,7 +331,8 @@
 
       window._dbReady = true;
       console.log('[MosaDB] Sync OK —', { ou: ouR.data?.length, emp: empR.data?.length,
-        cust: custR.data?.length, jobs: jobR.data?.length, tasks: taskR.data?.length });
+        cust: custR.data?.length, jobs: jobR.data?.length, tasks: taskR.data?.length,
+        reports: repR.data?.length });
     } catch (err) {
       console.warn('[MosaDB] Sync fehlgeschlagen (offline?):', err.message);
     }
@@ -314,6 +359,11 @@
         if (rows.length) await sb.from('plan_jobs').upsert(rows, { onConflict: 'id' });
       } else if (type === 'tasks') {
         await sb.from('tasks').upsert(data.map(t => taskToRow(t, tid)), { onConflict: 'id' });
+      } else if (type === 'reports') {
+        await sb.from('reports').upsert(data.map(r => reportToRow(r, tid)), { onConflict: 'id' });
+      } else if (type === 'report_one') {
+        // Einzelner Bericht (mobile.html: ein Protokoll, nicht das ganze Array)
+        await sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' });
       } else if (type === 'company_profile' || type === 'company_prices') {
         // Lese erst das andere Feld, damit es nicht überschrieben wird
         const { data: cur } = await sb.from('company_settings').select('profile,prices')

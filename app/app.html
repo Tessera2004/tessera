@@ -5638,7 +5638,7 @@
       try { const v = JSON.parse(localStorage.getItem(REPORTS_KEY)); if (Array.isArray(v)) return v; } catch {}
       return [];
     }
-    function saveReports(arr) { localStorage.setItem(REPORTS_KEY, JSON.stringify(arr)); }
+    function saveReports(arr) { localStorage.setItem(REPORTS_KEY, JSON.stringify(arr)); window.MosaDB?.push('reports', arr); }
     const REPORT_STATUS = {
       vollstaendig: { cls: 'badge-success', col: 'var(--success)', label: 'Vollständig' },
       fotofehlt:    { cls: 'badge-warning', col: 'var(--warning)', label: 'Foto fehlt' },
@@ -6321,6 +6321,7 @@
       if (!editingReportId) return;
       if (!confirm('Diesen Bericht wirklich löschen?')) return;
       saveReports(loadReports().filter(x => x.id !== editingReportId));
+      window.MosaDB?.remove('reports', editingReportId);
       closeModal('reportEditor');
       editingReportId = null;
       renderBerichte();

@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="db-sync.js"></script>
   <style>
     body { background: #F1F5F9; }
     .device-frame {
@@ -329,6 +332,21 @@
 
   <div class="m-toast" id="mToast"></div>
 
+  <!-- ====== LOGIN-GATE (Mitarbeiter) ====== -->
+  <div id="mLogin" style="position:fixed;inset:0;z-index:9999;background:#0d1117;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+    <div style="width:100%;max-width:360px;">
+      <div style="text-align:center;margin-bottom:28px;font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;">Mosa<span style="color:#E11D2A">OS</span></div>
+      <div style="text-align:center;margin-bottom:24px;color:#8b949e;font-size:14px;">Bitte melde dich an, um deinen Tag zu starten.</div>
+      <input id="mEmail" type="email" inputmode="email" autocomplete="username" placeholder="E-Mail"
+        style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:12px;border-radius:12px;border:1px solid #30363d;background:#161b22;color:#fff;font-size:16px;" />
+      <input id="mPass" type="password" autocomplete="current-password" placeholder="Passwort"
+        style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:8px;border-radius:12px;border:1px solid #30363d;background:#161b22;color:#fff;font-size:16px;" />
+      <div id="mLoginErr" style="display:none;color:#f85149;font-size:13px;margin:4px 2px 12px;"></div>
+      <button id="mLoginBtn" onclick="mDoLogin()"
+        style="width:100%;padding:14px;margin-top:8px;border:none;border-radius:12px;background:#E11D2A;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Anmelden</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script>
     function toast(msg) {
@@ -623,7 +641,8 @@
         tasks: proto.tasks,
         photoCount: proto.photos,
         isProtocol: true,
-        signed: !!signed
+        signed: !!signed,
+        employee: window._fieldUser || ''
       };
       let reports = []; try { reports = JSON.parse(localStorage.getItem('cc-reports-v1')) || []; } catch {}
       reports.push(rep);
@@ -634,6 +653,9 @@
         rep.photos = []; rep.signatureImg = null;
         try { localStorage.setItem('cc-reports-v1', JSON.stringify(reports)); } catch {}
       }
+
+      // Ins Backend (Supabase) schreiben → im Büro-Dashboard sichtbar
+      window.MosaDB?.push('report_one', rep);
     }
     function markStopDone() {
       const s = document.getElementById('activeStop'); if (!s) return;
@@ -670,6 +692,72 @@
         toast('✓ Gemeldet: ' + grund.trim() + ' — Büro ist informiert');
       }
     }
+
+    /* ---------- Login / Auth (Mitarbeiter) ---------- */
+    window._fieldUser = '';
+
+    function mSb() {
+      const cfg = window.MOSAOS_SUPABASE;
+      if (!cfg?.url || !cfg?.anonKey || !window.supabase) return null;
+      if (!window._sbClient) window._sbClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+      return window._sbClient;
+    }
+
+    function showLogin(show) {
+      const el = document.getElementById('mLogin');
+      if (el) el.style.display = show ? 'flex' : 'none';
+    }
+
+    async function mAfterSession(session) {
+      window._fieldUser = session?.user?.email || '';
+      // Mandant prüfen — ohne Zuordnung kann nichts gespeichert werden
+      const sb = mSb();
+      let ok = false;
+      try {
+        const { data } = await sb.from('tenant_users').select('tenant_id')
+          .eq('user_id', session.user.id).single();
+        if (data?.tenant_id) { window._tenantId = data.tenant_id; ok = true; }
+      } catch {}
+      if (!ok) {
+        const e = document.getElementById('mLoginErr');
+        if (e) { e.textContent = 'Konto ist keiner Firma zugeordnet. Bitte beim Büro melden.'; e.style.display = 'block'; }
+        await sb.auth.signOut();
+        showLogin(true);
+        return;
+      }
+      showLogin(false);
+    }
+
+    async function mDoLogin() {
+      const sb = mSb();
+      const errEl = document.getElementById('mLoginErr');
+      const btn = document.getElementById('mLoginBtn');
+      if (errEl) errEl.style.display = 'none';
+      if (!sb) { if (errEl) { errEl.textContent = 'Server nicht erreichbar (Internet?).'; errEl.style.display = 'block'; } return; }
+      const email = (document.getElementById('mEmail').value || '').trim();
+      const pass = document.getElementById('mPass').value || '';
+      if (!email || !pass) { if (errEl) { errEl.textContent = 'E-Mail und Passwort eingeben.'; errEl.style.display = 'block'; } return; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Anmelden …'; }
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+        if (error) { if (errEl) { errEl.textContent = 'Anmeldung fehlgeschlagen. E-Mail/Passwort prüfen.'; errEl.style.display = 'block'; } }
+        else { await mAfterSession(data.session); }
+      } catch {
+        if (errEl) { errEl.textContent = 'Anmeldung fehlgeschlagen (Internet?).'; errEl.style.display = 'block'; }
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Anmelden'; }
+      }
+    }
+
+    (async () => {
+      const sb = mSb();
+      if (!sb) { showLogin(true); return; }   // ohne Config: Login zeigen, Feld bleibt lokal
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) { await mAfterSession(session); }
+        else { showLogin(true); }
+      } catch { showLogin(true); }
+    })();
   </script>
 </body>
 </html>
