@@ -1087,7 +1087,10 @@
               <h1 class="page-title">Büro-Team</h1>
               <p class="page-subtitle">Wer arbeitet im Büro? Welche Rechte hat wer? Wer hat was geändert?</p>
             </div>
-            <button class="btn btn-accent" onclick="openUserEditor()" id="addUserBtn">+ Mitarbeiter hinzufügen</button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" onclick="openInviteModal()" id="inviteBtn">📨 Einladen</button>
+              <button class="btn btn-accent" onclick="openUserEditor()" id="addUserBtn">+ Mitarbeiter hinzufügen</button>
+            </div>
           </div>
 
           <div class="readonly-banner">
@@ -1118,6 +1121,13 @@
           <!-- Team-Liste -->
           <div class="team-grid" id="teamGrid">
             <!-- gerendert via JS -->
+          </div>
+
+          <!-- Offene Einladungen -->
+          <div id="invitesSection" style="display:none; margin-top:28px;">
+            <h2 style="font-size:15px; font-weight:600; margin-bottom:4px;">Offene Einladungen</h2>
+            <p style="font-size:12.5px; color:var(--text-subtle); margin-bottom:14px;">Eingeladene Personen registrieren sich mit ihrer E-Mail und landen automatisch in deinem Team.</p>
+            <div id="invitesList" style="display:flex; flex-direction:column; gap:8px;"></div>
           </div>
         </section>
 
@@ -2248,6 +2258,52 @@
     </div>
   </div>
 
+  <!-- Mitarbeiter einladen -->
+  <div class="modal-backdrop" id="modal-inviteUser" onclick="if(event.target===this)closeModal('inviteUser')">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Mitarbeiter einladen</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Erstellt eine Einladung — die Person registriert sich selbst und ist dann in deinem Team.</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('inviteUser')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field">
+            <label>Vorname</label>
+            <input type="text" id="inviteFirstname" placeholder="z. B. Lara" />
+          </div>
+          <div class="field">
+            <label>Nachname</label>
+            <input type="text" id="inviteLastname" placeholder="z. B. Fischer" />
+          </div>
+        </div>
+        <div class="field">
+          <label>E-Mail *</label>
+          <input type="email" id="inviteEmail" placeholder="lara@firma.ch" />
+        </div>
+        <div class="field">
+          <label>Rolle</label>
+          <div class="opt-row">
+            <button type="button" class="opt-chip" data-invrole="admin" onclick="selectInviteRole(this,'admin')">Admin</button>
+            <button type="button" class="opt-chip" data-invrole="disposition" onclick="selectInviteRole(this,'disposition')">Disposition</button>
+            <button type="button" class="opt-chip" data-invrole="buchhaltung" onclick="selectInviteRole(this,'buchhaltung')">Buchhaltung</button>
+            <button type="button" class="opt-chip on" data-invrole="readonly" onclick="selectInviteRole(this,'readonly')">Read-only</button>
+          </div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;">Reiniger im Aussendienst (nur Mobile-App): Read-only genügt.</div>
+        </div>
+        <div id="inviteError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('inviteUser')">Abbrechen</button>
+        <button class="btn btn-accent" id="inviteSendBtn" onclick="sendInvite()">Einladung erstellen</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ E-MAIL: Postfach verbinden ============ -->
   <div class="modal-backdrop" id="modal-mailConnect" onclick="if(event.target===this)closeModal('mailConnect')">
     <div class="modal" style="max-width:480px;">
@@ -3208,6 +3264,9 @@
       const users = loadUsers();
       const canManage = hasPerm('edit_users');
       document.getElementById('addUserBtn').style.display = canManage ? 'inline-flex' : 'none';
+      const invBtn = document.getElementById('inviteBtn');
+      if (invBtn) invBtn.style.display = canManage ? 'inline-flex' : 'none';
+      renderInvites();
       wrap.innerHTML = users.map(u => {
         const isMe = currentUser && u.id === currentUser.id;
         const col = getUserColor(u);
@@ -3243,6 +3302,85 @@
           <div class="perms-list">${permsHtml}</div>
         </div>`;
       }).join('');
+    }
+
+    // --- Mitarbeiter einladen (Supabase invites → Trigger ordnet beim Registrieren zu) ---
+    let inviteRole = 'readonly';
+    function selectInviteRole(btn, role) {
+      document.querySelectorAll('[data-invrole]').forEach(c => c.classList.remove('on'));
+      btn.classList.add('on');
+      inviteRole = role;
+    }
+    function openInviteModal() {
+      if (!requirePerm('edit_users', 'das Team verwalten')) return;
+      ['inviteFirstname', 'inviteLastname', 'inviteEmail'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+      document.getElementById('inviteError').style.display = 'none';
+      inviteRole = 'readonly';
+      document.querySelectorAll('[data-invrole]').forEach(c => c.classList.toggle('on', c.dataset.invrole === 'readonly'));
+      openModal('inviteUser');
+    }
+    async function sendInvite() {
+      const errEl = document.getElementById('inviteError');
+      const email = (document.getElementById('inviteEmail').value || '').trim().toLowerCase();
+      const fn = document.getElementById('inviteFirstname').value.trim();
+      const ln = document.getElementById('inviteLastname').value.trim();
+      errEl.style.display = 'none';
+      if (!email || !/.+@.+\..+/.test(email)) { errEl.textContent = 'Bitte eine gültige E-Mail eingeben.'; errEl.style.display = 'block'; return; }
+      const sb = getSupabase();
+      if (!sb) { errEl.textContent = 'Keine Verbindung. Bitte zuerst oben rechts anmelden.'; errEl.style.display = 'block'; return; }
+      const tid = await loadTenantId();
+      if (!tid) { errEl.textContent = 'Du bist nicht angemeldet — Einladen geht nur eingeloggt.'; errEl.style.display = 'block'; return; }
+      const btn = document.getElementById('inviteSendBtn');
+      btn.disabled = true; btn.textContent = 'Erstelle …';
+      try {
+        const { error } = await sb.from('invites').insert({
+          tenant_id: tid, email, role: inviteRole,
+          firstname: fn || null, lastname: ln || null,
+          created_by: currentUser ? getUserName(currentUser) : null
+        });
+        if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+        else {
+          closeModal('inviteUser');
+          toast('✓ Einladung erstellt — die Person registriert sich mit ' + email);
+          renderInvites();
+        }
+      } catch { errEl.textContent = 'Fehlgeschlagen (Internet?).'; errEl.style.display = 'block'; }
+      finally { btn.disabled = false; btn.textContent = 'Einladung erstellen'; }
+    }
+    async function renderInvites() {
+      const sec = document.getElementById('invitesSection');
+      const list = document.getElementById('invitesList');
+      if (!sec || !list) return;
+      const sb = getSupabase();
+      const tid = sb ? await loadTenantId() : null;
+      if (!tid) { sec.style.display = 'none'; return; }
+      let rows = [];
+      try {
+        const { data } = await sb.from('invites').select('*').is('accepted_at', null).order('created_at', { ascending: false });
+        rows = data || [];
+      } catch { sec.style.display = 'none'; return; }
+      if (!rows.length) { sec.style.display = 'none'; return; }
+      sec.style.display = 'block';
+      list.innerHTML = rows.map(r => {
+        const name = [r.firstname, r.lastname].filter(Boolean).join(' ');
+        const roleLbl = ROLE_DEFS[r.role]?.label || r.role;
+        const when = r.created_at ? formatDateDE(r.created_at.slice(0, 10)) : '';
+        return `<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border:1px solid var(--border); border-radius:10px; background:var(--surface);">
+          <div style="min-width:0;">
+            <div style="font-weight:600; font-size:13.5px;">${escapeHtml(r.email)}</div>
+            <div style="font-size:12px; color:var(--text-subtle);">${escapeHtml(name)}${name ? ' · ' : ''}${roleLbl} · eingeladen ${when}</div>
+          </div>
+          <button class="btn btn-ghost" style="color:var(--danger);" onclick="revokeInvite('${r.id}')">Zurückziehen</button>
+        </div>`;
+      }).join('');
+    }
+    async function revokeInvite(id) {
+      if (!confirm('Einladung zurückziehen?')) return;
+      const sb = getSupabase();
+      if (!sb) return;
+      try { await sb.from('invites').delete().eq('id', id); } catch {}
+      toast('Einladung zurückgezogen');
+      renderInvites();
     }
 
     // --- User-Editor-Modal ---

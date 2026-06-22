@@ -39,20 +39,49 @@
      FOR SELECT TO authenticated
      USING (id = (SELECT tenant_id FROM tenant_users WHERE user_id = auth.uid()));
 
+   ── SCHRITT 1b: Einladungen (Mitarbeiter ins bestehende Team holen) ─
+
+   CREATE TABLE IF NOT EXISTS invites (
+     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     tenant_id   UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+     email       TEXT NOT NULL,
+     role        TEXT DEFAULT 'readonly',
+     firstname   TEXT, lastname TEXT,
+     created_by  TEXT,
+     created_at  TIMESTAMPTZ DEFAULT NOW(),
+     accepted_at TIMESTAMPTZ
+   );
+   ALTER TABLE invites ENABLE ROW LEVEL SECURITY;
+   DROP POLICY IF EXISTS "inv_tenant" ON invites;
+   CREATE POLICY "inv_tenant" ON invites FOR ALL TO authenticated
+     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+
    ── SCHRITT 2: Trigger — Mandant automatisch bei Registrierung ─
+   (Invite-fähig: existiert eine offene Einladung für die E-Mail,
+    tritt der Nutzer DIESEM Mandanten bei statt einen neuen anzulegen.)
 
    CREATE OR REPLACE FUNCTION handle_new_user()
    RETURNS TRIGGER
    LANGUAGE plpgsql
    SECURITY DEFINER SET search_path = public
    AS $$
-   DECLARE new_tid UUID;
+   DECLARE new_tid UUID; inv RECORD;
    BEGIN
-     INSERT INTO tenants (name)
-       VALUES (COALESCE(NEW.raw_user_meta_data->>'company', 'Mandant ' || NEW.id))
-       RETURNING id INTO new_tid;
-     INSERT INTO tenant_users (user_id, tenant_id, role)
-       VALUES (NEW.id, new_tid, 'admin');
+     SELECT * INTO inv FROM invites
+       WHERE lower(email) = lower(NEW.email) AND accepted_at IS NULL
+       ORDER BY created_at DESC LIMIT 1;
+     IF inv.tenant_id IS NOT NULL THEN
+       INSERT INTO tenant_users (user_id, tenant_id, role)
+         VALUES (NEW.id, inv.tenant_id, COALESCE(inv.role, 'readonly'));
+       UPDATE invites SET accepted_at = NOW() WHERE id = inv.id;
+     ELSE
+       INSERT INTO tenants (name)
+         VALUES (COALESCE(NEW.raw_user_meta_data->>'company', 'Mandant ' || NEW.id))
+         RETURNING id INTO new_tid;
+       INSERT INTO tenant_users (user_id, tenant_id, role)
+         VALUES (NEW.id, new_tid, 'admin');
+     END IF;
      RETURN NEW;
    END;
    $$;
