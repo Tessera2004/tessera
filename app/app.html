@@ -2086,6 +2086,14 @@
       </div>
       <div class="modal-body">
         <div id="repDetailNote" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;"></div>
+        <div id="repDetailTasks" style="display:none; margin-bottom:16px;">
+          <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;">Erledigte Arbeiten</div>
+          <div class="repd-tasks-list"></div>
+        </div>
+        <div id="repDetailSig" style="display:none; margin-bottom:16px;">
+          <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;">Unterschrift Kunde</div>
+          <img style="max-width:100%;max-height:160px;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px;" />
+        </div>
         <div id="repDetailPhotos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;"></div>
       </div>
       <div class="modal-footer">
@@ -2137,6 +2145,16 @@
         <div class="field" id="taskLinkInfo" style="display:none;">
           <label>Verknüpft mit</label>
           <div id="taskLinkLabel" style="font-size: 12.5px; color: var(--text-muted); padding: 6px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field">
+            <label>Kontakt-E-Mail <span style="font-size:11px;color:var(--text-subtle);">optional</span></label>
+            <input type="email" id="taskContactEmail" placeholder="kunde@beispiel.ch" />
+          </div>
+          <div class="field">
+            <label>Kontakt-Telefon <span style="font-size:11px;color:var(--text-subtle);">optional</span></label>
+            <input type="tel" id="taskContactPhone" placeholder="+41 79 123 45 67" />
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -4726,6 +4744,10 @@
           ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">📅 ${new Date(t.dueDate).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ' · überfällig' : ''}</span>`
           : '';
         const linkLbl = t.linkLabel ? `<span class="task-link">🔗 ${t.linkLabel}</span>` : '';
+        const contactBtns = [];
+        if (t.contactEmail) contactBtns.push(`<a class="task-contact-btn" href="mailto:${t.contactEmail}" onclick="event.stopPropagation()" title="${t.contactEmail}">📧 Mail</a>`);
+        if (t.contactPhone) contactBtns.push(`<a class="task-contact-btn" href="tel:${t.contactPhone.replace(/\s/g,'')}" onclick="event.stopPropagation()" title="${t.contactPhone}">📞 Anrufen</a>`);
+        const contactRow = contactBtns.length ? `<div class="task-contact-row">${contactBtns.join('')}</div>` : '';
         return `<div class="task-item ${t.done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}">
           <label class="task-check">
             <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDone('${t.id}')" />
@@ -4744,6 +4766,7 @@
               ${dueLbl}
               ${linkLbl}
             </div>
+            ${contactRow}
           </div>
         </div>`;
       }).join('');
@@ -4796,6 +4819,8 @@
         } else {
           linkInfo.style.display = 'none';
         }
+        document.getElementById('taskContactEmail').value = t.contactEmail || '';
+        document.getElementById('taskContactPhone').value = t.contactPhone || '';
       } else {
         document.getElementById('taskModalTitle').textContent = 'Neue Aufgabe';
         document.getElementById('taskTitle').value = '';
@@ -4816,6 +4841,9 @@
         } else {
           linkInfo.style.display = 'none';
         }
+        // Pre-fill contact from context (mail sender or customer)
+        document.getElementById('taskContactEmail').value = linkContext?.contactEmail || linkContext?.sourceMail?.from || '';
+        document.getElementById('taskContactPhone').value = linkContext?.contactPhone || '';
       }
       openModal('taskEditor');
     }
@@ -4836,7 +4864,9 @@
         desc: document.getElementById('taskDesc').value.trim(),
         assignee: document.getElementById('taskAssignee').value,
         dueDate: document.getElementById('taskDueDate').value || null,
-        prio: document.getElementById('taskPrioPicker').dataset.value || 'normal'
+        prio: document.getElementById('taskPrioPicker').dataset.value || 'normal',
+        contactEmail: document.getElementById('taskContactEmail')?.value.trim() || null,
+        contactPhone: document.getElementById('taskContactPhone')?.value.trim() || null
       };
       if (editingTaskId) {
         const i = TASKS.findIndex(x => x.id === editingTaskId);
@@ -4961,7 +4991,9 @@
         type: 'anruf',
         label: `Anruf ${cust ? '· ' + customerDisplayName(cust) : ''}${wer ? ' · ' + wer : ''}`,
         title: `Rückruf an ${kunde}`,
-        desc: text || ''
+        desc: text || '',
+        contactPhone: cust?.phone || '',
+        contactEmail: cust?.email || ''
       });
     }
 
@@ -5670,6 +5702,22 @@
         if (title) title.textContent = 'Dein Tag im Überblick.';
         if (sub) sub.textContent = `${total} Mitarbeiter · ${kunden} Kunden · ${reports.length} Berichte erfasst.`;
       }
+      // Aktivitäts-Feed
+      const actEl = document.getElementById('dashActivity');
+      if (actEl) {
+        const events = [];
+        reports.forEach(r => {
+          if (r.isProtocol) events.push({ ts: r.date + (r.time ? 'T' + r.time : ''), icon: r.signed ? '✍' : '✓', text: `Abnahme: ${r.objekt || 'Einsatz'}`, meta: r.signed ? 'Unterschrift erhalten' : (r.note || ''), col: 'var(--success)' });
+        });
+        TASKS.filter(t => t.done && t.completedAt).forEach(t => {
+          events.push({ ts: t.completedAt, icon: '✓', text: t.title, meta: taskAssigneeLabel(t.assignee), col: 'var(--accent)' });
+        });
+        events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+        const top = events.slice(0, 8);
+        actEl.innerHTML = top.length
+          ? top.map(ev => `<div class="activity-item"><div class="act-icon" style="background:${ev.col}1a;color:${ev.col}">${ev.icon}</div><div class="act-body"><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div></div>`).join('')
+          : '<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">Noch keine Aktivität.</div>';
+      }
     }
     document.querySelector('.nav-item[data-view="dashboard"]')?.addEventListener('click', () => {
       setTimeout(renderDashboard, 50);
@@ -6284,6 +6332,25 @@
       wrap.innerHTML = photos.length
         ? photos.map(p => `<a href="${p}" target="_blank" style="display:block;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border);background-image:url('${p}');background-size:cover;background-position:center;"></a>`).join('')
         : '<div style="grid-column:1/-1;color:var(--text-subtle);font-size:13px;">Keine Fotos hinterlegt.</div>';
+      // Erledigte Arbeiten (aus Abnahmeprotokoll)
+      const tasksSect = document.getElementById('repDetailTasks');
+      if (tasksSect) {
+        if (r.tasks?.length) {
+          tasksSect.style.display = '';
+          tasksSect.querySelector('.repd-tasks-list').innerHTML = r.tasks.map(t =>
+            `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:13px;"><span style="color:var(--success);">✓</span> ${escapeHtml(t)}</div>`
+          ).join('');
+        } else { tasksSect.style.display = 'none'; }
+      }
+      // Unterschrift Kunde
+      const sigSect = document.getElementById('repDetailSig');
+      if (sigSect) {
+        if (r.signatureImg) {
+          sigSect.style.display = '';
+          const img = sigSect.querySelector('img');
+          if (img) img.src = r.signatureImg;
+        } else { sigSect.style.display = 'none'; }
+      }
       openModal('reportDetail');
     }
     function editReportFromDetail() {

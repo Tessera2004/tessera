@@ -597,9 +597,43 @@
     function clearSignature() { const cv = document.getElementById('sigCanvas'); if (sigCtx && cv) sigCtx.clearRect(0, 0, cv.width, cv.height); sigHasInk = false; cv && cv.parentElement.classList.remove('signed'); }
 
     function saveProtocol(method, signed) {
+      // Signatur als PNG sichern
+      let sigImg = null;
+      if (signed) {
+        const cv = document.getElementById('sigCanvas');
+        if (cv && sigHasInk) { try { sigImg = cv.toDataURL('image/png'); } catch {} }
+      }
+
+      const proto = { objekt: currentObjektName(), date: new Date().toISOString(), tasks: protoTasks.filter(t => t.done).map(t => t.label), photos: currentPhotoCount(), method, signed: !!signed };
       let arr = []; try { arr = JSON.parse(localStorage.getItem(PROTO_KEY)) || []; } catch {}
-      arr.push({ objekt: currentObjektName(), date: new Date().toISOString(), tasks: protoTasks.filter(t => t.done).map(t => t.label), photos: currentPhotoCount(), method, signed: !!signed });
+      arr.push(proto);
       localStorage.setItem(PROTO_KEY, JSON.stringify(arr));
+
+      // Auch in cc-reports-v1 schreiben → sichtbar in Nachweise & Aktivitäten
+      const rep = {
+        id: 'prot_' + Date.now(),
+        objekt: proto.objekt,
+        date: proto.date.slice(0, 10),
+        time: new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }),
+        status: 'vollstaendig',
+        employee: '',
+        note: signed ? 'Abnahmeprotokoll · vor Ort unterschrieben' : `Abnahmeprotokoll · ${method}`,
+        photos: sigImg ? [sigImg] : [],
+        signatureImg: sigImg,
+        tasks: proto.tasks,
+        photoCount: proto.photos,
+        isProtocol: true,
+        signed: !!signed
+      };
+      let reports = []; try { reports = JSON.parse(localStorage.getItem('cc-reports-v1')) || []; } catch {}
+      reports.push(rep);
+      try {
+        localStorage.setItem('cc-reports-v1', JSON.stringify(reports));
+      } catch {
+        // Speicher voll: ohne Signaturbild nochmal versuchen
+        rep.photos = []; rep.signatureImg = null;
+        try { localStorage.setItem('cc-reports-v1', JSON.stringify(reports)); } catch {}
+      }
     }
     function markStopDone() {
       const s = document.getElementById('activeStop'); if (!s) return;
