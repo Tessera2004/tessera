@@ -1377,6 +1377,9 @@
               🚗 = fährt selbst · ⚠️ = braucht Mitfahrgelegenheit
             </div>
           </div>
+          <!-- Live-Verfügbarkeit (fürs Telefon: "geht Dienstag 8 Uhr?") -->
+          <div id="wizAvail" class="wiz-avail"></div>
+
           <div class="field">
             <label>Notizen / Sonderwünsche</label>
             <input type="text" id="wizNote" placeholder="Schlüssel beim Hausmeister, Code 1234, Hund vorhanden, …" />
@@ -5952,7 +5955,7 @@
 
       // titles per step
       if (wizCurrent === 1) document.getElementById('wizSub').textContent = 'Wähle die Reinigungsart aus';
-      if (wizCurrent === 3) { document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis'; wizCalcPrice(); }
+      if (wizCurrent === 3) { document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis'; wizCalcPrice(); wizCheckAvailability(); }
 
       // buttons
       document.getElementById('wizBack').style.display = wizCurrent > 1 ? 'inline-flex' : 'none';
@@ -6941,6 +6944,101 @@ Aarau · ${datum}`
       });
       return Object.values(map).map(s => { s.dates.sort(); return s; });
     }
+
+    // ---- Live-Verfügbarkeit fürs Telefon-Booking ----
+    function fmtMinHM(m) { return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+    // Welche Teams haben an dem Tag im Zeitfenster freie Leute?
+    function availabilityAt(dateKey, startMin, durMin, neededCrew) {
+      neededCrew = neededCrew || 1;
+      const e = startMin + durMin;
+      const jobs = getJobsForDate(new Date(dateKey + 'T00:00:00'));
+      const out = [];
+      PLAN_TEAMS.forEach(t => {
+        const members = EMPLOYEES.filter(emp => emp.teamId === t.id && !empIsAbsent(emp.id, dateKey));
+        if (members.length === 0) return;
+        let freeCount = 0;
+        members.forEach(emp => {
+          const busy = jobs.some(j => {
+            if (!(j.assigned || []).includes(emp.id)) return false;
+            const js = parseHM(j.start), je = js + (j.duration || 0);
+            return js < e && je > startMin;
+          });
+          if (!busy) freeCount++;
+        });
+        out.push({ team: t, total: members.length, freeCount, available: freeCount >= neededCrew });
+      });
+      return out;
+    }
+    function nextFreeSlotSameDay(dateKey, startMin, durMin, neededCrew) {
+      for (let t = startMin; t <= 21 * 60 - durMin; t += 15) {
+        if (availabilityAt(dateKey, t, durMin, neededCrew).some(r => r.available)) return t;
+      }
+      return null;
+    }
+    function nextFreeDays(fromDateKey, startMin, durMin, neededCrew, count) {
+      count = count || 3;
+      const res = [];
+      const d = new Date(fromDateKey + 'T00:00:00');
+      d.setDate(d.getDate() + 1);     // erst ab dem Folgetag suchen
+      for (let i = 0; i < 28 && res.length < count; i++) {
+        const dk = isoDate(d);
+        const free = availabilityAt(dk, startMin, durMin, neededCrew).filter(r => r.available);
+        if (free.length) res.push({ dateKey: dk, teams: free.map(r => r.team.name) });
+        d.setDate(d.getDate() + 1);
+      }
+      return res;
+    }
+    function wizCheckAvailability() {
+      const box = document.getElementById('wizAvail');
+      if (!box) return;
+      const dv = document.getElementById('wizDate')?.value;
+      const dk = dv || isoDate(planCurrentDate);
+      const startHHMM = document.getElementById('wizStart')?.value || '08:00';
+      const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
+      const dur = Math.round(hours * 60);
+      const startMin = parseHM(startHHMM);
+
+      const teamsWithMembers = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
+      if (teamsWithMembers.length === 0) {
+        box.innerHTML = `<div class="wiz-avail-box"><div class="wiz-avail-sub">📞 Lege zuerst Teams & Mitarbeiter an — dann siehst du hier sofort, ob der Wunschtermin frei ist.</div></div>`;
+        return;
+      }
+      const selTeam = document.getElementById('wizardTeamSelect')?.value || '';
+      let av = availabilityAt(dk, startMin, dur, 1);
+      if (selTeam) av = av.filter(r => r.team.id === selTeam);
+      const freeTeams = av.filter(r => r.available);
+      const dayLbl = new Date(dk + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'long', day: '2-digit', month: '2-digit' });
+
+      if (freeTeams.length) {
+        const names = freeTeams.map(r => `${r.team.name} (${r.freeCount} frei)`).join(', ');
+        box.innerHTML = `<div class="wiz-avail-box ok"><div class="wiz-avail-head">✓ ${dayLbl}, ${startHHMM} Uhr — frei</div><div class="wiz-avail-sub">Verfügbar: ${escapeHtml(names)}</div></div>`;
+        return;
+      }
+      // belegt → Alternativen anbieten
+      const sameDay = nextFreeSlotSameDay(dk, startMin, dur, 1);
+      const days = nextFreeDays(dk, startMin, dur, 1, 3);
+      let chips = '';
+      if (sameDay != null && sameDay !== startMin) {
+        chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${dk}','${fmtMinHM(sameDay)}')">${dayLbl} ab ${fmtMinHM(sameDay)}</button>`;
+      }
+      days.forEach(d => {
+        const dl = new Date(d.dateKey + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit' });
+        chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${d.dateKey}','${startHHMM}')">${dl}, ${startHHMM}</button>`;
+      });
+      box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">⚠ ${dayLbl}, ${startHHMM} Uhr — belegt</div>` +
+        `<div class="wiz-avail-sub">${selTeam ? 'Dieses Team ist' : 'Kein Team ist'} zu dieser Zeit frei. Alternativen:</div>` +
+        `<div class="wiz-slot-chips">${chips || '<span class="wiz-avail-sub">In den nächsten Wochen kein freier Slot zu dieser Uhrzeit.</span>'}</div></div>`;
+    }
+    function wizApplySlot(dateKey, startHHMM) {
+      const wd = document.getElementById('wizDate'); if (wd) wd.value = dateKey;
+      const ws = document.getElementById('wizStart'); if (ws) ws.value = startHHMM;
+      wizCheckAvailability();
+    }
+    // Eingaben live an den Check koppeln
+    ['wizDate', 'wizStart', 'wizDuration', 'wizardTeamSelect'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.addEventListener('change', wizCheckAvailability); el.addEventListener('input', wizCheckAvailability); }
+    });
 
     function submitAuftrag() {
       const name = (document.getElementById('termName')?.value || '').trim();
