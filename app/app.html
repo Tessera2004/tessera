@@ -913,17 +913,17 @@
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>Stundensatz</label>
+                  <label>Preis pro m²</label>
                   <div class="price-input-wrap">
-                    <input type="number" class="price-input" data-price="end-rate" value="45" step="0.5" oninput="onPriceChange()" />
-                    <span class="price-suffix">€ / h</span>
+                    <input type="number" class="price-input" data-price="end-qm" value="3.2" step="0.1" oninput="onPriceChange()" />
+                    <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestbuchung</label>
+                  <label>Mindestauftrag</label>
                   <div class="price-input-wrap">
-                    <input type="number" class="price-input" data-price="end-min" value="3" step="0.5" oninput="onPriceChange()" />
-                    <span class="price-suffix">h</span>
+                    <input type="number" class="price-input" data-price="end-min" value="250" step="10" oninput="onPriceChange()" />
+                    <span class="price-suffix">€</span>
                   </div>
                 </div>
                 <div class="price-row">
@@ -990,17 +990,17 @@
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>Stundensatz</label>
+                  <label>Preis pro m²</label>
                   <div class="price-input-wrap">
-                    <input type="number" class="price-input" data-price="bau-rate" value="48" step="0.5" oninput="onPriceChange()" />
-                    <span class="price-suffix">€ / h</span>
+                    <input type="number" class="price-input" data-price="bau-qm" value="2.8" step="0.1" oninput="onPriceChange()" />
+                    <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestbuchung</label>
+                  <label>Mindestauftrag</label>
                   <div class="price-input-wrap">
-                    <input type="number" class="price-input" data-price="bau-min" value="4" step="0.5" oninput="onPriceChange()" />
-                    <span class="price-suffix">h</span>
+                    <input type="number" class="price-input" data-price="bau-min" value="400" step="10" oninput="onPriceChange()" />
+                    <span class="price-suffix">€</span>
                   </div>
                 </div>
                 <div class="price-row">
@@ -6506,14 +6506,21 @@
     // ============ Preis-System ============
     const defaultPrices = {
       'unterhalt-rate': 35, 'unterhalt-min': 1, 'unterhalt-fee': 0,
-      'end-rate': 45, 'end-min': 3, 'end-fee': 25,
+      'end-qm': 3.2, 'end-min': 250, 'end-fee': 25,
       'fenster-rate': 40, 'fenster-leiter': 15, 'fenster-min': 2, 'fenster-fee': 20,
-      'bau-rate': 48, 'bau-min': 4, 'bau-fee': 35,
+      'bau-qm': 2.8, 'bau-min': 400, 'bau-fee': 35,
       'fassade-stator': 8.5, 'fassade-algen': 3.5, 'fassade-impraeg': 4.0, 'fassade-min': 800
     };
 
     function loadPrices() {
       const saved = JSON.parse(localStorage.getItem('cc-prices') || '{}');
+      // Migration: altes Stundensatz-Modell (end-rate/bau-rate) → €/m².
+      // end-min/bau-min wurden von „Stunden" auf „€ Mindestauftrag" umgewidmet.
+      if (saved['end-rate'] !== undefined || saved['bau-rate'] !== undefined) {
+        delete saved['end-rate']; delete saved['bau-rate'];
+        delete saved['end-min'];  delete saved['bau-min'];
+        localStorage.setItem('cc-prices', JSON.stringify(saved));
+      }
       Object.entries(defaultPrices).forEach(([key, val]) => {
         const el = document.querySelector(`[data-price="${key}"]`);
         if (el) el.value = saved[key] !== undefined ? saved[key] : val;
@@ -6599,11 +6606,25 @@
       else if (wizService === 'end') {
         const flaeche = parseInt(document.getElementById('endFlaeche')?.value || 65);
         const raeume = parseInt(document.getElementById('endRaeume')?.value || 2);
-        mins = Math.round(flaeche * 1.8 + raeume * 15);
-        document.querySelectorAll('.add-task.on').forEach(t => mins += parseInt(t.dataset.time || 0));
-        rate = getPrice('end-rate');
-        minHours = getPrice('end-min');
-        fee = getPrice('end-fee');
+        const qmPrice = getPrice('end-qm');
+        let addMins = 0;
+        document.querySelectorAll('.add-task.on').forEach(t => addMins += parseInt(t.dataset.time || 0));
+        const feeEnd = getPrice('end-fee');
+        const minAuftrag = getPrice('end-min');
+        const base = flaeche * qmPrice;
+        const usedMin = base < minAuftrag;
+        const durMins = Math.round(flaeche * 1.8 + raeume * 15 + addMins);
+        return {
+          total: Math.max(base, minAuftrag) + feeEnd,
+          mins: durMins,
+          dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
+          rateStr: `${qmPrice.toFixed(2)} €/m² × ${flaeche} m²`,
+          fee: feeEnd,
+          showFee: feeEnd > 0,
+          minApplied: usedMin,
+          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} €` : null,
+          breakdown: []
+        };
       }
 
       else if (wizService === 'fenster') {
@@ -6625,10 +6646,23 @@
       else if (wizService === 'bau') {
         const flaeche = parseInt(document.querySelector('.svc-options[data-svc-opts="bau"] input[type="number"]')?.value || 200);
         const cleaners = parseInt(document.querySelectorAll('.svc-options[data-svc-opts="bau"] input[type="number"]')[1]?.value || 3);
-        mins = Math.round(flaeche * 1.2);
-        rate = getPrice('bau-rate') * cleaners;
-        minHours = getPrice('bau-min');
-        fee = getPrice('bau-fee');
+        const qmPrice = getPrice('bau-qm');
+        const feeBau = getPrice('bau-fee');
+        const minAuftrag = getPrice('bau-min');
+        const base = flaeche * qmPrice;
+        const usedMin = base < minAuftrag;
+        const durMins = Math.round(flaeche * 1.2 / Math.max(cleaners, 1));
+        return {
+          total: Math.max(base, minAuftrag) + feeBau,
+          mins: durMins,
+          dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
+          rateStr: `${qmPrice.toFixed(2)} €/m² × ${flaeche} m²`,
+          fee: feeBau,
+          showFee: feeBau > 0,
+          minApplied: usedMin,
+          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} €` : null,
+          breakdown: cleaners > 1 ? [`${cleaners} Reiniger`] : []
+        };
       }
 
       else if (wizService === 'fassade') {
@@ -6816,8 +6850,8 @@ Leistungsumfang
 • Übergabe-bereite Übergabe an den Vermieter
 
 Adresse: ${adresse}
+Preis pro m²: ${getPrice('end-qm').toFixed(2)} €/m²
 Pauschalpreis: ${preis}
-Mindestbuchung: ${getPrice('end-min')} Stunden
 
 Das Angebot ist gültig bis ${gueltig}.
 Wir garantieren eine abnahmefähige Wohnung — andernfalls Nachreinigung kostenfrei.
@@ -6857,7 +6891,7 @@ Leistungsumfang
 • Übergabe-fähige Endreinigung
 
 Objekt: ${adresse}
-Stundensatz pro Reiniger: ${getPrice('bau-rate').toFixed(2)} €/h
+Preis pro m²: ${getPrice('bau-qm').toFixed(2)} €/m²
 Pauschalpreis: ${preis}
 
 Das Angebot ist gültig bis ${gueltig}.
@@ -7237,6 +7271,27 @@ ${coSig}`
       doc.text('Gesamt brutto', M + 4, y + 25);
       doc.text(brutto.toFixed(2) + ' CHF', W - M - 4, y + 25, { align: 'right' });
       y += 38;
+
+      // === Änderungshistorie (Revisionen) ===
+      const hist = (data.history || []);
+      if (hist.length) {
+        if (y > H - 50) { doc.addPage(); y = M; }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(90);
+        doc.text('Änderungshistorie', M, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(120);
+        hist.forEach(h => {
+          if (y > H - 22) { doc.addPage(); y = M; }
+          const datum = h.date ? formatDateDE(h.date) : '';
+          const line = `${datum}${h.time ? ' ' + h.time : ''} · ${h.reason || ''}${h.by ? ' (' + h.by + ')' : ''}`;
+          doc.splitTextToSize(line, W - 2 * M).forEach(l => { doc.text(l, M, y); y += 4.2; });
+        });
+        y += 6;
+      }
 
       // === Footer-Hinweis ===
       doc.setFont('helvetica', 'italic');
