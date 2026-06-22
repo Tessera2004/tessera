@@ -2880,6 +2880,43 @@
     .mail-filter-tabs button:hover { border-color: var(--accent); color: var(--text); }
     .mail-filter-tabs button.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
     [data-theme="dark"] .mail-filter-tabs button.is-active { color: #0A0A0B; }
+    /* Mail → Aufgabe mit Assignee */
+    .mail-to-task-row {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .mail-task-assignee-sel {
+      padding: 7px 10px; border: 1px solid var(--border-strong);
+      border-radius: 8px; background: var(--surface); color: var(--text);
+      font-size: 13px; cursor: pointer; max-width: 210px;
+    }
+    /* Mail Reply-Panel */
+    .mail-reply-panel {
+      margin-top: 20px; border: 1px solid var(--border-strong);
+      border-radius: 10px; overflow: hidden;
+      background: var(--surface);
+    }
+    .mail-reply-header {
+      padding: 10px 16px; font-size: 13px; font-weight: 600;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .mail-reply-meta {
+      padding: 8px 16px; font-size: 12.5px; color: var(--text-muted);
+      border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 3px;
+    }
+    .mail-reply-meta strong { color: var(--text); }
+    .mail-reply-textarea {
+      width: 100%; box-sizing: border-box;
+      padding: 14px 16px; border: none; resize: vertical; min-height: 120px;
+      background: var(--surface); color: var(--text); font-size: 14px;
+      line-height: 1.6; font-family: inherit; outline: none;
+    }
+    .mail-reply-textarea:focus { background: var(--bg); }
+    .mail-reply-footer {
+      display: flex; gap: 8px; justify-content: flex-end;
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
   </style>
 
   <script>
@@ -4674,7 +4711,8 @@
         document.getElementById('taskModalTitle').textContent = 'Neue Aufgabe';
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDesc').value = linkContext?.desc || '';
-        document.getElementById('taskAssignee').value = users[0].id;
+        const preAssignee = linkContext?.assignee && users.find(u => u.id === linkContext.assignee) ? linkContext.assignee : users[0].id;
+        document.getElementById('taskAssignee').value = preAssignee;
         // Default Fälligkeit: in 3 Tagen
         const d = new Date(); d.setDate(d.getDate() + 3);
         document.getElementById('taskDueDate').value = isoDate(d);
@@ -7602,6 +7640,8 @@ Aarau · ${datum}`
       placeholder.style.display = 'none';
       content.style.display = '';
       const hasTask = mailHasTask(id);
+      const users = loadUsers();
+      const userOpts = users.map(u => `<option value="${u.id}">${u.firstname} ${u.lastname}</option>`).join('');
       content.innerHTML = `
         <div class="mail-detail-inner">
           <div class="mail-detail-subject">${_esc(mail.subject)}</div>
@@ -7614,22 +7654,125 @@ Aarau · ${datum}`
           <div class="mail-detail-actions">
             ${hasTask
               ? `<span style="font-size:13px;color:var(--accent);font-weight:600;">✓ Aufgabe bereits erstellt</span>`
-              : `<button class="btn btn-accent" onclick="mailToTask('${id}')">→ Als Aufgabe übernehmen</button>`}
-            <button class="btn btn-secondary" onclick="toast('Antworten: Verbinde ein echtes Postfach, um direkt aus der App zu antworten.')">↩ Antworten</button>
+              : `<div class="mail-to-task-row">
+                   <select id="mailTaskAssignee" class="mail-task-assignee-sel" title="Zuweisen an">${userOpts}</select>
+                   <button class="btn btn-accent" onclick="mailToTask('${id}')">→ Als Aufgabe</button>
+                 </div>`}
+            <button class="btn btn-secondary" onclick="startMailReply('${id}')">↩ Antworten</button>
           </div>
+          <div id="mailReplyPanel" style="display:none;"></div>
         </div>`;
     }
 
     function mailToTask(mailId) {
       const mail = getAllMails().find(m => m.id === mailId);
       if (!mail) return;
+      const assignee = document.getElementById('mailTaskAssignee')?.value || null;
       openTaskModal(null, {
         title: mail.subject,
         desc: `Von: ${mail.fromName||mail.from} <${mail.from}>\nDatum: ${fmtMailFull(mail.date)}\n\n${mail.body||mail.snippet}`,
         label: `✉️ ${mail.fromName||mail.from} · ${fmtMailTime(mail.date)}`,
         type: 'mail',
+        assignee,
         sourceMail: { id:mail.id, from:mail.from, fromName:mail.fromName, subject:mail.subject, date:mail.date }
       });
+    }
+
+    // ── Reply ──
+    function startMailReply(mailId) {
+      const mail = getAllMails().find(m => m.id === mailId);
+      const panel = document.getElementById('mailReplyPanel');
+      if (!mail || !panel) return;
+      const reSubject = mail.subject.startsWith('Re:') ? mail.subject : 'Re: ' + mail.subject;
+      panel.style.display = '';
+      panel.innerHTML = `
+        <div class="mail-reply-panel">
+          <div class="mail-reply-header">Antwort verfassen</div>
+          <div class="mail-reply-meta">
+            <div><strong>An:</strong> ${_esc(mail.fromName||mail.from)} &lt;${_esc(mail.from)}&gt;</div>
+            <div><strong>Betreff:</strong> ${_esc(reSubject)}</div>
+          </div>
+          <textarea id="mailReplyBody" class="mail-reply-textarea" placeholder="Antwort schreiben…"></textarea>
+          <div class="mail-reply-footer">
+            <button class="btn btn-secondary" onclick="cancelMailReply()">Abbrechen</button>
+            <button class="btn btn-accent" id="mailReplySendBtn" onclick="sendMailReply('${mailId}')">Senden ↗</button>
+          </div>
+        </div>`;
+      setTimeout(() => document.getElementById('mailReplyBody')?.focus(), 40);
+    }
+
+    function cancelMailReply() {
+      const panel = document.getElementById('mailReplyPanel');
+      if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
+    }
+
+    async function sendMailReply(mailId) {
+      const mail = getAllMails().find(m => m.id === mailId);
+      const bodyEl = document.getElementById('mailReplyBody');
+      const body = bodyEl?.value.trim();
+      if (!body) { toast('Bitte Antwort eingeben', 'error'); bodyEl?.focus(); return; }
+
+      const btn = document.getElementById('mailReplySendBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Senden…'; }
+
+      const accounts = loadMailAccounts();
+      const acc = accounts.find(a => a.id === mail.accountId);
+      const reSubject = mail.subject.startsWith('Re:') ? mail.subject : 'Re: ' + mail.subject;
+
+      try {
+        if (!acc || mail.accountId === 'demo') {
+          await new Promise(r => setTimeout(r, 600)); // simulierter Netzwerkaufruf
+          cancelMailReply();
+          toast(`✓ Antwort an ${mail.fromName||mail.from} gesendet (Demo-Modus)`);
+        } else if (acc.provider === 'gmail') {
+          await _sendReplyGmail(acc, mail.from, reSubject, body);
+          cancelMailReply();
+          toast('✓ Antwort über Gmail gesendet');
+        } else if (acc.provider === 'outlook') {
+          await _sendReplyOutlook(acc, mail.from, reSubject, body);
+          cancelMailReply();
+          toast('✓ Antwort über Outlook gesendet');
+        } else {
+          await _sendReplySmtp(acc, mail.from, reSubject, body);
+          cancelMailReply();
+          toast('✓ Antwort gesendet');
+        }
+      } catch(e) {
+        toast('Senden fehlgeschlagen: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Senden ↗'; }
+      }
+    }
+
+    async function _sendReplyGmail(acc, toAddr, subject, body) {
+      const msg = [`To: ${toAddr}`, `Subject: ${subject}`, `Content-Type: text/plain; charset=utf-8`, '', body].join('\r\n');
+      const raw = btoa(unescape(encodeURIComponent(msg))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      const r = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + acc.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw })
+      });
+      if (!r.ok) { const e = await r.json().catch(()=>{}); throw new Error('Gmail ' + r.status + (e?.error?.message ? ': ' + e.error.message : '')); }
+    }
+
+    async function _sendReplyOutlook(acc, toAddr, subject, body) {
+      const r = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + acc.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: { subject, body: { contentType: 'Text', content: body }, toRecipients: [{ emailAddress: { address: toAddr } }] } })
+      });
+      if (!r.ok) { const e = await r.json().catch(()=>{}); throw new Error('Outlook ' + r.status + (e?.error?.message ? ': ' + e.error.message : '')); }
+    }
+
+    async function _sendReplySmtp(acc, toAddr, subject, body) {
+      const proxyUrl = window.MOSAOS_MAIL?.imap?.proxyUrl;
+      if (!proxyUrl) throw new Error('SMTP-Proxy nicht konfiguriert (proxyUrl in mail-config.js)');
+      const smtpUrl = proxyUrl.replace(/imap-fetch\/?$/, 'smtp-send');
+      const r = await fetch(smtpUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: acc.email, to: toAddr, subject, body, host: (acc.host||'').replace(/^imap\./, 'smtp.'), port: 587 })
+      });
+      if (!r.ok) throw new Error('SMTP-Proxy ' + r.status);
     }
 
     // ── Provider-Verbindungslogik ──
