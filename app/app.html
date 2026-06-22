@@ -5491,7 +5491,26 @@
         const allJobs = getJobsForDate(planCurrentDate);
         if (allJobs.length === 0) { toast('Keine Einsätze an diesem Tag'); return; }
 
-        // nach Team gruppieren (Jobs ohne Team = eigene Gruppe)
+        // Auto-Zuweisung: Jobs ohne Team auf verfügbare Teams verteilen (Load-Balancing)
+        const teamsAvail = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
+        const unassigned = allJobs.filter(j => !j.team);
+        if (teamsAvail.length > 0 && unassigned.length > 0) {
+          // Aktuelle Gesamtdauer pro Team (für gleichmässige Verteilung)
+          const teamLoad = {};
+          teamsAvail.forEach(t => {
+            teamLoad[t.id] = allJobs.filter(j => j.team === t.id).reduce((s, j) => s + (j.duration || 60), 0);
+          });
+          unassigned.forEach(j => {
+            const pick = teamsAvail.reduce((a, b) => teamLoad[a.id] <= teamLoad[b.id] ? a : b);
+            teamLoad[pick.id] += (j.duration || 60);
+            // Zuweisung dauerhaft speichern
+            if (j._added) updatePlanJob(dateKey, j._jobId, { team: pick.id });
+            else setJobOverride(dateKey, j._idx, { team: pick.id });
+            j.team = pick.id; // in-memory für nachfolgende Gruppierung
+          });
+        }
+
+        // nach Team gruppieren
         const byTeam = {};
         allJobs.forEach(j => { const k = j.team || '_none'; (byTeam[k] = byTeam[k] || []).push(j); });
 
