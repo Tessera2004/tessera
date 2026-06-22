@@ -28,7 +28,7 @@
  *   CREATE TABLE IF NOT EXISTS employees (
  *     id          TEXT PRIMARY KEY,
  *     tenant_id   UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
- *     first_name  TEXT, last_name TEXT, role TEXT, team_id TEXT,
+ *     first_name  TEXT, last_name TEXT, email TEXT, role TEXT, team_id TEXT,
  *     status      TEXT DEFAULT 'aktiv',
  *     can_drive   BOOLEAN DEFAULT false,
  *     photo       TEXT,
@@ -182,7 +182,7 @@
 
   function rowToEmployee(r) {
     return { id: r.id, firstName: r.first_name, lastName: r.last_name,
-      role: r.role, teamId: r.team_id, status: r.status || 'aktiv',
+      email: r.email || null, role: r.role, teamId: r.team_id, status: r.status || 'aktiv',
       canDrive: r.can_drive || false, photo: r.photo || null };
   }
 
@@ -235,7 +235,7 @@
 
   function employeeToRow(e, tid) {
     return { id: e.id, tenant_id: tid, first_name: e.firstName, last_name: e.lastName,
-      role: e.role || null, team_id: e.teamId || null, status: e.status || 'aktiv',
+      email: e.email || null, role: e.role || null, team_id: e.teamId || null, status: e.status || 'aktiv',
       can_drive: e.canDrive || false, photo: e.photo || null,
       updated_at: new Date().toISOString() };
   }

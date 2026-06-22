@@ -1964,6 +1964,10 @@
             <input type="text" id="mitLastname" placeholder="z. B. Müller" />
           </div>
         </div>
+        <div class="field">
+          <label>E-Mail <span style="font-size:11px;color:var(--text-subtle);">für Login der Mobile-App</span></label>
+          <input type="email" id="mitEmail" placeholder="anna@firma.ch" />
+        </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
             <label>Rolle</label>
@@ -5632,6 +5636,7 @@
       document.getElementById('mitModalTitle').textContent = e ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter';
       document.getElementById('mitFirstname').value = e?.firstName || '';
       document.getElementById('mitLastname').value = e?.lastName || '';
+      document.getElementById('mitEmail').value = e?.email || '';
       document.getElementById('mitRole').value = e?.role || 'Reinigungskraft';
       document.getElementById('mitTeam').value = e?.teamId || (PLAN_TEAMS[0] ? PLAN_TEAMS[0].id : '');
       document.getElementById('mitStatus').value = e?.status || 'aktiv';
@@ -5715,6 +5720,7 @@
       const data = {
         firstName,
         lastName,
+        email: (document.getElementById('mitEmail').value || '').trim().toLowerCase() || null,
         role: document.getElementById('mitRole').value,
         teamId: document.getElementById('mitTeam').value,
         status: document.getElementById('mitStatus').value,

@@ -149,20 +149,20 @@
         <span class="m-brand-name">MosaOS</span>
       </div>
 
-      <div class="mobile-greeting">Guten Morgen ☀️</div>
-      <div class="mobile-name">Anna Müller</div>
+      <div class="mobile-greeting" id="mGreeting">Guten Tag ☀️</div>
+      <div class="mobile-name" id="mGreetName">—</div>
 
       <div class="mobile-stats">
         <div>
-          <div class="mobile-stat-val">5</div>
+          <div class="mobile-stat-val" id="mStatObjekte">0</div>
           <div class="mobile-stat-label">Objekte</div>
         </div>
         <div>
-          <div class="mobile-stat-val">06:30</div>
+          <div class="mobile-stat-val" id="mStatStart">—</div>
           <div class="mobile-stat-label">Start</div>
         </div>
         <div>
-          <div class="mobile-stat-val">14:30</div>
+          <div class="mobile-stat-val" id="mStatEnde">—</div>
           <div class="mobile-stat-label">Ende</div>
         </div>
       </div>
@@ -170,89 +170,14 @@
 
     <div class="mobile-route">
       <div class="mobile-route-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-        <span>Heute · Mi 19. Juni 2026</span>
+        <span id="mRouteDate">Heute</span>
         <button onclick="openChecklist()" style="background:none; border:none; color:var(--accent); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           Material-Check
         </button>
       </div>
 
-      <div class="stop done">
-        <div>
-          <div class="stop-time">06:30</div>
-          <div class="stop-duration">90 min</div>
-        </div>
-        <div class="stop-body">
-          <div class="stop-name">Bürohaus Marienplatz</div>
-          <div class="stop-addr">Marienplatz 8, 5000 Aarau</div>
-          <div style="font-size: 11px; color: var(--success); font-weight: 600;">✓ Abgeschlossen · 12/12 Punkte</div>
-        </div>
-      </div>
-
-      <div class="stop active" id="activeStop">
-        <div>
-          <div class="stop-time">08:15</div>
-          <div class="stop-duration">60 min</div>
-        </div>
-        <div class="stop-body">
-          <div class="stop-name">Kanzlei Berger &amp; Partner</div>
-          <div class="stop-addr">Bahnhofstr. 3, 5000 Aarau</div>
-          <div class="stop-hint" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
-            <strong style="color: var(--accent);">Jetzt aktiv</strong> · Bitte vor Verlassen einchecken &amp; Fotos hochladen
-          </div>
-          <div class="stop-actions">
-            <button class="btn btn-accent" style="flex: 1;" onclick="openScanner()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              QR scannen
-            </button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('fotoInput').click()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              Fotos
-            </button>
-          </div>
-          <button class="btn btn-primary" style="width:100%; margin-top:8px;" onclick="openProtocol()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            Einsatz abschliessen
-          </button>
-          <div class="stop-foto-count" style="display:none; font-size:11.5px; color:var(--success); font-weight:600; margin-top:8px;"></div>
-        </div>
-      </div>
-
-      <div class="stop">
-        <div>
-          <div class="stop-time">10:00</div>
-          <div class="stop-duration">120 min</div>
-        </div>
-        <div class="stop-body">
-          <div class="stop-name">Fitnessstudio Premium</div>
-          <div class="stop-addr">Bahnhofplatz 1, 5000 Aarau</div>
-          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 8 min Fahrzeit · Schlüssel: Empfang</div>
-        </div>
-      </div>
-
-      <div class="stop">
-        <div>
-          <div class="stop-time">12:30</div>
-          <div class="stop-duration">45 min</div>
-        </div>
-        <div class="stop-body">
-          <div class="stop-name">Apotheke Süd</div>
-          <div class="stop-addr">Pelzgasse 18, 5000 Aarau</div>
-          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 15 min Fahrzeit · Code: 3491</div>
-        </div>
-      </div>
-
-      <div class="stop">
-        <div>
-          <div class="stop-time">13:30</div>
-          <div class="stop-duration">60 min</div>
-        </div>
-        <div class="stop-body">
-          <div class="stop-name">Zahnarztpraxis Dr. Lang</div>
-          <div class="stop-addr">Laurenzenvorstadt 22, 5000 Aarau</div>
-          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 4px;">🚌 6 min Fahrzeit · Sonderwunsch: Behandlungsstuhl Desinfektion</div>
-        </div>
-      </div>
+      <div id="mStops"></div>
 
     </div>
 
@@ -551,10 +476,89 @@
     let protoEditing = false;
 
     function currentObjektName() {
-      const s = document.getElementById('activeStop');
-      return s ? (s.querySelector('.stop-name')?.textContent || 'Objekt') : 'Objekt';
+      return (window._activeJob && window._activeJob.objekt) ? window._activeJob.objekt : 'Objekt';
     }
     function currentPhotoCount() { return window._protoPhotoCount || 0; }
+
+    /* ---------- Echte Aufträge des eingeloggten Mitarbeiters ---------- */
+    let MY_JOBS = [];
+    const _doneStops = new Set();
+    function mEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    function isoDateMobile(d) { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${dd}`; }
+    function mSetStats(n, start, ende) {
+      document.getElementById('mStatObjekte').textContent = n;
+      document.getElementById('mStatStart').textContent = start;
+      document.getElementById('mStatEnde').textContent = ende;
+    }
+    function mEmptyStops(msg) { return `<div style="padding:32px 18px; text-align:center; color:var(--text-subtle); font-size:13.5px; line-height:1.5;">${msg}</div>`; }
+
+    async function loadMyDay() {
+      const sb = mSb();
+      const tid = window._tenantId;
+      const nameEl = document.getElementById('mGreetName');
+      const stopsEl = document.getElementById('mStops');
+      const dEl = document.getElementById('mRouteDate');
+      if (dEl) dEl.textContent = 'Heute · ' + new Date().toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'long' });
+      if (!sb || !tid) { if (stopsEl) stopsEl.innerHTML = mEmptyStops('Nicht angemeldet.'); return; }
+      let me = null;
+      try {
+        const { data: emps } = await sb.from('employees').select('*').eq('tenant_id', tid);
+        me = (emps || []).find(e => (e.email || '').toLowerCase() === (window._fieldUser || '').toLowerCase());
+      } catch {}
+      if (nameEl) nameEl.textContent = me ? (`${me.first_name || ''} ${me.last_name || ''}`.trim() || window._fieldUser) : (window._fieldUser || 'Mitarbeiter');
+      if (!me) {
+        mSetStats(0, '—', '—');
+        if (stopsEl) stopsEl.innerHTML = mEmptyStops('Dein Login ist noch keinem Mitarbeiter-Profil zugeordnet.<br>Bitte im Büro deine E-Mail beim Mitarbeiter hinterlegen.');
+        return;
+      }
+      window._myEmpId = me.id;
+      const today = isoDateMobile(new Date());
+      let jobs = [];
+      try {
+        const { data } = await sb.from('plan_jobs').select('*').eq('tenant_id', tid).eq('date_key', today);
+        jobs = (data || []).filter(j => (j.assigned || []).includes(me.id));
+      } catch {}
+      jobs.sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+      MY_JOBS = jobs;
+      _doneStops.clear();
+      renderMyStops();
+    }
+
+    function mStopShell(j, inner, cls, isActive) {
+      const dur = j.duration ? j.duration + ' min' : '';
+      return `<div class="stop ${cls}" ${isActive ? 'id="activeStop"' : ''}>
+        <div><div class="stop-time">${mEsc(j.start_time || '—')}</div><div class="stop-duration">${dur}</div></div>
+        <div class="stop-body">
+          <div class="stop-name">${mEsc(j.objekt || 'Einsatz')}</div>
+          <div class="stop-addr">${mEsc(j.ort || '')}</div>
+          ${inner}
+        </div>
+      </div>`;
+    }
+    function renderMyStops() {
+      const stopsEl = document.getElementById('mStops');
+      if (!stopsEl) return;
+      if (!MY_JOBS.length) { mSetStats(0, '—', '—'); stopsEl.innerHTML = mEmptyStops('Heute keine Einsätze für dich geplant. 🎉'); return; }
+      const starts = MY_JOBS.map(j => j.start_time).filter(Boolean);
+      const ends = MY_JOBS.map(j => j.end_time).filter(Boolean);
+      mSetStats(MY_JOBS.length, starts[0] || '—', ends[ends.length - 1] || '—');
+      const activeIdx = MY_JOBS.findIndex((j, i) => !_doneStops.has(i));
+      stopsEl.innerHTML = MY_JOBS.map((j, i) => {
+        const note = j.note_crew ? `<div style="font-size:12px;color:var(--text-subtle);margin-top:4px;">📝 ${mEsc(j.note_crew)}</div>` : '';
+        if (_doneStops.has(i)) return mStopShell(j, '<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">✓ Abgeschlossen</div>', 'done', false);
+        if (i === activeIdx) {
+          return mStopShell(j, `${note}
+            <div class="stop-hint" style="font-size:12px;color:var(--text-muted);margin-top:6px;"><strong style="color:var(--accent);">Jetzt aktiv</strong> · einchecken &amp; Fotos hochladen</div>
+            <div class="stop-actions">
+              <button class="btn btn-accent" style="flex:1;" onclick="openScanner()">QR scannen</button>
+              <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('fotoInput').click()">Fotos</button>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="openProtocol(${i})">Einsatz abschliessen</button>
+            <div class="stop-foto-count" style="display:none;font-size:11.5px;color:var(--success);font-weight:600;margin-top:8px;"></div>`, 'active', true);
+        }
+        return mStopShell(j, note, '', false);
+      }).join('');
+    }
 
     function renderProtoTasks() {
       const list = document.getElementById('protoTasks');
@@ -575,7 +579,12 @@
     function removeProtoTask(i) { protoTasks.splice(i, 1); renderProtoTasks(); }
     function toggleProtoEdit() { protoEditing = !protoEditing; document.getElementById('protocolOverlay').classList.toggle('editing', protoEditing); document.getElementById('protoEditBtn').textContent = protoEditing ? 'Fertig' : 'Liste bearbeiten'; }
 
-    function openProtocol() {
+    function openProtocol(idx) {
+      // Aktiven Auftrag merken (für Objektname + Abschluss)
+      if (typeof idx === 'number' && MY_JOBS[idx]) {
+        window._activeJob = { objekt: MY_JOBS[idx].objekt, ort: MY_JOBS[idx].ort };
+        window._activeStopIdx = idx;
+      }
       protoTasks = PROTO_DEFAULT_TASKS.map(l => ({ label: l, done: true }));
       protoEditing = false;
       const ov = document.getElementById('protocolOverlay');
@@ -659,6 +668,13 @@
       window.MosaDB?.push('report_one', rep);
     }
     function markStopDone() {
+      // Echten Auftrag als erledigt markieren und Liste neu zeichnen
+      if (typeof window._activeStopIdx === 'number') {
+        _doneStops.add(window._activeStopIdx);
+        window._protoPhotoCount = 0; // Foto-Zähler für nächsten Stopp zurücksetzen
+        renderMyStops();
+        return;
+      }
       const s = document.getElementById('activeStop'); if (!s) return;
       const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">✓ Abgeschlossen um ' + nowTime() + '</strong>';
       s.classList.add('checked', 'done');
@@ -731,6 +747,7 @@
         return;
       }
       showLogin(false);
+      loadMyDay();
     }
 
     async function mDoLogin() {
