@@ -5047,9 +5047,29 @@
       const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
       return 2 * R * Math.asin(Math.sqrt(h));
     }
+    // In-Memory-Cache für OSRM-Fahrzeiten (wird in runAutoPlan vorgebefüllt)
+    const _travelCache = {};
+    function _travelKey(a, b) { return `${a.lat.toFixed(4)},${a.lon.toFixed(4)};${b.lat.toFixed(4)},${b.lon.toFixed(4)}`; }
     function travelMinutes(a, b) {
-      if (!a || !b) return 8; // Standard-Fahrzeit wenn Koordinate fehlt
-      return Math.round(haversineKm(a, b) / 25 * 60) + 3; // ~25 km/h Stadt + 3 min Parken/Puffer
+      if (!a || !b) return 8;
+      const k = _travelKey(a, b);
+      if (_travelCache[k] !== undefined) return _travelCache[k];
+      return Math.round(haversineKm(a, b) / 60 * 60) + 3; // Fallback: 60 km/h Durchschnitt
+    }
+    // OSRM Table API: echte Auto-Fahrzeiten für alle Koordinaten-Paare auf einmal
+    async function prefetchTravelTimes(coords) {
+      const valid = coords.filter(Boolean);
+      if (valid.length < 2) return;
+      try {
+        const wps = valid.map(c => `${c.lon},${c.lat}`).join(';');
+        const res = await fetch(`https://router.project-osrm.org/table/v1/driving/${wps}?annotations=duration`);
+        const data = await res.json();
+        if (data.code === 'Ok' && data.durations) {
+          for (let i = 0; i < valid.length; i++)
+            for (let j = 0; j < valid.length; j++)
+              if (i !== j) _travelCache[_travelKey(valid[i], valid[j])] = Math.round(data.durations[i][j] / 60) + 3;
+        }
+      } catch { /* Netz-Fehler → Fallback in travelMinutes() */ }
     }
     function permute(arr) {
       if (arr.length <= 1) return [arr];
@@ -5119,6 +5139,9 @@
             j.deadlineMin = j.deadline ? parseHM(j.deadline) : null;
             if (!wasCached && j.ort) await new Promise(r => setTimeout(r, 1100));
           }
+          // Echte Auto-Fahrzeiten per OSRM vorberechnen (driving mode, reale Strecke)
+          await prefetchTravelTimes(jobs.map(j => j.coord));
+
           // Fahrzeit VORHER (aktuelle Reihenfolge nach Startzeit)
           const before = jobs.slice().sort((a, b) => parseHM(a.start) - parseHM(b.start));
           for (let i = 1; i < before.length; i++) travelBefore += travelMinutes(before[i - 1].coord, before[i].coord);
