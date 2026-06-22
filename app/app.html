@@ -12,6 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="mail-config.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -78,6 +79,11 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             Aufgaben
             <span class="nav-badge" id="aufgabenNavBadge">0</span>
+          </a>
+          <a class="nav-item" data-view="email">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            E-Mail
+            <span class="nav-badge" id="mailNavBadge" style="display:none;">0</span>
           </a>
           <a class="nav-item" data-view="team">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
@@ -567,6 +573,54 @@
             </select>
           </div>
           <div id="taskList" class="task-list"></div>
+        </section>
+
+        <!-- ============ E-MAIL ============ -->
+        <section class="view" data-view="email">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">E-Mail</h1>
+              <p class="page-subtitle" id="mailSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openModal('mailConnect')">+ Postfach verbinden</button>
+          </div>
+
+          <!-- Verbundene Konten (Pills) -->
+          <div id="mailAccountBar" style="display:none; gap:8px; flex-wrap:wrap; margin-bottom:16px; align-items:center;"></div>
+
+          <!-- Leerzustand: kein Konto verbunden -->
+          <div id="mailEmptyState" style="display:none;">
+            <div class="mail-empty-inner">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-subtle);margin-bottom:8px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">Kein Postfach verbunden</p>
+              <p style="font-size:13.5px;max-width:400px;margin:0 auto;">Verbinde dein Postfach, um Mails in der App zu sehen und per Klick als Aufgabe zu übernehmen.</p>
+            </div>
+            <div class="mail-provider-grid" id="mailProviderGridEmpty"></div>
+          </div>
+
+          <!-- Posteingang (Demo + echte Konten) -->
+          <div id="mailInboxWrap" style="display:none;">
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+              <div class="mail-filter-tabs" id="mailFilterTabs">
+                <button class="is-active" data-mf="all" onclick="setMailFilter('all')">Alle</button>
+                <button data-mf="unread" onclick="setMailFilter('unread')">Ungelesen</button>
+                <button data-mf="tasks" onclick="setMailFilter('tasks')">→ Aufgabe</button>
+              </div>
+              <input type="search" id="mailSearch" placeholder="🔍 Betreff, Absender…" oninput="renderMailList()" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);" />
+            </div>
+            <div class="mail-split">
+              <div class="mail-list-panel" id="mailListPanel">
+                <div id="mailList"></div>
+              </div>
+              <div class="mail-detail-panel">
+                <div class="mail-detail-placeholder" id="mailDetailPlaceholder">
+                  <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <span>Mail auswählen zum Lesen</span>
+                </div>
+                <div id="mailDetailContent" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- ============ BERICHTE ============ -->
@@ -2121,6 +2175,68 @@
     </div>
   </div>
 
+  <!-- ============ E-MAIL: Postfach verbinden ============ -->
+  <div class="modal-backdrop" id="modal-mailConnect" onclick="if(event.target===this)closeModal('mailConnect')">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <div class="modal-title">Postfach verbinden</div>
+        <button class="btn-icon" onclick="closeModal('mailConnect')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding-top:8px;">
+        <div class="mail-provider-grid" id="mailProviderGridModal"></div>
+        <p style="margin-top:16px;font-size:12px;color:var(--text-subtle);text-align:center;">
+          OAuth-Keys & Edge Function URL einmalig in <strong>mail-config.js</strong> hinterlegen.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ E-MAIL: IMAP / iCloud Setup ============ -->
+  <div class="modal-backdrop" id="modal-mailImap" onclick="if(event.target===this)closeModal('mailImap')">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <div class="modal-title" id="imapModalTitle">iCloud Mail verbinden</div>
+        <button class="btn-icon" onclick="closeModal('mailImap')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Provider</label>
+          <select id="imapPreset" onchange="updateImapPreset()">
+            <option value="icloud">iCloud Mail (imap.mail.me.com)</option>
+            <option value="custom">Webmail / eigener IMAP-Server</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>E-Mail-Adresse</label>
+          <input type="email" id="imapEmail" placeholder="vorname@icloud.com" />
+        </div>
+        <div class="field" id="imapServerField" style="display:none;">
+          <label>IMAP-Server</label>
+          <input type="text" id="imapHost" placeholder="imap.example.com" />
+        </div>
+        <input type="hidden" id="imapPort" value="993" />
+        <div class="field">
+          <label id="imapPassLabel">App-spezifisches Passwort</label>
+          <input type="password" id="imapPass" placeholder="••••••••••••••••" />
+          <small id="imapPassHint" style="font-size:11.5px;color:var(--text-subtle);margin-top:5px;display:block;">
+            iCloud: Einstellungen → Apple-ID → Anmelden &amp; Sicherheit → App-Passwörter generieren
+          </small>
+        </div>
+        <div style="padding:10px 12px;background:var(--surface-2);border-radius:8px;font-size:12.5px;color:var(--text-muted);margin-top:4px;">
+          ⚠️ Voraussetzung: Supabase Edge Function <code>imap-fetch</code> deployed und URL in <strong>mail-config.js</strong> eingetragen.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('mailImap')">Abbrechen</button>
+        <button class="btn btn-accent" id="imapConnectBtn" onclick="connectImap()">Verbinden</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast container -->
   <div class="toast-container" id="toasts"></div>
 
@@ -2644,6 +2760,126 @@
     .job-card.svc-bau { border-left-color: var(--svc-bau); }
     .job-card.svc-fassade { border-left-color: var(--svc-fassade); }
     .job-card.svc-unterhalt { border-left-color: var(--svc-unterhalt); }
+
+    /* ============================================================
+       E-MAIL
+    ============================================================ */
+    .mail-provider-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .mail-provider-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mail-provider-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
+    .mail-provider-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .mail-provider-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .mail-provider-sub { font-size: 11.5px; color: var(--text-subtle); margin-top: 1px; }
+    .mail-provider-badge {
+      display: inline-block; margin-top: 5px;
+      font-size: 10.5px; font-weight: 600;
+      padding: 2px 7px; border-radius: 4px;
+    }
+    .mail-provider-badge.ready { background: #d1fae5; color: #065f46; }
+    .mail-provider-badge.needs-key { background: var(--surface-2); color: var(--text-subtle); border: 1px solid var(--border); }
+    [data-theme="dark"] .mail-provider-badge.ready { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+    .mail-empty-inner { text-align: center; padding: 36px 20px 24px; color: var(--text-subtle); }
+
+    .mail-split {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 500px;
+    }
+    .mail-list-panel {
+      width: 340px; min-width: 260px; flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .mail-detail-panel {
+      flex: 1; overflow-y: auto;
+      background: var(--surface);
+    }
+    @media (max-width: 800px) {
+      .mail-split { flex-direction: column; min-height: 0; }
+      .mail-list-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 320px; }
+    }
+
+    .mail-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .mail-item:hover { background: var(--surface-2); }
+    .mail-item.is-selected { background: var(--surface-2); border-left: 3px solid var(--accent); padding-left: 11px; }
+    .mail-unread-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0; margin-top: 6px;
+    }
+    .mail-item-body { flex: 1; min-width: 0; }
+    .mail-item-from { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 1px; }
+    .mail-item.is-unread .mail-item-from { font-weight: 700; color: var(--text); }
+    .mail-item-subject { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mail-item.is-unread .mail-item-subject { font-weight: 600; color: var(--text); }
+    .mail-item-snippet { font-size: 11.5px; color: var(--text-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .mail-item-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; min-width: 52px; }
+    .mail-item-date { font-size: 10.5px; color: var(--text-subtle); }
+    .mail-task-chip {
+      font-size: 10px; padding: 2px 6px; border-radius: 4px;
+      background: rgba(99,102,241,0.12); color: var(--accent);
+      font-weight: 600; white-space: nowrap;
+    }
+    .mail-detail-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 340px; height: 100%; gap: 12px;
+      color: var(--text-subtle); font-size: 13.5px;
+    }
+    .mail-detail-inner { padding: 24px 26px; }
+    .mail-detail-subject { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 14px; line-height: 1.35; }
+    .mail-detail-meta {
+      display: flex; flex-direction: column; gap: 3px;
+      font-size: 12.5px; color: var(--text-muted);
+      padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 18px;
+    }
+    .mail-detail-meta strong { color: var(--text); }
+    .mail-detail-body { font-size: 14px; line-height: 1.72; color: var(--text-muted); white-space: pre-wrap; }
+    .mail-detail-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border);
+    }
+    .mail-account-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 11px; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 12.5px; color: var(--text);
+    }
+    .mail-account-pill .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .mail-filter-tabs { display: flex; gap: 4px; }
+    .mail-filter-tabs button {
+      padding: 7px 13px; border: 1px solid var(--border-strong);
+      border-radius: 7px; background: var(--surface);
+      color: var(--text-muted); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.12s;
+    }
+    .mail-filter-tabs button:hover { border-color: var(--accent); color: var(--text); }
+    .mail-filter-tabs button.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    [data-theme="dark"] .mail-filter-tabs button.is-active { color: #0A0A0B; }
   </style>
 
   <script>
@@ -2664,7 +2900,10 @@
       berichte: 'Nachweise & Berichte',
       zeiten: 'Zeiterfassung',
       nachkalkulation: 'Soll-Ist-Nachkalkulation',
-      einstellungen: 'Einstellungen'
+      einstellungen: 'Einstellungen',
+      email: 'E-Mail',
+      aufgaben: 'Aufgaben',
+      anrufprotokoll: 'Anrufprotokoll'
     };
 
     function navTo(view) {
@@ -4486,6 +4725,7 @@
           newT.linkLabel = taskLinkContext.label;
           newT.linkType = taskLinkContext.type || 'sonstiges';
         }
+        if (taskLinkContext?.sourceMail) newT.sourceMail = taskLinkContext.sourceMail;
         TASKS.push(newT);
       }
       saveTasks(TASKS);
@@ -7144,6 +7384,413 @@ Aarau · ${datum}`
         const wd = document.getElementById('wizDate'); if (wd) wd.value = '';
       }, 400);
     }
+
+    // ============================================================
+    // E-MAIL POSTFACH
+    // ============================================================
+
+    const MAIL_ACCOUNTS_KEY = 'cc-mail-accounts-v1';
+    const MAIL_CACHE_KEY    = 'cc-mail-cache-v1';
+    function loadMailAccounts() { try { const v = JSON.parse(localStorage.getItem(MAIL_ACCOUNTS_KEY)); return Array.isArray(v) ? v : []; } catch { return []; } }
+    function saveMailAccounts(a) { localStorage.setItem(MAIL_ACCOUNTS_KEY, JSON.stringify(a)); }
+    function loadMailCache() { try { return JSON.parse(localStorage.getItem(MAIL_CACHE_KEY)) || {}; } catch { return {}; } }
+    function saveMailCache(c) { localStorage.setItem(MAIL_CACHE_KEY, JSON.stringify(c)); }
+
+    // ── Mock-Mails (Demo-Betrieb bis echte Keys hinterlegt sind) ──
+    const MOCK_MAILS = [
+      { id:'mock-1', accountId:'demo', from:'patrizia.russo@bluewin.ch', fromName:'Patrizia Russo', to:'info@mosaos.ch',
+        subject:'Endabgabe Wohnung — DRINGEND bis Freitag',
+        date:'2026-06-22T11:47:00', isRead:false, labels:['inbox'],
+        snippet:'Ich muss meine Wohnung am Freitag abgeben und benötige dringend eine Endabgabereinigung für Donnerstag…',
+        body:'Guten Tag\n\nIch muss meine Wohnung am Freitag 26. Juni um 10:00 Uhr abgeben und benötige dringend eine Endabgabereinigung für Donnerstag den 25. Juni.\n\nDie Wohnung hat 3.5 Zimmer, ca. 82 m², Bahnhofstrasse 44, 3. OG, 5000 Aarau.\n\nIst das möglich? Was kostet das ungefähr?\n\nFreundliche Grüsse\nPatrizia Russo\nTel: 079 234 56 78' },
+      { id:'mock-2', accountId:'demo', from:'mueller.hans@muellertreuhand.ch', fromName:'Hans Müller', to:'info@mosaos.ch',
+        subject:'RE: Offerte Büroreinigung Hauptstrasse 12',
+        date:'2026-06-22T09:14:00', isRead:false, labels:['inbox'],
+        snippet:'Danke für das schnelle Angebot. Wir würden gerne annehmen, haben aber noch eine Frage zu den Samstagszeiten…',
+        body:'Guten Tag\n\nVielen Dank für das schnelle Angebot. Wir würden gerne annehmen, haben aber noch eine Frage.\n\nKönnen Sie auch samstags reinigen? Unser Büro hat am Samstag keine Mitarbeiter vor Ort, daher wäre ein eigener Schlüssel nötig.\n\nMit freundlichen Grüssen\nHans Müller\nMüller Treuhand AG, Aarau' },
+      { id:'mock-3', accountId:'demo', from:'roger.flueckiger@gmx.ch', fromName:'Roger Flückiger', to:'info@mosaos.ch',
+        subject:'Bewerbung als Reinigungsfachkraft',
+        date:'2026-06-21T15:33:00', isRead:false, labels:['inbox'],
+        snippet:'Ich bewerbe mich als Reinigungsfachkraft — 5 Jahre Erfahrung, flexibel, eigenes Auto…',
+        body:'Sehr geehrte Damen und Herren\n\nIch bewerbe mich als Reinigungsfachkraft. 5 Jahre Erfahrung in der Gebäudereinigung, flexibel einsetzbar, eigenes Auto vorhanden.\n\nLebenslauf sende ich gerne auf Anfrage.\n\nFreundliche Grüsse\nRoger Flückiger\nTel: 079 876 54 32' },
+      { id:'mock-4', accountId:'demo', from:'monika.schmidt@hotmail.com', fromName:'Monika Schmidt', to:'info@mosaos.ch',
+        subject:'Beschwerde — Qualität letzte Reinigung',
+        date:'2026-06-20T18:22:00', isRead:true, labels:['inbox'],
+        snippet:'Leider war der Boden nach der Reinigung vom Dienstag noch nicht sauber — Ecken wurden nicht berücksichtigt…',
+        body:'Guten Tag\n\nLeider war der Boden in unserem Büro nach der Reinigung vom Dienstag (18.06.) noch nicht sauber. Die Ecken und der Bereich unter den Schreibtischen wurden nicht berücksichtigt.\n\nIch erwarte eine Nachbesserung oder eine Gutschrift für den nächsten Einsatz.\n\nMit freundlichem Gruss\nMonika Schmidt\nSchmidt & Partner GmbH' },
+      { id:'mock-5', accountId:'demo', from:'stefan.weber@weberimmobilien.ch', fromName:'Stefan Weber', to:'info@mosaos.ch',
+        subject:'Anfrage Hauswartung MFH Solothurnstrasse',
+        date:'2026-06-19T10:05:00', isRead:true, labels:['inbox'],
+        snippet:'Wir suchen für ein Mehrfamilienhaus (24 Einheiten) einen zuverlässigen Hauswart- und Reinigungsservice…',
+        body:'Guten Tag\n\nWir suchen für ein Mehrfamilienhaus (24 Einheiten) an der Solothurnstrasse 88, 5000 Aarau einen Hauswart- und Reinigungsservice.\n\nGewünschte Leistungen: wöchentliche Treppenhausreinigung, Aussenanlage, Winterdienst.\n\nBitte senden Sie uns eine unverbindliche Offerte.\n\nMit freundlichen Grüssen\nStefan Weber\nWeber Immobilien AG' },
+      { id:'mock-6', accountId:'demo', from:'nicole.baumann@sunrise.ch', fromName:'Nicole Baumann', to:'info@mosaos.ch',
+        subject:'Kündigung Reinigungsabo per Ende Juli',
+        date:'2026-06-18T14:11:00', isRead:true, labels:['inbox'],
+        snippet:'Hiermit kündige ich unser Reinigungsabo (K-0042) per Ende Juli 2026. Wir ziehen in neue Räumlichkeiten…',
+        body:'Guten Tag\n\nHiermit kündige ich unser monatliches Reinigungsabo (Kundennummer K-0042) per Ende Juli 2026. Wir ziehen in neue Räumlichkeiten, die bereits einen Hausdienst haben.\n\nVielen Dank für die gute Zusammenarbeit.\n\nFreundliche Grüsse\nNicole Baumann' },
+      { id:'mock-7', accountId:'demo', from:'thomas.keller@kellerbau.ch', fromName:'Thomas Keller', to:'info@mosaos.ch',
+        subject:'Baureinigung Neubau Aarau-West — Anfrage',
+        date:'2026-06-17T08:44:00', isRead:true, labels:['inbox'],
+        snippet:'Wir schliessen im August einen Neubau mit 16 Wohneinheiten ab und suchen einen Partner für die Baureinigung…',
+        body:'Sehr geehrte Damen und Herren\n\nWir schliessen im August einen Neubau mit 16 Wohneinheiten in Aarau-West ab und suchen einen Partner für die Baureinigung.\n\nBauvolumen: ca. 3\'200 m² Wohnfläche\nGeplanter Reinigungseinsatz: 18.–22. August 2026\n\nBitte nehmen Sie für eine Besichtigung Kontakt auf.\n\nMit freundlichen Grüssen\nThomas Keller\nKeller Bau AG' },
+      { id:'mock-8', accountId:'demo', from:'dr.sommer@sommer-partner.ch', fromName:'Dr. Andrea Sommer', to:'info@mosaos.ch',
+        subject:'Vielen Dank — hervorragende Arbeit!',
+        date:'2026-06-16T16:58:00', isRead:true, labels:['inbox'],
+        snippet:'Ich möchte mich herzlich für die tolle Arbeit bei der letzten Reinigung bedanken — absolut tadellos…',
+        body:'Guten Tag\n\nIch möchte mich herzlich für die tolle Arbeit bei der letzten Reinigung (Freitag, 14. Juni) bedanken. Das Büro war absolut tadellos — das Team war pünktlich und diskret.\n\nWir sind rundum zufrieden und freuen uns auf die weitere Zusammenarbeit!\n\nHerzliche Grüsse\nDr. Andrea Sommer\nSommer & Partner Rechtsanwälte' },
+    ];
+
+    let mailCurrentFilter = 'all';
+    let mailSelectedId = null;
+
+    function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function getAllMails() {
+      const cache = loadMailCache();
+      let all = MOCK_MAILS.slice();
+      for (const acc of loadMailAccounts()) {
+        if (cache[acc.id]) all = all.concat(cache[acc.id]);
+      }
+      return all.sort((a,b) => new Date(b.date) - new Date(a.date));
+    }
+
+    function mailHasTask(mailId) { return TASKS.some(t => t.sourceMail?.id === mailId); }
+
+    function fmtMailTime(d) {
+      const dt = new Date(d), now = new Date();
+      const yest = new Date(now); yest.setDate(now.getDate()-1);
+      if (dt.toDateString() === now.toDateString()) return dt.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+      if (dt.toDateString() === yest.toDateString()) return 'Gestern';
+      return dt.toLocaleDateString('de-CH',{day:'2-digit',month:'short'});
+    }
+    function fmtMailFull(d) {
+      return new Date(d).toLocaleString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    }
+
+    // ── Provider-Karten (wiederverwendet in Leerzustand + Modal) ──
+    function renderMailProviderGrid(targetId) {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      const cfg = window.MOSAOS_MAIL || {};
+      const providers = [
+        { type:'gmail',   name:'Gmail',         sub:'Google Workspace & Gmail',
+          icon:`<svg width="22" height="22" viewBox="0 0 24 24"><path fill="#EA4335" d="M1 6.5l11 7 11-7V18a2 2 0 01-2 2H3a2 2 0 01-2-2V6.5z"/><path fill="#4285F4" d="M23 5.5L12 12.5 1 5.5A2 2 0 013 4h18a2 2 0 012 1.5z"/></svg>`,
+          bg:'#fff', border:'1px solid #e5e7eb',
+          ready:!!cfg.gmail?.clientId, notReady:'Client-ID fehlt' },
+        { type:'outlook', name:'Outlook',        sub:'Microsoft 365 & Outlook.com',
+          icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#0078D4"/><path fill="white" d="M13 5h7v5h-7zM13 11h7v5h-7zM13 17h7v3h-7zM4 5h8v15H4z"/><circle fill="#0078D4" cx="8" cy="12" r="2.5"/></svg>`,
+          bg:'#0078D4', border:'none',
+          ready:!!cfg.outlook?.clientId, notReady:'Azure Client-ID fehlt' },
+        { type:'icloud',  name:'iCloud Mail',    sub:'Apple iCloud (IMAP via Proxy)',
+          icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#1d9bf0"/><path fill="white" d="M18 14a4 4 0 00-3-3.87V10a5 5 0 00-10 0v.13A4 4 0 006 18h12a4 4 0 000-4z"/></svg>`,
+          bg:'#1d9bf0', border:'none',
+          ready:!!cfg.imap?.proxyUrl, notReady:'Edge Function fehlt' },
+        { type:'imap',    name:'Webmail / IMAP', sub:'Beliebiger IMAP-Server',
+          icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#6366f1"/><path fill="white" d="M4 8h16v10H4zM4 8l8 6 8-6"/></svg>`,
+          bg:'#6366f1', border:'none',
+          ready:!!cfg.imap?.proxyUrl, notReady:'Edge Function fehlt' },
+      ];
+      el.innerHTML = providers.map(p => `
+        <div class="mail-provider-card" onclick="connectProvider('${p.type}')">
+          <div class="mail-provider-icon" style="background:${p.bg};${p.border?'border:'+p.border+';':''}">
+            ${p.icon}
+          </div>
+          <div>
+            <div class="mail-provider-name">${p.name}</div>
+            <div class="mail-provider-sub">${p.sub}</div>
+            <span class="mail-provider-badge ${p.ready ? 'ready' : 'needs-key'}">${p.ready ? '✓ Bereit' : p.notReady}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── Hauptansicht rendern ──
+    function renderMailView() {
+      const accounts = loadMailAccounts();
+      const allMails = getAllMails();
+      const unread = allMails.filter(m => !m.isRead).length;
+
+      const sub = document.getElementById('mailSubtitle');
+      if (sub) sub.textContent = `Demo-Konto${accounts.length ? ' · '+accounts.length+' verbunden' : ''} · ${allMails.length} Mails · ${unread} ungelesen`;
+
+      // Nav-Badge
+      const badge = document.getElementById('mailNavBadge');
+      if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? '' : 'none'; }
+
+      // Account-Leiste
+      const bar = document.getElementById('mailAccountBar');
+      if (bar) {
+        let pills = `<span class="mail-account-pill"><span class="pdot" style="background:#9ca3af;"></span>Demo-Konto</span>`;
+        accounts.forEach(a => {
+          const clr = a.provider==='gmail' ? '#ea4335' : a.provider==='outlook' ? '#0078d4' : a.provider==='icloud' ? '#1d9bf0' : '#6366f1';
+          pills += `<span class="mail-account-pill"><span class="pdot" style="background:${clr};"></span>${_esc(a.email)} <button onclick="disconnectMailAccount('${a.id}')" style="margin-left:5px;background:none;border:none;color:var(--text-subtle);cursor:pointer;font-size:11px;padding:0;">✕</button></span>`;
+        });
+        bar.innerHTML = pills + `<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="openModal('mailConnect')">+ Hinzufügen</button>`;
+        bar.style.display = 'flex';
+      }
+
+      // Leerzustand vs. Inbox
+      const empty = document.getElementById('mailEmptyState');
+      const inbox = document.getElementById('mailInboxWrap');
+      empty.style.display = 'none';
+      inbox.style.display = '';
+
+      renderMailProviderGrid('mailProviderGridEmpty');
+      renderMailProviderGrid('mailProviderGridModal');
+      renderMailList();
+    }
+
+    function setMailFilter(f) {
+      mailCurrentFilter = f;
+      document.querySelectorAll('.mail-filter-tabs button').forEach(b => b.classList.toggle('is-active', b.dataset.mf === f));
+      renderMailList();
+    }
+
+    function renderMailList() {
+      const wrap = document.getElementById('mailList');
+      if (!wrap) return;
+      const q = (document.getElementById('mailSearch')?.value || '').toLowerCase().trim();
+      let mails = getAllMails();
+      if (mailCurrentFilter === 'unread') mails = mails.filter(m => !m.isRead);
+      else if (mailCurrentFilter === 'tasks') mails = mails.filter(m => mailHasTask(m.id));
+      if (q) mails = mails.filter(m =>
+        m.subject.toLowerCase().includes(q) ||
+        (m.fromName||'').toLowerCase().includes(q) ||
+        m.from.toLowerCase().includes(q) ||
+        (m.snippet||'').toLowerCase().includes(q)
+      );
+      if (!mails.length) {
+        wrap.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-subtle);font-size:13px;">Keine Mails gefunden.</div>`;
+        return;
+      }
+      wrap.innerHTML = mails.map(m => {
+        const hasTask = mailHasTask(m.id);
+        return `<div class="mail-item${!m.isRead?' is-unread':''}${mailSelectedId===m.id?' is-selected':''}" onclick="selectMail('${m.id}')">
+          <div class="mail-unread-dot" style="visibility:${m.isRead?'hidden':'visible'};"></div>
+          <div class="mail-item-body">
+            <div class="mail-item-from">${_esc(m.fromName||m.from)}</div>
+            <div class="mail-item-subject">${_esc(m.subject)}</div>
+            <div class="mail-item-snippet">${_esc(m.snippet||'')}</div>
+          </div>
+          <div class="mail-item-meta">
+            <span class="mail-item-date">${fmtMailTime(m.date)}</span>
+            ${hasTask ? '<span class="mail-task-chip">✓ Aufgabe</span>' : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function selectMail(id) {
+      mailSelectedId = id;
+      // Als gelesen markieren (Demo)
+      const mi = MOCK_MAILS.findIndex(m => m.id === id);
+      if (mi >= 0) MOCK_MAILS[mi].isRead = true;
+      renderMailList();
+      showMailDetail(id);
+      // Badge aktualisieren
+      const u = getAllMails().filter(m => !m.isRead).length;
+      const b = document.getElementById('mailNavBadge');
+      if (b) { b.textContent = u; b.style.display = u > 0 ? '' : 'none'; }
+      const s = document.getElementById('mailSubtitle');
+      if (s) s.textContent = `Demo-Konto · ${getAllMails().length} Mails · ${u} ungelesen`;
+    }
+
+    function showMailDetail(id) {
+      const mail = getAllMails().find(m => m.id === id);
+      const content = document.getElementById('mailDetailContent');
+      const placeholder = document.getElementById('mailDetailPlaceholder');
+      if (!content || !mail) return;
+      placeholder.style.display = 'none';
+      content.style.display = '';
+      const hasTask = mailHasTask(id);
+      content.innerHTML = `
+        <div class="mail-detail-inner">
+          <div class="mail-detail-subject">${_esc(mail.subject)}</div>
+          <div class="mail-detail-meta">
+            <div><strong>Von:</strong> ${_esc(mail.fromName||mail.from)} &lt;${_esc(mail.from)}&gt;</div>
+            <div><strong>An:</strong> ${_esc(mail.to||'—')}</div>
+            <div><strong>Datum:</strong> ${fmtMailFull(mail.date)}</div>
+          </div>
+          <div class="mail-detail-body">${_esc(mail.body||mail.snippet||'')}</div>
+          <div class="mail-detail-actions">
+            ${hasTask
+              ? `<span style="font-size:13px;color:var(--accent);font-weight:600;">✓ Aufgabe bereits erstellt</span>`
+              : `<button class="btn btn-accent" onclick="mailToTask('${id}')">→ Als Aufgabe übernehmen</button>`}
+            <button class="btn btn-secondary" onclick="toast('Antworten: Verbinde ein echtes Postfach, um direkt aus der App zu antworten.')">↩ Antworten</button>
+          </div>
+        </div>`;
+    }
+
+    function mailToTask(mailId) {
+      const mail = getAllMails().find(m => m.id === mailId);
+      if (!mail) return;
+      openTaskModal(null, {
+        title: mail.subject,
+        desc: `Von: ${mail.fromName||mail.from} <${mail.from}>\nDatum: ${fmtMailFull(mail.date)}\n\n${mail.body||mail.snippet}`,
+        label: `✉️ ${mail.fromName||mail.from} · ${fmtMailTime(mail.date)}`,
+        type: 'mail',
+        sourceMail: { id:mail.id, from:mail.from, fromName:mail.fromName, subject:mail.subject, date:mail.date }
+      });
+    }
+
+    // ── Provider-Verbindungslogik ──
+    function connectProvider(type) {
+      closeModal('mailConnect');
+      if (type === 'gmail')   connectGmail();
+      else if (type === 'outlook') connectOutlook();
+      else if (type === 'icloud') { updateImapPreset('icloud'); openModal('mailImap'); }
+      else { updateImapPreset('custom'); openModal('mailImap'); }
+    }
+
+    function connectGmail() {
+      const cid = window.MOSAOS_MAIL?.gmail?.clientId;
+      if (!cid) { toast('Gmail Client-ID fehlt — in mail-config.js eintragen.', 'error'); return; }
+      const scope = 'https://www.googleapis.com/auth/gmail.readonly';
+      const redirect = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(cid)}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=select_account`;
+      const popup = window.open(url, 'gmail-auth', 'width=520,height=640,left=200,top=80');
+      if (!popup) { toast('Pop-up blockiert — bitte im Browser erlauben.', 'error'); return; }
+      const t = setInterval(() => {
+        try {
+          const token = new URLSearchParams(popup.location.hash.slice(1)).get('access_token');
+          if (token) { clearInterval(t); popup.close(); finishGmailConnect(token); }
+        } catch {}
+        if (popup.closed) clearInterval(t);
+      }, 600);
+    }
+    async function finishGmailConnect(token) {
+      try {
+        const p = await (await fetch('https://www.googleapis.com/gmail/v1/users/me/profile', { headers:{'Authorization':'Bearer '+token} })).json();
+        const acc = { id:'gmail-'+Date.now(), provider:'gmail', email:p.emailAddress, name:p.emailAddress, token };
+        const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
+        toast('✓ Gmail verbunden: '+p.emailAddress);
+        await fetchGmailMails(acc);
+        renderMailView();
+      } catch(e) { toast('Gmail-Verbindung fehlgeschlagen: '+e.message, 'error'); }
+    }
+    async function fetchGmailMails(acc) {
+      try {
+        const list = await (await fetch('https://www.googleapis.com/gmail/v1/users/me/messages?maxResults=30&labelIds=INBOX', { headers:{'Authorization':'Bearer '+acc.token} })).json();
+        if (!list.messages) return;
+        const mails = [];
+        for (const msg of list.messages.slice(0,20)) {
+          const m = await (await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From,To,Subject,Date`, { headers:{'Authorization':'Bearer '+acc.token} })).json();
+          const h = (m.payload?.headers||[]).reduce((o,x)=>(o[x.name]=x.value,o),{});
+          const raw = h.From||''; const nm = raw.match(/^"?([^"<]+)"?\s*</);
+          mails.push({ id:m.id, accountId:acc.id, from:raw.replace(/.*<(.+)>/,'$1').trim()||raw, fromName:nm?nm[1].trim():'',
+            to:h.To||'', subject:h.Subject||'(kein Betreff)', date:new Date(parseInt(m.internalDate)).toISOString(),
+            snippet:m.snippet||'', body:m.snippet||'', isRead:!m.labelIds?.includes('UNREAD'), labels:m.labelIds||[] });
+        }
+        const c = loadMailCache(); c[acc.id] = mails; saveMailCache(c);
+      } catch {}
+    }
+
+    function connectOutlook() {
+      const cfg = window.MOSAOS_MAIL?.outlook;
+      if (!cfg?.clientId) { toast('Outlook Azure Client-ID fehlt — in mail-config.js eintragen.', 'error'); return; }
+      const scope = 'https://graph.microsoft.com/Mail.Read offline_access';
+      const redirect = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+      const url = `https://login.microsoftonline.com/${cfg.tenantId||'common'}/oauth2/v2.0/authorize?client_id=${encodeURIComponent(cfg.clientId)}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=select_account`;
+      const popup = window.open(url, 'outlook-auth', 'width=520,height=640,left=200,top=80');
+      if (!popup) { toast('Pop-up blockiert.', 'error'); return; }
+      const t = setInterval(() => {
+        try {
+          const token = new URLSearchParams(popup.location.hash.slice(1)).get('access_token');
+          if (token) { clearInterval(t); popup.close(); finishOutlookConnect(token); }
+        } catch {}
+        if (popup.closed) clearInterval(t);
+      }, 600);
+    }
+    async function finishOutlookConnect(token) {
+      try {
+        const p = await (await fetch('https://graph.microsoft.com/v1.0/me', { headers:{'Authorization':'Bearer '+token} })).json();
+        const acc = { id:'outlook-'+Date.now(), provider:'outlook', email:p.mail||p.userPrincipalName, name:p.displayName, token };
+        const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
+        toast('✓ Outlook verbunden: '+acc.email);
+        await fetchOutlookMails(acc);
+        renderMailView();
+      } catch(e) { toast('Outlook-Verbindung fehlgeschlagen: '+e.message, 'error'); }
+    }
+    async function fetchOutlookMails(acc) {
+      try {
+        const data = await (await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=30&$select=id,subject,from,toRecipients,receivedDateTime,bodyPreview,isRead', { headers:{'Authorization':'Bearer '+acc.token} })).json();
+        if (!data.value) return;
+        const mails = data.value.map(m => ({ id:m.id, accountId:acc.id,
+          from:m.from?.emailAddress?.address||'', fromName:m.from?.emailAddress?.name||'',
+          to:m.toRecipients?.[0]?.emailAddress?.address||'', subject:m.subject||'(kein Betreff)',
+          date:m.receivedDateTime, snippet:m.bodyPreview||'', body:m.bodyPreview||'',
+          isRead:m.isRead, labels:['inbox'] }));
+        const c = loadMailCache(); c[acc.id] = mails; saveMailCache(c);
+      } catch {}
+    }
+
+    function updateImapPreset(preset) {
+      const sel = document.getElementById('imapPreset');
+      if (preset && sel) sel.value = preset;
+      const p = sel?.value || 'icloud';
+      const hostField = document.getElementById('imapServerField');
+      const title = document.getElementById('imapModalTitle');
+      const passLabel = document.getElementById('imapPassLabel');
+      const passHint = document.getElementById('imapPassHint');
+      if (p === 'icloud') {
+        if (hostField) hostField.style.display = 'none';
+        if (title) title.textContent = 'iCloud Mail verbinden';
+        if (passLabel) passLabel.textContent = 'App-spezifisches Passwort';
+        if (passHint) passHint.textContent = 'iCloud: Einstellungen → Apple-ID → Anmelden & Sicherheit → App-Passwörter generieren';
+      } else {
+        if (hostField) hostField.style.display = '';
+        if (title) title.textContent = 'Webmail / IMAP verbinden';
+        if (passLabel) passLabel.textContent = 'Passwort';
+        if (passHint) passHint.textContent = '';
+      }
+    }
+
+    async function connectImap() {
+      const proxyUrl = window.MOSAOS_MAIL?.imap?.proxyUrl;
+      if (!proxyUrl) { toast('IMAP-Proxy nicht konfiguriert — proxyUrl in mail-config.js eintragen.', 'error'); return; }
+      const preset = document.getElementById('imapPreset').value;
+      const email = document.getElementById('imapEmail').value.trim();
+      const pass  = document.getElementById('imapPass').value;
+      const host  = preset === 'icloud' ? 'imap.mail.me.com' : (document.getElementById('imapHost')?.value.trim() || '');
+      const port  = 993;
+      if (!email || !pass) { toast('E-Mail und Passwort erforderlich.', 'error'); return; }
+      const btn = document.getElementById('imapConnectBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Verbinde…'; }
+      try {
+        const r = await fetch(proxyUrl, { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ host, port, user:email, password:pass, folder:'INBOX', limit:30 }) });
+        if (!r.ok) throw new Error('Server-Fehler '+r.status);
+        const data = await r.json();
+        const acc = { id:'imap-'+Date.now(), provider:preset==='icloud'?'icloud':'imap', email, name:email, host, port };
+        const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
+        const c = loadMailCache(); c[acc.id] = (data.messages||[]).map(m=>({...m, accountId:acc.id})); saveMailCache(c);
+        closeModal('mailImap');
+        toast(`✓ ${preset==='icloud'?'iCloud Mail':'IMAP'} verbunden: ${email}`);
+        renderMailView();
+      } catch(e) { toast('Verbindung fehlgeschlagen: '+e.message, 'error'); }
+      finally { if (btn) { btn.disabled=false; btn.textContent='Verbinden'; } }
+    }
+
+    function disconnectMailAccount(accId) {
+      if (!confirm('Postfach trennen?')) return;
+      saveMailAccounts(loadMailAccounts().filter(a => a.id !== accId));
+      const c = loadMailCache(); delete c[accId]; saveMailCache(c);
+      if (mailSelectedId) { const mail = getAllMails().find(m => m.id === mailSelectedId); if (!mail) { mailSelectedId = null; document.getElementById('mailDetailContent').style.display='none'; document.getElementById('mailDetailPlaceholder').style.display=''; } }
+      toast('Postfach getrennt');
+      renderMailView();
+    }
+
+    // Nav-Click Handler
+    document.querySelector('.nav-item[data-view="email"]')?.addEventListener('click', () => {
+      setTimeout(renderMailView, 30);
+    });
+
+    // Initial: Badge mit ungelesenen Mock-Mails setzen
+    (function initMailBadge() {
+      const u = MOCK_MAILS.filter(m => !m.isRead).length;
+      const b = document.getElementById('mailNavBadge');
+      if (b && u > 0) { b.textContent = u; b.style.display = ''; }
+    })();
+
   </script>
 </body>
 </html>
