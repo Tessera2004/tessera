@@ -113,6 +113,18 @@
       background: none; border: none; color: var(--accent);
       font-size: 13px; font-weight: 600; cursor: pointer; align-self: center;
     }
+    /* Signatur-Fläche */
+    .sig-wrap {
+      position: relative; height: 160px; overflow: hidden;
+      border: 1.5px dashed var(--border-strong); border-radius: 14px; background: var(--surface);
+    }
+    .sig-canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+    .sig-hint {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: var(--text-subtle); font-size: 13px; pointer-events: none;
+    }
+    .sig-wrap.signed { border-style: solid; border-color: var(--success); }
+    .sig-wrap.signed .sig-hint { display: none; }
   </style>
 </head>
 <body>
@@ -194,6 +206,10 @@
               Fotos
             </button>
           </div>
+          <button class="btn btn-primary" style="width:100%; margin-top:8px;" onclick="openProtocol()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Einsatz abschliessen
+          </button>
           <div class="stop-foto-count" style="display:none; font-size:11.5px; color:var(--success); font-weight:600; margin-top:8px;"></div>
         </div>
       </div>
@@ -271,6 +287,40 @@
         <button class="cl-edit-toggle" id="clEditBtn" onclick="toggleChecklistEdit()">Liste bearbeiten</button>
         <div class="cl-progress" id="clProgress"></div>
         <button class="btn btn-accent cl-start" id="clStartBtn" onclick="startDay()" disabled>Tag starten</button>
+      </div>
+    </div>
+
+    <!-- Abnahmeprotokoll mit Signatur -->
+    <div class="checklist-overlay" id="protocolOverlay">
+      <div class="cl-icon" style="background:var(--success-soft); color:var(--success);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="cl-title">Abnahmeprotokoll</div>
+      <div class="cl-sub" id="protoObjekt">Objekt</div>
+
+      <div style="font-size:13px; font-weight:600; margin:4px 0 8px;">Erledigte Arbeiten</div>
+      <div class="cl-list" id="protoTasks"><!-- via JS --></div>
+      <div class="cl-add">
+        <input type="text" id="protoNewTask" placeholder="Weitere Arbeit hinzufügen…" onkeydown="if(event.key==='Enter')addProtoTask()" />
+        <button class="btn btn-accent" onclick="addProtoTask()" style="padding:0 16px;">+</button>
+      </div>
+      <button class="cl-edit-toggle" style="align-self:flex-start; margin:6px 0 2px;" onclick="toggleProtoEdit()" id="protoEditBtn">Liste bearbeiten</button>
+
+      <div id="protoPhotoInfo" style="font-size:12.5px; color:var(--text-muted); margin:10px 0;"></div>
+
+      <div style="font-size:13px; font-weight:600; margin:6px 0 6px;">Unterschrift Kunde</div>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas" class="sig-canvas"></canvas>
+        <span class="sig-hint" id="sigHint">Hier mit dem Finger unterschreiben</span>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="clearSignature()">Löschen</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="sendProtocolLink()">Kunde nicht da → Link senden</button>
+      </div>
+
+      <div class="cl-footer">
+        <button class="btn btn-secondary" onclick="closeProtocol()">Abbrechen</button>
+        <button class="btn btn-primary cl-start" onclick="finishProtocol()">Abschliessen &amp; absenden</button>
       </div>
     </div>
 
@@ -359,6 +409,7 @@
     document.getElementById('fotoInput').addEventListener('change', (e) => {
       const n = (e.target.files || []).length;
       if (!n) return;
+      window._protoPhotoCount = (window._protoPhotoCount || 0) + n;
       const stop = document.getElementById('activeStop');
       const cnt = stop ? stop.querySelector('.stop-foto-count') : null;
       if (cnt) {
@@ -473,6 +524,110 @@
         document.getElementById('checklistOverlay').classList.add('open');
       }
     })();
+
+    /* ---------- Abnahmeprotokoll + Signatur ---------- */
+    const PROTO_DEFAULT_TASKS = ['Küche', 'Bad / WC', 'Böden gewischt', 'Staub gewischt', 'Müll entsorgt'];
+    const PROTO_KEY = 'tessera_protocols';
+    let protoTasks = [];
+    let protoEditing = false;
+
+    function currentObjektName() {
+      const s = document.getElementById('activeStop');
+      return s ? (s.querySelector('.stop-name')?.textContent || 'Objekt') : 'Objekt';
+    }
+    function currentPhotoCount() { return window._protoPhotoCount || 0; }
+
+    function renderProtoTasks() {
+      const list = document.getElementById('protoTasks');
+      list.innerHTML = '';
+      protoTasks.forEach((t, i) => {
+        const row = document.createElement('div');
+        row.className = 'cl-item' + (t.done ? ' checked' : '');
+        row.onclick = (e) => { if (e.target.closest('.cl-del')) return; if (protoEditing) return; t.done = !t.done; renderProtoTasks(); };
+        row.innerHTML =
+          '<div class="cl-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+          '<div class="cl-label"></div>' +
+          '<button class="cl-del" onclick="removeProtoTask(' + i + ')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>';
+        row.querySelector('.cl-label').textContent = t.label;
+        list.appendChild(row);
+      });
+    }
+    function addProtoTask() { const inp = document.getElementById('protoNewTask'); const v = (inp.value || '').trim(); if (!v) return; protoTasks.push({ label: v, done: true }); inp.value = ''; renderProtoTasks(); }
+    function removeProtoTask(i) { protoTasks.splice(i, 1); renderProtoTasks(); }
+    function toggleProtoEdit() { protoEditing = !protoEditing; document.getElementById('protocolOverlay').classList.toggle('editing', protoEditing); document.getElementById('protoEditBtn').textContent = protoEditing ? 'Fertig' : 'Liste bearbeiten'; }
+
+    function openProtocol() {
+      protoTasks = PROTO_DEFAULT_TASKS.map(l => ({ label: l, done: true }));
+      protoEditing = false;
+      const ov = document.getElementById('protocolOverlay');
+      ov.classList.remove('editing');
+      document.getElementById('protoEditBtn').textContent = 'Liste bearbeiten';
+      document.getElementById('protoObjekt').textContent = currentObjektName();
+      const n = currentPhotoCount();
+      document.getElementById('protoPhotoInfo').textContent = n > 0 ? `📎 ${n} Foto${n > 1 ? 's' : ''} angehängt` : 'Noch keine Fotos angehängt';
+      renderProtoTasks();
+      ov.classList.add('open');
+      setTimeout(initSignature, 60);
+    }
+    function closeProtocol() { document.getElementById('protocolOverlay').classList.remove('open'); }
+
+    function protoSummaryText() {
+      const done = protoTasks.filter(t => t.done).map(t => t.label);
+      const n = currentPhotoCount();
+      return `Abnahmeprotokoll — ${currentObjektName()}\nErledigt: ${done.join(', ') || '—'}\n${n > 0 ? n + ' Foto(s) angehängt' : 'Keine Fotos'}\nDatum: ${new Date().toLocaleDateString('de-CH')}`;
+    }
+
+    /* Signatur-Pad (Maus + Touch) */
+    let sigCtx = null, sigDrawing = false, sigHasInk = false;
+    function initSignature() {
+      const cv = document.getElementById('sigCanvas');
+      if (!cv) return;
+      const rect = cv.getBoundingClientRect();
+      cv.width = rect.width; cv.height = rect.height;
+      sigCtx = cv.getContext('2d');
+      sigCtx.lineWidth = 2.2; sigCtx.lineCap = 'round'; sigCtx.lineJoin = 'round'; sigCtx.strokeStyle = '#0F172A';
+      sigHasInk = false; cv.parentElement.classList.remove('signed');
+      const pos = (e) => { const r = cv.getBoundingClientRect(); const p = e.touches ? e.touches[0] : e; return { x: p.clientX - r.left, y: p.clientY - r.top }; };
+      const start = (e) => { e.preventDefault(); sigDrawing = true; const { x, y } = pos(e); sigCtx.beginPath(); sigCtx.moveTo(x, y); };
+      const move = (e) => { if (!sigDrawing) return; e.preventDefault(); const { x, y } = pos(e); sigCtx.lineTo(x, y); sigCtx.stroke(); if (!sigHasInk) { sigHasInk = true; cv.parentElement.classList.add('signed'); } };
+      const end = () => { sigDrawing = false; };
+      cv.onmousedown = start; cv.onmousemove = move; window.addEventListener('mouseup', end);
+      cv.ontouchstart = start; cv.ontouchmove = move; cv.ontouchend = end;
+    }
+    function clearSignature() { const cv = document.getElementById('sigCanvas'); if (sigCtx && cv) sigCtx.clearRect(0, 0, cv.width, cv.height); sigHasInk = false; cv && cv.parentElement.classList.remove('signed'); }
+
+    function saveProtocol(method, signed) {
+      let arr = []; try { arr = JSON.parse(localStorage.getItem(PROTO_KEY)) || []; } catch {}
+      arr.push({ objekt: currentObjektName(), date: new Date().toISOString(), tasks: protoTasks.filter(t => t.done).map(t => t.label), photos: currentPhotoCount(), method, signed: !!signed });
+      localStorage.setItem(PROTO_KEY, JSON.stringify(arr));
+    }
+    function markStopDone() {
+      const s = document.getElementById('activeStop'); if (!s) return;
+      const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">✓ Abgeschlossen um ' + nowTime() + '</strong>';
+      s.classList.add('checked', 'done');
+    }
+
+    function finishProtocol() {
+      if (!sigHasInk && !confirm('Noch keine Unterschrift. Trotzdem ohne Kunden-Signatur abschliessen?')) return;
+      saveProtocol(sigHasInk ? 'vor Ort' : 'ohne Signatur', sigHasInk);
+      markStopDone();
+      closeProtocol();
+      toast(sigHasInk ? '✓ Protokoll unterschrieben & abgeschlossen' : '✓ Einsatz abgeschlossen');
+    }
+
+    function sendProtocolLink() {
+      const text = protoSummaryText() + '\n\nBitte bestätige die Abnahme.';
+      saveProtocol('Link gesendet', false);
+      if (navigator.share) {
+        navigator.share({ title: 'Abnahmeprotokoll', text })
+          .then(() => { toast('✓ Protokoll geteilt'); markStopDone(); closeProtocol(); })
+          .catch(() => { /* abgebrochen */ });
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        toast('Protokoll-Link geöffnet — an Kundin senden');
+        markStopDone(); closeProtocol();
+      }
+    }
 
     /* ---------- Problem melden ---------- */
     function meldeProblem() {
