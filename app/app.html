@@ -4918,6 +4918,8 @@
         const verlangteNach = call.verlangteNach || '—';
         const angenommenVon = call.angenommenVon || '—';
         const text = call.text || call.summary || '';
+        const taskBtnLabel = isRueckruf ? '⏰ Rückruf-Aufgabe' : '+ Aufgabe daraus';
+        const callArgs = `${JSON.stringify(c.id)}, ${JSON.stringify(call.wer || verlangteNach || '')}, ${JSON.stringify(text)}, ${isRueckruf ? 'true' : 'false'}`;
         return `<div class="call-item ${isRueckruf ? 'is-followup' : ''}">
           <div class="call-head">
             <span class="call-when">📅 ${dateStr} · ${timeStr}</span>
@@ -4929,6 +4931,9 @@
             <div><span class="call-lbl">Wer hat angenommen:</span> <strong>${angenommenVon}</strong></div>
           </div>
           ${text ? `<div class="call-summary">„${text}"</div>` : ''}
+          <div style="margin-top:8px; display:flex; justify-content:flex-end;">
+            <button class="btn btn-ghost btn-sm" onclick='createTaskFromCall(${callArgs})'>${taskBtnLabel}</button>
+          </div>
         </div>`;
       }).join('');
     }
@@ -5235,10 +5240,11 @@
         document.getElementById('taskDesc').value = linkContext?.desc || '';
         const preAssignee = linkContext?.assignee && users.find(u => u.id === linkContext.assignee) ? linkContext.assignee : users[0].id;
         document.getElementById('taskAssignee').value = preAssignee;
-        // Default Fälligkeit: in 3 Tagen
-        const d = new Date(); d.setDate(d.getDate() + 3);
+        // Default Fälligkeit: in 3 Tagen (Folgeaufgaben aus Rückrufen: morgen)
+        const dueInDays = (linkContext && Number.isFinite(linkContext.dueInDays)) ? linkContext.dueInDays : 3;
+        const d = new Date(); d.setDate(d.getDate() + dueInDays);
         document.getElementById('taskDueDate').value = isoDate(d);
-        setTaskPrio('normal');
+        setTaskPrio(linkContext?.prio || 'normal');
         document.getElementById('taskDeleteBtn').style.display = 'none';
         if (linkContext?.label) {
           linkInfo.style.display = '';
@@ -5386,23 +5392,26 @@
           </div>
           <div class="call-summary">„${call.text || call.summary || ''}"</div>
           <div class="anruf-actions">
-            <button class="btn btn-ghost btn-sm" onclick='createTaskFromCall(${JSON.stringify(call._customer?.id || null)}, ${JSON.stringify(call.wer || "")}, ${JSON.stringify(call.text || call.summary || "")})'>+ Aufgabe daraus machen</button>
+            <button class="btn btn-ghost btn-sm" onclick='createTaskFromCall(${JSON.stringify(call._customer?.id || null)}, ${JSON.stringify(call.wer || "")}, ${JSON.stringify(call.text || call.summary || "")}, ${isRr ? 'true' : 'false'})'>${isRr ? '⏰ Rückruf-Aufgabe' : '+ Aufgabe daraus machen'}</button>
           </div>
         </div>`;
       }).join('');
     }
 
-    function createTaskFromCall(custId, wer, text) {
+    function createTaskFromCall(custId, wer, text, isCallback) {
       const customers = loadCustomers();
       const cust = custId ? customers.find(c => c.id === custId) : null;
       const kunde = cust ? customerDisplayName(cust) : (wer || 'Unbekannt');
       openTaskModal(null, {
         type: 'anruf',
         label: `Anruf ${cust ? '· ' + customerDisplayName(cust) : ''}${wer ? ' · ' + wer : ''}`,
-        title: `Rückruf an ${kunde}`,
+        title: isCallback ? `Zurückrufen: ${kunde}` : `Rückruf an ${kunde}`,
         desc: text || '',
         contactPhone: cust?.phone || '',
-        contactEmail: cust?.email || ''
+        contactEmail: cust?.email || '',
+        // Folgeaufgabe aus offenem Rückruf: morgen fällig + dringend (Erinnerung)
+        dueInDays: isCallback ? 1 : 3,
+        prio: isCallback ? 'dringend' : 'normal'
       });
     }
 
