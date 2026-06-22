@@ -136,6 +136,7 @@
  *     tenant_id   UUID PRIMARY KEY REFERENCES tenants(id) ON DELETE CASCADE,
  *     profile     JSONB DEFAULT '{}',
  *     prices      JSONB DEFAULT '{}',
+ *     features    JSONB DEFAULT '{}',
  *     updated_at  TIMESTAMPTZ DEFAULT NOW()
  *   );
  *   ALTER TABLE company_settings ENABLE ROW LEVEL SECURITY;
@@ -325,8 +326,10 @@
       if (settR.data) {
         const p = settR.data.profile;
         const pr = settR.data.prices;
+        const ft = settR.data.features;
         if (p && Object.keys(p).length) localStorage.setItem('cc-company-v1', JSON.stringify(p));
         if (pr && Object.keys(pr).length) localStorage.setItem('cc-prices', JSON.stringify(pr));
+        if (ft && Object.keys(ft).length) localStorage.setItem('cc-features-v1', JSON.stringify(ft));
       }
 
       window._dbReady = true;
@@ -364,13 +367,14 @@
       } else if (type === 'report_one') {
         // Einzelner Bericht (mobile.html: ein Protokoll, nicht das ganze Array)
         await sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' });
-      } else if (type === 'company_profile' || type === 'company_prices') {
-        // Lese erst das andere Feld, damit es nicht überschrieben wird
-        const { data: cur } = await sb.from('company_settings').select('profile,prices')
+      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features') {
+        // Lese erst die anderen Felder, damit sie nicht überschrieben werden
+        const { data: cur } = await sb.from('company_settings').select('profile,prices,features')
           .eq('tenant_id', tid).maybeSingle();
         const row = { tenant_id: tid,
-          profile: type === 'company_profile' ? data : (cur?.profile || {}),
-          prices:  type === 'company_prices'  ? data : (cur?.prices  || {}),
+          profile:  type === 'company_profile'  ? data : (cur?.profile  || {}),
+          prices:   type === 'company_prices'   ? data : (cur?.prices   || {}),
+          features: type === 'company_features' ? data : (cur?.features || {}),
           updated_at: new Date().toISOString() };
         await sb.from('company_settings').upsert(row, { onConflict: 'tenant_id' });
       }

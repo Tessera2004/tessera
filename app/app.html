@@ -864,6 +864,16 @@
             <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;">Hinterlege deine echte IBAN — sonst zeigt die QR-Rechnung die Demo-IBAN.</div>
           </div>
 
+          <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
+          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="margin-bottom:6px;">
+              <div style="font-weight:700; font-size:15px;">🧩 Module</div>
+              <div style="font-size:12.5px; color:var(--text-subtle);">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
+            </div>
+            <div id="moduleSettings" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-top:14px;"></div>
+          </div>
+
+          <h2 style="font-size:15px; font-weight:600; margin:0 0 4px;">Preise pro Leistung</h2>
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
 
             <div class="price-card" style="--svc-color: var(--svc-unterhalt); --svc-color-soft: var(--svc-unterhalt-soft);">
@@ -3151,6 +3161,71 @@
         if (target === 'team') renderTeamGrid();
       });
     });
+
+    // ============ MODULE / FEATURE-FLAGS (pro Mandant) ============
+    const FEATURE_MODULES = [
+      { key: 'offerten',        view: 'offerten',        label: 'Offerten',             desc: 'Angebote schreiben, PDF, Versionshistorie' },
+      { key: 'anrufprotokoll',  view: 'anrufprotokoll',  label: 'Anrufprotokoll',       desc: 'Anrufe erfassen, Rückrufe, Aufgaben daraus' },
+      { key: 'aufgaben',        view: 'aufgaben',        label: 'Aufgaben',             desc: 'To-dos ans Büro-Team verteilen' },
+      { key: 'email',           view: 'email',           label: 'E-Mail-Postfach',      desc: 'Postfach anbinden (Modulstufe 2)' },
+      { key: 'abos',            view: 'abos',            label: 'Abo-Verträge',         desc: 'Wiederkehrende Aufträge verwalten' },
+      { key: 'berichte',        view: 'berichte',        label: 'Nachweise & Berichte', desc: 'Foto- und Unterschrift-Nachweise' },
+      { key: 'zeiten',          view: 'zeiten',          label: 'Zeiterfassung',        desc: 'Arbeitszeiten, QR-Check-in' },
+      { key: 'nachkalkulation', view: 'nachkalkulation', label: 'Nachkalkulation',      desc: 'Soll/Ist je Auftrag' },
+      { key: 'rechnungen',      view: 'rechnungen',      label: 'Rechnungen',           desc: 'QR-Rechnungen erstellen' }
+    ];
+    const FEATURES_KEY = 'cc-features-v1';
+    function loadFeatures() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(FEATURES_KEY)) || {}; } catch {}
+      const f = {};
+      FEATURE_MODULES.forEach(m => { f[m.key] = saved[m.key] !== undefined ? !!saved[m.key] : true; });
+      return f;
+    }
+    function saveFeatures(f) {
+      localStorage.setItem(FEATURES_KEY, JSON.stringify(f));
+      window.MosaDB?.push('company_features', f);
+    }
+    function applyFeatureFlags() {
+      const f = loadFeatures();
+      FEATURE_MODULES.forEach(m => {
+        const item = document.querySelector(`.nav-item[data-view="${m.view}"]`);
+        if (item) item.style.display = f[m.key] ? '' : 'none';
+      });
+      // Leere Nav-Sektionen ausblenden (z. B. „Vertrieb" wenn Offerten aus)
+      document.querySelectorAll('.nav-section').forEach(sec => {
+        const items = [...sec.querySelectorAll('.nav-item')];
+        sec.style.display = (items.length && items.every(i => i.style.display === 'none')) ? 'none' : '';
+      });
+      // Ist die aktive Ansicht jetzt deaktiviert? → zurück aufs Dashboard
+      const active = document.querySelector('.nav-item.active[data-view]');
+      if (active && active.style.display === 'none') {
+        document.querySelector('.nav-item[data-view="dashboard"]')?.click();
+      }
+    }
+    function renderModuleSettings() {
+      const wrap = document.getElementById('moduleSettings');
+      if (!wrap) return;
+      const f = loadFeatures();
+      const canManage = hasPerm('edit_users');
+      wrap.innerHTML = FEATURE_MODULES.map(m => `
+        <label style="display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; cursor:${canManage ? 'pointer' : 'default'}; background:var(--surface);">
+          <input type="checkbox" ${f[m.key] ? 'checked' : ''} ${canManage ? '' : 'disabled'} onchange="toggleFeature('${m.key}', this.checked)" style="margin-top:2px; width:16px; height:16px; accent-color:var(--accent);" />
+          <span style="min-width:0;">
+            <span style="display:block; font-weight:600; font-size:13.5px;">${m.label}</span>
+            <span style="display:block; font-size:12px; color:var(--text-subtle);">${m.desc}</span>
+          </span>
+        </label>`).join('');
+    }
+    function toggleFeature(key, on) {
+      if (!requirePerm('edit_users', 'Module verwalten')) { renderModuleSettings(); return; }
+      const f = loadFeatures();
+      f[key] = on;
+      saveFeatures(f);
+      applyFeatureFlags();
+      const mod = FEATURE_MODULES.find(m => m.key === key);
+      toast(`${mod?.label || 'Modul'} ${on ? 'aktiviert' : 'deaktiviert'}`);
+    }
 
     // ============ USER / ROLLEN / RECHTE ============
     const ROLE_DEFS = {
@@ -6127,7 +6202,7 @@
       toast('✓ Firmen- & Zahlungsangaben gespeichert');
     }
     document.querySelector('.nav-item[data-view="einstellungen"]')?.addEventListener('click', () => {
-      setTimeout(fillCompanyForm, 50);
+      setTimeout(() => { fillCompanyForm(); renderModuleSettings(); }, 50);
     });
 
     // Schweizer QR-Code-Payload (SPC, Version 0200) — kombinierte Adressen (K), Referenztyp NON
@@ -8668,10 +8743,12 @@ ${coSig}`
     })();
 
     // Mandanten-ID einmalig beim Startup laden (silent, kein Fehler wenn nicht konfiguriert)
+    applyFeatureFlags();
     (async () => {
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
       refreshAuthStatus();
+      applyFeatureFlags();
       // Nach Backend-Sync betroffene Ansichten neu zeichnen, falls Daten kamen
       if (window._dbReady) {
         try {
