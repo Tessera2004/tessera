@@ -4,8 +4,8 @@
   <defs>
     <pattern id="moTileSite" width="15" height="15" patternUnits="userSpaceOnUse">
       <rect width="15" height="15" fill="#F1F3F8"/>
-      <text x="0.6" y="7" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#DA291C" opacity="0.13">MO</text>
-      <text x="8.1" y="14.5" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#DA291C" opacity="0.13">MO</text>
+      <text x="0.6" y="7" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#1B2230" opacity="0.22">MO</text>
+      <text x="8.1" y="14.5" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#1B2230" opacity="0.22">MO</text>
     </pattern>
   </defs>
   <rect x="6"  y="6"  width="24" height="24" rx="5" fill="url(#moTileSite)"/>
