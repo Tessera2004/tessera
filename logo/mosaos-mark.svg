@@ -2,9 +2,10 @@
   <title>MosaOS</title>
   <!-- Mark: helle Kacheln mit dezentem Muster + 1 Swiss-rote Kachel -->
   <defs>
-    <pattern id="moTileSite" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="7" height="7" fill="#F1F3F8"/>
-      <line x1="0" y1="0" x2="0" y2="7" stroke="#DA291C" stroke-width="1.2" opacity="0.10"/>
+    <pattern id="moTileSite" width="15" height="15" patternUnits="userSpaceOnUse">
+      <rect width="15" height="15" fill="#F1F3F8"/>
+      <text x="0.6" y="7" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#DA291C" opacity="0.13">MO</text>
+      <text x="8.1" y="14.5" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#DA291C" opacity="0.13">MO</text>
     </pattern>
   </defs>
   <rect x="6"  y="6"  width="24" height="24" rx="5" fill="url(#moTileSite)"/>
