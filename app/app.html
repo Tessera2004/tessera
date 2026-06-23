@@ -3431,7 +3431,9 @@
     }
     function saveUsers(users) { localStorage.setItem('cc-users', JSON.stringify(users)); window.MosaDB?.push('office_users', users); }
     function getUserInitials(u) {
-      return ((u.firstname || '?')[0] + (u.lastname || '')[0]).toUpperCase();
+      const a = ((u.firstname || '?').trim()[0]) || '?';
+      const b = ((u.lastname || '').trim()[0]) || '';
+      return (a + b).toUpperCase();
     }
     function getUserName(u) { return `${u.firstname || ''} ${u.lastname || ''}`.trim(); }
     function getUserColor(u) { return ROLE_DEFS[u.role]?.color || '#6b7280'; }

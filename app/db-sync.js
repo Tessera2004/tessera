@@ -290,6 +290,44 @@
     return rows;
   }
 
+  // ── Merge-Helfer (Login: lokale Daten erhalten + hochladen) ──
+
+  function lsGet(key, fallback) {
+    try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch { return fallback; }
+  }
+
+  // Array-Tabelle: Remote-Rows + lokal-nur-vorhandene (per id) zusammenführen,
+  // localStorage aktualisieren, die lokalen Neuzugänge nach Supabase pushen.
+  async function mergeArray(key, remoteRows, rowToObj, pushType) {
+    let local = lsGet(key, []);
+    if (!Array.isArray(local)) local = [];
+    const remote = (remoteRows || []).map(rowToObj);
+    const remoteIds = new Set(remote.map(r => r.id));
+    const localOnly = local.filter(l => l && l.id && !remoteIds.has(l.id));
+    const merged = remote.concat(localOnly);
+    if (merged.length) localStorage.setItem(key, JSON.stringify(merged));
+    if (localOnly.length) { try { await push(pushType, localOnly); } catch {} }
+  }
+
+  // plan_jobs ist ein Dict { dateKey: [jobs] } — gleiche Logik per Job-id.
+  async function mergeJobs(remoteRows) {
+    const local = lsGet('cc-plan-jobs-v1', {});
+    const remoteDict = unflattenJobs(remoteRows || []);
+    const remoteIds = new Set((remoteRows || []).map(r => r.id));
+    const merged = JSON.parse(JSON.stringify(remoteDict));
+    const localOnly = {};
+    Object.entries(local || {}).forEach(([dk, jobs]) => {
+      (jobs || []).forEach(j => {
+        if (j && j.id && !remoteIds.has(j.id)) {
+          (merged[dk] = merged[dk] || []).push(j);
+          (localOnly[dk] = localOnly[dk] || []).push(j);
+        }
+      });
+    });
+    if (Object.keys(merged).length) localStorage.setItem('cc-plan-jobs-v1', JSON.stringify(merged));
+    if (Object.keys(localOnly).length) { try { await push('plan_jobs', localOnly); } catch {} }
+  }
+
   // ── dbInit ───────────────────────────────────────────────
 
   async function dbInit() {
@@ -310,30 +348,27 @@
         sb.from('company_settings').select('*').eq('tenant_id', tid).maybeSingle()
       ]);
 
-      if (ouR.data?.length)
-        localStorage.setItem('cc-users', JSON.stringify(ouR.data.map(rowToOfficeUser)));
-      if (empR.data?.length)
-        localStorage.setItem('cc-employees-v1', JSON.stringify(empR.data.map(rowToEmployee)));
-      if (teamR.data?.length)
-        localStorage.setItem('cc-teams-v1', JSON.stringify(teamR.data.map(rowToTeam)));
-      if (custR.data?.length)
-        localStorage.setItem('cc-customers-v1', JSON.stringify(custR.data.map(rowToCustomer)));
-      if (jobR.data?.length)
-        localStorage.setItem('cc-plan-jobs-v1', JSON.stringify(unflattenJobs(jobR.data)));
-      if (taskR.data?.length)
-        localStorage.setItem('cc-tasks-v1', JSON.stringify(taskR.data.map(rowToTask)));
-      if (repR.data?.length)
-        localStorage.setItem('cc-reports-v1', JSON.stringify(repR.data.map(rowToReport)));
-      if (settR.data) {
-        const p = settR.data.profile;
-        const pr = settR.data.prices;
-        const ft = settR.data.features;
-        const rl = settR.data.roles;
-        if (p && Object.keys(p).length) localStorage.setItem('cc-company-v1', JSON.stringify(p));
-        if (pr && Object.keys(pr).length) localStorage.setItem('cc-prices', JSON.stringify(pr));
-        if (ft && Object.keys(ft).length) localStorage.setItem('cc-features-v1', JSON.stringify(ft));
-        if (Array.isArray(rl) && rl.length) localStorage.setItem('cc-roles-v1', JSON.stringify(rl));
-      }
+      // Merge: Remote + lokal-nur-vorhandene Datensätze; lokale werden hochgeladen.
+      // So gehen lokal (im Demo-Modus) angelegte Daten beim Login nicht verloren,
+      // sondern landen in Supabase und damit auf allen Geräten / in der Mobile-App.
+      await mergeArray('cc-users', ouR.data, rowToOfficeUser, 'office_users');
+      await mergeArray('cc-employees-v1', empR.data, rowToEmployee, 'employees');
+      await mergeArray('cc-teams-v1', teamR.data, rowToTeam, 'teams');
+      await mergeArray('cc-customers-v1', custR.data, rowToCustomer, 'customers');
+      await mergeArray('cc-tasks-v1', taskR.data, rowToTask, 'tasks');
+      await mergeArray('cc-reports-v1', repR.data, rowToReport, 'reports');
+      await mergeJobs(jobR.data);
+
+      // Firmen-Einstellungen: Remote anwenden, fehlende Teile aus lokal hochladen
+      const settP = settR.data?.profile, settPr = settR.data?.prices, settFt = settR.data?.features, settRl = settR.data?.roles;
+      if (settP && Object.keys(settP).length) localStorage.setItem('cc-company-v1', JSON.stringify(settP));
+      else { const lp = lsGet('cc-company-v1', {}); if (Object.keys(lp).length) await push('company_profile', lp); }
+      if (settPr && Object.keys(settPr).length) localStorage.setItem('cc-prices', JSON.stringify(settPr));
+      else { const lp = lsGet('cc-prices', {}); if (Object.keys(lp).length) await push('company_prices', lp); }
+      if (settFt && Object.keys(settFt).length) localStorage.setItem('cc-features-v1', JSON.stringify(settFt));
+      else { const lp = lsGet('cc-features-v1', {}); if (Object.keys(lp).length) await push('company_features', lp); }
+      if (Array.isArray(settRl) && settRl.length) localStorage.setItem('cc-roles-v1', JSON.stringify(settRl));
+      else { const lp = lsGet('cc-roles-v1', []); if (Array.isArray(lp) && lp.length) await push('company_roles', lp); }
 
       window._dbReady = true;
       console.log('[MosaDB] Sync OK —', { ou: ouR.data?.length, emp: empR.data?.length,
