@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MosaOS — Einladung annehmen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .auth-msg { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 4px; display: none; line-height: 1.45; }
+    .auth-msg.show { display: block; }
+    .auth-msg.err { background: rgba(225,29,42,0.10); color: var(--danger); }
+    .auth-msg.ok  { background: rgba(16,185,129,0.12); color: var(--success); }
+    .invite-badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--accent);
+      background:var(--accent-soft); padding:5px 11px; border-radius:999px; margin-bottom:18px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-form-col">
+      <div class="login-box">
+        <div class="brand" style="padding: 0; border: none; margin-bottom: 36px;">
+          <div class="brand-mark-svg" style="width: 44px; height: 44px;">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+              <defs>
+                <pattern id="moTileInv" width="9" height="9" patternUnits="userSpaceOnUse">
+                  <rect width="9" height="9" fill="white"/>
+                  <text x="0.4" y="4.3" font-family="Arial, sans-serif" font-size="4.4" font-weight="700" fill="#E11D2A" opacity="0.18">MO</text>
+                  <text x="4.9" y="8.8" font-family="Arial, sans-serif" font-size="4.4" font-weight="700" fill="#E11D2A" opacity="0.18">MO</text>
+                </pattern>
+              </defs>
+              <rect x="3" y="3" width="13" height="13" rx="3" fill="url(#moTileInv)"/>
+              <rect x="16" y="3" width="13" height="13" rx="3" fill="url(#moTileInv)"/>
+              <rect x="3" y="16" width="13" height="13" rx="3" fill="url(#moTileInv)"/>
+              <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
+              <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
+              <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
+            <div class="brand-sub">Team-Einladung</div>
+          </div>
+        </div>
+
+        <div id="inviteView">
+          <div class="invite-badge">📨 Einladung</div>
+          <h1 class="login-title" id="inviteTitle">Du wurdest eingeladen</h1>
+          <p class="login-sub" id="inviteSub">Erstelle dein Konto, um dem Team beizutreten.</p>
+
+          <form class="login-form" id="acceptForm">
+            <div class="field">
+              <label for="invEmail">E-Mail (eingeladen)</label>
+              <input type="email" id="invEmail" autocomplete="email" required readonly
+                     style="opacity:.85; cursor:not-allowed;" />
+            </div>
+            <div class="field">
+              <label for="invPassword">Passwort wählen</label>
+              <input type="password" id="invPassword" placeholder="mind. 8 Zeichen" autocomplete="new-password" minlength="8" required />
+            </div>
+            <div class="auth-msg" id="inviteMsg"></div>
+            <button type="submit" class="btn btn-primary" id="acceptBtn" style="height: 42px; margin-top: 8px;">
+              Konto erstellen &amp; beitreten
+            </button>
+          </form>
+
+          <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
+            Du hast schon ein Konto? <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;">Hier anmelden →</a>
+          </div>
+        </div>
+
+        <!-- Bestätigungs-Hinweis nach Registrierung -->
+        <div id="doneView" hidden>
+          <div class="invite-badge" style="color:var(--success); background:rgba(16,185,129,0.12);">✓ Fast geschafft</div>
+          <h1 class="login-title">Bitte E-Mail bestätigen</h1>
+          <p class="login-sub" id="doneSub">Wir haben dir eine Bestätigungs-E-Mail geschickt. Klick den Link darin, danach kannst du dich anmelden.</p>
+          <a class="btn btn-primary" href="login.html" style="height:42px; margin-top:8px; display:inline-flex; align-items:center; justify-content:center;">Zur Anmeldung →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-visual">
+      <div>
+        <div class="brand" style="padding: 0; border: none;">
+          <div class="brand-mark-svg" style="width: 44px; height: 44px; background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+              <rect x="3" y="3" width="13" height="13" rx="3" fill="rgba(255,255,255,0.85)"/>
+              <rect x="16" y="3" width="13" height="13" rx="3" fill="rgba(255,255,255,0.85)"/>
+              <rect x="3" y="16" width="13" height="13" rx="3" fill="rgba(255,255,255,0.85)"/>
+              <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
+              <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
+              <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name" style="color: white;">Mosa<span style="color:#E11D2A">OS</span></div>
+            <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Made in Switzerland</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="login-quote" id="visualQuote">Willkommen im Team. Gleich loslegen — Routen, Nachweise und Aufgaben an einem Ort.</p>
+        <div class="login-quote-author">Eine Plattform für jede Branche</div>
+      </div>
+      <div></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    function msg(el, text, kind) { el.textContent = text; el.className = 'auth-msg show ' + (kind || 'err'); }
+    function clearMsg(el) { el.className = 'auth-msg'; }
+    const esc = (s) => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    // Einladungs-Parameter aus der URL
+    const params = new URLSearchParams(location.search);
+    const invEmail = (params.get('email') || '').trim().toLowerCase();
+    const firma = (params.get('firma') || '').trim();
+
+    // Vorausfüllen + Texte personalisieren
+    document.getElementById('invEmail').value = invEmail;
+    if (firma) {
+      document.getElementById('inviteTitle').textContent = 'Einladung zu ' + firma;
+      document.getElementById('inviteSub').textContent = 'Du wurdest zu „' + firma + '" eingeladen. Erstelle dein Konto, um beizutreten.';
+      document.getElementById('visualQuote').textContent = 'Willkommen bei ' + firma + '. Gleich loslegen — alles an einem Ort.';
+    }
+    if (!invEmail) {
+      // Ohne E-Mail im Link: Hinweis + zum normalen Login/Onboarding
+      document.getElementById('inviteSub').innerHTML = 'Kein gültiger Einladungs-Link. <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;">Zur Anmeldung</a>.';
+    }
+
+    // „Angemeldet bleiben" standardmäßig, damit app.html dieselbe Session findet
+    function clientRemember() {
+      localStorage.setItem('mosaos_remember', '1');
+      if (!window.supabase) return window.SB;
+      return window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY, {
+        auth: { persistSession: true, storage: window.localStorage }
+      });
+    }
+
+    document.getElementById('acceptForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('acceptBtn');
+      const box = document.getElementById('inviteMsg');
+      clearMsg(box);
+      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      if (!invEmail) { msg(box, 'Dieser Link enthält keine Einladung. Bitte den Admin um einen neuen Link.'); return; }
+      const sb = clientRemember();
+      const password = document.getElementById('invPassword').value;
+      btn.disabled = true; btn.textContent = 'Konto wird erstellt …';
+      const { data, error } = await sb.auth.signUp({
+        email: invEmail,
+        password,
+        options: { emailRedirectTo: location.origin + location.pathname.replace(/accept-invite\.html$/, 'login.html') }
+      });
+      if (error) {
+        if (/already registered|already exists/i.test(error.message)) {
+          msg(box, 'Mit dieser E-Mail gibt es schon ein Konto. Bitte melde dich an — falls du noch nicht im Team bist, wende dich an die Person, die dich eingeladen hat.');
+        } else {
+          msg(box, error.message);
+        }
+        btn.disabled = false; btn.textContent = 'Konto erstellen & beitreten';
+        return;
+      }
+      // Trigger handle_new_user ordnet das Konto über die offene Einladung dem Team zu.
+      if (!data.session) {
+        // E-Mail-Bestätigung nötig
+        document.getElementById('inviteView').hidden = true;
+        document.getElementById('doneView').hidden = false;
+      } else {
+        // Direkt drin → in die App
+        window.location.href = 'app.html';
+      }
+    });
+  </script>
+</body>
+</html>

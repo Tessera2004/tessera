@@ -3638,6 +3638,19 @@
       renderInviteRoleChips();
       openModal('inviteUser');
     }
+    // Baut den Einladungs-Link (zeigt auf accept-invite.html, gleicher Ordner wie app.html)
+    function inviteLink(email) {
+      const base = location.origin + location.pathname.replace(/[^/]*$/, 'accept-invite.html');
+      const co = (typeof loadCompany === 'function' ? (loadCompany().name || '') : '');
+      const q = new URLSearchParams({ email });
+      if (co) q.set('firma', co);
+      return base + '?' + q.toString();
+    }
+    async function copyInviteLink(email) {
+      const link = inviteLink(email);
+      try { await navigator.clipboard.writeText(link); toast('🔗 Einladungs-Link kopiert'); }
+      catch { prompt('Einladungs-Link (markieren & kopieren):', link); }
+    }
     async function sendInvite() {
       const errEl = document.getElementById('inviteError');
       const email = (document.getElementById('inviteEmail').value || '').trim().toLowerCase();
@@ -3660,7 +3673,13 @@
         if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
         else {
           closeModal('inviteUser');
-          toast('✓ Einladung erstellt — die Person registriert sich mit ' + email);
+          const link = inviteLink(email);
+          try {
+            await navigator.clipboard.writeText(link);
+            toast('✓ Einladung erstellt — Link kopiert! An ' + email + ' senden.');
+          } catch {
+            toast('✓ Einladung erstellt. Link unten in der Liste kopieren.');
+          }
           renderInvites();
         }
       } catch { errEl.textContent = 'Fehlgeschlagen (Internet?).'; errEl.style.display = 'block'; }
@@ -3689,7 +3708,10 @@
             <div style="font-weight:600; font-size:13.5px;">${escapeHtml(r.email)}</div>
             <div style="font-size:12px; color:var(--text-subtle);">${escapeHtml(name)}${name ? ' · ' : ''}${roleLbl} · eingeladen ${when}</div>
           </div>
-          <button class="btn btn-ghost" style="color:var(--danger);" onclick="revokeInvite('${r.id}')">Zurückziehen</button>
+          <div style="display:flex; gap:6px; flex:0 0 auto;">
+            <button class="btn btn-ghost" onclick="copyInviteLink('${escapeHtml(r.email)}')">🔗 Link kopieren</button>
+            <button class="btn btn-ghost" style="color:var(--danger);" onclick="revokeInvite('${r.id}')">Zurückziehen</button>
+          </div>
         </div>`;
       }).join('');
     }
