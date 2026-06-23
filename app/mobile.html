@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-skin="buero" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,25 +13,33 @@
   <script src="supabase-client.js"></script>
   <script src="db-sync.js"></script>
   <style>
-    body { background: #F1F5F9; }
+    body { background: var(--bg); }
     .device-frame {
       max-width: 420px;
       margin: 20px auto;
       background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 28px;
       overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
       min-height: 90vh;
       position: relative;
     }
     @media (max-width: 480px) {
-      body { background: var(--surface); }
-      .device-frame { margin: 0; border-radius: 0; box-shadow: none; min-height: 100vh; }
+      body { background: var(--bg); }
+      .device-frame { margin: 0; border: none; border-radius: 0; box-shadow: none; min-height: 100vh; }
     }
+
+    /* Büro-Skin: Kopf ruhig dunkel statt cremeweißem --primary */
+    .mobile-header { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--border); }
+    .mobile-greeting { color: var(--text-muted); opacity: 1; }
+    .mobile-stats { border-top-color: var(--border); }
+    .mobile-stat-label { color: var(--text-subtle); opacity: 1; }
+
     /* Brand-Zeile im Kopf */
     .m-brand { display: flex; align-items: center; gap: 9px; margin-bottom: 18px; }
-    .m-brand-chip { width: 30px; height: 30px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; }
-    .m-brand-name { font-weight: 700; font-size: 16px; color: #fff; letter-spacing: -0.3px; }
+    .m-brand-chip { width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+    .m-brand-name { font-weight: 700; font-size: 16px; color: var(--text); letter-spacing: -0.3px; }
     /* QR-Scanner Overlay */
     .qr-overlay {
       position: absolute; inset: 0; z-index: 50;
@@ -50,8 +58,9 @@
     .qr-close { margin-top: 22px; }
     .m-toast {
       position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
-      background: #1A1F3A; color: #fff; padding: 12px 18px; border-radius: 12px;
-      font-size: 13.5px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      padding: 12px 18px; border-radius: 12px;
+      font-size: 13.5px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.45);
       opacity: 0; transition: all 0.3s ease; z-index: 100; pointer-events: none; max-width: 90%;
     }
     .m-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -118,14 +127,15 @@
       font-size: 13px; font-weight: 600; cursor: pointer; align-self: center;
     }
     /* Signatur-Fläche */
+    /* Signatur bewusst auf hellem Papier (dunkle Tinte bleibt im PDF gültig) */
     .sig-wrap {
       position: relative; height: 160px; overflow: hidden;
-      border: 1.5px dashed var(--border-strong); border-radius: 14px; background: var(--surface);
+      border: 1.5px dashed var(--border-strong); border-radius: 14px; background: #F4F1EA;
     }
     .sig-canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
     .sig-hint {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: var(--text-subtle); font-size: 13px; pointer-events: none;
+      color: #9b958a; font-size: 13px; pointer-events: none;
     }
     .sig-wrap.signed { border-style: solid; border-color: var(--success); }
     .sig-wrap.signed .sig-hint { display: none; }
@@ -138,9 +148,9 @@
       <div class="m-brand">
         <div class="m-brand-chip">
           <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <rect x="3" y="3" width="13" height="13" rx="3" fill="#1A1F3A"/>
-            <rect x="16" y="3" width="13" height="13" rx="3" fill="#1A1F3A"/>
-            <rect x="3" y="16" width="13" height="13" rx="3" fill="#1A1F3A"/>
+            <rect x="3" y="3" width="13" height="13" rx="3" fill="#C9C4BB"/>
+            <rect x="16" y="3" width="13" height="13" rx="3" fill="#C9C4BB"/>
+            <rect x="3" y="16" width="13" height="13" rx="3" fill="#C9C4BB"/>
             <rect x="16" y="16" width="13" height="13" rx="3" fill="#E11D2A"/>
             <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
             <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
@@ -149,7 +159,7 @@
         <span class="m-brand-name">Mosa<span style="color:#E11D2A">OS</span></span>
       </div>
 
-      <div class="mobile-greeting" id="mGreeting">Guten Tag ☀️</div>
+      <div class="mobile-greeting" id="mGreeting">Guten Tag</div>
       <div class="mobile-name" id="mGreetName">—</div>
 
       <div class="mobile-stats">
@@ -259,17 +269,17 @@
   <div class="m-toast" id="mToast"></div>
 
   <!-- ====== LOGIN-GATE (Mitarbeiter) ====== -->
-  <div id="mLogin" style="position:fixed;inset:0;z-index:9999;background:#0d1117;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div id="mLogin" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
     <div style="width:100%;max-width:360px;">
-      <div style="text-align:center;margin-bottom:28px;font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;">Mosa<span style="color:#E11D2A">OS</span></div>
-      <div style="text-align:center;margin-bottom:24px;color:#8b949e;font-size:14px;">Bitte melde dich an, um deinen Tag zu starten.</div>
+      <div style="text-align:center;margin-bottom:28px;font-size:26px;font-weight:700;color:var(--text);letter-spacing:-.5px;">Mosa<span style="color:#E11D2A">OS</span></div>
+      <div style="text-align:center;margin-bottom:24px;color:var(--text-muted);font-size:14px;">Bitte melde dich an, um deinen Tag zu starten.</div>
       <input id="mEmail" type="email" inputmode="email" autocomplete="username" placeholder="E-Mail"
-        style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:12px;border-radius:12px;border:1px solid #30363d;background:#161b22;color:#fff;font-size:16px;" />
+        style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;" />
       <input id="mPass" type="password" autocomplete="current-password" placeholder="Passwort"
-        style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:8px;border-radius:12px;border:1px solid #30363d;background:#161b22;color:#fff;font-size:16px;" />
-      <div id="mLoginErr" style="display:none;color:#f85149;font-size:13px;margin:4px 2px 12px;"></div>
+        style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;" />
+      <div id="mLoginErr" style="display:none;color:var(--accent);font-size:13px;margin:4px 2px 12px;"></div>
       <button id="mLoginBtn" onclick="mDoLogin()"
-        style="width:100%;padding:14px;margin-top:8px;border:none;border-radius:12px;background:#E11D2A;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Anmelden</button>
+        style="width:100%;padding:14px;margin-top:8px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Anmelden</button>
     </div>
   </div>
 
@@ -293,7 +303,7 @@
       if (!stop) return;
       const hint = stop.querySelector('.stop-hint');
       if (hint) {
-        hint.innerHTML = `<strong style="color: var(--success);">✓ Eingecheckt um ${nowTime()}</strong>` + (code ? ` · ${code}` : '');
+        hint.innerHTML = `<strong style="color: var(--success);">Eingecheckt um ${nowTime()}</strong>` + (code ? ` · ${code}` : '');
       }
       stop.classList.add('checked');
     }
@@ -319,10 +329,10 @@
         (decodedText) => {
           // Erfolg
           status.className = 'qr-status ok';
-          status.textContent = '✓ Erkannt: ' + decodedText;
+          status.textContent = 'Erkannt: ' + decodedText;
           if (navigator.vibrate) navigator.vibrate(120);
           markCheckedIn(decodedText);
-          setTimeout(() => { closeScanner(); toast('✓ Anwesenheit erfasst — ' + decodedText); }, 900);
+          setTimeout(() => { closeScanner(); toast('Anwesenheit erfasst — ' + decodedText); }, 900);
         },
         () => { /* pro Frame ohne Treffer – ignorieren */ }
       ).then(() => {
@@ -358,9 +368,9 @@
       const cnt = stop ? stop.querySelector('.stop-foto-count') : null;
       if (cnt) {
         cnt.style.display = 'block';
-        cnt.textContent = `✓ ${n} Foto${n > 1 ? 's' : ''} hochgeladen um ${nowTime()}`;
+        cnt.textContent = `${n} Foto${n > 1 ? 's' : ''} hochgeladen um ${nowTime()}`;
       }
-      toast(`✓ ${n} Foto${n > 1 ? 's' : ''} hochgeladen`);
+      toast(`${n} Foto${n > 1 ? 's' : ''} hochgeladen`);
       e.target.value = '';
     });
 
@@ -458,7 +468,7 @@
       localStorage.setItem(CL_DONE_KEY, todayStr());
       document.getElementById('checklistOverlay').classList.remove('open', 'editing');
       document.getElementById('clEditBtn').textContent = 'Liste bearbeiten';
-      toast('✓ Material bestätigt — guten Einsatz!');
+      toast('Material bestätigt — guten Einsatz!');
     }
 
     // Beim Öffnen der App: einmal pro Tag das Material-Tor zeigen
@@ -538,14 +548,14 @@
     function renderMyStops() {
       const stopsEl = document.getElementById('mStops');
       if (!stopsEl) return;
-      if (!MY_JOBS.length) { mSetStats(0, '—', '—'); stopsEl.innerHTML = mEmptyStops('Heute keine Einsätze für dich geplant. 🎉'); return; }
+      if (!MY_JOBS.length) { mSetStats(0, '—', '—'); stopsEl.innerHTML = mEmptyStops('Heute keine Einsätze für dich geplant.'); return; }
       const starts = MY_JOBS.map(j => j.start_time).filter(Boolean);
       const ends = MY_JOBS.map(j => j.end_time).filter(Boolean);
       mSetStats(MY_JOBS.length, starts[0] || '—', ends[ends.length - 1] || '—');
       const activeIdx = MY_JOBS.findIndex((j, i) => !_doneStops.has(i));
       stopsEl.innerHTML = MY_JOBS.map((j, i) => {
-        const note = j.note_crew ? `<div style="font-size:12px;color:var(--text-subtle);margin-top:4px;">📝 ${mEsc(j.note_crew)}</div>` : '';
-        if (_doneStops.has(i)) return mStopShell(j, '<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">✓ Abgeschlossen</div>', 'done', false);
+        const note = j.note_crew ? `<div style="font-size:12px;color:var(--text-subtle);margin-top:4px;">${mEsc(j.note_crew)}</div>` : '';
+        if (_doneStops.has(i)) return mStopShell(j, '<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">Abgeschlossen</div>', 'done', false);
         if (i === activeIdx) {
           return mStopShell(j, `${note}
             <div class="stop-hint" style="font-size:12px;color:var(--text-muted);margin-top:6px;"><strong style="color:var(--accent);">Jetzt aktiv</strong> · einchecken &amp; Fotos hochladen</div>
@@ -592,7 +602,7 @@
       document.getElementById('protoEditBtn').textContent = 'Liste bearbeiten';
       document.getElementById('protoObjekt').textContent = currentObjektName();
       const n = currentPhotoCount();
-      document.getElementById('protoPhotoInfo').textContent = n > 0 ? `📎 ${n} Foto${n > 1 ? 's' : ''} angehängt` : 'Noch keine Fotos angehängt';
+      document.getElementById('protoPhotoInfo').textContent = n > 0 ? `${n} Foto${n > 1 ? 's' : ''} angehängt` : 'Noch keine Fotos angehängt';
       renderProtoTasks();
       ov.classList.add('open');
       setTimeout(initSignature, 60);
@@ -676,7 +686,7 @@
         return;
       }
       const s = document.getElementById('activeStop'); if (!s) return;
-      const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">✓ Abgeschlossen um ' + nowTime() + '</strong>';
+      const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">Abgeschlossen um ' + nowTime() + '</strong>';
       s.classList.add('checked', 'done');
     }
 
@@ -685,7 +695,7 @@
       saveProtocol(sigHasInk ? 'vor Ort' : 'ohne Signatur', sigHasInk);
       markStopDone();
       closeProtocol();
-      toast(sigHasInk ? '✓ Protokoll unterschrieben & abgeschlossen' : '✓ Einsatz abgeschlossen');
+      toast(sigHasInk ? 'Protokoll unterschrieben & abgeschlossen' : 'Einsatz abgeschlossen');
     }
 
     function sendProtocolLink() {
@@ -693,7 +703,7 @@
       saveProtocol('Link gesendet', false);
       if (navigator.share) {
         navigator.share({ title: 'Abnahmeprotokoll', text })
-          .then(() => { toast('✓ Protokoll geteilt'); markStopDone(); closeProtocol(); })
+          .then(() => { toast('Protokoll geteilt'); markStopDone(); closeProtocol(); })
           .catch(() => { /* abgebrochen */ });
       } else {
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
@@ -706,7 +716,7 @@
     function meldeProblem() {
       const grund = prompt('Was möchtest du melden?\n(z. B. „Krank", „Schlüssel fehlt", „Verspätung")');
       if (grund && grund.trim()) {
-        toast('✓ Gemeldet: ' + grund.trim() + ' — Büro ist informiert');
+        toast('Gemeldet: ' + grund.trim() + ' — Büro ist informiert');
       }
     }
 
