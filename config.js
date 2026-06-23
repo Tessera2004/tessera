@@ -24,8 +24,8 @@ window.MOSAOS_CONFIG = {
   mwst: '',                          // z.B. 'CHE-123.456.789 MWST' — leer = wird nicht angezeigt
 
   // ---------- Kontakt ----------
-  email: 'help.mosaos@gmail.com',
-  emailPrivacy: 'help.mosaos@gmail.com',
+  email: 'info.mosaos@gmail.com',
+  emailPrivacy: 'info.mosaos@gmail.com',
   phone: '+41 76 526 59 75',
 
   // ---------- Social ----------
