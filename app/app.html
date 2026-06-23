@@ -18,6 +18,8 @@
   <script src="supabase-client.js"></script>
   <script src="mail-config.js"></script>
   <script src="db-sync.js"></script>
+  <script src="stripe-config.js"></script>
+  <script src="billing.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -3224,6 +3226,14 @@
     ];
     const FEATURES_KEY = 'cc-features-v1';
     function loadFeatures() {
+      // Eingeloggt → Module kommen aus dem Stripe-Abo (window._subscription).
+      // Nicht eingeloggt (Demo) → lokale Schalter wie bisher.
+      const sub = window._subscription;
+      if (sub !== undefined) {
+        const f = {};
+        FEATURE_MODULES.forEach(m => { f[m.key] = sub.active ? sub.modules.includes(m.key) : false; });
+        return f;
+      }
       let saved = {};
       try { saved = JSON.parse(localStorage.getItem(FEATURES_KEY)) || {}; } catch {}
       const f = {};
@@ -3254,6 +3264,11 @@
     function renderModuleSettings() {
       const wrap = document.getElementById('moduleSettings');
       if (!wrap) return;
+      // Eingeloggt → Abo-Verwaltung (Stripe). Demo → freie Schalter.
+      if (window._subscription !== undefined && window.MosaBilling) {
+        window.MosaBilling.renderSettings(wrap);
+        return;
+      }
       const f = loadFeatures();
       const canManage = hasPerm('edit_users');
       wrap.innerHTML = FEATURE_MODULES.map(m => `
@@ -8705,6 +8720,14 @@ ${coSig}`
         if (rowEl) rowEl.textContent = 'Nicht angemeldet · nur lokal';
         if (lblEl) lblEl.textContent = 'Anmelden';
       }
+      // Abo-Status laden → steuert, welche Module freigeschaltet sind
+      if (window.MosaBilling) {
+        try {
+          await window.MosaBilling.loadSubscription();
+          applyFeatureFlags();
+          renderModuleSettings();
+        } catch {}
+      }
     }
 
     // Entfernt die lokal zwischengespeicherten Geschäftsdaten (cc-*) von diesem Gerät.
@@ -9024,6 +9047,12 @@ ${coSig}`
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
       await refreshAuthStatus();
+      // Rückkehr von Stripe-Checkout behandeln
+      if (window.MosaBilling) {
+        const r = window.MosaBilling.handleReturn(() => { applyFeatureFlags(); renderModuleSettings(); });
+        if (r === 'success') toast('Zahlung erhalten — Module werden freigeschaltet…');
+        else if (r === 'cancel') toast('Abo abgebrochen');
+      }
       // Backend-Daten in localStorage? Profile neu laden (Demo-Default)
       if (window._dbReady) {
         try {
