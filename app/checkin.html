@@ -447,8 +447,9 @@
         const fileName = `${prefix}${rowId || Date.now()}_${Date.now()}.jpg`;
         const { data: upData, error: upErr } = await sb.storage.from('checkin-photos').upload(fileName, SNAP_BLOB, { contentType: 'image/jpeg', upsert: false });
         if (!upErr && upData) {
-          const { data: urlData } = sb.storage.from('checkin-photos').getPublicUrl(upData.path);
-          photoUrl = urlData?.publicUrl || null;
+          // Bucket ist PRIVAT: nur den Pfad speichern, kein öffentlicher Link.
+          // Anzeige im Büro später via createSignedUrl(path) (zeitlich begrenzter Link).
+          photoUrl = upData.path;
         }
       } catch {}
     }
