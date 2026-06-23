@@ -45,18 +45,18 @@
       <div class="sub-head">
         <div class="eyebrow">Rechtliches</div>
         <h1>Datenschutzerklärung</h1>
-        <p class="section-sub">DSG-konform · Daten bleiben in der Schweiz · Klartext statt Juristendeutsch.</p>
+        <p class="section-sub">DSG-konform · Hosting in der EU · Klartext statt Juristendeutsch.</p>
       </div>
 
       <article class="legal-body">
 
         <h2>1. Verantwortlicher</h2>
         <p>
-          <span data-cfg="legalName">MosaOS GmbH</span>,
-          <span data-cfg="street">[Strasse]</span>,
-          <span data-cfg="zip">5000</span> <span data-cfg="city">Aarau</span>,
+          <span data-cfg="owner">Brian Knuchel</span> (Einzelunternehmen <span data-cfg="brand">MosaOS</span>),
+          <span data-cfg="street">Sandgrube 21</span>,
+          <span data-cfg="zip">4614</span> <span data-cfg="city">Hägendorf</span>,
           <span data-cfg="country">Schweiz</span><br/>
-          E-Mail: <a data-cfg="emailPrivacy">datenschutz@mosaos.ch</a>
+          E-Mail: <a data-cfg="emailPrivacy">help.mosaos@gmail.com</a>
         </p>
 
         <h2>2. Geltungsbereich</h2>
@@ -93,8 +93,10 @@
 
         <h2>5. Wo deine Daten gespeichert sind</h2>
         <p>
-          Alle Daten werden in Schweizer Rechenzentren in Zürich gehostet. Es findet kein Transfer in Drittländer statt.
-          Backups werden ebenfalls innerhalb der Schweiz aufbewahrt.
+          Die Plattformdaten werden bei unserem Infrastruktur-Dienstleister Supabase in einem Rechenzentrum
+          innerhalb der EU (Region Irland) verarbeitet und gespeichert. Die EU verfügt aus Sicht der Schweiz
+          über ein angemessenes Datenschutzniveau; ein Transfer in unsichere Drittländer findet nicht statt.
+          Backups werden ebenfalls innerhalb der EU aufbewahrt.
         </p>
 
         <h2>6. Weitergabe an Dritte</h2>
@@ -102,17 +104,17 @@
           Wir geben keine Daten an Dritte weiter — außer an Auftragsverarbeiter, die wir für den Betrieb benötigen:
         </p>
         <ul>
-          <li>Hosting-Provider (Schweiz)</li>
-          <li>Zahlungsdienstleister Stripe (für Abrechnung)</li>
-          <li>Mailversender (Transaktionsmails)</li>
+          <li>Supabase (Datenbank- und Datei-Hosting der Plattform, EU/Irland) — als Auftragsverarbeiter</li>
+          <li>Hosting-/CDN-Provider der Website</li>
+          <li>Mailversender für Transaktions- und Anfrage-Mails</li>
         </ul>
-        <p>Mit allen ist ein Auftragsverarbeitungsvertrag abgeschlossen.</p>
+        <p>Mit unseren Auftragsverarbeitern bestehen entsprechende Auftragsverarbeitungsverträge (AVV).</p>
 
         <h2>7. Cookies und Tracking</h2>
         <p>
-          Wir verwenden nur technisch notwendige Cookies (Session, Spracheinstellung). Kein Tracking durch
-          Drittanbieter, keine Werbe-Pixel, kein Google Analytics. Reichweitenmessung erfolgt anonymisiert mit
-          selbst gehosteter Software.
+          Wir verwenden ausschließlich technisch notwendige Cookies bzw. lokalen Speicher (Anmelde-Sitzung,
+          Spracheinstellung). Es findet kein Tracking durch Drittanbieter statt — keine Werbe-Pixel, kein
+          Google Analytics, keine Reichweitenmessung.
         </p>
 
         <h2>8. Deine Rechte</h2>
@@ -128,8 +130,10 @@
 
         <h2>9. Datensicherheit</h2>
         <p>
-          Verschlüsselung in Transit (TLS 1.3) und at Rest (AES-256). Zugriff nur über 2-Faktor-Authentisierung.
-          Regelmäßige Penetrationstests durch externe Sicherheitsfirma.
+          Die Übertragung erfolgt verschlüsselt (TLS), die Daten werden beim Hosting-Dienstleister verschlüsselt
+          gespeichert (Verschlüsselung at Rest). Der Zugriff erfolgt über persönliche, passwortgeschützte Logins;
+          die Daten der einzelnen Firmen sind auf Datenbankebene strikt voneinander getrennt (Row Level Security).
+          Passwörter werden ausschließlich als nicht umkehrbarer Hash gespeichert.
         </p>
 
         <h2>10. Änderungen</h2>

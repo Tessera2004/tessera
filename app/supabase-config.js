@@ -127,9 +127,18 @@
      FOR SELECT TO authenticated
      USING (tenant_id = (SELECT tenant_id FROM tenant_users WHERE user_id = auth.uid()));
 
-   -- UPDATE anon: Check-out (selbe Browser-Session, hat die Row-ID aus dem Insert)
+   -- UPDATE anon: Check-out (selbe Browser-Session, hat die Row-ID aus dem Insert).
+   -- GEHÄRTET: nur noch OFFENE Einträge (check_out IS NULL) sind änderbar. Sobald
+   -- ausgecheckt wurde, ist die Zeile unveränderbar → kein nachträgliches Manipulieren
+   -- bereits abgeschlossener Zeiten (Lohn-/Zeitbetrug verhindert).
+   DROP POLICY IF EXISTS "timelog_anon_update" ON timelog;
    CREATE POLICY "timelog_anon_update" ON timelog
-     FOR UPDATE TO anon USING (true) WITH CHECK (true);
+     FOR UPDATE TO anon
+     USING (check_out IS NULL)
+     WITH CHECK (true);
+
+   -- WICHTIG: nach Policy-Änderungen Schema-Cache neu laden
+   NOTIFY pgrst, 'reload schema';
 
    ── SCHRITT 5: timelog-Tabelle anlegen (falls noch nicht vorhanden) ─
 

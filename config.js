@@ -76,5 +76,39 @@ window.MOSAOS_CONFIG = {
       const allowed = el.dataset.cfgOnly.split(',').map((s) => s.trim());
       if (!allowed.includes(cfg.legalForm)) el.style.display = 'none';
     });
+
+    // ---------- Cookie-/Info-Banner (DSG-Transparenz) ----------
+    // Wir setzen nur technisch notwendige Cookies (Session, Spracheinstellung),
+    // daher reicht ein transparenter Hinweis ohne Consent-Auswahl.
+    try {
+      if (!localStorage.getItem('mosaos_cookie_ok')) {
+        const bar = document.createElement('div');
+        bar.id = 'mosaos-cookie';
+        bar.setAttribute('role', 'note');
+        bar.innerHTML =
+          '<span>Wir verwenden nur technisch notwendige Cookies (Session &amp; Sprache) — kein Tracking, keine Werbung. ' +
+          '<a href="datenschutz.html">Mehr erfahren</a></span>' +
+          '<button type="button" id="mosaos-cookie-ok">Verstanden</button>';
+        const s = bar.style;
+        s.position = 'fixed'; s.left = '16px'; s.right = '16px'; s.bottom = '16px';
+        s.maxWidth = '640px'; s.margin = '0 auto'; s.zIndex = '9999';
+        s.display = 'flex'; s.gap = '16px'; s.alignItems = 'center'; s.justifyContent = 'space-between';
+        s.background = '#16181d'; s.color = '#f4f4f5';
+        s.padding = '14px 18px'; s.borderRadius = '14px';
+        s.boxShadow = '0 8px 30px rgba(0,0,0,0.25)';
+        s.font = '14px/1.4 Inter, system-ui, sans-serif';
+        bar.querySelector('a').style.color = '#fca5a5';
+        const btn = bar.querySelector('#mosaos-cookie-ok');
+        const bs = btn.style;
+        bs.flex = '0 0 auto'; bs.cursor = 'pointer'; bs.border = 'none';
+        bs.background = '#E11D2A'; bs.color = '#fff';
+        bs.padding = '8px 16px'; bs.borderRadius = '10px'; bs.fontWeight = '600';
+        btn.addEventListener('click', () => {
+          localStorage.setItem('mosaos_cookie_ok', '1');
+          bar.remove();
+        });
+        document.body.appendChild(bar);
+      }
+    } catch (e) { /* localStorage evtl. blockiert — Banner einfach überspringen */ }
   });
 })();
