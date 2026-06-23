@@ -233,9 +233,10 @@ body.intro-done .intro { pointer-events: none; }
   white-space: nowrap;
   animation: introWordIn 0.8s var(--ease-snap) 1.2s forwards;
 }
-.intro-wordmark::after {
-  content: '.';
+.intro-wordmark .intro-os {
   color: var(--swiss);
+  font-size: 1.12em;
+  font-weight: 900;
 }
 @keyframes introWordIn {
   0%   { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.8); }

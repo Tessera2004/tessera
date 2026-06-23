@@ -58,38 +58,8 @@
   }
 
   /* --------- 3. Hero Mosaic Parallax --------- */
-  const stage = document.getElementById('mosaicStage');
-  if (stage && !reduced) {
-    const tiles = stage.querySelectorAll('.mosaic-tile');
-    let frame = null;
-    let targetX = 0, targetY = 0, curX = 0, curY = 0;
-
-    const onMove = (e) => {
-      const rect = stage.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      targetX = (e.clientX - cx) / rect.width;
-      targetY = (e.clientY - cy) / rect.height;
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-
-    const tick = () => {
-      curX += (targetX - curX) * 0.08;
-      curY += (targetY - curY) * 0.08;
-      tiles.forEach((tile, i) => {
-        const depth = (i + 1) * 4;
-        tile.style.setProperty('--px', `${curX * depth}px`);
-        tile.style.setProperty('--py', `${curY * depth}px`);
-      });
-      if (Math.abs(targetX - curX) > 0.001 || Math.abs(targetY - curY) > 0.001) {
-        frame = requestAnimationFrame(tick);
-      } else {
-        frame = null;
-      }
-    };
-
-    window.addEventListener('mousemove', onMove, { passive: true });
-  }
+  // Bewusst entfernt: das Logo-Mosaik bewegte sich früher mit der Maus mit
+  // („zog" beim Mausbewegen). Auf Wunsch deaktiviert — das Mosaik bleibt statisch.
 
   /* --------- 4. Module-Mixer (branchen-spezifisch, i18n + Währung) --------- */
   // Preise sind Basis CHF. emoji + price hier, Name/Beschreibung kommen aus i18n (mod.<id>.name / .desc)
