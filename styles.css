@@ -159,7 +159,10 @@ body.intro-done .intro { pointer-events: none; }
   gap: min(3vmin, 24px);
 }
 .intro-tile {
-  background: var(--text);
+  background-color: var(--text);
+  /* gleiches Ton-in-Ton 'MO'-Monogramm wie die Hero-Kacheln */
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%3E%3Ctext%20x='1'%20y='13'%20font-family='Arial,sans-serif'%20font-size='12'%20font-weight='700'%20fill='%231B2230'%20opacity='0.09'%3EMO%3C/text%3E%3Ctext%20x='16'%20y='28'%20font-family='Arial,sans-serif'%20font-size='12'%20font-weight='700'%20fill='%231B2230'%20opacity='0.09'%3EMO%3C/text%3E%3C/svg%3E");
+  background-size: 30px 30px;
   border-radius: 18px;
   position: relative;
   overflow: hidden;
@@ -554,9 +557,9 @@ h1 {
 }
 .mosaic-tile {
   background-color: #F1F3F8;
-  /* Marken-Muster mit den 'MO'-Initialen — exakt wie im Logo (moTileSite) */
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%3E%3Ctext%20x='1'%20y='15'%20font-family='Arial,sans-serif'%20font-size='14'%20font-weight='700'%20fill='%23DA291C'%20opacity='0.13'%3EMO%3C/text%3E%3Ctext%20x='18'%20y='32'%20font-family='Arial,sans-serif'%20font-size='14'%20font-weight='700'%20fill='%23DA291C'%20opacity='0.13'%3EMO%3C/text%3E%3C/svg%3E");
-  background-size: 34px 34px;
+  /* Ton-in-Ton 'MO'-Monogramm (à la Louis Vuitton) — transparent-dezent, kein Rot */
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%3E%3Ctext%20x='1'%20y='13'%20font-family='Arial,sans-serif'%20font-size='12'%20font-weight='700'%20fill='%231B2230'%20opacity='0.09'%3EMO%3C/text%3E%3Ctext%20x='16'%20y='28'%20font-family='Arial,sans-serif'%20font-size='12'%20font-weight='700'%20fill='%231B2230'%20opacity='0.09'%3EMO%3C/text%3E%3C/svg%3E");
+  background-size: 30px 30px;
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-xl);
   transform-style: preserve-3d;
