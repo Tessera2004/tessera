@@ -1100,6 +1100,17 @@
               <strong style="color: var(--text);">Wie das funktioniert:</strong> Im Auftrags-Wizard wird der Preis aus diesen Sätzen + den Service-Optionen automatisch berechnet. Du kannst ihn jederzeit pro Auftrag überschreiben — zum Beispiel wenn der Kunde eine andere Offerte bekommen hat.
             </div>
           </div>
+
+          <!-- Gefahrenzone: Konto löschen (DSG – Recht auf Löschung) -->
+          <div class="card" style="padding:20px 22px; margin-top:24px; border:1px solid var(--danger);">
+            <div style="font-weight:700; font-size:15px; color:var(--danger);">⚠️ Konto löschen</div>
+            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:4px; max-width:640px;">
+              Löscht dein Benutzerkonto endgültig. <strong>Wenn du der einzige Nutzer deiner Firma bist, werden auch alle Firmendaten</strong>
+              (Kunden, Mitarbeiter, Aufträge, Nachweise, Abo) unwiderruflich gelöscht und ein laufendes Abo gekündigt.
+              Bist du nur Teammitglied, wird nur dein Zugang entfernt.
+            </div>
+            <button class="btn btn-secondary" style="margin-top:14px; color:var(--danger); border-color:var(--danger);" onclick="deleteAccount()">Mein Konto löschen</button>
+          </div>
         </section>
 
         <!-- ============ TEAM (Büro) ============ -->
@@ -8772,6 +8783,29 @@ ${coSig}`
       } else {
         window.location.href = 'login.html';
       }
+    }
+
+    // Konto löschen (DSG – Recht auf Löschung). Ruft die Edge Function delete-account.
+    async function deleteAccount() {
+      const sb = getSupabase();
+      if (!sb || !window._authEmail) { alert('Konto löschen geht nur, wenn du eingeloggt bist.'); return; }
+      if (!confirm('Konto wirklich löschen? Das kann NICHT rückgängig gemacht werden.')) return;
+      const typed = prompt('Zur Bestätigung bitte LÖSCHEN eintippen:');
+      if ((typed || '').trim().toUpperCase() !== 'LÖSCHEN') { toast('Abgebrochen'); return; }
+      try {
+        const token = (await sb.auth.getSession()).data.session?.access_token;
+        const res = await fetch((window.SUPA_URL || '') + '/functions/v1/delete-account', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: '{}'
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok || j.error) { alert('Fehler beim Löschen: ' + (j.error || res.status)); return; }
+        try { clearLocalCache(); } catch {}
+        try { await sb.auth.signOut(); } catch {}
+        alert('Dein Konto wurde gelöscht.');
+        window.location.href = 'login.html';
+      } catch (e) { alert('Verbindungsfehler: ' + e); }
     }
 
     // ============================================================
