@@ -553,7 +553,7 @@ h1 {
   perspective: 1200px;
 }
 .mosaic-tile {
-  background: var(--text);
+  background: #F1F3F8;
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-xl);
   transform-style: preserve-3d;
@@ -566,7 +566,11 @@ h1 {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.5), transparent 50%);
+  /* heller Glanz + dezentes Marken-Streifenmuster (rot), wie im Logo —
+     damit die Kacheln nicht flach reinweiß wirken */
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.55), transparent 55%),
+    repeating-linear-gradient(45deg, rgba(218,41,28,0.10) 0 1.5px, transparent 1.5px 11px);
 }
 .mosaic-tile-swiss {
   background: var(--swiss);

@@ -76,10 +76,12 @@
     // Add-ons
     anruf:       { emoji: '📞', price: 19 },
     aufgaben:    { emoji: '✅', price: 15 },
-    buch:        { emoji: '📊', price: 29 },
+    buch:        { emoji: '📊', price: 29, tag: true },
     foto:        { emoji: '📷', price: 19 },
-    email:       { emoji: '📧', price: 39, tag: true },
+    email:       { emoji: '📧', price: 39 },
     lohn:        { emoji: '💰', price: 49, tag: true },
+    abos:        { emoji: '🔁', price: 19 },
+    nachkalk:    { emoji: '🧮', price: 19 },
     stunden:     { emoji: '⏱️', price: 19 },
     material:    { emoji: '📦', price: 29 },
     offerten:    { emoji: '📄', price: 25 },
@@ -89,7 +91,7 @@
   };
 
   const BRANCHEN = {
-    reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],          addons: ['anruf', 'aufgaben', 'buch', 'foto', 'email', 'lohn'] },
+    reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],          addons: ['offerten', 'anruf', 'aufgaben', 'foto', 'stunden', 'abos', 'nachkalk', 'email', 'buch', 'lohn'] },
     handwerk:   { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['stunden', 'material', 'offerten', 'aufgaben', 'buch', 'lohn'] },
     immobilien: { basePrice: 79, base: ['objekt', 'interessent', 'team'],    addons: ['expose', 'matching', 'besichtigung', 'aufgaben', 'buch', 'email'] },
   };
