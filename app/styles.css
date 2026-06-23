@@ -2934,3 +2934,83 @@ tr:hover td { background: var(--bg); }
     font-weight: 600;
   }
 }
+
+/* ============================================================
+   SKIN „RUHIG"  (data-skin="calm" am <html>)
+   Ziel: weniger Farben & weniger Kästchen. Reine Token-Über-
+   steuerung — wirkt überall (auch in Inline-Styles, da diese
+   var(--…) nutzen), baut kein Layout um, jederzeit per Umschalter
+   im Header zurückschaltbar. Standard bleibt unverändert.
+   ============================================================ */
+[data-skin="calm"] {
+  /* Hintergründe: eine ruhige Fläche statt vieler Töne */
+  --bg: #FBFBFA;
+  --surface: #FFFFFF;
+  --surface-2: #FAFAF9;
+
+  /* Rahmen fast unsichtbar — Trennung über Weißraum statt Boxen */
+  --border: #F1F0EE;
+  --border-strong: #E8E6E4;
+
+  /* Farbige „Soft"-Flächen neutralisieren = nimmt den meisten Farblärm raus.
+     Badges/KPIs/aktive Felder werden ruhig-grau statt rot/grün/gelb. */
+  --accent-soft: #F4F4F3;
+  --brand-primary-soft: #F4F4F3;
+  --success-soft: #F5F6F5;
+  --warning-soft: #F7F6F3;
+  --danger-soft:  #F7F5F5;
+
+  /* Status nur noch als dezenter Text/Punkt, gedämpfte Töne */
+  --success: #4B7B5A;
+  --warning: #94762F;
+  --danger:  #A8524A;
+
+  /* Schatten fast weg → flacher, ruhiger */
+  --shadow-sm: 0 1px 1px rgba(0,0,0,0.02);
+  --shadow:    0 1px 2px rgba(0,0,0,0.03);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+/* Ruhig + Dark kombiniert */
+[data-skin="calm"][data-theme="dark"] {
+  --border: #1E1E22;
+  --border-strong: #28282E;
+  --accent-soft:  rgba(255,255,255,0.06);
+  --brand-primary-soft: rgba(255,255,255,0.06);
+  --success-soft: rgba(255,255,255,0.04);
+  --warning-soft: rgba(255,255,255,0.04);
+  --danger-soft:  rgba(255,255,255,0.04);
+}
+
+/* Ein paar gezielte Beruhigungen, die Tokens allein nicht abdecken.
+   html[data-skin] erhöht die Spezifität, schlägt also Inline-.class-Regeln. */
+html[data-skin="calm"] .card,
+html[data-skin="calm"] .kpi-card,
+html[data-skin="calm"] .panel {
+  box-shadow: none;
+}
+/* farbige Status-Streifen am linken Rand entschärfen */
+html[data-skin="calm"] .schedule-event {
+  border-left-color: var(--border-strong);
+}
+
+/* Die lauten Verläufe beruhigen — das ist der größte Farblärm.
+   Hero: vom Regenbogen (navy→blau→lila) auf EIN ruhiges Dunkel. */
+html[data-skin="calm"] .hero-card {
+  background: #1B2230;
+}
+[data-skin="calm"][data-theme="dark"] .hero-card {
+  background: #16161A;
+}
+/* Karten mit fest verdrahtetem Inline-Verlauf (z. B. Routen-Karte,
+   leere Zustände) → ruhige Fläche. Trifft NICHT die Avatare (.card-Scope). */
+html[data-skin="calm"] .card[style*="gradient"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+/* Zähler-Badges in der Navigation: rote Zahl → ruhig & dezent */
+html[data-skin="calm"] .nav-badge {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
