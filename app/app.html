@@ -58,36 +58,70 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
             Dashboard
           </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">Einsätze</div>
           <a class="nav-item" data-view="planung">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Routenplanung
             <span class="nav-badge">14</span>
           </a>
+          <a class="nav-item" data-view="zeiten">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Zeiterfassung
+          </a>
+          <a class="nav-item" data-view="berichte">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Nachweise & Berichte
+            <span class="nav-badge">3</span>
+          </a>
         </div>
 
         <div class="nav-section">
-          <div class="nav-label">Vertrieb</div>
+          <div class="nav-label">Kunden</div>
+          <a class="nav-item" data-view="kunden">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Kunden
+          </a>
           <a class="nav-item" data-view="offerten">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
             Offerten
             <span class="nav-badge" id="offNavBadge">0</span>
           </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-label">Verwaltung</div>
-          <a class="nav-item" data-view="mitarbeiter">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Mitarbeiter
-          </a>
-          <a class="nav-item" data-view="kunden">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Kunden
-          </a>
           <a class="nav-item" data-view="anrufprotokoll">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             Anrufprotokoll
             <span class="nav-badge" id="anrufNavBadge">0</span>
+          </a>
+          <a class="nav-item" data-view="abos">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Abo-Verträge
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">Finanzen</div>
+          <a class="nav-item" data-view="rechnungen">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+            Rechnungen
+            <span class="nav-badge" id="rechnungenBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="nachkalkulation">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Nachkalkulation
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">Team</div>
+          <a class="nav-item" data-view="mitarbeiter">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Mitarbeiter
+          </a>
+          <a class="nav-item" data-view="team">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
+            Büro-Team
           </a>
           <a class="nav-item" data-view="aufgaben">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -98,36 +132,6 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             E-Mail
             <span class="nav-badge" id="mailNavBadge" style="display:none;">0</span>
-          </a>
-          <a class="nav-item" data-view="team">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
-            Büro-Team
-          </a>
-          <a class="nav-item" data-view="abos">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            Abo-Verträge
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-label">Qualität</div>
-          <a class="nav-item" data-view="berichte">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Nachweise & Berichte
-            <span class="nav-badge">3</span>
-          </a>
-          <a class="nav-item" data-view="zeiten">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Zeiterfassung
-          </a>
-          <a class="nav-item" data-view="nachkalkulation">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            Nachkalkulation
-          </a>
-          <a class="nav-item" data-view="rechnungen">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
-            Rechnungen
-            <span class="nav-badge" id="rechnungenBadge" style="display:none;">0</span>
           </a>
         </div>
 
@@ -155,7 +159,7 @@
     <!-- ============ MAIN ============ -->
     <main class="main">
       <header class="topbar">
-        <button class="nav-toggle" id="navToggle" aria-label="Menü öffnen" onclick="toggleSidebar()">
+        <button class="nav-toggle" id="navToggle" aria-label="Liste ein-/ausklappen" title="Liste ein-/ausklappen" onclick="toggleSidebar()">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div class="topbar-title" id="topbarTitle">Dashboard</div>
@@ -169,7 +173,7 @@
             <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
           </button>
-          <button class="btn-icon skin-toggle" id="skinToggle" title="Ansicht: Standard ⇄ Ruhig" onclick="toggleSkin()">
+          <button class="btn-icon skin-toggle" id="skinToggle" title="Ansicht: Büro (dunkel) ⇄ Standard" onclick="toggleSkin()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
           </button>
           <button class="btn-icon" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html','_blank')">
@@ -211,27 +215,11 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Guten Morgen, Brian</h1>
-              <p class="page-subtitle">Hier ist deine Übersicht für heute, Mittwoch 19. Juni 2026</p>
+              <p class="page-subtitle"><span id="dashHeroEyebrow">Bereit zum Start</span> · <span id="dashHeroSub">Lege deine Mitarbeiter, Kunden und den ersten Auftrag an.</span></p>
             </div>
-            <button class="btn btn-secondary">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Tagesbericht
-            </button>
+            <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
           </div>
-
-          <div class="hero-card">
-            <div class="hero-content">
-              <div style="position: relative;">
-                <div class="hero-eyebrow"><span class="pulse-dot" style="background: white; vertical-align: middle; margin-right: 6px;"></span><span id="dashHeroEyebrow">Bereit zum Start</span></div>
-                <div class="hero-title" id="dashHeroTitle">Willkommen bei deinem Cockpit.</div>
-                <div class="hero-sub" id="dashHeroSub">Lege deine Mitarbeiter, Kunden und den ersten Auftrag an — in wenigen Minuten läuft alles.</div>
-              </div>
-              <div class="hero-actions">
-                <button class="hero-btn-ghost" onclick="document.querySelector('.nav-item[data-view=\'mitarbeiter\']').click()">Mitarbeiter anlegen</button>
-                <button class="hero-btn" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
-              </div>
-            </div>
-          </div>
+          <span id="dashHeroTitle" hidden></span>
 
           <div class="kpi-grid">
             <div class="kpi">
@@ -292,13 +280,6 @@
                 </div>
               </div>
 
-              <div class="card" style="background: linear-gradient(135deg, #0F172A, #1E40AF); color: white; border: none;">
-                <div style="font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 8px;">Routenoptimierung</div>
-                <div style="font-size: 18px; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 6px;">Sparpotenzial heute</div>
-                <div style="font-size: 36px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px;">2h 14min</div>
-                <div style="font-size: 12.5px; opacity: 0.8; margin-bottom: 16px;">Durch optimierte Routen statt Standardplanung — automatisch berechnet.</div>
-                <button class="btn" style="background: white; color: var(--primary); width: 100%;">Plan optimieren</button>
-              </div>
             </div>
           </div>
         </section>
@@ -562,13 +543,13 @@
             <button class="btn btn-accent" onclick="openCallModal(null)">+ Anruf vermerken</button>
           </div>
           <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
-            <input type="search" id="anrufSearch" placeholder="🔍 Suchen: Kunde, Anrufer, Inhalt…" oninput="renderAnrufprotokoll()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
+            <input type="search" id="anrufSearch" placeholder="Suchen: Kunde, Anrufer, Inhalt…" oninput="renderAnrufprotokoll()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
             <div class="anruf-filter" id="anrufFilter" style="display: flex; gap: 6px; flex-wrap: wrap;">
               <button class="btn btn-secondary is-active" data-f="alle" onclick="setAnrufFilter('alle')">Alle</button>
-              <button class="btn btn-secondary" data-f="offen" onclick="setAnrufFilter('offen')">⚠ Rückruf offen</button>
+              <button class="btn btn-secondary" data-f="offen" onclick="setAnrufFilter('offen')">Rückruf offen</button>
               <button class="btn btn-secondary" data-f="erledigt" onclick="setAnrufFilter('erledigt')">✓ Erledigt</button>
               <button class="btn btn-secondary" data-f="mitkunde" onclick="setAnrufFilter('mitkunde')">👤 Mit Kunde</button>
-              <button class="btn btn-secondary" data-f="ohnekunde" onclick="setAnrufFilter('ohnekunde')">📞 Unbekannt</button>
+              <button class="btn btn-secondary" data-f="ohnekunde" onclick="setAnrufFilter('ohnekunde')">Unbekannt</button>
             </div>
             <select id="anrufSort" onchange="renderAnrufprotokoll()" style="padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 13px; background: var(--surface); color: var(--text);">
               <option value="neu">Neueste zuerst</option>
@@ -589,10 +570,10 @@
             <button class="btn btn-accent" onclick="openTaskModal(null)">+ Neue Aufgabe</button>
           </div>
           <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
-            <input type="search" id="taskSearch" placeholder="🔍 Suchen: Titel, Person, Beschreibung…" oninput="renderAufgaben()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
+            <input type="search" id="taskSearch" placeholder="Suchen: Titel, Person, Beschreibung…" oninput="renderAufgaben()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
             <div class="task-filter" id="taskFilter" style="display: flex; gap: 6px; flex-wrap: wrap;">
               <button class="btn btn-secondary is-active" data-f="alle" onclick="setTaskFilter('alle')">Alle offen</button>
-              <button class="btn btn-secondary" data-f="dringend" onclick="setTaskFilter('dringend')">🔥 Dringend</button>
+              <button class="btn btn-secondary" data-f="dringend" onclick="setTaskFilter('dringend')">Dringend</button>
               <button class="btn btn-secondary" data-f="normal" onclick="setTaskFilter('normal')">Normal</button>
               <button class="btn btn-secondary" data-f="erledigt" onclick="setTaskFilter('erledigt')">✓ Erledigt</button>
             </div>
@@ -634,7 +615,7 @@
                 <button data-mf="unread" onclick="setMailFilter('unread')">Ungelesen</button>
                 <button data-mf="tasks" onclick="setMailFilter('tasks')">→ Aufgabe</button>
               </div>
-              <input type="search" id="mailSearch" placeholder="🔍 Betreff, Absender…" oninput="renderMailList()" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);" />
+              <input type="search" id="mailSearch" placeholder="Betreff, Absender…" oninput="renderMailList()" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);" />
             </div>
             <div class="mail-split">
               <div class="mail-list-panel" id="mailListPanel">
@@ -860,7 +841,7 @@
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
               <div>
-                <div style="font-weight:700; font-size:15px;">🧾 Firma & Zahlungsangaben</div>
+                <div style="font-weight:700; font-size:15px;">Firma & Zahlungsangaben</div>
                 <div style="font-size:12.5px; color:var(--text-subtle);">Erscheinen auf jeder Rechnung und im Schweizer QR-Einzahlschein.</div>
               </div>
               <button class="btn btn-accent" onclick="saveCompanyForm()">Speichern</button>
@@ -879,7 +860,7 @@
           <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:6px;">
-              <div style="font-weight:700; font-size:15px;">🧩 Module</div>
+              <div style="font-weight:700; font-size:15px;">Module</div>
               <div style="font-size:12.5px; color:var(--text-subtle);">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
             </div>
             <div id="moduleSettings" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-top:14px;"></div>
@@ -1103,7 +1084,7 @@
 
           <!-- Gefahrenzone: Konto löschen (DSG – Recht auf Löschung) -->
           <div class="card" style="padding:20px 22px; margin-top:24px; border:1px solid var(--danger);">
-            <div style="font-weight:700; font-size:15px; color:var(--danger);">⚠️ Konto löschen</div>
+            <div style="font-weight:700; font-size:15px; color:var(--danger);">Konto löschen</div>
             <div style="font-size:12.5px; color:var(--text-subtle); margin-top:4px; max-width:640px;">
               Löscht dein Benutzerkonto endgültig. <strong>Wenn du der einzige Nutzer deiner Firma bist, werden auch alle Firmendaten</strong>
               (Kunden, Mitarbeiter, Aufträge, Nachweise, Abo) unwiderruflich gelöscht und ein laufendes Abo gekündigt.
@@ -1121,7 +1102,7 @@
               <p class="page-subtitle">Wer arbeitet im Büro? Welche Rechte hat wer? Wer hat was geändert?</p>
             </div>
             <div style="display:flex; gap:8px;">
-              <button class="btn btn-secondary" onclick="openInviteModal()" id="inviteBtn">📨 Einladen</button>
+              <button class="btn btn-secondary" onclick="openInviteModal()" id="inviteBtn">Einladen</button>
               <button class="btn btn-accent" onclick="openUserEditor()" id="addUserBtn">+ Mitarbeiter hinzufügen</button>
             </div>
           </div>
@@ -1422,7 +1403,7 @@
               <span id="sumFee">—</span>
             </div>
             <div class="price-row-summary" id="sumMinRow" style="display: none;">
-              <span style="opacity: 0.7;">⚠️ Mindestbuchung angewendet</span>
+              <span style="opacity: 0.7;">Mindestbuchung angewendet</span>
               <span id="sumMin">—</span>
             </div>
             <div class="price-row-summary total">
@@ -1509,10 +1490,10 @@
           <div class="field">
             <label>Zugewiesenes Team</label>
             <select id="wizardTeamSelect" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
-              <option value="">🤖 Auto-Zuweisung (empfohlen)</option>
+              <option value="">Auto-Zuweisung (empfohlen)</option>
             </select>
             <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">
-              🚗 = fährt selbst · ⚠️ = braucht Mitfahrgelegenheit
+              Fahrer = fährt selbst · Beifahrer = braucht Mitfahrgelegenheit
             </div>
           </div>
           <!-- Live-Verfügbarkeit (fürs Telefon: "geht Dienstag 8 Uhr?") -->
@@ -1782,7 +1763,7 @@
         <div class="field">
           <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500;">
             <input type="checkbox" id="callRueckruf" />
-            <span>⚠ Rückruf nötig (taucht in der Topbar als Erinnerung auf)</span>
+            <span>Rückruf nötig (taucht in der Topbar als Erinnerung auf)</span>
           </label>
         </div>
       </div>
@@ -1809,7 +1790,7 @@
         <div class="cust-detail-grid" id="custDetailInfo"></div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; margin: 18px 0 10px;">
-          <div style="font-size: 14px; font-weight: 700; color: var(--text);">📞 Telefon-Historie</div>
+          <div style="font-size: 14px; font-weight: 700; color: var(--text);">Telefon-Historie</div>
           <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="addCallLog()">+ Anruf vermerken</button>
         </div>
         <div id="custCallLog" class="call-log"></div>
@@ -1840,7 +1821,7 @@
         <!-- Serien-Banner (nur bei Abo/Serie) -->
         <div id="jobEditSeriesBanner" style="display:none; margin-bottom:14px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2);">
           <div style="font-size:13px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:8px;">
-            🔁 <span id="jobEditSeriesInfo">Teil einer Serie</span>
+            <span id="jobEditSeriesInfo">Teil einer Serie</span>
           </div>
           <div class="field" style="margin-top:10px;">
             <label style="font-size:12px;">Änderung / Löschung gilt für</label>
@@ -1872,20 +1853,20 @@
         <div class="field">
           <label>Zahlart</label>
           <div class="paymethod-switch" id="jobEditPaymethod">
-            <button type="button" data-pm="bar"      onclick="setJobPaymethod('bar')">💵 Bar</button>
-            <button type="button" data-pm="twint"    onclick="setJobPaymethod('twint')">📱 Twint</button>
-            <button type="button" data-pm="rechnung" onclick="setJobPaymethod('rechnung')">🧾 Rechnung</button>
+            <button type="button" data-pm="bar"      onclick="setJobPaymethod('bar')">Bar</button>
+            <button type="button" data-pm="twint"    onclick="setJobPaymethod('twint')">Twint</button>
+            <button type="button" data-pm="rechnung" onclick="setJobPaymethod('rechnung')">Rechnung</button>
           </div>
         </div>
 
         <!-- Notizen: Büro / Mitarbeiter -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>📋 Notiz fürs Büro <span style="color: var(--text-subtle); font-weight: 500;">(intern)</span></label>
+            <label>Notiz fürs Büro <span style="color: var(--text-subtle); font-weight: 500;">(intern)</span></label>
             <textarea id="jobEditNoteOffice" rows="3" placeholder="MwSt-Nr., Zahlungsfrist, Abrechnungs-Hinweise…"></textarea>
           </div>
           <div class="field">
-            <label>🧹 Notiz für Mitarbeiter <span style="color: var(--text-subtle); font-weight: 500;">(auf mobile sichtbar)</span></label>
+            <label>Notiz für Mitarbeiter <span style="color: var(--text-subtle); font-weight: 500;">(auf mobile sichtbar)</span></label>
             <textarea id="jobEditNoteCrew" rows="3" placeholder="Zugang, Schlüssel, Besonderheiten vor Ort…"></textarea>
           </div>
         </div>
@@ -1895,7 +1876,7 @@
           <label>Mitarbeiter zuweisen <span id="jobEditAssignedCount" style="color: var(--text-subtle); font-weight: 500;">(0 ausgewählt)</span></label>
           <div id="jobEditEmployees" class="emp-picker"></div>
           <div style="font-size: 11.5px; color: var(--text-subtle); margin-top: 6px;">
-            🚗 = Fahrer · ⚠️ = braucht Mitfahrgelegenheit · Klick auf Teamname wählt das ganze Team.
+            Fahrer fährt selbst · Beifahrer braucht Mitfahrgelegenheit · Klick auf Teamname wählt das ganze Team.
           </div>
         </div>
 
@@ -1905,7 +1886,7 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" id="jobEditResetBtn" onclick="resetJobEdit()" style="margin-right: auto;">Auf Standard zurücksetzen</button>
         <button class="btn btn-secondary" id="jobEditQrBtn" onclick="openJobQrModal()">QR ↗</button>
-        <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()">🧾 Rechnung</button>
+        <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()">Rechnung</button>
         <button class="btn btn-secondary" onclick="closeModal('jobEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveJobEdit()">Speichern</button>
       </div>
@@ -2015,7 +1996,7 @@
         </div>
         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; margin-top: 4px;">
           <input type="checkbox" id="mitCanDrive" style="width: 18px; height: 18px; flex-shrink: 0;" />
-          <span style="font-size: 14px;">🚗 <strong>Fahrer</strong> — hat Führerschein und darf das Auto fahren</span>
+          <span style="font-size: 14px;"><strong>Fahrer</strong> — hat Führerschein und darf das Auto fahren</span>
         </label>
       </div>
       <div class="modal-footer">
@@ -2179,7 +2160,7 @@
         <div class="field">
           <label>Priorität</label>
           <div class="task-prio-picker" id="taskPrioPicker">
-            <button type="button" data-prio="dringend" onclick="setTaskPrio('dringend')">🔥 Dringend</button>
+            <button type="button" data-prio="dringend" onclick="setTaskPrio('dringend')">Dringend</button>
             <button type="button" data-prio="normal" onclick="setTaskPrio('normal')">Normal</button>
             <button type="button" data-prio="niedrig" onclick="setTaskPrio('niedrig')">Niedrig</button>
           </div>
@@ -2427,7 +2408,7 @@
           </small>
         </div>
         <div style="padding:10px 12px;background:var(--surface-2);border-radius:8px;font-size:12.5px;color:var(--text-muted);margin-top:4px;">
-          ⚠️ Voraussetzung: Supabase Edge Function <code>imap-fetch</code> deployed und URL in <strong>mail-config.js</strong> eingetragen.
+          Voraussetzung: Supabase Edge Function <code>imap-fetch</code> deployed und URL in <strong>mail-config.js</strong> eingetragen.
         </div>
       </div>
       <div class="modal-footer">
@@ -3200,8 +3181,18 @@
       appShell.classList.remove('nav-open');
       document.body.style.overflow = '';
     }
+    // Desktop: Liste ein-/ausklappen (mehr Platz). Mobile: Slide-in-Drawer.
     function toggleSidebar() {
-      appShell.classList.contains('nav-open') ? closeSidebar() : openSidebar();
+      if (window.innerWidth <= 768) {
+        appShell.classList.contains('nav-open') ? closeSidebar() : openSidebar();
+      } else {
+        const collapsed = appShell.classList.toggle('nav-collapsed');
+        localStorage.setItem('cc-nav-collapsed', collapsed ? '1' : '0');
+      }
+    }
+    // Gemerkten Einklapp-Zustand beim Laden anwenden (nur Desktop).
+    if (localStorage.getItem('cc-nav-collapsed') === '1' && window.innerWidth > 768) {
+      appShell.classList.add('nav-collapsed');
     }
     // ESC schließt den Drawer
     document.addEventListener('keydown', e => {
@@ -4269,8 +4260,8 @@
         const teamColor = (getTeamById(emp.teamId) || {}).color || 'var(--brand-primary)';
         const initials = (emp.firstName[0] + emp.lastName[0]).toUpperCase();
         const driveBadge = emp.canDrive
-          ? '<span class="emp-status-drive">🚗 Fahrer</span>'
-          : '<span class="emp-status-passenger">⚠️ Beifahrer</span>';
+          ? '<span class="emp-status-drive">Fahrer</span>'
+          : '<span class="emp-status-passenger">Beifahrer</span>';
 
         if (!tl.busy) {
           return `<div class="emp-status-card is-free">
@@ -4338,7 +4329,7 @@
 
       if (jobs.length === 0) {
         wrap.innerHTML = `<div style="padding: 60px 24px; text-align: center; color: var(--text-subtle);">
-          <div style="font-size: 36px; margin-bottom: 8px;">🌴</div>
+          <div style="margin-bottom: 12px; display:flex; justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-subtle);opacity:.6;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div style="font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px;">Keine Einsätze geplant</div>
           <div style="font-size: 13px;">Klick auf „+ Neuer Auftrag" oben rechts, um etwas anzulegen.</div>
         </div>`;
@@ -4367,7 +4358,7 @@
           const durStr = (dh > 0 ? dh + 'h ' : '') + (dm > 0 ? dm + 'min' : '');
           const assignedNames = j.assigned.map(id => {
             const e = empById(id);
-            return e ? empShort(e) + (e.canDrive ? ' 🚗' : '') : '?';
+            return e ? empShort(e) : '?';
           }).join(', ');
           return `<div class="job-card svc-${j.svc}" onclick="openJobEditor('${j._dateKey}', ${j._idx})" title="Klicken zum Bearbeiten">
             <div class="jteam" style="background: ${team ? team.color : '#9CA3AF'};">${team ? team.short : '–'}</div>
@@ -4454,7 +4445,7 @@
           </div>`;
         }
         const chips = members.map(e => {
-          const driver = e.canDrive ? '🚗 ' : '';
+          const driver = e.canDrive ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px;opacity:.6;"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/><line x1="12" y1="14.4" x2="12" y2="21"/><line x1="14.1" y1="13.2" x2="19.8" y2="16.5"/><line x1="9.9" y1="13.2" x2="4.2" y2="16.5"/></svg>' : '';
           return `<span class="daycrew-chip" style="border-color:${team.color}33;">${driver}${empName(e)}</span>`;
         }).join('');
         return `<div class="daycrew-team">
@@ -4496,7 +4487,7 @@
         const present = !empIsAbsent(e.id, dateKey);
         const teamId = empDayTeam(e.id, dateKey) || e.teamId;
         const teamColor = (PLAN_TEAMS.find(t => t.id === teamId) || {}).color || '#999';
-        const driver = e.canDrive ? '🚗' : '⚠️';
+        const driver = e.canDrive ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/><line x1="12" y1="14.4" x2="12" y2="21"/><line x1="14.1" y1="13.2" x2="19.8" y2="16.5"/><line x1="9.9" y1="13.2" x2="4.2" y2="16.5"/></svg>' : '';
         const driverTitle = e.canDrive ? 'Fahrer' : 'kein Führerschein';
         return `<div class="daycrew-row ${present ? '' : 'is-absent'}" data-emp="${e.id}">
           <label class="daycrew-presence">
@@ -4574,7 +4565,7 @@
       if (!j) return;
       editingJob = { dateKey, idx, added: !!j._added, jobId: j._jobId || null, seriesId: j.seriesId || null };
       const resetBtn = document.getElementById('jobEditResetBtn');
-      if (resetBtn) resetBtn.textContent = j.seriesId ? '🗑 Löschen' : (j._added ? '🗑 Auftrag löschen' : 'Auf Standard zurücksetzen');
+      if (resetBtn) resetBtn.textContent = j.seriesId ? 'Löschen' : (j._added ? 'Auftrag löschen' : 'Auf Standard zurücksetzen');
 
       // Serien-Banner
       const banner = document.getElementById('jobEditSeriesBanner');
@@ -4620,9 +4611,9 @@
       }
       const openCalls = (c.calls || []).filter(x => x.followup).length;
       const followupBadge = openCalls > 0
-        ? `<span class="je-cc-warn">⚠ ${openCalls} Rückruf${openCalls === 1 ? '' : 'e'} offen</span>`
+        ? `<span class="je-cc-warn">${openCalls} Rückruf${openCalls === 1 ? '' : 'e'} offen</span>`
         : '';
-      const noteLine = c.note ? `<div class="je-cc-note">💡 ${c.note}</div>` : '';
+      const noteLine = c.note ? `<div class="je-cc-note">${c.note}</div>` : '';
       wrap.innerHTML = `
         <div class="je-cc-icon" style="background: var(--brand-primary-soft); color: var(--brand-primary);">${customerInitials(c)}</div>
         <div class="je-cc-body">
@@ -4630,7 +4621,7 @@
           <div class="je-cc-meta">
             <span>📍 ${c.address || '—'}</span>
             <span>·</span>
-            <span>📞 ${c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : '—'}</span>
+            <span>${c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : '—'}</span>
             <span>·</span>
             <span>🏷 ${c.type || '—'}</span>
           </div>
@@ -4659,12 +4650,12 @@
       const last3 = sorted.slice(0, 3);
       const more = sorted.length > 3 ? `<button class="btn btn-ghost btn-sm" onclick="closeModal('jobEditor'); openCustomerDetail('${c.id}');">Alle ${sorted.length} Anrufe ansehen →</button>` : '';
       wrap.innerHTML = `
-        <div class="je-phone-head">📞 Letzte Anrufe (${c.calls.length})</div>
+        <div class="je-phone-head">Letzte Anrufe (${c.calls.length})</div>
         ${last3.map(call => {
           const d = new Date(call.ts);
           const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
           const isRr = callHasRueckruf(call);
-          const fup = isRr ? '<span class="je-phone-fup">⚠ Rückruf offen</span>' : '';
+          const fup = isRr ? '<span class="je-phone-fup">Rückruf offen</span>' : '';
           const wer = call.wer || call.who || '—';
           const text = call.text || call.summary || '';
           return `<div class="je-phone-row ${isRr ? 'is-followup' : ''}">
@@ -4682,7 +4673,7 @@
       const selSet = new Set(selectedIds || []);
       const rowsHtml = (members) => members.map(e => {
         const isOn = selSet.has(e.id);
-        const icon = e.canDrive ? '🚗' : '⚠️';
+        const icon = e.canDrive ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/><line x1="12" y1="14.4" x2="12" y2="21"/><line x1="14.1" y1="13.2" x2="19.8" y2="16.5"/><line x1="9.9" y1="13.2" x2="4.2" y2="16.5"/></svg>' : '';
         const title = e.canDrive ? 'Fahrer' : 'braucht Mitfahrgelegenheit';
         return `<label class="emp-picker-row ${isOn ? 'is-on' : ''}">
           <input type="checkbox" data-emp="${e.id}" ${isOn ? 'checked' : ''} onchange="empPickerChanged()" />
@@ -4751,7 +4742,7 @@
           return e && e.canDrive;
         }).length;
       const el = document.getElementById('jobEditAssignedCount');
-      const fHint = fahrer === 0 && n > 0 ? ' · ⚠️ kein Fahrer dabei' : '';
+      const fHint = fahrer === 0 && n > 0 ? ' · kein Fahrer dabei' : '';
       el.textContent = `(${n} ausgewählt${fHint})`;
       el.style.color = fahrer === 0 && n > 0 ? 'var(--warning)' : 'var(--text-subtle)';
     }
@@ -5025,7 +5016,7 @@
         const callArgs = `${JSON.stringify(c.id)}, ${JSON.stringify(call.wer || verlangteNach || '')}, ${JSON.stringify(text)}, ${isRueckruf ? 'true' : 'false'}`;
         return `<div class="call-item ${isRueckruf ? 'is-followup' : ''}">
           <div class="call-head">
-            <span class="call-when">📅 ${dateStr} · ${timeStr}</span>
+            <span class="call-when">${dateStr} · ${timeStr}</span>
             ${statusBadge}
           </div>
           <div class="call-rows">
@@ -5251,18 +5242,18 @@
 
       wrap.innerHTML = filtered.map(t => {
         const prioBadge = t.prio === 'dringend'
-          ? '<span class="task-prio task-prio-dringend">🔥 Dringend</span>'
+          ? '<span class="task-prio task-prio-dringend">Dringend</span>'
           : t.prio === 'niedrig'
             ? '<span class="task-prio task-prio-niedrig">Niedrig</span>'
             : '<span class="task-prio task-prio-normal">Normal</span>';
         const overdue = isOverdue(t);
         const dueLbl = t.dueDate
-          ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">📅 ${new Date(t.dueDate).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ' · überfällig' : ''}</span>`
+          ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">${new Date(t.dueDate).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ' · überfällig' : ''}</span>`
           : '';
         const linkLbl = t.linkLabel ? `<span class="task-link">🔗 ${t.linkLabel}</span>` : '';
         const contactBtns = [];
         if (t.contactEmail) contactBtns.push(`<a class="task-contact-btn" href="mailto:${t.contactEmail}" onclick="event.stopPropagation()" title="${t.contactEmail}">📧 Mail</a>`);
-        if (t.contactPhone) contactBtns.push(`<a class="task-contact-btn" href="tel:${t.contactPhone.replace(/\s/g,'')}" onclick="event.stopPropagation()" title="${t.contactPhone}">📞 Anrufen</a>`);
+        if (t.contactPhone) contactBtns.push(`<a class="task-contact-btn" href="tel:${t.contactPhone.replace(/\s/g,'')}" onclick="event.stopPropagation()" title="${t.contactPhone}">Anrufen</a>`);
         const contactRow = contactBtns.length ? `<div class="task-contact-row">${contactBtns.join('')}</div>` : '';
         return `<div class="task-item ${t.done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}">
           <label class="task-check">
@@ -5481,10 +5472,10 @@
           : `<span class="call-badge call-badge-ok"><span class="dot" style="background: var(--success);"></span>erledigt</span>`;
         const kundeLabel = call._customer
           ? `<a href="#" onclick="event.preventDefault(); openCustomerDetail('${call._customer.id}'); return false;" class="anruf-kunde-link">👤 ${customerDisplayName(call._customer)}</a>`
-          : `<span class="anruf-kunde-loose">📞 ${call.externalContact || 'Kein Kunde'}</span>`;
+          : `<span class="anruf-kunde-loose">${call.externalContact || 'Kein Kunde'}</span>`;
         return `<div class="anruf-item ${isRr ? 'is-followup' : ''}">
           <div class="anruf-head">
-            <span class="anruf-when">📅 ${dateStr} · ${timeStr}</span>
+            <span class="anruf-when">${dateStr} · ${timeStr}</span>
             ${kundeLabel}
             ${statusBadge}
           </div>
@@ -5706,8 +5697,8 @@
           ? '<span class="badge badge-muted">Abwesend</span>'
           : '<span class="badge badge-success"><span class="dot" style="background: var(--success)"></span>Aktiv</span>';
         const driveLine = e.canDrive
-          ? '<div class="emp-driver is-driver">🚗 Fahrer · Führerschein</div>'
-          : '<div class="emp-driver is-passenger">⚠️ braucht Mitfahrgelegenheit</div>';
+          ? '<div class="emp-driver is-driver">Fahrer · Führerschein</div>'
+          : '<div class="emp-driver is-passenger">Braucht Mitfahrgelegenheit</div>';
         const avatarInner = e.photo
           ? `<img src="${e.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
           : initials;
@@ -5783,7 +5774,7 @@
           <input type="text" value="${escapeHtml(t.name)}" onchange="renameTeamFromManager('${t.id}', this.value)" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text);" />
           <span style="font-size:11.5px;color:var(--text-subtle);white-space:nowrap;">${count} Pers.</span>
           <div style="display:flex;gap:3px;">${dots}</div>
-          <button type="button" onclick="deleteTeamFromManager('${t.id}')" title="Team löschen" style="border:none;background:none;cursor:pointer;color:var(--danger);font-size:15px;padding:2px;">🗑</button>
+          <button type="button" onclick="deleteTeamFromManager('${t.id}')" title="Team löschen" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:2px;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>`;
       }).join('');
     }
@@ -5889,32 +5880,53 @@
       setTimeout(renderPlanung, 50);
     });
 
-    // ============ Theme toggle ============
+    // ============ Skin & Theme ============
+    // Skins: 'buero' (neuer Standard, dunkel & ruhig) | 'calm' | 'standard'.
+    // 'buero' erzwingt data-theme="dark", damit die Dark-Regeln greifen und
+    // die Büro-Tokens sie zu warmem, ruhigem Dunkel verfeinern.
     const savedTheme = localStorage.getItem('cc-theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    // Einmalige Migration: alte gespeicherte Skins (calm/standard) einmal auf
+    // den neuen Büro-Standard heben. Danach zählt wieder die eigene Wahl.
+    if (!localStorage.getItem('cc-skin-v2')) {
+      localStorage.setItem('cc-skin', 'buero');
+      localStorage.setItem('cc-skin-v2', '1');
+    }
+    const savedSkin  = localStorage.getItem('cc-skin')  || 'buero';
+
+    function applySkin(skin) {
+      const root = document.documentElement;
+      if (skin === 'buero') {
+        root.setAttribute('data-skin', 'buero');
+        root.setAttribute('data-theme', 'dark');   // Büro ist immer dunkel
+      } else if (skin === 'calm') {
+        root.setAttribute('data-skin', 'calm');
+        root.setAttribute('data-theme', savedTheme);
+      } else {
+        root.removeAttribute('data-skin');
+        root.setAttribute('data-theme', savedTheme);
+      }
+    }
+    applySkin(savedSkin);
+
+    // Header-Knopf: Standard ⇄ Büro (ruhig & dunkel).
+    function toggleSkin() {
+      const cur  = localStorage.getItem('cc-skin') || 'buero';
+      const next = cur === 'buero' ? 'standard' : 'buero';
+      localStorage.setItem('cc-skin', next);
+      applySkin(next);
+      toast(next === 'buero' ? 'Büro-Ansicht (ruhig & dunkel)' : 'Standard-Ansicht');
+    }
+
     function toggleTheme() {
+      // In der Büro-Ansicht ist Dunkel fix — Hell/Dunkel-Umschalter wirkt nur sonst.
+      if ((localStorage.getItem('cc-skin') || 'buero') === 'buero') {
+        toast('Büro-Ansicht ist immer dunkel');
+        return;
+      }
       const now = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', now);
       localStorage.setItem('cc-theme', now);
       toast(now === 'dark' ? 'Dark Mode aktiviert' : 'Light Mode aktiviert');
-    }
-
-    // ============ Skin „Ruhig" ============
-    // data-skin="calm" beruhigt Farben/Flächen (reine Token-Übersteuerung).
-    // Leer/„standard" = unverändertes Original. Jederzeit umschaltbar.
-    const savedSkin = localStorage.getItem('cc-skin') || 'standard';
-    if (savedSkin === 'calm') document.documentElement.setAttribute('data-skin', 'calm');
-    function toggleSkin() {
-      const calm = document.documentElement.getAttribute('data-skin') === 'calm';
-      if (calm) {
-        document.documentElement.removeAttribute('data-skin');
-        localStorage.setItem('cc-skin', 'standard');
-        toast('Standard-Ansicht');
-      } else {
-        document.documentElement.setAttribute('data-skin', 'calm');
-        localStorage.setItem('cc-skin', 'calm');
-        toast('Ruhige Ansicht aktiviert');
-      }
     }
 
     // ============ Modals ============
@@ -5931,11 +5943,10 @@
       const sel = document.getElementById('wizardTeamSelect');
       if (!sel) return;
       // Erstes Option (Auto) behalten, Rest neu
-      const auto = '<option value="">🤖 Auto-Zuweisung (empfohlen)</option>';
+      const auto = '<option value="">Auto-Zuweisung (empfohlen)</option>';
       const opts = PLAN_TEAMS.map(t => {
-        const icon = t.canDrive ? '🚗' : '⚠️';
         const drv = t.canDrive ? 'fährt' : 'braucht Fahrer';
-        return `<option value="${t.id}">${icon} ${t.name} (${t.members.length} Pers., ${drv})</option>`;
+        return `<option value="${t.id}">${t.name} (${t.members.length} Pers., ${drv})</option>`;
       }).join('');
       sel.innerHTML = auto + opts;
     }
@@ -6127,7 +6138,7 @@
         let msg = optimizedTeams > 0
           ? `✓ ${optimizedTeams} Route${optimizedTeams > 1 ? 'n' : ''} optimiert` + (saved > 0 ? ` · ~${saved} min Fahrzeit gespart` : '')
           : '✓ Routen aktualisiert';
-        if (lateWarn) msg += ' · ⚠ Übergabe-Termine knapp';
+        if (lateWarn) msg += ' · Übergabe-Termine knapp';
         toast(msg);
       } catch (e) {
         toast('Optimierung fehlgeschlagen: ' + e.message, 'error');
@@ -6150,7 +6161,7 @@
         const metas = card.querySelectorAll('.objekt-meta span');
         document.getElementById('detailName').textContent = name;
         document.getElementById('detailAddr').textContent = addr;
-        document.getElementById('detailFreq').textContent = metas[0]?.textContent.replace('📅 ', '') || '—';
+        document.getElementById('detailFreq').textContent = metas[0]?.textContent.replace('', '') || '—';
         document.getElementById('detailDur').textContent = metas[1]?.textContent.replace('⏱ ', '') || '—';
         document.getElementById('detailEmp').textContent = metas[2]?.textContent.replace('👥 ', '') || '—';
         openModal('objektDetail');
@@ -6247,12 +6258,13 @@
       // Aktivitäts-Feed
       const actEl = document.getElementById('dashActivity');
       if (actEl) {
+        const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
         const events = [];
         reports.forEach(r => {
-          if (r.isProtocol) events.push({ ts: r.date + (r.time ? 'T' + r.time : ''), icon: r.signed ? '✍' : '✓', text: `Abnahme: ${r.objekt || 'Einsatz'}`, meta: r.signed ? 'Unterschrift erhalten' : (r.note || ''), col: 'var(--success)' });
+          if (r.isProtocol) events.push({ ts: r.date + (r.time ? 'T' + r.time : ''), icon: CHECK_SVG, text: `Abnahme: ${r.objekt || 'Einsatz'}`, meta: r.signed ? 'Unterschrift erhalten' : (r.note || ''), col: 'var(--success)' });
         });
         TASKS.filter(t => t.done && t.completedAt).forEach(t => {
-          events.push({ ts: t.completedAt, icon: '✓', text: t.title, meta: taskAssigneeLabel(t.assignee), col: 'var(--accent)' });
+          events.push({ ts: t.completedAt, icon: CHECK_SVG, text: t.title, meta: taskAssigneeLabel(t.assignee), col: 'var(--accent)' });
         });
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
         const top = events.slice(0, 8);
@@ -6429,7 +6441,7 @@
       list.innerHTML = series.map(s => {
         const future = s.dates.filter(d => d >= today);
         const next = future[0] || null;
-        const teamName = s.team ? ((PLAN_TEAMS.find(t => t.id === s.team) || {}).name || '—') : '🤖 Auto';
+        const teamName = s.team ? ((PLAN_TEAMS.find(t => t.id === s.team) || {}).name || '—') : 'Auto';
         const intervalLbl = REPEAT_LABELS[s.recurring] ? REPEAT_LABELS[s.recurring].replace(/^./, c => c.toUpperCase()) : 'Serie';
         const nextLbl = next
           ? new Date(next + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + (s.start || '')
@@ -6444,7 +6456,7 @@
               ${status}
             </div>
             <div style="font-size:12.5px; color:var(--text-subtle);">
-              🔁 ${intervalLbl} · ${future.length} künftige / ${s.dates.length} total · 👥 ${escapeHtml(teamName)}
+              ${intervalLbl} · ${future.length} künftige / ${s.dates.length} total · 👥 ${escapeHtml(teamName)}
               ${s.price ? '· ' + Number(s.price).toFixed(0) + '.– CHF/Termin' : ''}
             </div>
             <div style="font-size:12.5px; color:var(--text-muted); margin-top:3px;">Nächster: ${nextLbl}</div>
@@ -8079,7 +8091,7 @@ ${coSig}`
 
       const teamsWithMembers = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
       if (teamsWithMembers.length === 0) {
-        box.innerHTML = `<div class="wiz-avail-box"><div class="wiz-avail-sub">📞 Lege zuerst Teams & Mitarbeiter an — dann siehst du hier sofort, ob der Wunschtermin frei ist.</div></div>`;
+        box.innerHTML = `<div class="wiz-avail-box"><div class="wiz-avail-sub">Lege zuerst Teams & Mitarbeiter an — dann siehst du hier sofort, ob der Wunschtermin frei ist.</div></div>`;
         return;
       }
       const selTeam = document.getElementById('wizardTeamSelect')?.value || '';
@@ -8104,7 +8116,7 @@ ${coSig}`
         const dl = new Date(d.dateKey + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit' });
         chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${d.dateKey}','${startHHMM}')">${dl}, ${startHHMM}</button>`;
       });
-      box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">⚠ ${dayLbl}, ${startHHMM} Uhr — belegt</div>` +
+      box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">${dayLbl}, ${startHHMM} Uhr — belegt</div>` +
         `<div class="wiz-avail-sub">${selTeam ? 'Dieses Team ist' : 'Kein Team ist'} zu dieser Zeit frei. Alternativen:</div>` +
         `<div class="wiz-slot-chips">${chips || '<span class="wiz-avail-sub">In den nächsten Wochen kein freier Slot zu dieser Uhrzeit.</span>'}</div></div>`;
     }

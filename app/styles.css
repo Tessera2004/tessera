@@ -3014,3 +3014,270 @@ html[data-skin="calm"] .nav-badge {
   background: var(--surface-2);
   color: var(--text-muted);
 }
+
+/* ============================================================
+   EINKLAPPBARE SIDEBAR (skin-unabhängig, Desktop)
+   Toggle-Button (.nav-toggle) ist am Desktop sichtbar und legt
+   .nav-collapsed auf die .app-shell. Eingeklappt = schmale
+   Icon-Leiste, Beschriftungen/Badges aus. Zustand in localStorage.
+   ============================================================ */
+@media (min-width: 769px) {
+  .nav-toggle { display: inline-flex; }
+
+  .app-shell.nav-collapsed { --sidebar-w: 66px; }
+  /* font-size:0 lässt den reinen Text-Knoten im <a> kollabieren;
+     das SVG-Icon hat feste width/height und bleibt sichtbar. */
+  .app-shell.nav-collapsed .nav-item {
+    justify-content: center;
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 0;
+  }
+  .app-shell.nav-collapsed .nav-label,
+  .app-shell.nav-collapsed .nav-badge,
+  .app-shell.nav-collapsed .brand-name,
+  .app-shell.nav-collapsed .brand-sub,
+  .app-shell.nav-collapsed .user-info { display: none; }
+  .app-shell.nav-collapsed .brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+  }
+  .app-shell.nav-collapsed .user-card {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* ============================================================
+   SKIN „BÜRO"  (data-skin="buero" am <html>) — neuer Standard
+   Ziel: dunkel, warm, aufgeräumt. Hierarchie über Größe & Weiß-
+   raum statt über Farbe. Rot nur als EIN dezentes Dringend-
+   Signal. Keine Verläufe, keine harten Schatten, keine bunten
+   Status-Flächen. JS/Logik bleibt unangetastet — reines CSS.
+   Wird zusammen mit data-theme="dark" gesetzt (per JS), damit die
+   bestehenden Dark-Regeln greifen; die Tokens hier verfeinern sie
+   zu einem warmen, ruhigen Dunkel.
+   ============================================================ */
+[data-skin="buero"] {
+  /* warmes Dunkel statt kühlem Schwarz */
+  --bg: #141416;
+  --surface: #1A1A1E;
+  --surface-2: #202024;
+  --border: #2A2A30;
+  --border-strong: #38383F;
+
+  --text: #ECEAE6;
+  --text-muted: #9A958C;
+  --text-subtle: #6E6960;
+
+  --primary: #ECEAE6;
+  --primary-hover: #D8D5CF;
+
+  /* Rot stark gedämpft — nur Akzent/Dringend */
+  --accent: #D45B52;
+  --accent-hover: #E0726A;
+  --accent-soft: rgba(212, 91, 82, 0.12);
+  --brand-primary: #D45B52;
+  --brand-primary-hover: #E0726A;
+  --brand-primary-soft: rgba(212, 91, 82, 0.12);
+  --brand-primary-glow: rgba(212, 91, 82, 0.25);
+
+  /* Status gedämpft: ruhig, nicht knallig */
+  --success: #7FA98C;  --success-soft: rgba(127, 169, 140, 0.10);
+  --warning: #C9A24A;  --warning-soft: rgba(201, 162, 74, 0.10);
+  --danger:  #D45B52;  --danger-soft:  rgba(212, 91, 82, 0.12);
+
+  /* flach: keine Schatten außer einem weichen für Overlays */
+  --shadow-sm: none;
+  --shadow:    none;
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+  /* etwas weichere Ecken */
+  --radius-sm: 8px;
+  --radius:    11px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+}
+
+/* --- Flächen ruhig: Rahmen statt Schatten --- */
+html[data-skin="buero"] .card,
+html[data-skin="buero"] .kpi,
+html[data-skin="buero"] .kpi-card,
+html[data-skin="buero"] .panel,
+html[data-skin="buero"] .table-wrap {
+  box-shadow: none;
+  border: 0.5px solid var(--border);
+}
+/* Akzent-Linien/Hover-Glühen an KPIs aus */
+html[data-skin="buero"] .kpi::before { display: none; }
+html[data-skin="buero"] .kpi:hover { border-color: var(--border-strong); }
+
+/* --- Hero: vom Verlauf auf eine ruhige Fläche, leiser --- */
+html[data-skin="buero"] .hero-card {
+  background: #1C1C22 !important;
+  border: 0.5px solid var(--border);
+  color: var(--text);
+}
+html[data-skin="buero"] .hero-card::before,
+html[data-skin="buero"] .hero-card::after { display: none; }
+html[data-skin="buero"] .hero-title { font-weight: 600; }
+html[data-skin="buero"] .hero-eyebrow { font-weight: 600; letter-spacing: 0.06em; }
+
+/* --- Überschriften ruhiger (700 → 600), mehr Luft --- */
+html[data-skin="buero"] .page-title { font-weight: 600; letter-spacing: -0.02em; }
+html[data-skin="buero"] .card-title,
+html[data-skin="buero"] .kpi-value { font-weight: 600; }
+html[data-skin="buero"] .content { padding: var(--space-10) var(--space-8); }
+html[data-skin="buero"] .page-header { margin-bottom: var(--space-8); }
+
+/* --- Aktiver Nav-Punkt: dezente Fläche + roter Strich links
+       (statt voller dunkler Füllung) --- */
+html[data-skin="buero"] .nav-item.active {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+html[data-skin="buero"] .nav-item.active .nav-icon { opacity: 1; color: var(--text); }
+html[data-skin="buero"] .nav-item.active .nav-badge {
+  background: var(--surface);
+  color: var(--text-muted);
+}
+html[data-skin="buero"] .nav-badge {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* --- Primär-Button neutral hell (Rot bleibt fürs Dringende reserviert) --- */
+html[data-skin="buero"] .btn-accent {
+  background: var(--text);
+  color: var(--bg);
+}
+html[data-skin="buero"] .btn-accent:hover { background: var(--primary-hover); }
+
+/* --- Status-Badges monochrom; NUR Gefahr behält das rote Signal --- */
+html[data-skin="buero"] .badge-success,
+html[data-skin="buero"] .badge-warning,
+html[data-skin="buero"] .badge-info,
+html[data-skin="buero"] .badge-muted {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+html[data-skin="buero"] .badge-danger {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+/* --- Status-Streifen an Terminen entschärfen; nur „rot" bleibt --- */
+html[data-skin="buero"] .schedule-event { border-left-color: var(--border-strong); }
+html[data-skin="buero"] .schedule-event.green { border-left-color: var(--success); }
+html[data-skin="buero"] .schedule-event.amber { border-left-color: var(--warning); }
+
+/* --- Fest verdrahtete Inline-Verläufe (Karten/Avatare/leere Zustände)
+       auf ruhige Flächen zwingen --- */
+html[data-skin="buero"] .card[style*="gradient"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 0.5px solid var(--border) !important;
+}
+html[data-skin="buero"] .brand-mark,
+html[data-skin="buero"] .avatar {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+
+/* --- Suchfeld ruhig --- */
+html[data-skin="buero"] .search { background: var(--surface-2); }
+html[data-skin="buero"] .search:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: none;
+}
+
+/* --- User-Avatare entfärben (auch die per Inline-Verlauf gesetzten) --- */
+html[data-skin="buero"] .user-avatar {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+
+/* ===== Globaler Pass: gilt für ALLE Ansichten ===== */
+
+/* Alle Avatare/Initial-Kreise neutral (Mitarbeiter, Crew, Chips …) */
+html[data-skin="buero"] .emp-avatar,
+html[data-skin="buero"] .daycrew-chip,
+html[data-skin="buero"] [class*="avatar"] {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+
+/* Karten/Blöcke quer durch die App: Rahmen statt Schatten, flach */
+html[data-skin="buero"] .emp-card,
+html[data-skin="buero"] .daycrew-card,
+html[data-skin="buero"] .team-status-bar,
+html[data-skin="buero"] .plan-status-card,
+html[data-skin="buero"] .daycrew-team,
+html[data-skin="buero"] .stat-card,
+html[data-skin="buero"] .obj-card,
+html[data-skin="buero"] .timeline-card {
+  box-shadow: none !important;
+  border: 0.5px solid var(--border) !important;
+  background: var(--surface) !important;
+}
+html[data-skin="buero"] .emp-card:hover { box-shadow: none !important; border-color: var(--border-strong) !important; }
+
+/* Fahrer/Beifahrer-Pillen ruhig (Emoji-Text wird im JS entfernt) */
+html[data-skin="buero"] .emp-driver.is-driver,
+html[data-skin="buero"] .tdrive {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 0.5px solid var(--border);
+}
+html[data-skin="buero"] .emp-driver.is-passenger,
+html[data-skin="buero"] .tneeds {
+  background: transparent;
+  color: var(--text-subtle);
+  border: 0.5px solid var(--border);
+}
+
+/* Statusstreifen in der Aktivität neutral; Akzent nur dort, wo wirklich nötig */
+html[data-skin="buero"] .act-icon {
+  background: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Letzte Sicherung gegen verbleibende Inline-Verläufe (außer Avataren,
+   die oben schon eine feste Fläche bekommen) */
+html[data-skin="buero"] .plan-status-card[style*="gradient"],
+html[data-skin="buero"] .daycrew-card[style*="gradient"],
+html[data-skin="buero"] section [style*="linear-gradient"]:not([class*="avatar"]):not(.emp-avatar) {
+  background-image: none !important;
+}
+
+/* „Plan optimiert"-Banner ruhig: kein lautes Grün, dezenter Streifen */
+html[data-skin="buero"] .plan-status-pill {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+/* Tag-Wähler: „heute" nicht als roter Vollblock, sondern dezente Fläche
+   mit feinem Akzent-Rahmen unten. */
+html[data-skin="buero"] .day-pill.is-active,
+html[data-skin="buero"] .day-pill.is-today {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+html[data-skin="buero"] .day-pill.is-active * { color: var(--text) !important; }
+
+/* Routenplanung-Timeline: bunte Service-Farbstreifen neutralisieren (der Service
+   steht ohnehin als Text). Team-Farbe bleibt als EINZIGES Ordnungssignal.
+   „Jetzt"-Marker bleibt der eine dezente Akzent. */
+html[data-skin="buero"] .job-card {
+  background: var(--surface-2);
+  border-left-color: var(--border-strong) !important;
+}
+html[data-skin="buero"] .job-card:hover { box-shadow: none; }
+html[data-skin="buero"] .timeline-hour { background: var(--surface-2); }
