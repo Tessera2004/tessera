@@ -1614,7 +1614,7 @@
 
         <div class="field">
           <label data-term="leistungsart">Reinigungsart</label>
-          <div class="opt-row">
+          <div class="opt-row" id="offSvcChips">
             <button type="button" class="opt-chip on" data-off-svc="unterhalt" onclick="selectOffertService(this,'unterhalt')">Unterhalt</button>
             <button type="button" class="opt-chip" data-off-svc="end" onclick="selectOffertService(this,'end')">Endreinigung</button>
             <button type="button" class="opt-chip" data-off-svc="fenster" onclick="selectOffertService(this,'fenster')">Fenster</button>
@@ -7677,6 +7677,30 @@ Mit freundlichen Grüßen
 ${coSig}`
       };
 
+      // Generische Branchen: neutrales Angebot aus dem Preset (keine Reinigungs-Texte).
+      if (isGenericVertical()) {
+        const def = genericServiceDef(svc);
+        const title = serviceTitle(svc);
+        const preisCHF = data.preis ? `${parseFloat(data.preis).toFixed(2)} CHF` : '[Preis]';
+        const priceLine = (def && def.unit === 'h')
+          ? `Stundensatz: CHF ${genericServicePrice(svc).toFixed(2)} / h`
+          : `Pauschalpreis: CHF ${genericServicePrice(svc).toFixed(2)}`;
+        return `Sehr geehrte/r ${kunde},
+
+vielen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen folgendes Angebot für „${title}".
+
+Leistung: ${title}
+${def?.desc ? '• ' + def.desc + '\n' : ''}${VT('adresseObjekt')}: ${adresse}
+${priceLine}
+Voraussichtlicher Gesamtpreis: ${preisCHF}
+
+Das Angebot ist gültig bis ${gueltig}.
+Wir freuen uns auf Ihre Rückmeldung.
+
+Mit freundlichen Grüßen
+${coSig}`;
+      }
+
       return templates[svc] || templates.unterhalt;
     }
 
@@ -7706,10 +7730,25 @@ ${coSig}`
       btn.classList.add('on');
       const pill = document.getElementById('offSvcPill');
       pill.className = 'svc-pill svc-' + svc;
-      pill.textContent = svcShortLabels[svc];
+      pill.textContent = svcShortLabels[svc] || serviceTitle(svc);
       // Text neu generieren (wenn nicht manuell bearbeitet)
       document.getElementById('offText').dataset.manuallyEdited = 'false';
       renderOffertTemplate();
+    }
+
+    // Offerten-Service-Chips: Reinigung = statische Chips, andere Branchen = aus Preset.
+    const OFFERT_CHIPS_STATIC = document.getElementById('offSvcChips')?.innerHTML || '';
+    function setupOffertChips() {
+      const row = document.getElementById('offSvcChips');
+      if (!row) return 'unterhalt';
+      if (isGenericVertical()) {
+        const svcs = MosaVertical.preset().services || [];
+        row.innerHTML = svcs.map((s, i) =>
+          `<button type="button" class="opt-chip${i === 0 ? ' on' : ''}" data-off-svc="${s.key}" onclick="selectOffertService(this,'${s.key}')">${escapeHtml(s.title)}</button>`).join('');
+        return svcs[0]?.key || 'unterhalt';
+      }
+      row.innerHTML = OFFERT_CHIPS_STATIC;   // Reinigungs-Original wiederherstellen
+      return 'unterhalt';
     }
 
     let currentOffertOriginal = null; // Snapshot zum Vergleich (Änderungs-Erkennung)
@@ -7720,11 +7759,13 @@ ${coSig}`
       currentOffertHistory = [];
       currentOffertOriginal = null;
 
+      const firstSvc = setupOffertChips();   // Chips je Branche aufbauen
       const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
       if (id) {
         const off = offerts.find(o => o.id === id);
         if (off) {
           currentOffertService = off.service;
+          document.querySelectorAll('#offSvcChips .opt-chip').forEach(c => c.classList.toggle('on', c.dataset.offSvc === off.service));
           currentOffertImages = (off.images || []).slice();
           currentOffertHistory = (off.history || []).slice();
           document.getElementById('offKunde').value = off.kunde || '';
@@ -7760,15 +7801,15 @@ ${coSig}`
         document.getElementById('offModalSub').textContent = 'Vorgefertigter Text — nur Kundendaten ergänzen';
         document.getElementById('offDeleteBtn').style.display = 'none';
         document.getElementById('offHistory').style.display = 'none';
-        // set initial service pill
-        const firstChip = document.querySelector('[data-off-svc="unterhalt"]');
-        if (firstChip) selectOffertService(firstChip, 'unterhalt');
+        // set initial service pill (erste Leistung der Branche)
+        const firstChip = document.querySelector(`[data-off-svc="${firstSvc}"]`);
+        if (firstChip) selectOffertService(firstChip, firstSvc);
       }
 
       // Service-Pill setzen
       const pill = document.getElementById('offSvcPill');
       pill.className = 'svc-pill svc-' + currentOffertService;
-      pill.textContent = svcShortLabels[currentOffertService];
+      pill.textContent = svcShortLabels[currentOffertService] || serviceTitle(currentOffertService);
       document.querySelectorAll('[data-off-svc]').forEach(c => {
         c.classList.toggle('on', c.dataset.offSvc === currentOffertService);
       });
