@@ -214,6 +214,40 @@
  *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
  *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
  *
+ *   -- Baustellen / Projekte (Handwerk)
+ *   CREATE TABLE IF NOT EXISTS construction_sites (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     customer_id  TEXT, objekt_name TEXT,
+ *     title        TEXT, address TEXT, type TEXT, monteur TEXT,
+ *     status       TEXT DEFAULT 'angefragt', budget NUMERIC, note TEXT,
+ *     created_at   TIMESTAMPTZ DEFAULT NOW(),
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE construction_sites ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "site_tenant" ON construction_sites;
+ *   CREATE POLICY "site_tenant" ON construction_sites FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
+ *   -- Arbeitsrapporte / Regie (Handwerk)
+ *   CREATE TABLE IF NOT EXISTS work_reports (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     site_id      TEXT, site_title TEXT, customer_id TEXT, objekt_name TEXT,
+ *     date         TEXT, monteur TEXT,
+ *     works        JSONB DEFAULT '[]',
+ *     material     JSONB DEFAULT '[]',
+ *     note         TEXT, signed BOOLEAN DEFAULT false,
+ *     created_at   TIMESTAMPTZ DEFAULT NOW(),
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE work_reports ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "wr_tenant" ON work_reports;
+ *   CREATE POLICY "wr_tenant" ON work_reports FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
  *   -- Firmenprofil + Preise (1 Zeile pro Mandant)
  *   CREATE TABLE IF NOT EXISTS company_settings (
  *     tenant_id   UUID PRIMARY KEY REFERENCES tenants(id) ON DELETE CASCADE,
@@ -313,6 +347,18 @@
       location: r.location, since: r.since, note: r.note };
   }
 
+  function rowToSite(r) {
+    return { id: r.id, customerId: r.customer_id, objektName: r.objekt_name,
+      title: r.title, address: r.address, type: r.type, monteur: r.monteur,
+      status: r.status || 'angefragt', budget: r.budget, note: r.note, created: r.created_at };
+  }
+  function rowToWorkReport(r) {
+    return { id: r.id, siteId: r.site_id, siteTitle: r.site_title, customerId: r.customer_id,
+      objektName: r.objekt_name, date: r.date, monteur: r.monteur,
+      works: r.works || [], material: r.material || [], note: r.note,
+      signed: r.signed || false, created: r.created_at };
+  }
+
   function rowToBait(r) {
     return { id: r.id, customerId: r.customer_id, objektName: r.objekt_name,
       number: r.number, location: r.location, type: r.type, agent: r.agent,
@@ -406,6 +452,20 @@
       rim: t.rim || null, qty: t.qty || null, dim: t.dim || null, tread: t.tread || null,
       location: t.location || null, since: t.since || null, note: t.note || null,
       updated_at: new Date().toISOString() };
+  }
+
+  function siteToRow(s, tid) {
+    return { id: s.id, tenant_id: tid, customer_id: s.customerId || null, objekt_name: s.objektName || null,
+      title: s.title || null, address: s.address || null, type: s.type || null, monteur: s.monteur || null,
+      status: s.status || 'angefragt', budget: s.budget || null, note: s.note || null,
+      updated_at: new Date().toISOString() };
+  }
+  function workReportToRow(r, tid) {
+    return { id: r.id, tenant_id: tid, site_id: r.siteId || null, site_title: r.siteTitle || null,
+      customer_id: r.customerId || null, objekt_name: r.objektName || null,
+      date: r.date || null, monteur: r.monteur || null,
+      works: r.works || [], material: r.material || [],
+      note: r.note || null, signed: !!r.signed, updated_at: new Date().toISOString() };
   }
 
   function baitToRow(b, tid) {
@@ -538,6 +598,14 @@
         if (!baitR.error) await mergeArray('cc-baitstations-v1', baitR.data, rowToBait, 'baits');
       } catch {}
       try {
+        const siteR = await sb.from('construction_sites').select('*').eq('tenant_id', tid);
+        if (!siteR.error) await mergeArray('cc-sites-v1', siteR.data, rowToSite, 'sites');
+      } catch {}
+      try {
+        const wrR = await sb.from('work_reports').select('*').eq('tenant_id', tid);
+        if (!wrR.error) await mergeArray('cc-workreports-v1', wrR.data, rowToWorkReport, 'workreports');
+      } catch {}
+      try {
         const pestR = await sb.from('pest_protocols').select('*').eq('tenant_id', tid);
         if (!pestR.error) await mergeArray('cc-pestprotocols-v1', pestR.data, rowToPestProtocol, 'pestprotocols');
       } catch {}
@@ -576,6 +644,10 @@
         await sb.from('work_orders').upsert(data.map(o => workOrderToRow(o, tid)), { onConflict: 'id' });
       } else if (type === 'tires') {
         await sb.from('tire_storage').upsert(data.map(t => tireToRow(t, tid)), { onConflict: 'id' });
+      } else if (type === 'sites') {
+        await sb.from('construction_sites').upsert(data.map(s => siteToRow(s, tid)), { onConflict: 'id' });
+      } else if (type === 'workreports') {
+        await sb.from('work_reports').upsert(data.map(r => workReportToRow(r, tid)), { onConflict: 'id' });
       } else if (type === 'baits') {
         await sb.from('bait_stations').upsert(data.map(b => baitToRow(b, tid)), { onConflict: 'id' });
       } else if (type === 'pestprotocols') {

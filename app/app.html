@@ -20,7 +20,7 @@
   <script src="db-sync.js"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
-  <script src="presets.js?v=6"></script>
+  <script src="presets.js?v=7"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -87,6 +87,16 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l2 2 4-4"/></svg>
             Protokolle
             <span class="nav-badge" id="protokolleNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="baustellen" data-vertical-view="baustellen" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
+            Baustellen
+            <span class="nav-badge" id="baustellenNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="rapporte" data-vertical-view="rapporte" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+            Rapporte
+            <span class="nav-badge" id="rapporteNavBadge" style="display:none;">0</span>
           </a>
           <a class="nav-item" data-view="planung">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -665,6 +675,48 @@
           </div>
 
           <div id="protokolleList" style="display:flex; flex-direction:column; gap:10px;">
+            <!-- via JS -->
+          </div>
+        </section>
+
+        <!-- ============ BAUSTELLEN (Projekt-Board, Handwerk) ============ -->
+        <section class="view" data-view="baustellen">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Baustellen</h1>
+              <p class="page-subtitle" id="baustellenSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openSiteEditor()">+ Baustelle</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            <input type="text" id="baustellenSearch" placeholder="Suchen (Kunde, Adresse, Bezeichnung…)"
+              oninput="renderBaustellen()"
+              style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+          </div>
+
+          <div id="baustellenBoard" style="display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; align-items:start;">
+            <!-- via JS: 4 Spalten -->
+          </div>
+        </section>
+
+        <!-- ============ RAPPORTE (Arbeitsrapport / Regie, Handwerk) ============ -->
+        <section class="view" data-view="rapporte">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Rapporte</h1>
+              <p class="page-subtitle" id="rapporteSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openRapEditor()">+ Rapport</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            <input type="text" id="rapporteSearch" placeholder="Suchen (Baustelle, Kunde, Monteur…)"
+              oninput="renderRapporte()"
+              style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+          </div>
+
+          <div id="rapporteList" style="display:flex; flex-direction:column; gap:10px;">
             <!-- via JS -->
           </div>
         </section>
@@ -1869,6 +1921,113 @@
         <button class="btn btn-ghost" id="custDeleteBtn" onclick="deleteCustomer()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
         <button class="btn btn-secondary" onclick="closeModal('customerEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveCustomer()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Baustelle-Editor Modal (Handwerk) -->
+  <div class="modal-backdrop" id="modal-siteEditor" onclick="if(event.target===this)closeModal('siteEditor')">
+    <div class="modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="siteEditorTitle">Neue Baustelle</div>
+          <div class="modal-subtitle">Projekt / Baustelle erfassen</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('siteEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Kunde</label>
+          <select id="siteCustomer" onchange="siteFillFromCustomer()"></select>
+        </div>
+        <div class="field">
+          <label>Bezeichnung</label>
+          <input type="text" id="siteTitle" placeholder="z. B. Bad-Sanierung EG, Heizungsersatz" />
+        </div>
+        <div class="field">
+          <label>Adresse / Baustelle</label>
+          <input type="text" id="siteAddress" placeholder="Straße Nr., PLZ Ort" />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Auftragsart</label><input type="text" id="siteType" placeholder="z. B. Sanitär, Heizung, Elektro" /></div>
+          <div class="field"><label>Verantwortl. Monteur</label><input type="text" id="siteMonteur" placeholder="z. B. Sandro" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Status</label>
+            <select id="siteStatus">
+              <option value="angefragt">Angefragt</option>
+              <option value="offeriert">Offeriert</option>
+              <option value="inarbeit">In Arbeit</option>
+              <option value="abgeschlossen">Abgeschlossen</option>
+            </select>
+          </div>
+          <div class="field"><label>Budget / Offerte (CHF)</label><input type="number" id="siteBudget" min="0" step="10" placeholder="z. B. 8500" /></div>
+        </div>
+        <div class="field">
+          <label>Notiz</label>
+          <input type="text" id="siteNote" placeholder="z. B. Schlüssel beim Hauswart, Material bestellt" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="siteDeleteBtn" onclick="deleteSite()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('siteEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveSite()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arbeitsrapport-Editor Modal (Regie, Handwerk) -->
+  <div class="modal-backdrop" id="modal-rapportEditor" onclick="if(event.target===this)closeModal('rapportEditor')">
+    <div class="modal" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="rapportEditorTitle">Neuer Rapport</div>
+          <div class="modal-subtitle">Arbeitsrapport — Stunden & Material (Regie)</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('rapportEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Baustelle</label><select id="rapSite" onchange="rapFillFromSite()"></select></div>
+          <div class="field"><label>Kunde / Objekt</label><input type="text" id="rapCustomer" placeholder="wird aus Baustelle übernommen" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Datum</label><input type="date" id="rapDate" /></div>
+          <div class="field"><label>Monteur</label><input type="text" id="rapMonteur" placeholder="z. B. Sandro" /></div>
+        </div>
+
+        <div style="margin-top: 6px; display:flex; align-items:center; justify-content:space-between;">
+          <label style="font-weight:600; font-size:13px; color:var(--text);">Arbeiten (Stunden)</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addRapWorkRow()">+ Position</button>
+        </div>
+        <div id="rapWorks" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+
+        <div style="margin-top: 14px; display:flex; align-items:center; justify-content:space-between;">
+          <label style="font-weight:600; font-size:13px; color:var(--text);">Material</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addRapMatRow()">+ Material</button>
+        </div>
+        <div id="rapMaterial" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top:14px;">
+          <div class="field"><label>Notiz</label><input type="text" id="rapNote" placeholder="z. B. Restarbeiten nächste Woche" /></div>
+          <div class="field"><label>Unterschrift Kunde</label>
+            <select id="rapSigned"><option value="false">offen</option><option value="true">unterschrieben</option></select>
+          </div>
+        </div>
+
+        <div style="margin-top:8px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface); display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:var(--text-subtle); font-size:13px;">Total (Regie)</span>
+          <span id="rapTotal" style="font-weight:700; font-size:18px; color:var(--text);">CHF 0.00</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="rapDeleteBtn" onclick="deleteRap()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('rapportEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveRap()">Speichern</button>
       </div>
     </div>
   </div>
@@ -3664,6 +3823,8 @@
       try { typeof renderFahrzeuge === 'function' && renderFahrzeuge(); } catch (e) {}
       try { typeof renderKoederstellen === 'function' && renderKoederstellen(); } catch (e) {}
       try { typeof renderPestProtocols === 'function' && renderPestProtocols(); } catch (e) {}
+      try { typeof renderBaustellen === 'function' && renderBaustellen(); } catch (e) {}
+      try { typeof renderRapporte === 'function' && renderRapporte(); } catch (e) {}
       try { typeof renderMitarbeiter === 'function' && renderMitarbeiter(); } catch (e) {}
       try { typeof renderDashboard === 'function' && renderDashboard(); } catch (e) {}
       try { typeof applyPriceSection === 'function' && applyPriceSection(); } catch (e) {}
@@ -5593,6 +5754,275 @@
       toast('Kunde gelöscht');
     }
 
+    // ============ HANDWERK: Baustellen (Board) + Rapporte (Regie) ============
+    // ── Baustellen / Projekte ──
+    const SITES_KEY = 'cc-sites-v1';
+    const SITE_COLUMNS = [
+      { key: 'angefragt',     label: 'Angefragt',     color: '#64748b' },
+      { key: 'offeriert',     label: 'Offeriert',     color: '#2563eb' },
+      { key: 'inarbeit',      label: 'In Arbeit',     color: '#d97706' },
+      { key: 'abgeschlossen', label: 'Abgeschlossen', color: '#16a34a' }
+    ];
+    let editingSiteId = null;
+    function loadSites() { try { const v = JSON.parse(localStorage.getItem(SITES_KEY)); if (Array.isArray(v)) return v; } catch {} return []; }
+    function saveSites(list) { localStorage.setItem(SITES_KEY, JSON.stringify(list)); window.MosaDB?.push('sites', list); }
+    function siteLabel(s) { return s.title || pestCustomerName(s.customerId, s.objektName); }
+    function renderBaustellen() {
+      const board = document.getElementById('baustellenBoard');
+      const subtitle = document.getElementById('baustellenSubtitle');
+      if (!board) return;
+      const all = loadSites();
+      const q = (document.getElementById('baustellenSearch')?.value || '').toLowerCase().trim();
+      const match = s => !q || siteLabel(s).toLowerCase().includes(q) ||
+        pestCustomerName(s.customerId, s.objektName).toLowerCase().includes(q) || (s.address || '').toLowerCase().includes(q);
+      const active = all.filter(s => s.status !== 'abgeschlossen');
+      const badge = document.getElementById('baustellenNavBadge');
+      if (badge) { badge.textContent = active.length; badge.style.display = active.length ? '' : 'none'; }
+      if (subtitle) subtitle.textContent = `${active.length} offene · ${all.length} Baustellen gesamt`;
+      board.innerHTML = SITE_COLUMNS.map(col => {
+        const cards = all.filter(s => s.status === col.key && match(s));
+        const cardHtml = cards.length ? cards.map(s => {
+          const next = col.key !== 'abgeschlossen';
+          return `<div onclick="openSiteEditor('${s.id}')" style="cursor:pointer; border:1px solid var(--border); border-left:3px solid ${col.color}; border-radius:10px; padding:11px 12px; background:var(--surface); display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-weight:600; font-size:13.5px; color:var(--text);">${escapeHtml(siteLabel(s))}</span>
+              ${next ? `<button class="btn-icon" title="Weiter" onclick="event.stopPropagation(); moveSite('${s.id}')" style="width:24px;height:24px;flex:none;">→</button>` : ''}
+            </div>
+            <div style="font-size:12px; color:var(--text-subtle);">${escapeHtml(pestCustomerName(s.customerId, s.objektName))}</div>
+            ${s.address ? `<div style="font-size:11.5px; color:var(--text-subtle);">${escapeHtml(s.address)}</div>` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+              <span style="font-size:11.5px; color:var(--text-subtle);">${escapeHtml(s.monteur || '—')}${s.type ? ' · ' + escapeHtml(s.type) : ''}</span>
+              ${s.budget ? `<span style="font-size:12.5px; font-weight:600; color:var(--text);">${chf(s.budget)}</span>` : ''}
+            </div>
+          </div>`;
+        }).join('') : `<div style="font-size:12px; color:var(--text-subtle); padding:8px 4px;">—</div>`;
+        return `<div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
+          <div style="display:flex; align-items:center; gap:8px; padding:0 2px;">
+            <span style="width:9px; height:9px; border-radius:50%; background:${col.color};"></span>
+            <span style="font-weight:600; font-size:13px; color:var(--text);">${col.label}</span>
+            <span style="font-size:12px; color:var(--text-subtle);">${cards.length}</span>
+          </div>${cardHtml}
+        </div>`;
+      }).join('');
+    }
+    function moveSite(id) {
+      const list = loadSites();
+      const s = list.find(x => x.id === id);
+      if (!s) return;
+      const order = SITE_COLUMNS.map(c => c.key);
+      s.status = order[Math.min(order.indexOf(s.status) + 1, order.length - 1)];
+      saveSites(list);
+      renderBaustellen();
+      toast(s.status === 'abgeschlossen' ? '✓ Baustelle abgeschlossen' : 'Baustelle verschoben');
+    }
+    function siteFillFromCustomer() {
+      const id = document.getElementById('siteCustomer').value;
+      if (!id || typeof loadCustomers !== 'function') return;
+      const c = loadCustomers().find(x => x.id === id);
+      if (c && !document.getElementById('siteAddress').value) document.getElementById('siteAddress').value = c.address || '';
+    }
+    function openSiteEditor(id) {
+      editingSiteId = id || null;
+      const s = id ? loadSites().find(x => x.id === id) : null;
+      document.getElementById('siteCustomer').innerHTML = pestCustomerOptions(s?.customerId || '');
+      document.getElementById('siteEditorTitle').textContent = s ? siteLabel(s) : 'Neue Baustelle';
+      document.getElementById('siteTitle').value = s?.title || '';
+      document.getElementById('siteAddress').value = s?.address || '';
+      document.getElementById('siteType').value = s?.type || '';
+      document.getElementById('siteMonteur').value = s?.monteur || '';
+      document.getElementById('siteStatus').value = s?.status || 'angefragt';
+      document.getElementById('siteBudget').value = s?.budget || '';
+      document.getElementById('siteNote').value = s?.note || '';
+      document.getElementById('siteDeleteBtn').style.display = s ? 'inline-flex' : 'none';
+      openModal('siteEditor');
+    }
+    function saveSite() {
+      const customerId = document.getElementById('siteCustomer').value || null;
+      const title = document.getElementById('siteTitle').value.trim();
+      if (!customerId && !title) { toast('Kunde oder Bezeichnung erforderlich', 'error'); return; }
+      const data = {
+        customerId, objektName: pestCustomerName(customerId, ''),
+        title, address: document.getElementById('siteAddress').value.trim(),
+        type: document.getElementById('siteType').value.trim(),
+        monteur: document.getElementById('siteMonteur').value.trim(),
+        status: document.getElementById('siteStatus').value,
+        budget: parseFloat(document.getElementById('siteBudget').value) || 0,
+        note: document.getElementById('siteNote').value.trim()
+      };
+      const list = loadSites();
+      if (editingSiteId) {
+        const idx = list.findIndex(x => x.id === editingSiteId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Baustelle aktualisiert');
+      } else { list.push({ id: 'st' + Date.now(), created: new Date().toISOString(), ...data }); toast('✓ Baustelle angelegt'); }
+      saveSites(list);
+      closeModal('siteEditor');
+      editingSiteId = null;
+      renderBaustellen();
+    }
+    function deleteSite() {
+      if (!editingSiteId) return;
+      const s = loadSites().find(x => x.id === editingSiteId);
+      if (!s) return;
+      if (!confirm(`Baustelle "${siteLabel(s)}" löschen?`)) return;
+      saveSites(loadSites().filter(x => x.id !== editingSiteId));
+      window.MosaDB?.remove('construction_sites', editingSiteId);
+      closeModal('siteEditor');
+      editingSiteId = null;
+      renderBaustellen();
+      toast('Baustelle gelöscht');
+    }
+
+    // ── Arbeitsrapporte (Regie: Stunden + Material) — eindeutige Namen (Kollision mit Berichte-Modul vermeiden) ──
+    const WORKREPORTS_KEY = 'cc-workreports-v1';
+    let editingRapId = null;
+    function loadRapporte() { try { const v = JSON.parse(localStorage.getItem(WORKREPORTS_KEY)); if (Array.isArray(v)) return v; } catch {} return []; }
+    function saveRapporte(list) { localStorage.setItem(WORKREPORTS_KEY, JSON.stringify(list)); window.MosaDB?.push('workreports', list); }
+    function rapportTotal(r) {
+      const w = (r.works || []).reduce((s, x) => s + (Number(x.hours) || 0) * (Number(x.rate) || 0), 0);
+      const m = (r.material || []).reduce((s, x) => s + (Number(x.qty) || 0) * (Number(x.price) || 0), 0);
+      return w + m;
+    }
+    function renderRapporte() {
+      const box = document.getElementById('rapporteList');
+      const subtitle = document.getElementById('rapporteSubtitle');
+      if (!box) return;
+      const list = loadRapporte().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const q = (document.getElementById('rapporteSearch')?.value || '').toLowerCase().trim();
+      const filtered = !q ? list : list.filter(r =>
+        (r.siteTitle || '').toLowerCase().includes(q) || (r.objektName || '').toLowerCase().includes(q) ||
+        (r.monteur || '').toLowerCase().includes(q));
+      const sum = list.reduce((s, r) => s + rapportTotal(r), 0);
+      if (subtitle) subtitle.textContent = `${list.length} Rapporte · ${chf(sum)} Regie gesamt`;
+      const badge = document.getElementById('rapporteNavBadge');
+      if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">Noch keine Rapporte.</div></div>`;
+        return;
+      }
+      box.innerHTML = filtered.map(r => {
+        const hrs = (r.works || []).reduce((s, x) => s + (Number(x.hours) || 0), 0);
+        return `<div class="card" onclick="openRapEditor('${r.id}')" style="cursor:pointer; padding:14px 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+            <div style="min-width:0;">
+              <div style="font-weight:600; font-size:14px; color:var(--text);">${escapeHtml(r.siteTitle || r.objektName || 'Rapport')}</div>
+              <div style="font-size:12.5px; color:var(--text-subtle); margin-top:2px;">${r.date || '—'} · ${escapeHtml(r.monteur || '—')} · ${hrs} h${(r.material || []).length ? ' · ' + r.material.length + ' Material' : ''}</div>
+            </div>
+            <div style="text-align:right; flex:none;">
+              <div style="font-size:14px; font-weight:700; color:var(--text);">${chf(rapportTotal(r))}</div>
+              ${r.signed === true || r.signed === 'true' ? `<span class="kunde-badge" style="margin-top:6px;"><span class="dot" style="background:#16a34a;"></span>unterschrieben</span>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function rapRow(kind, d) {
+      d = d || {};
+      const div = document.createElement('div');
+      div.className = 'rap-row rap-' + kind;
+      div.style.cssText = 'display:grid; grid-template-columns: 1fr 78px 84px 30px; gap:8px; align-items:center;';
+      if (kind === 'work') {
+        div.innerHTML =
+          `<input class="rw-title" type="text" placeholder="Arbeit (z. B. Leitung verlegt)" value="${escapeHtml(d.title || '')}" style="${WO_INP}">
+           <input class="rw-hours" type="number" step="0.25" min="0" placeholder="Std" value="${d.hours != null ? d.hours : ''}" oninput="rapRecalcTotal()" style="${WO_INP}">
+           <input class="rw-rate" type="number" step="1" min="0" placeholder="Satz" value="${d.rate != null ? d.rate : woDefaultRate()}" oninput="rapRecalcTotal()" style="${WO_INP}">
+           <button class="btn-icon" type="button" onclick="this.closest('.rap-row').remove(); rapRecalcTotal();" style="width:28px;height:28px;flex:none;">✕</button>`;
+      } else {
+        div.innerHTML =
+          `<input class="rm-name" type="text" placeholder="Material (z. B. Kupferrohr 15mm)" value="${escapeHtml(d.name || '')}" style="${WO_INP}">
+           <input class="rm-qty" type="number" step="1" min="0" placeholder="Menge" value="${d.qty != null ? d.qty : 1}" oninput="rapRecalcTotal()" style="${WO_INP}">
+           <input class="rm-price" type="number" step="0.05" min="0" placeholder="Preis" value="${d.price != null ? d.price : ''}" oninput="rapRecalcTotal()" style="${WO_INP}">
+           <button class="btn-icon" type="button" onclick="this.closest('.rap-row').remove(); rapRecalcTotal();" style="width:28px;height:28px;flex:none;">✕</button>`;
+      }
+      return div;
+    }
+    function addRapWorkRow(d) { document.getElementById('rapWorks').appendChild(rapRow('work', d)); rapRecalcTotal(); }
+    function addRapMatRow(d) { document.getElementById('rapMaterial').appendChild(rapRow('mat', d)); rapRecalcTotal(); }
+    function collectRapWorks() {
+      return [...document.querySelectorAll('#rapWorks .rap-work')].map(r => ({
+        title: r.querySelector('.rw-title').value.trim(),
+        hours: parseFloat(r.querySelector('.rw-hours').value) || 0,
+        rate: parseFloat(r.querySelector('.rw-rate').value) || 0
+      })).filter(w => w.title || w.hours);
+    }
+    function collectRapMaterial() {
+      return [...document.querySelectorAll('#rapMaterial .rap-mat')].map(r => ({
+        name: r.querySelector('.rm-name').value.trim(),
+        qty: parseFloat(r.querySelector('.rm-qty').value) || 0,
+        price: parseFloat(r.querySelector('.rm-price').value) || 0
+      })).filter(m => m.name || m.price);
+    }
+    function rapRecalcTotal() {
+      const el = document.getElementById('rapTotal');
+      if (el) el.textContent = chf(rapportTotal({ works: collectRapWorks(), material: collectRapMaterial() }));
+    }
+    function populateRapSite(sel) {
+      const el = document.getElementById('rapSite');
+      if (!el) return;
+      const sites = loadSites();
+      el.innerHTML = `<option value="">— Baustelle wählen —</option>` +
+        sites.map(s => `<option value="${s.id}" ${s.id === sel ? 'selected' : ''}>${escapeHtml(siteLabel(s))}</option>`).join('');
+    }
+    function rapFillFromSite() {
+      const id = document.getElementById('rapSite').value;
+      const s = loadSites().find(x => x.id === id);
+      if (s) document.getElementById('rapCustomer').value = pestCustomerName(s.customerId, s.objektName);
+    }
+    function openRapEditor(id) {
+      editingRapId = id || null;
+      const r = id ? loadRapporte().find(x => x.id === id) : null;
+      populateRapSite(r?.siteId || '');
+      document.getElementById('rapportEditorTitle').textContent = r ? 'Rapport bearbeiten' : 'Neuer Rapport';
+      document.getElementById('rapCustomer').value = r?.objektName || '';
+      document.getElementById('rapDate').value = r?.date || new Date().toISOString().slice(0, 10);
+      document.getElementById('rapMonteur').value = r?.monteur || '';
+      document.getElementById('rapNote').value = r?.note || '';
+      document.getElementById('rapSigned').value = (r?.signed === true || r?.signed === 'true') ? 'true' : 'false';
+      const works = document.getElementById('rapWorks'); works.innerHTML = '';
+      const mat = document.getElementById('rapMaterial'); mat.innerHTML = '';
+      (r?.works && r.works.length ? r.works : [{}]).forEach(w => works.appendChild(rapRow('work', w)));
+      (r?.material || []).forEach(m => mat.appendChild(rapRow('mat', m)));
+      document.getElementById('rapDeleteBtn').style.display = r ? 'inline-flex' : 'none';
+      rapRecalcTotal();
+      openModal('rapportEditor');
+    }
+    function saveRap() {
+      const siteId = document.getElementById('rapSite').value || null;
+      const objektName = document.getElementById('rapCustomer').value.trim();
+      const date = document.getElementById('rapDate').value;
+      if (!siteId && !objektName) { toast('Baustelle oder Kunde erforderlich', 'error'); return; }
+      if (!date) { toast('Datum erforderlich', 'error'); return; }
+      const s = siteId ? loadSites().find(x => x.id === siteId) : null;
+      const data = {
+        siteId, siteTitle: s ? siteLabel(s) : objektName,
+        customerId: s?.customerId || null, objektName,
+        date, monteur: document.getElementById('rapMonteur').value.trim(),
+        works: collectRapWorks(), material: collectRapMaterial(),
+        note: document.getElementById('rapNote').value.trim(),
+        signed: document.getElementById('rapSigned').value === 'true'
+      };
+      const list = loadRapporte();
+      if (editingRapId) {
+        const idx = list.findIndex(x => x.id === editingRapId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Rapport aktualisiert');
+      } else { list.push({ id: 'wr' + Date.now(), created: new Date().toISOString(), ...data }); toast('✓ Rapport erfasst'); }
+      saveRapporte(list);
+      closeModal('rapportEditor');
+      editingRapId = null;
+      renderRapporte();
+    }
+    function deleteRap() {
+      if (!editingRapId) return;
+      if (!confirm('Rapport wirklich löschen?')) return;
+      saveRapporte(loadRapporte().filter(x => x.id !== editingRapId));
+      window.MosaDB?.remove('work_reports', editingRapId);
+      closeModal('rapportEditor');
+      editingRapId = null;
+      renderRapporte();
+      toast('Rapport gelöscht');
+    }
+
     // ============ SCHÄDLINGSBEKÄMPFUNG: Köderstellen + Protokolle ============
     function pestCustomerName(id, fallback) {
       if (typeof loadCustomers === 'function' && id) {
@@ -6911,6 +7341,16 @@
       setTimeout(renderPestProtocols, 50);
     });
     renderPestProtocols();
+
+    document.querySelector('.nav-item[data-view="baustellen"]')?.addEventListener('click', () => {
+      setTimeout(renderBaustellen, 50);
+    });
+    renderBaustellen();
+
+    document.querySelector('.nav-item[data-view="rapporte"]')?.addEventListener('click', () => {
+      setTimeout(renderRapporte, 50);
+    });
+    renderRapporte();
 
     // ============ MONATSBERICHT CSV ============
     function exportMonatsberichtCSV() {

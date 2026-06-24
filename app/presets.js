@@ -76,7 +76,9 @@
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
       hideViews: ['abos'],         // Handwerk: keine wiederkehrenden Abo-Verträge
-      extraViews: [],
+      // Handwerk: projekt-/baustellenbasiert. Eigene Module: Baustellen-Board + Arbeitsrapporte (Regie).
+      extraViews: ['baustellen', 'rapporte'],
+      navLabels: { mitarbeiter: 'Monteure', planung: 'Tagesplanung' },
       checklist: [
         'Werkzeugkoffer komplett',
         'Akkuschrauber & geladene Akkus',
