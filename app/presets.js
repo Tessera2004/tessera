@@ -41,6 +41,10 @@
         suchePlatzhalter: 'Objekt, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
+      // hideViews = Module, die diese Branche grundsätzlich NICHT braucht (zusätzlich zur Abo-Schaltung ausgeblendet).
+      // extraViews = branchen-eigene Module, die es nur hier gibt.
+      hideViews: [],
+      extraViews: [],
       checklist: [
         'Staubsauger & Ersatzbeutel an Bord',
         'Fensterwischer & Abzieher',
@@ -71,6 +75,8 @@
         suchePlatzhalter: 'Baustelle, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
+      hideViews: ['abos'],         // Handwerk: keine wiederkehrenden Abo-Verträge
+      extraViews: [],
       checklist: [
         'Werkzeugkoffer komplett',
         'Akkuschrauber & geladene Akkus',
@@ -108,6 +114,8 @@
         suchePlatzhalter: 'Grundstück, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
+      hideViews: ['nachkalkulation'],   // Garten: Pauschal-/Stundenarbeit, keine Soll/Ist-Nachkalkulation
+      extraViews: [],
       checklist: [
         'Rasenmäher & Treibstoff',
         'Heckenschere / Motorsense',
@@ -144,6 +152,8 @@
         suchePlatzhalter: 'Objekt, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
+      hideViews: ['nachkalkulation'],
+      extraViews: [],
       checklist: [
         'Köder & Fallen',
         'Sprühgerät & Bekämpfungsmittel',
@@ -184,6 +194,12 @@
         suchePlatzhalter: 'Fahrzeug, Kennzeichen, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'rechnungen'],
+      // Werkstatt: Autos kommen IN die Werkstatt → keine Routenplanung, keine Abos.
+      // Dafür ein eigenes Modul: Fahrzeug-Akte.
+      hideViews: ['planung', 'abos'],
+      extraViews: ['werkstattplan', 'fahrzeuge', 'reifen'],
+      // Saubere Garagen-Begriffe in der Seitenleiste (überschreibt Standard-Nav-Labels).
+      navLabels: { offerten: 'Kostenvoranschlag', mitarbeiter: 'Mechaniker', berichte: 'Rapporte' },
       checklist: [
         'Auftragsunterlagen / Arbeitskarte',
         'Benötigte Ersatzteile bereit',
@@ -234,6 +250,16 @@
     return (preset(vKey).modules || []).slice();
   }
 
+  // Module, die diese Branche grundsätzlich nicht braucht (Sidebar-Views ausblenden).
+  function hiddenViews(vKey) {
+    return (preset(vKey).hideViews || []).slice();
+  }
+
+  // Branchen-eigene Module (Views), die es nur in dieser Branche gibt.
+  function extraViews(vKey) {
+    return (preset(vKey).extraViews || []).slice();
+  }
+
   function list() {
     return Object.keys(PRESETS).map(function (k) {
       return { key: k, label: PRESETS[k].label };
@@ -267,7 +293,8 @@
 
   window.MosaVertical = {
     get: get, set: set, preset: preset, t: t,
-    modules: modules, list: list, apply: apply,
+    modules: modules, hiddenViews: hiddenViews, extraViews: extraViews,
+    list: list, apply: apply,
     PRESETS: PRESETS, DEFAULT: DEFAULT
   };
 

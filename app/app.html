@@ -20,7 +20,7 @@
   <script src="db-sync.js"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
-  <script src="presets.js?v=2"></script>
+  <script src="presets.js?v=5"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -63,6 +63,21 @@
 
         <div class="nav-section">
           <div class="nav-label">Einsätze</div>
+          <a class="nav-item" data-view="werkstattplan" data-vertical-view="werkstattplan" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Werkstattplan
+            <span class="nav-badge" id="werkstattplanNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="fahrzeuge" data-vertical-view="fahrzeuge" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H3v-5l2-5h11l3 5h2v5h-2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+            Fahrzeuge
+            <span class="nav-badge" id="fahrzeugeNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="reifen" data-vertical-view="reifen" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><line x1="12" y1="3" x2="12" y2="8.5"/><line x1="12" y1="15.5" x2="12" y2="21"/><line x1="3" y1="12" x2="8.5" y2="12"/><line x1="15.5" y1="12" x2="21" y2="12"/></svg>
+            Reifenhotel
+            <span class="nav-badge" id="reifenNavBadge" style="display:none;">0</span>
+          </a>
           <a class="nav-item" data-view="planung">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Routenplanung
@@ -530,6 +545,69 @@
           </div>
 
           <div class="kunden-grid" id="kundenGrid">
+            <!-- via JS -->
+          </div>
+        </section>
+
+        <!-- ============ WERKSTATTPLAN (Kernablauf Auto-Werkstatt: Auftragsboard) ============ -->
+        <section class="view" data-view="werkstattplan">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Werkstattplan</h1>
+              <p class="page-subtitle" id="werkstattplanSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openWorkOrderEditor()">+ Auftrag annehmen</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            <input type="text" id="werkstattplanSearch" placeholder="Suchen (Kennzeichen, Kunde, Anliegen…)"
+              oninput="renderWerkstattplan()"
+              style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+          </div>
+
+          <div id="werkstattBoard" style="display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; align-items:start;">
+            <!-- via JS: 4 Spalten -->
+          </div>
+        </section>
+
+        <!-- ============ FAHRZEUGE (branchen-eigenes Modul: Auto-Werkstatt) ============ -->
+        <section class="view" data-view="fahrzeuge">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Fahrzeuge</h1>
+              <p class="page-subtitle" id="fahrzeugeSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openVehicleEditor()">+ Neues Fahrzeug</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            <input type="text" id="fahrzeugeSearch" placeholder="Suchen (Kennzeichen, Marke, Kunde…)"
+              oninput="renderFahrzeuge()"
+              style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+          </div>
+
+          <div class="kunden-grid" id="fahrzeugeGrid">
+            <!-- via JS -->
+          </div>
+        </section>
+
+        <!-- ============ REIFENHOTEL (Reifeneinlagerung, Auto-Werkstatt) ============ -->
+        <section class="view" data-view="reifen">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Reifenhotel</h1>
+              <p class="page-subtitle" id="reifenSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openTireEditor()">+ Einlagerung</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            <input type="text" id="reifenSearch" placeholder="Suchen (Kunde, Kennzeichen, Lagerplatz, Dimension…)"
+              oninput="renderReifen()"
+              style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+          </div>
+
+          <div class="kunden-grid" id="reifenGrid">
             <!-- via JS -->
           </div>
         </section>
@@ -1734,6 +1812,193 @@
         <button class="btn btn-ghost" id="custDeleteBtn" onclick="deleteCustomer()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
         <button class="btn btn-secondary" onclick="closeModal('customerEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveCustomer()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Werkstattauftrag-Editor Modal (Arbeitskarte) -->
+  <div class="modal-backdrop" id="modal-workOrderEditor" onclick="if(event.target===this)closeModal('workOrderEditor')">
+    <div class="modal" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="woEditorTitle">Auftrag annehmen</div>
+          <div class="modal-subtitle">Arbeitskarte — Fahrzeug, Arbeiten, Teile</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('workOrderEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Fahrzeug aus Akte übernehmen</label>
+          <select id="woVehicleSelect" onchange="woFillFromVehicle()"></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Kennzeichen</label><input type="text" id="woPlate" placeholder="ZH 123 456" /></div>
+          <div class="field"><label>Fahrzeug</label><input type="text" id="woModel" placeholder="VW Golf 1.4 TSI" /></div>
+          <div class="field"><label>Halter / Kunde</label><input type="text" id="woOwner" placeholder="Müller AG" /></div>
+        </div>
+        <div class="field">
+          <label>Anliegen / gemeldetes Problem</label>
+          <input type="text" id="woComplaint" placeholder="z. B. Service fällig, Bremsen quietschen, MFK-Vorbereitung" />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Status</label>
+            <select id="woStatus">
+              <option value="angenommen">Angenommen</option>
+              <option value="inarbeit">In Arbeit</option>
+              <option value="wartetteile">Wartet auf Teile</option>
+              <option value="abholbereit">Abholbereit</option>
+              <option value="abgeschlossen">Abgeschlossen</option>
+            </select>
+          </div>
+          <div class="field"><label>Mechaniker</label><input type="text" id="woMechanic" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label>Hebebühne / Platz</label><input type="text" id="woBay" placeholder="z. B. Bühne 2" /></div>
+          <div class="field"><label>Abholtermin</label><input type="date" id="woDue" /></div>
+        </div>
+
+        <div style="margin-top: 6px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <label style="font-weight:600; font-size:13px; color:var(--text);">Arbeiten</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select id="woServicePick" onchange="woAddService(this.value); this.value='';" style="padding:7px 10px; border:1px solid var(--border-strong); border-radius:8px; background:var(--surface); color:var(--text); font-size:12.5px; font-family:inherit;"></select>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addWorkRow()">+ Eigene Position</button>
+          </div>
+        </div>
+        <div id="woWorks" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+
+        <div style="margin-top: 14px; display:flex; align-items:center; justify-content:space-between;">
+          <label style="font-weight:600; font-size:13px; color:var(--text);">Teile / Material</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addPartRow()">+ Teil</button>
+        </div>
+        <div id="woParts" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+
+        <div class="field" style="margin-top:14px;">
+          <label>Notiz (intern)</label>
+          <input type="text" id="woNote" placeholder="z. B. Winterräder eingelagert, Kunde ruft Mi zurück" />
+        </div>
+
+        <div style="margin-top:14px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface); display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:var(--text-subtle); font-size:13px;">Voraussichtlicher Betrag</span>
+          <span id="woTotal" style="font-weight:700; font-size:18px; color:var(--text);">CHF 0.00</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="woDeleteBtn" onclick="deleteWorkOrder()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('workOrderEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveWorkOrder()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reifeneinlagerung-Editor Modal (Reifenhotel) -->
+  <div class="modal-backdrop" id="modal-tireEditor" onclick="if(event.target===this)closeModal('tireEditor')">
+    <div class="modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="tireEditorTitle">Neue Einlagerung</div>
+          <div class="modal-subtitle">Reifenhotel — Räder einlagern</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('tireEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Fahrzeug aus Akte übernehmen</label>
+          <select id="tireVehicleSelect" onchange="tireFillFromVehicle()"></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Kunde / Halter</label><input type="text" id="tireOwner" placeholder="z. B. Müller AG" /></div>
+          <div class="field"><label>Kennzeichen</label><input type="text" id="tirePlate" placeholder="z. B. ZH 123 456" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Saison</label>
+            <select id="tireSeason">
+              <option value="winter">Winter</option>
+              <option value="sommer">Sommer</option>
+              <option value="ganzjahres">Ganzjahres</option>
+            </select>
+          </div>
+          <div class="field"><label>Felgen</label>
+            <select id="tireRim">
+              <option value="alu">Alu</option>
+              <option value="stahl">Stahl</option>
+              <option value="ohne">ohne Felgen</option>
+            </select>
+          </div>
+          <div class="field"><label>Anzahl</label><input type="number" id="tireQty" min="1" value="4" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Dimension</label><input type="text" id="tireDim" placeholder="z. B. 205/55 R16 91H" /></div>
+          <div class="field"><label>Profiltiefe (mm)</label><input type="text" id="tireTread" placeholder="z. B. 6.5" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Lagerplatz</label><input type="text" id="tireLocation" placeholder="z. B. Regal A-12" /></div>
+          <div class="field"><label>Eingelagert seit</label><input type="date" id="tireSince" /></div>
+        </div>
+        <div class="field">
+          <label>Notiz</label>
+          <input type="text" id="tireNote" placeholder="z. B. 1 Reifen ersetzen vor nächster Saison" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="tireDeleteBtn" onclick="deleteTire()" style="margin-right: auto; color: var(--danger); display: none;">Auslagern / Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('tireEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveTire()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fahrzeug-Editor Modal (Auto-Werkstatt) -->
+  <div class="modal-backdrop" id="modal-vehicleEditor" onclick="if(event.target===this)closeModal('vehicleEditor')">
+    <div class="modal" style="max-width: 560px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="vehEditorTitle">Neues Fahrzeug</div>
+          <div class="modal-subtitle">Fahrzeug-Akte erfassen</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('vehicleEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field">
+            <label>Kennzeichen</label>
+            <input type="text" id="vehPlate" placeholder="z. B. ZH 123 456" />
+          </div>
+          <div class="field">
+            <label>Kilometerstand</label>
+            <input type="text" id="vehKm" placeholder="z. B. 84 500" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Fahrzeug (Marke / Modell)</label>
+          <input type="text" id="vehModel" placeholder="z. B. VW Golf 1.4 TSI" />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field">
+            <label>Halter / Kunde</label>
+            <input type="text" id="vehOwner" placeholder="z. B. Müller AG" />
+          </div>
+          <div class="field">
+            <label>Nächster Service / MFK</label>
+            <input type="date" id="vehNextService" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Notiz</label>
+          <input type="text" id="vehNote" placeholder="z. B. Bremsen hinten prüfen, Winterräder eingelagert" />
+        </div>
+        <div id="vehHistoryWrap" style="margin-top:6px; display:none;">
+          <label style="font-weight:600; font-size:13px; color:var(--text); display:block; margin-bottom:8px;">Service-Historie</label>
+          <div id="vehHistory" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="vehDeleteBtn" onclick="deleteVehicle()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('vehicleEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveVehicle()">Speichern</button>
       </div>
     </div>
   </div>
@@ -3209,6 +3474,11 @@
     // Bei Branchenwechsel: Titel + JS-gerenderte Ansichten aktualisieren.
     document.addEventListener('mosa-vertical-changed', () => {
       syncVerticalTitles();
+      try { typeof applyFeatureFlags === 'function' && applyFeatureFlags(); } catch (e) {}   // Module pro Branche neu schalten
+      try { typeof applyVerticalNavLabels === 'function' && applyVerticalNavLabels(); } catch (e) {}  // Branchen-Begriffe in der Seitenleiste
+      try { typeof renderWerkstattplan === 'function' && renderWerkstattplan(); } catch (e) {}
+      try { typeof renderReifen === 'function' && renderReifen(); } catch (e) {}
+      try { typeof renderFahrzeuge === 'function' && renderFahrzeuge(); } catch (e) {}
       try { typeof renderMitarbeiter === 'function' && renderMitarbeiter(); } catch (e) {}
       try { typeof renderDashboard === 'function' && renderDashboard(); } catch (e) {}
       try { typeof applyPriceSection === 'function' && applyPriceSection(); } catch (e) {}
@@ -3296,9 +3566,23 @@
     }
     function applyFeatureFlags() {
       const f = loadFeatures();
+      // Branchen-Steuerung: was diese Branche nicht braucht / zusätzlich mitbringt.
+      const hidden = window.MosaVertical ? MosaVertical.hiddenViews() : [];
+      const extras = window.MosaVertical ? MosaVertical.extraViews() : [];
       FEATURE_MODULES.forEach(m => {
         const item = document.querySelector(`.nav-item[data-view="${m.view}"]`);
-        if (item) item.style.display = f[m.key] ? '' : 'none';
+        // Sichtbar nur wenn vom Abo freigeschaltet UND von der Branche nicht ausgeblendet.
+        if (item) item.style.display = (f[m.key] && !hidden.includes(m.view)) ? '' : 'none';
+      });
+      // Auch Kern-Module (z. B. Routenplanung), die nicht über das Abo laufen, branchenabhängig ausblenden.
+      hidden.forEach(view => {
+        const item = document.querySelector(`.nav-item[data-view="${view}"]`);
+        if (item) item.style.display = 'none';
+      });
+      // Branchen-eigene Module: nur in der passenden Branche zeigen, sonst aus.
+      document.querySelectorAll('.nav-item[data-vertical-view]').forEach(item => {
+        const view = item.getAttribute('data-view');
+        item.style.display = extras.includes(view) ? '' : 'none';
       });
       // Leere Nav-Sektionen ausblenden (z. B. „Vertrieb" wenn Offerten aus)
       document.querySelectorAll('.nav-section').forEach(sec => {
@@ -3310,6 +3594,31 @@
       if (active && active.style.display === 'none') {
         document.querySelector('.nav-item[data-view="dashboard"]')?.click();
       }
+    }
+
+    // Branchen-eigene Begriffe in der Seitenleiste (z. B. Werkstatt: Offerten→Kostenvoranschlag).
+    // Standard-Labels werden einmalig erfasst, damit reinigung sauber zurücksetzt.
+    let NAV_LABEL_DEFAULTS = null;
+    function navLabelTextNode(item) {
+      for (const n of item.childNodes) { if (n.nodeType === 3 && n.textContent.trim()) return n; }
+      return null;
+    }
+    function applyVerticalNavLabels() {
+      if (!NAV_LABEL_DEFAULTS) {
+        NAV_LABEL_DEFAULTS = {};
+        document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+          const tn = navLabelTextNode(item);
+          if (tn) NAV_LABEL_DEFAULTS[item.getAttribute('data-view')] = tn.textContent.trim();
+        });
+      }
+      const over = (window.MosaVertical && MosaVertical.preset().navLabels) || {};
+      document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+        const v = item.getAttribute('data-view');
+        const label = over[v] != null ? over[v] : NAV_LABEL_DEFAULTS[v];
+        if (label == null) return;
+        const tn = navLabelTextNode(item);
+        if (tn) tn.textContent = ' ' + label + '\n            ';
+      });
     }
     function renderModuleSettings() {
       const wrap = document.getElementById('moduleSettings');
@@ -5093,6 +5402,497 @@
       toast('Kunde gelöscht');
     }
 
+    // ============ WERKSTATTPLAN (Kernablauf Auto-Werkstatt: Auftragsboard) ============
+    const WORKORDERS_KEY = 'cc-workorders-v1';
+    const WO_COLUMNS = [
+      { key: 'angenommen',  label: 'Angenommen',       color: '#64748b' },
+      { key: 'inarbeit',    label: 'In Arbeit',        color: '#d97706' },
+      { key: 'wartetteile', label: 'Wartet auf Teile', color: '#dc2626' },
+      { key: 'abholbereit', label: 'Abholbereit',      color: '#16a34a' }
+    ];
+    const WO_INP = 'padding:9px 10px; border:1px solid var(--border-strong); border-radius:8px; background:var(--surface); color:var(--text); font-size:13px; font-family:inherit; width:100%;';
+    let editingWorkOrderId = null;
+
+    function loadWorkOrders() {
+      try { const v = JSON.parse(localStorage.getItem(WORKORDERS_KEY)); if (Array.isArray(v)) return v; } catch {}
+      return [];
+    }
+    function saveWorkOrders(list) {
+      localStorage.setItem(WORKORDERS_KEY, JSON.stringify(list));
+      window.MosaDB?.push('workorders', list);
+    }
+    function chf(n) { return 'CHF ' + (Number(n) || 0).toFixed(2); }
+    function woDefaultRate() {
+      try { const p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); if (p.werkstatt_reparatur_price != null) return p.werkstatt_reparatur_price; } catch {}
+      return 140;
+    }
+    function workOrderTotal(o) {
+      const w = (o.works || []).reduce((s, x) => s + (Number(x.hours) || 0) * (Number(x.rate) || 0), 0);
+      const p = (o.parts || []).reduce((s, x) => s + (Number(x.qty) || 0) * (Number(x.price) || 0), 0);
+      return w + p;
+    }
+    function workOrderLabel(o) { return [o.plate, o.model].filter(Boolean).join(' · ') || 'Auftrag'; }
+
+    function renderWerkstattplan() {
+      const board = document.getElementById('werkstattBoard');
+      const subtitle = document.getElementById('werkstattplanSubtitle');
+      if (!board) return;
+      const all = loadWorkOrders();
+      const q = (document.getElementById('werkstattplanSearch')?.value || '').toLowerCase().trim();
+      const match = o => !q || workOrderLabel(o).toLowerCase().includes(q) ||
+        (o.owner || '').toLowerCase().includes(q) || (o.complaint || '').toLowerCase().includes(q);
+      const active = all.filter(o => o.status !== 'abgeschlossen');
+      const badge = document.getElementById('werkstattplanNavBadge');
+      if (badge) { badge.textContent = active.length; badge.style.display = active.length ? '' : 'none'; }
+      if (subtitle) {
+        const done = all.length - active.length;
+        subtitle.textContent = `${active.length} offene Aufträge${done ? ` · ${done} abgeschlossen` : ''}`;
+      }
+      board.innerHTML = WO_COLUMNS.map(col => {
+        const cards = all.filter(o => o.status === col.key && match(o));
+        const cardHtml = cards.length ? cards.map(o => {
+          const total = workOrderTotal(o);
+          const next = col.key !== 'abholbereit';
+          return `<div onclick="openWorkOrderEditor('${o.id}')" style="cursor:pointer; border:1px solid var(--border); border-left:3px solid ${col.color}; border-radius:10px; padding:11px 12px; background:var(--surface); display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span style="font-weight:600; font-size:13.5px; color:var(--text);">${escapeHtml(workOrderLabel(o))}</span>
+              ${next ? `<button class="btn-icon" title="Weiter in nächste Spalte" onclick="event.stopPropagation(); moveWorkOrder('${o.id}')" style="width:24px;height:24px;flex:none;">→</button>` : ''}
+            </div>
+            <div style="font-size:12px; color:var(--text-subtle);">${escapeHtml(o.owner || '—')}</div>
+            ${o.complaint ? `<div style="font-size:12px; color:var(--text);">${escapeHtml(o.complaint)}</div>` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+              <span style="font-size:11.5px; color:var(--text-subtle);">${escapeHtml(o.mechanic || '—')}${o.bay ? ' · ' + escapeHtml(o.bay) : ''}</span>
+              <span style="font-size:12.5px; font-weight:600; color:var(--text);">${chf(total)}</span>
+            </div>
+          </div>`;
+        }).join('') : `<div style="font-size:12px; color:var(--text-subtle); padding:8px 4px;">—</div>`;
+        return `<div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
+          <div style="display:flex; align-items:center; gap:8px; padding:0 2px;">
+            <span style="width:9px; height:9px; border-radius:50%; background:${col.color};"></span>
+            <span style="font-weight:600; font-size:13px; color:var(--text);">${col.label}</span>
+            <span style="font-size:12px; color:var(--text-subtle);">${cards.length}</span>
+          </div>
+          ${cardHtml}
+        </div>`;
+      }).join('');
+    }
+
+    function moveWorkOrder(id) {
+      const list = loadWorkOrders();
+      const o = list.find(x => x.id === id);
+      if (!o) return;
+      const order = ['angenommen', 'inarbeit', 'wartetteile', 'abholbereit', 'abgeschlossen'];
+      const i = order.indexOf(o.status);
+      o.status = order[Math.min(i + 1, order.length - 1)];
+      saveWorkOrders(list);
+      renderWerkstattplan();
+      toast(o.status === 'abgeschlossen' ? '✓ Auftrag abgeschlossen' : 'Auftrag verschoben');
+    }
+
+    function populateWoVehicleSelect() {
+      const sel = document.getElementById('woVehicleSelect');
+      if (!sel) return;
+      const vs = (typeof loadVehicles === 'function') ? loadVehicles() : [];
+      sel.innerHTML = `<option value="">— Fahrzeug wählen oder unten neu erfassen —</option>` +
+        vs.map(v => `<option value="${v.id}">${escapeHtml(vehicleLabel(v))}${v.owner ? ' — ' + escapeHtml(v.owner) : ''}</option>`).join('');
+    }
+    function woFillFromVehicle() {
+      const id = document.getElementById('woVehicleSelect').value;
+      if (!id) return;
+      const v = loadVehicles().find(x => x.id === id);
+      if (!v) return;
+      document.getElementById('woPlate').value = v.plate || '';
+      document.getElementById('woModel').value = v.model || '';
+      document.getElementById('woOwner').value = v.owner || '';
+    }
+
+    function woRowWork(w) {
+      w = w || {};
+      const div = document.createElement('div');
+      div.className = 'wo-row wo-work';
+      div.style.cssText = 'display:grid; grid-template-columns: 1fr 78px 84px 30px; gap:8px; align-items:center;';
+      div.innerHTML =
+        `<input class="wo-w-title" type="text" placeholder="Arbeit (z. B. Bremsen vorne)" value="${escapeHtml(w.title || '')}" style="${WO_INP}">
+         <input class="wo-w-hours" type="number" step="0.25" min="0" placeholder="Std" value="${w.hours != null ? w.hours : ''}" oninput="woRecalcTotal()" style="${WO_INP}">
+         <input class="wo-w-rate" type="number" step="1" min="0" placeholder="Satz" value="${w.rate != null ? w.rate : woDefaultRate()}" oninput="woRecalcTotal()" style="${WO_INP}">
+         <button class="btn-icon" type="button" title="Entfernen" onclick="this.closest('.wo-row').remove(); woRecalcTotal();" style="width:28px;height:28px;flex:none;">✕</button>`;
+      return div;
+    }
+    function woRowPart(p) {
+      p = p || {};
+      const div = document.createElement('div');
+      div.className = 'wo-row wo-part';
+      div.style.cssText = 'display:grid; grid-template-columns: 1fr 78px 84px 30px; gap:8px; align-items:center;';
+      div.innerHTML =
+        `<input class="wo-p-name" type="text" placeholder="Teil (z. B. Bremsbeläge)" value="${escapeHtml(p.name || '')}" style="${WO_INP}">
+         <input class="wo-p-qty" type="number" step="1" min="0" placeholder="Menge" value="${p.qty != null ? p.qty : 1}" oninput="woRecalcTotal()" style="${WO_INP}">
+         <input class="wo-p-price" type="number" step="0.05" min="0" placeholder="Preis" value="${p.price != null ? p.price : ''}" oninput="woRecalcTotal()" style="${WO_INP}">
+         <button class="btn-icon" type="button" title="Entfernen" onclick="this.closest('.wo-row').remove(); woRecalcTotal();" style="width:28px;height:28px;flex:none;">✕</button>`;
+      return div;
+    }
+    function woServices() { return (window.MosaVertical ? (MosaVertical.preset().services || []) : []); }
+    function woServicePrice(s) {
+      try { const p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); const pk = `${MosaVertical.get()}_${s.key}_price`; if (p[pk] != null) return p[pk]; } catch {}
+      return s.price;
+    }
+    function populateWoServices() {
+      const sel = document.getElementById('woServicePick');
+      if (!sel) return;
+      const svcs = woServices();
+      sel.innerHTML = '<option value="">+ Leistung aus Katalog…</option>' +
+        svcs.map(s => `<option value="${s.key}">${escapeHtml(s.title)} · ${s.unit === 'h' ? chf(woServicePrice(s)) + '/h' : chf(woServicePrice(s))}</option>`).join('');
+    }
+    function woAddService(key) {
+      if (!key) return;
+      const s = woServices().find(x => x.key === key);
+      if (!s) return;
+      // Stundenleistung → Std offen (Mechaniker trägt ein); Pauschale → 1 × Preis.
+      addWorkRow({ title: s.title, hours: s.unit === 'h' ? '' : 1, rate: woServicePrice(s) });
+    }
+    function addWorkRow(w) { document.getElementById('woWorks').appendChild(woRowWork(w)); woRecalcTotal(); }
+    function addPartRow(p) { document.getElementById('woParts').appendChild(woRowPart(p)); woRecalcTotal(); }
+    function collectWorks() {
+      return [...document.querySelectorAll('#woWorks .wo-work')].map(r => ({
+        title: r.querySelector('.wo-w-title').value.trim(),
+        hours: parseFloat(r.querySelector('.wo-w-hours').value) || 0,
+        rate: parseFloat(r.querySelector('.wo-w-rate').value) || 0
+      })).filter(w => w.title || w.hours);
+    }
+    function collectParts() {
+      return [...document.querySelectorAll('#woParts .wo-part')].map(r => ({
+        name: r.querySelector('.wo-p-name').value.trim(),
+        qty: parseFloat(r.querySelector('.wo-p-qty').value) || 0,
+        price: parseFloat(r.querySelector('.wo-p-price').value) || 0
+      })).filter(p => p.name || p.price);
+    }
+    function woRecalcTotal() {
+      const el = document.getElementById('woTotal');
+      if (el) el.textContent = chf(workOrderTotal({ works: collectWorks(), parts: collectParts() }));
+    }
+
+    function openWorkOrderEditor(id) {
+      editingWorkOrderId = id || null;
+      const o = id ? loadWorkOrders().find(x => x.id === id) : null;
+      populateWoVehicleSelect();
+      populateWoServices();
+      document.getElementById('woEditorTitle').textContent = o ? `Auftrag · ${workOrderLabel(o)}` : 'Auftrag annehmen';
+      document.getElementById('woVehicleSelect').value = o?.vehicleId || '';
+      document.getElementById('woPlate').value = o?.plate || '';
+      document.getElementById('woModel').value = o?.model || '';
+      document.getElementById('woOwner').value = o?.owner || '';
+      document.getElementById('woComplaint').value = o?.complaint || '';
+      document.getElementById('woStatus').value = o?.status || 'angenommen';
+      document.getElementById('woMechanic').value = o?.mechanic || '';
+      document.getElementById('woBay').value = o?.bay || '';
+      document.getElementById('woDue').value = o?.due || '';
+      document.getElementById('woNote').value = o?.note || '';
+      const works = document.getElementById('woWorks'); works.innerHTML = '';
+      const parts = document.getElementById('woParts'); parts.innerHTML = '';
+      (o?.works && o.works.length ? o.works : [{}]).forEach(w => works.appendChild(woRowWork(w)));
+      (o?.parts || []).forEach(p => parts.appendChild(woRowPart(p)));
+      document.getElementById('woDeleteBtn').style.display = o ? 'inline-flex' : 'none';
+      woRecalcTotal();
+      openModal('workOrderEditor');
+    }
+    function saveWorkOrder() {
+      const plate = document.getElementById('woPlate').value.trim();
+      const model = document.getElementById('woModel').value.trim();
+      if (!plate && !model) { toast('Kennzeichen oder Fahrzeug erforderlich', 'error'); return; }
+      const data = {
+        vehicleId: document.getElementById('woVehicleSelect').value || null,
+        plate, model,
+        owner: document.getElementById('woOwner').value.trim(),
+        complaint: document.getElementById('woComplaint').value.trim(),
+        status: document.getElementById('woStatus').value,
+        mechanic: document.getElementById('woMechanic').value.trim(),
+        bay: document.getElementById('woBay').value.trim(),
+        due: document.getElementById('woDue').value,
+        note: document.getElementById('woNote').value.trim(),
+        works: collectWorks(),
+        parts: collectParts()
+      };
+      const list = loadWorkOrders();
+      if (editingWorkOrderId) {
+        const idx = list.findIndex(x => x.id === editingWorkOrderId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Auftrag aktualisiert');
+      } else {
+        list.push({ id: 'wo' + Date.now(), created: new Date().toISOString(), ...data });
+        toast('✓ Auftrag angenommen');
+      }
+      saveWorkOrders(list);
+      closeModal('workOrderEditor');
+      editingWorkOrderId = null;
+      renderWerkstattplan();
+    }
+    function deleteWorkOrder() {
+      if (!editingWorkOrderId) return;
+      const o = loadWorkOrders().find(x => x.id === editingWorkOrderId);
+      if (!o) return;
+      if (!confirm(`Auftrag "${workOrderLabel(o)}" wirklich löschen?`)) return;
+      saveWorkOrders(loadWorkOrders().filter(x => x.id !== editingWorkOrderId));
+      window.MosaDB?.remove('work_orders', editingWorkOrderId);
+      closeModal('workOrderEditor');
+      editingWorkOrderId = null;
+      renderWerkstattplan();
+      toast('Auftrag gelöscht');
+    }
+
+    // ============ REIFENHOTEL (Reifeneinlagerung, Auto-Werkstatt) ============
+    const TIRES_KEY = 'cc-tires-v1';
+    const TIRE_SEASONS = { winter: { label: 'Winter', color: '#2563eb' }, sommer: { label: 'Sommer', color: '#d97706' }, ganzjahres: { label: 'Ganzjahres', color: '#64748b' } };
+    let editingTireId = null;
+    function loadTires() {
+      try { const v = JSON.parse(localStorage.getItem(TIRES_KEY)); if (Array.isArray(v)) return v; } catch {}
+      return [];
+    }
+    function saveTires(list) {
+      localStorage.setItem(TIRES_KEY, JSON.stringify(list));
+      window.MosaDB?.push('tires', list);
+    }
+    function renderReifen() {
+      const grid = document.getElementById('reifenGrid');
+      const subtitle = document.getElementById('reifenSubtitle');
+      if (!grid) return;
+      const list = loadTires();
+      const q = (document.getElementById('reifenSearch')?.value || '').toLowerCase().trim();
+      const filtered = !q ? list : list.filter(t =>
+        (t.owner || '').toLowerCase().includes(q) || (t.plate || '').toLowerCase().includes(q) ||
+        (t.location || '').toLowerCase().includes(q) || (t.dim || '').toLowerCase().includes(q));
+      if (subtitle) subtitle.textContent = `${list.length} ${list.length === 1 ? 'Satz' : 'Sätze'} eingelagert`;
+      const badge = document.getElementById('reifenNavBadge');
+      if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+          <div style="font-size: 14px; color: var(--text-subtle);">Noch keine Reifen eingelagert.</div>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(t => {
+        const s = TIRE_SEASONS[t.season] || TIRE_SEASONS.ganzjahres;
+        return `<div class="kunde-card" onclick="openTireEditor('${t.id}')" style="border-left:3px solid ${s.color};">
+          <div class="kunde-avatar" style="background:${s.color}22; color:${s.color};">${(t.qty || 4)}×</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="kunde-name">${escapeHtml(t.owner || t.plate || 'Einlagerung')}</div>
+            <div class="kunde-sub">${escapeHtml(s.label)} · ${escapeHtml(t.dim || '—')} · ${escapeHtml(t.rim || '')}</div>
+            <div class="kunde-meta">${escapeHtml(t.plate || '—')}${t.location ? ' · 📍 ' + escapeHtml(t.location) : ''}</div>
+          </div>
+          ${t.location ? `<span class="kunde-badge"><span class="dot" style="background:${s.color};"></span>${escapeHtml(t.location)}</span>` : ''}
+        </div>`;
+      }).join('');
+    }
+    function populateTireVehicleSelect() {
+      const sel = document.getElementById('tireVehicleSelect');
+      if (!sel) return;
+      const vs = (typeof loadVehicles === 'function') ? loadVehicles() : [];
+      sel.innerHTML = `<option value="">— Fahrzeug wählen oder unten neu —</option>` +
+        vs.map(v => `<option value="${v.id}">${escapeHtml(vehicleLabel(v))}${v.owner ? ' — ' + escapeHtml(v.owner) : ''}</option>`).join('');
+    }
+    function tireFillFromVehicle() {
+      const id = document.getElementById('tireVehicleSelect').value;
+      if (!id) return;
+      const v = loadVehicles().find(x => x.id === id);
+      if (!v) return;
+      document.getElementById('tirePlate').value = v.plate || '';
+      document.getElementById('tireOwner').value = v.owner || '';
+    }
+    function openTireEditor(id) {
+      editingTireId = id || null;
+      const t = id ? loadTires().find(x => x.id === id) : null;
+      populateTireVehicleSelect();
+      document.getElementById('tireEditorTitle').textContent = t ? 'Einlagerung bearbeiten' : 'Neue Einlagerung';
+      document.getElementById('tireVehicleSelect').value = t?.vehicleId || '';
+      document.getElementById('tireOwner').value = t?.owner || '';
+      document.getElementById('tirePlate').value = t?.plate || '';
+      document.getElementById('tireSeason').value = t?.season || 'winter';
+      document.getElementById('tireRim').value = t?.rim || 'alu';
+      document.getElementById('tireQty').value = t?.qty || 4;
+      document.getElementById('tireDim').value = t?.dim || '';
+      document.getElementById('tireTread').value = t?.tread || '';
+      document.getElementById('tireLocation').value = t?.location || '';
+      document.getElementById('tireSince').value = t?.since || '';
+      document.getElementById('tireNote').value = t?.note || '';
+      document.getElementById('tireDeleteBtn').style.display = t ? 'inline-flex' : 'none';
+      openModal('tireEditor');
+    }
+    function saveTire() {
+      const owner = document.getElementById('tireOwner').value.trim();
+      const plate = document.getElementById('tirePlate').value.trim();
+      if (!owner && !plate) { toast('Kunde oder Kennzeichen erforderlich', 'error'); return; }
+      const data = {
+        vehicleId: document.getElementById('tireVehicleSelect').value || null,
+        owner, plate,
+        season: document.getElementById('tireSeason').value,
+        rim: document.getElementById('tireRim').value,
+        qty: parseInt(document.getElementById('tireQty').value) || 4,
+        dim: document.getElementById('tireDim').value.trim(),
+        tread: document.getElementById('tireTread').value.trim(),
+        location: document.getElementById('tireLocation').value.trim(),
+        since: document.getElementById('tireSince').value,
+        note: document.getElementById('tireNote').value.trim()
+      };
+      const list = loadTires();
+      if (editingTireId) {
+        const idx = list.findIndex(x => x.id === editingTireId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Einlagerung aktualisiert');
+      } else {
+        list.push({ id: 'tr' + Date.now(), ...data });
+        toast('✓ Reifen eingelagert');
+      }
+      saveTires(list);
+      closeModal('tireEditor');
+      editingTireId = null;
+      renderReifen();
+    }
+    function deleteTire() {
+      if (!editingTireId) return;
+      const t = loadTires().find(x => x.id === editingTireId);
+      if (!t) return;
+      if (!confirm(`Einlagerung "${t.owner || t.plate}" auslagern / löschen?`)) return;
+      saveTires(loadTires().filter(x => x.id !== editingTireId));
+      window.MosaDB?.remove('tire_storage', editingTireId);
+      closeModal('tireEditor');
+      editingTireId = null;
+      renderReifen();
+      toast('Ausgelagert');
+    }
+
+    // ============ FAHRZEUGE (branchen-eigenes Modul: Auto-Werkstatt) ============
+    const VEHICLES_KEY = 'cc-vehicles-v1';
+    let editingVehicleId = null;
+    function loadVehicles() {
+      try { const v = JSON.parse(localStorage.getItem(VEHICLES_KEY)); if (Array.isArray(v)) return v; } catch {}
+      return [];
+    }
+    function saveVehicles(list) {
+      localStorage.setItem(VEHICLES_KEY, JSON.stringify(list));
+      window.MosaDB?.push('vehicles', list);   // Backend-Sync wie andere Tabellen (Tabelle: siehe db-sync.js)
+    }
+    function vehicleLabel(v) {
+      return [v.plate, v.model].filter(Boolean).join(' · ') || 'Fahrzeug';
+    }
+    // MFK-/Service-Fälligkeit: überfällig = rot, in ≤30 Tagen = orange, sonst neutral.
+    function serviceBadge(v) {
+      if (!v.nextService) return '';
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const due = new Date(v.nextService + 'T00:00:00');
+      const days = Math.round((due - today) / 86400000);
+      let color = 'var(--text-subtle)', text = 'Service ' + v.nextService;
+      if (days < 0) { color = 'var(--danger)'; text = 'MFK/Service überfällig'; }
+      else if (days <= 30) { color = 'var(--warning)'; text = `Service in ${days} T.`; }
+      return `<span class="kunde-badge"><span class="dot" style="background:${color};"></span>${text}</span>`;
+    }
+    function renderFahrzeuge() {
+      const grid = document.getElementById('fahrzeugeGrid');
+      const subtitle = document.getElementById('fahrzeugeSubtitle');
+      if (!grid) return;
+      const list = loadVehicles();
+      const q = (document.getElementById('fahrzeugeSearch')?.value || '').toLowerCase().trim();
+      const filtered = !q ? list : list.filter(v =>
+        (v.plate || '').toLowerCase().includes(q) ||
+        (v.model || '').toLowerCase().includes(q) ||
+        (v.owner || '').toLowerCase().includes(q));
+      if (subtitle) subtitle.textContent = `${list.length} ${list.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'} in der Akte`;
+      const badge = document.getElementById('fahrzeugeNavBadge');
+      if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+          <div style="font-size: 14px; color: var(--text-subtle);">Noch keine Fahrzeuge erfasst.</div>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(v => {
+        const initials = (v.plate || v.model || '?').replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase();
+        const svc = serviceBadge(v);
+        return `<div class="kunde-card" onclick="openVehicleEditor('${v.id}')">
+          <div class="kunde-avatar">${initials}</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="kunde-name">${escapeHtml(vehicleLabel(v))}</div>
+            <div class="kunde-sub">${escapeHtml(v.owner || '—')}</div>
+            <div class="kunde-meta">${escapeHtml(v.km ? v.km + ' km' : '—')}${v.note ? ' · ' + escapeHtml(v.note) : ''}</div>
+          </div>
+          ${svc}
+        </div>`;
+      }).join('');
+    }
+    function openVehicleEditor(id) {
+      editingVehicleId = id || null;
+      const v = id ? loadVehicles().find(x => x.id === id) : null;
+      document.getElementById('vehEditorTitle').textContent = v ? 'Fahrzeug bearbeiten' : 'Neues Fahrzeug';
+      document.getElementById('vehPlate').value = v?.plate || '';
+      document.getElementById('vehKm').value = v?.km || '';
+      document.getElementById('vehModel').value = v?.model || '';
+      document.getElementById('vehOwner').value = v?.owner || '';
+      document.getElementById('vehNextService').value = v?.nextService || '';
+      document.getElementById('vehNote').value = v?.note || '';
+      document.getElementById('vehDeleteBtn').style.display = v ? 'inline-flex' : 'none';
+      renderVehicleHistory(v);
+      openModal('vehicleEditor');
+    }
+    // Service-Historie: alle (auch abgeschlossene) Werkstattaufträge dieses Fahrzeugs.
+    function renderVehicleHistory(v) {
+      const wrap = document.getElementById('vehHistoryWrap');
+      const box = document.getElementById('vehHistory');
+      if (!wrap || !box) return;
+      if (!v || typeof loadWorkOrders !== 'function') { wrap.style.display = 'none'; return; }
+      const orders = loadWorkOrders().filter(o =>
+        (o.vehicleId && o.vehicleId === v.id) ||
+        (o.plate && v.plate && o.plate.replace(/\s/g, '').toLowerCase() === v.plate.replace(/\s/g, '').toLowerCase()));
+      if (!orders.length) { wrap.style.display = 'none'; return; }
+      orders.sort((a, b) => (b.created || '').localeCompare(a.created || ''));
+      const statusLabel = { angenommen: 'Angenommen', inarbeit: 'In Arbeit', wartetteile: 'Wartet auf Teile', abholbereit: 'Abholbereit', abgeschlossen: 'Abgeschlossen' };
+      wrap.style.display = '';
+      box.innerHTML = orders.map(o => {
+        const date = o.created ? o.created.slice(0, 10) : '—';
+        return `<div onclick="closeModal('vehicleEditor'); openWorkOrderEditor('${o.id}');" style="cursor:pointer; border:1px solid var(--border); border-radius:8px; padding:9px 11px; display:flex; justify-content:space-between; align-items:center; gap:10px; background:var(--surface);">
+          <div style="min-width:0;">
+            <div style="font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(o.complaint || 'Auftrag')}</div>
+            <div style="font-size:11.5px; color:var(--text-subtle);">${date} · ${statusLabel[o.status] || o.status || ''}</div>
+          </div>
+          <span style="font-size:13px; font-weight:600; color:var(--text); white-space:nowrap;">${chf(workOrderTotal(o))}</span>
+        </div>`;
+      }).join('');
+    }
+    function saveVehicle() {
+      const plate = document.getElementById('vehPlate').value.trim();
+      const model = document.getElementById('vehModel').value.trim();
+      if (!plate && !model) { toast('Kennzeichen oder Modell erforderlich', 'error'); return; }
+      const data = {
+        plate, model,
+        km: document.getElementById('vehKm').value.trim(),
+        owner: document.getElementById('vehOwner').value.trim(),
+        nextService: document.getElementById('vehNextService').value,
+        note: document.getElementById('vehNote').value.trim()
+      };
+      const list = loadVehicles();
+      if (editingVehicleId) {
+        const idx = list.findIndex(x => x.id === editingVehicleId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Fahrzeug aktualisiert');
+      } else {
+        list.push({ id: 'v' + Date.now(), ...data });
+        toast('✓ Fahrzeug angelegt');
+      }
+      saveVehicles(list);
+      closeModal('vehicleEditor');
+      editingVehicleId = null;
+      renderFahrzeuge();
+    }
+    function deleteVehicle() {
+      if (!editingVehicleId) return;
+      const v = loadVehicles().find(x => x.id === editingVehicleId);
+      if (!v) return;
+      if (!confirm(`Fahrzeug "${vehicleLabel(v)}" wirklich löschen?`)) return;
+      saveVehicles(loadVehicles().filter(x => x.id !== editingVehicleId));
+      window.MosaDB?.remove('vehicles', editingVehicleId);
+      closeModal('vehicleEditor');
+      editingVehicleId = null;
+      renderFahrzeuge();
+      toast('Fahrzeug gelöscht');
+    }
+
     function openCustomerDetail(id) {
       openCustomerId = id;
       const list = loadCustomers();
@@ -5651,6 +6451,21 @@
       setTimeout(renderKunden, 50);
     });
     renderKunden();
+
+    document.querySelector('.nav-item[data-view="fahrzeuge"]')?.addEventListener('click', () => {
+      setTimeout(renderFahrzeuge, 50);
+    });
+    renderFahrzeuge();
+
+    document.querySelector('.nav-item[data-view="werkstattplan"]')?.addEventListener('click', () => {
+      setTimeout(renderWerkstattplan, 50);
+    });
+    renderWerkstattplan();
+
+    document.querySelector('.nav-item[data-view="reifen"]')?.addEventListener('click', () => {
+      setTimeout(renderReifen, 50);
+    });
+    renderReifen();
 
     // ============ MONATSBERICHT CSV ============
     function exportMonatsberichtCSV() {
@@ -9409,6 +10224,7 @@ ${coSig}`;
 
     // Mandanten-ID einmalig beim Startup laden (silent, kein Fehler wenn nicht konfiguriert)
     applyFeatureFlags();
+    applyVerticalNavLabels();
     (async () => {
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
@@ -9431,6 +10247,7 @@ ${coSig}`;
       // Login → festes Büro-Profil + Rolle, Umschalter sperren (gewinnt über Demo-Auswahl)
       applyAuthProfile();
       applyFeatureFlags();
+      applyVerticalNavLabels();
       try {
         if (typeof renderDashboard === 'function') renderDashboard();
         const active = document.querySelector('.nav-item.active[data-view]');

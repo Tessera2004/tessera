@@ -131,6 +131,56 @@
  *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
  *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
  *
+ *   -- Fahrzeuge (branchen-eigenes Modul: Auto-Werkstatt)
+ *   CREATE TABLE IF NOT EXISTS vehicles (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     plate        TEXT, model TEXT, owner TEXT,
+ *     km           TEXT, next_service TEXT, note TEXT,
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "veh_tenant" ON vehicles;
+ *   CREATE POLICY "veh_tenant" ON vehicles FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
+ *   -- Werkstattaufträge (Kernablauf Auto-Werkstatt: Auftragsboard)
+ *   CREATE TABLE IF NOT EXISTS work_orders (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     vehicle_id   TEXT,
+ *     plate        TEXT, model TEXT, owner TEXT,
+ *     complaint    TEXT,
+ *     status       TEXT DEFAULT 'angenommen',
+ *     mechanic     TEXT, bay TEXT, due TEXT, note TEXT,
+ *     works        JSONB DEFAULT '[]',
+ *     parts        JSONB DEFAULT '[]',
+ *     created_at   TIMESTAMPTZ DEFAULT NOW(),
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE work_orders ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "wo_tenant" ON work_orders;
+ *   CREATE POLICY "wo_tenant" ON work_orders FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
+ *   -- Reifeneinlagerung / Reifenhotel (Auto-Werkstatt)
+ *   CREATE TABLE IF NOT EXISTS tire_storage (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     vehicle_id   TEXT,
+ *     owner        TEXT, plate TEXT,
+ *     season       TEXT, rim TEXT, qty INTEGER,
+ *     dim          TEXT, tread TEXT, location TEXT, since TEXT, note TEXT,
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE tire_storage ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "tire_tenant" ON tire_storage;
+ *   CREATE POLICY "tire_tenant" ON tire_storage FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
  *   -- Firmenprofil + Preise (1 Zeile pro Mandant)
  *   CREATE TABLE IF NOT EXISTS company_settings (
  *     tenant_id   UUID PRIMARY KEY REFERENCES tenants(id) ON DELETE CASCADE,
@@ -212,6 +262,24 @@
       isProtocol: r.is_protocol || false, signed: r.signed || false };
   }
 
+  function rowToVehicle(r) {
+    return { id: r.id, plate: r.plate, model: r.model, owner: r.owner,
+      km: r.km, nextService: r.next_service, note: r.note };
+  }
+
+  function rowToWorkOrder(r) {
+    return { id: r.id, vehicleId: r.vehicle_id, plate: r.plate, model: r.model,
+      owner: r.owner, complaint: r.complaint, status: r.status || 'angenommen',
+      mechanic: r.mechanic, bay: r.bay, due: r.due, note: r.note,
+      works: r.works || [], parts: r.parts || [], created: r.created_at };
+  }
+
+  function rowToTire(r) {
+    return { id: r.id, vehicleId: r.vehicle_id, owner: r.owner, plate: r.plate,
+      season: r.season, rim: r.rim, qty: r.qty, dim: r.dim, tread: r.tread,
+      location: r.location, since: r.since, note: r.note };
+  }
+
   function unflattenJobs(rows) {
     const dict = {};
     (rows || []).forEach(r => {
@@ -269,6 +337,29 @@
       photos: r.photos || [], signature_img: r.signatureImg || null,
       tasks: r.tasks || [], photo_count: r.photoCount || null,
       is_protocol: r.isProtocol || false, signed: r.signed || false,
+      updated_at: new Date().toISOString() };
+  }
+
+  function vehicleToRow(v, tid) {
+    return { id: v.id, tenant_id: tid, plate: v.plate || null, model: v.model || null,
+      owner: v.owner || null, km: v.km || null, next_service: v.nextService || null,
+      note: v.note || null, updated_at: new Date().toISOString() };
+  }
+
+  function workOrderToRow(o, tid) {
+    return { id: o.id, tenant_id: tid, vehicle_id: o.vehicleId || null,
+      plate: o.plate || null, model: o.model || null, owner: o.owner || null,
+      complaint: o.complaint || null, status: o.status || 'angenommen',
+      mechanic: o.mechanic || null, bay: o.bay || null, due: o.due || null,
+      note: o.note || null, works: o.works || [], parts: o.parts || [],
+      updated_at: new Date().toISOString() };
+  }
+
+  function tireToRow(t, tid) {
+    return { id: t.id, tenant_id: tid, vehicle_id: t.vehicleId || null,
+      owner: t.owner || null, plate: t.plate || null, season: t.season || null,
+      rim: t.rim || null, qty: t.qty || null, dim: t.dim || null, tread: t.tread || null,
+      location: t.location || null, since: t.since || null, note: t.note || null,
       updated_at: new Date().toISOString() };
   }
 
@@ -370,6 +461,21 @@
       if (Array.isArray(settRl) && settRl.length) localStorage.setItem('cc-roles-v1', JSON.stringify(settRl));
       else { const lp = lsGet('cc-roles-v1', []); if (Array.isArray(lp) && lp.length) await push('company_roles', lp); }
 
+      // Fahrzeuge separat & resilient laden: fehlt die Tabelle (Branche nutzt das Modul nicht),
+      // darf das den restlichen Sync NICHT brechen.
+      try {
+        const vehR = await sb.from('vehicles').select('*').eq('tenant_id', tid);
+        if (!vehR.error) await mergeArray('cc-vehicles-v1', vehR.data, rowToVehicle, 'vehicles');
+      } catch {}
+      try {
+        const woR = await sb.from('work_orders').select('*').eq('tenant_id', tid);
+        if (!woR.error) await mergeArray('cc-workorders-v1', woR.data, rowToWorkOrder, 'workorders');
+      } catch {}
+      try {
+        const tireR = await sb.from('tire_storage').select('*').eq('tenant_id', tid);
+        if (!tireR.error) await mergeArray('cc-tires-v1', tireR.data, rowToTire, 'tires');
+      } catch {}
+
       window._dbReady = true;
       console.log('[MosaDB] Sync OK —', { ou: ouR.data?.length, emp: empR.data?.length,
         cust: custR.data?.length, jobs: jobR.data?.length, tasks: taskR.data?.length,
@@ -398,6 +504,12 @@
       } else if (type === 'plan_jobs') {
         const rows = flattenJobs(data, tid);
         if (rows.length) await sb.from('plan_jobs').upsert(rows, { onConflict: 'id' });
+      } else if (type === 'vehicles') {
+        await sb.from('vehicles').upsert(data.map(v => vehicleToRow(v, tid)), { onConflict: 'id' });
+      } else if (type === 'workorders') {
+        await sb.from('work_orders').upsert(data.map(o => workOrderToRow(o, tid)), { onConflict: 'id' });
+      } else if (type === 'tires') {
+        await sb.from('tire_storage').upsert(data.map(t => tireToRow(t, tid)), { onConflict: 'id' });
       } else if (type === 'tasks') {
         await sb.from('tasks').upsert(data.map(t => taskToRow(t, tid)), { onConflict: 'id' });
       } else if (type === 'reports') {
