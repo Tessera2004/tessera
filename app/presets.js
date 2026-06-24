@@ -37,6 +37,7 @@
         rolle: 'Reinigungskraft',
         feldStamm: 'Reiniger / Fahrer',
         feldAnsichtTitel: 'Reiniger-Ansicht öffnen',
+        leistungsart: 'Reinigungsart',
         suchePlatzhalter: 'Objekt, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
@@ -66,6 +67,7 @@
         rolle: 'Monteur',
         feldStamm: 'Monteur / Fahrer',
         feldAnsichtTitel: 'Monteur-Ansicht öffnen',
+        leistungsart: 'Auftragsart',
         suchePlatzhalter: 'Baustelle, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
@@ -95,6 +97,7 @@
         rolle: 'Gärtner',
         feldStamm: 'Gärtner / Fahrer',
         feldAnsichtTitel: 'Gärtner-Ansicht öffnen',
+        leistungsart: 'Leistungsart',
         suchePlatzhalter: 'Grundstück, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
@@ -124,6 +127,7 @@
         rolle: 'Schädlingstechniker',
         feldStamm: 'Techniker / Fahrer',
         feldAnsichtTitel: 'Techniker-Ansicht öffnen',
+        leistungsart: 'Auftragsart',
         suchePlatzhalter: 'Objekt, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
@@ -153,6 +157,7 @@
         rolle: 'Mechaniker',
         feldStamm: 'Mechaniker / Fahrer',
         feldAnsichtTitel: 'Mechaniker-Ansicht öffnen',
+        leistungsart: 'Auftragsart',
         suchePlatzhalter: 'Fahrzeug, Kennzeichen, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'rechnungen'],

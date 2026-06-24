@@ -766,7 +766,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Offerten</h1>
-              <p class="page-subtitle">Vorgefertigte Angebote pro Reinigungsart — bearbeiten, speichern, versenden.</p>
+              <p class="page-subtitle">Vorgefertigte Angebote pro <span data-term="leistungsart">Reinigungsart</span> — bearbeiten, speichern, versenden.</p>
             </div>
             <button class="btn btn-accent" onclick="openOffertEditor()">+ Neue Offerte</button>
           </div>
@@ -785,7 +785,7 @@
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px;">Noch keine Offerten</div>
-            <div style="font-size: 13px; color: var(--text-muted); max-width: 360px; margin: 0 auto 16px;">Klick auf „Neue Offerte" — der vorgefertigte Text passt sich automatisch an die gewählte Reinigungsart an.</div>
+            <div style="font-size: 13px; color: var(--text-muted); max-width: 360px; margin: 0 auto 16px;">Klick auf „Neue Offerte" — der vorgefertigte Text passt sich automatisch an die gewählte <span data-term="leistungsart">Reinigungsart</span> an.</div>
             <button class="btn btn-accent" onclick="openOffertEditor()">+ Erste Offerte erstellen</button>
           </div>
         </section>
@@ -828,7 +828,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Preise & Konditionen</h1>
-              <p class="page-subtitle">Stundensätze und Mindestbuchungen pro Reinigungsart — fließen automatisch in jeden neuen Auftrag.</p>
+              <p class="page-subtitle">Stundensätze und Mindestbuchungen pro <span data-term="leistungsart">Reinigungsart</span> — fließen automatisch in jeden neuen Auftrag.</p>
             </div>
             <button class="btn btn-accent" onclick="savePrices()">Änderungen speichern</button>
           </div>
@@ -1163,7 +1163,7 @@
       </div>
 
       <div class="wizard-steps">
-        <div class="wstep active" data-step="1"><div class="wstep-num">1</div>Reinigungsart</div>
+        <div class="wstep active" data-step="1"><div class="wstep-num">1</div><span data-term="leistungsart">Reinigungsart</span></div>
         <div class="wstep-sep"></div>
         <div class="wstep" data-step="2"><div class="wstep-num">2</div>Details</div>
         <div class="wstep-sep"></div>
@@ -1599,7 +1599,7 @@
       <div class="modal-body" style="max-height: 70vh;">
 
         <div class="field">
-          <label>Reinigungsart</label>
+          <label data-term="leistungsart">Reinigungsart</label>
           <div class="opt-row">
             <button type="button" class="opt-chip on" data-off-svc="unterhalt" onclick="selectOffertService(this,'unterhalt')">Unterhalt</button>
             <button type="button" class="opt-chip" data-off-svc="end" onclick="selectOffertService(this,'end')">Endreinigung</button>
@@ -7021,7 +7021,7 @@
       }
 
       // titles per step
-      if (wizCurrent === 1) document.getElementById('wizSub').textContent = 'Wähle die Reinigungsart aus';
+      if (wizCurrent === 1) document.getElementById('wizSub').textContent = `Wähle die ${VT('leistungsart')} aus`;
       if (wizCurrent === 3) {
         document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis';
         // Step 2 → Step 3: Minuten aus Service-Optionen in Stunden-Feld übernehmen
