@@ -292,8 +292,9 @@
     if (!PRESETS[key]) return false;
     try { localStorage.setItem(STORE_KEY, key); } catch (e) {}
     apply();
-    // TODO (Folgeschritt): Branche am Mandanten im Backend speichern (company_settings.vertical),
-    // damit die Mobile-App die Branche geräteübergreifend kennt. Phase 1 = nur lokal.
+    // Hinweis: set() schreibt nur lokal (cc-vertical). Der geräteübergreifende Sync läuft über das
+    // Firmenprofil — die Aufrufer (app.html onVerticalChange, onboarding.html) speichern company.vertical,
+    // das via company_settings.profile (JSONB) synct und beim Login mit applyVerticalFromCompany() greift.
     document.dispatchEvent(new CustomEvent('mosa-vertical-changed', { detail: { vertical: key } }));
     return true;
   }

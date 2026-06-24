@@ -269,8 +269,13 @@
       <!-- ===== STEP 2: Firmenprofil ===== -->
       <div class="ob-panel" id="panel2">
         <h2 class="ob-title">Firmenprofil</h2>
-        <p class="ob-sub">Erscheint auf allen Rechnungen und dem Swiss QR-Einzahlschein.</p>
+        <p class="ob-sub">Wähle dein Geschäftsfeld — die App passt Begriffe, Module und Preise automatisch an. Die Firmendaten erscheinen auf allen Rechnungen und dem Swiss QR-Einzahlschein.</p>
         <form id="companyForm" class="login-form">
+          <div class="field">
+            <label for="obVertical">Geschäftsfeld *</label>
+            <select id="obVertical"></select>
+            <div id="obVerticalHint" style="font-size:12px;color:var(--text-subtle);margin-top:6px;line-height:1.45;"></div>
+          </div>
           <div class="field">
             <label for="obCoName">Firmenname *</label>
             <input type="text" id="obCoName" placeholder="z. B. Müller Reinigung GmbH" required />
@@ -315,10 +320,12 @@
 
       <!-- ===== STEP 3: Stundenpreise ===== -->
       <div class="ob-panel" id="panel3">
-        <h2 class="ob-title">Stundenpreise</h2>
+        <h2 class="ob-title" id="priceTitle">Stundenpreise</h2>
         <p class="ob-sub">Standardwerte für die Auftragsberechnung — jederzeit unter Einstellungen änderbar.</p>
         <form id="pricesForm" class="login-form">
 
+         <!-- Reinigung: detaillierte Stundensätze (Standard) -->
+         <div id="priceReinigung">
           <div class="ob-group-title">Unterhaltsreinigung</div>
           <div class="ob-price-row">
             <div class="field">
@@ -382,6 +389,10 @@
               <input type="number" step="5" min="0" id="pr-bau-fee" value="35" />
             </div>
           </div>
+         </div><!-- /priceReinigung -->
+
+         <!-- Andere Branchen: Leistungskatalog aus dem Preset -->
+         <div id="priceGeneric"></div>
 
           <div class="ob-footer">
             <button type="button" class="ob-back" onclick="goStep(2)">← Zurück</button>
@@ -453,10 +464,43 @@
     </div>
   </div>
 
+  <script src="presets.js?v=8"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
   <script>
     let step1Skipped = false;
+
+    // ── Branchen-Wähler (Geschäftsfeld) ──────────────────────────
+    // Beispiel-Firmenname je Branche — macht das Profil-Feld greifbarer.
+    const VERTICAL_NAME_EXAMPLE = {
+      reinigung: 'z. B. Müller Reinigung GmbH',
+      handwerk:  'z. B. Müller Haustechnik GmbH',
+      garten:    'z. B. Müller Gartenbau GmbH',
+      schaedling:'z. B. Müller Schädlingsbekämpfung GmbH',
+      werkstatt: 'z. B. Garage Müller AG'
+    };
+
+    function initVerticalSelect() {
+      const sel = document.getElementById('obVertical');
+      if (!sel || !window.MosaVertical) return;
+      const cur = MosaVertical.get();
+      sel.innerHTML = MosaVertical.list().map(v =>
+        `<option value="${v.key}" ${v.key === cur ? 'selected' : ''}>${v.label}</option>`).join('');
+      sel.addEventListener('change', () => applyVerticalPreview(sel.value));
+      applyVerticalPreview(cur);
+    }
+
+    // Beim Branchenwechsel im Onboarding: Hinweistext + Namens-Beispiel anpassen.
+    function applyVerticalPreview(key) {
+      const p = window.MosaVertical ? MosaVertical.PRESETS[key] : null;
+      const hint = document.getElementById('obVerticalHint');
+      const nameInput = document.getElementById('obCoName');
+      if (nameInput) nameInput.placeholder = VERTICAL_NAME_EXAMPLE[key] || nameInput.placeholder;
+      if (hint && p) {
+        const mods = (p.modules || []).length;
+        hint.textContent = `Begriffe, Module und Beispielpreise richten sich nach dieser Branche. Jederzeit in den Einstellungen änderbar.`;
+      }
+    }
 
     // If already logged in → skip account creation
     (async () => {
@@ -469,6 +513,8 @@
         skipToStep2();
       }
     })();
+
+    initVerticalSelect();
 
     // ── Step navigation ──────────────────────────────────────────
     const STEPS = [1, 2, 3, 4];
@@ -572,8 +618,13 @@
       const name = document.getElementById('obCoName').value.trim();
       if (!name) { setMsg('companyMsg', 'Firmenname ist erforderlich.'); return; }
 
+      const vertical = (document.getElementById('obVertical') || {}).value || 'reinigung';
+      // Branche festlegen: lokal (cc-vertical) + ins Firmenprofil → Sync auf Mobile/andere Geräte.
+      try { window.MosaVertical && MosaVertical.set(vertical); } catch (e) {}
+
       const company = {
         name,
+        vertical,
         addr1:   document.getElementById('obCoAddr1').value.trim(),
         addr2:   document.getElementById('obCoAddr2').value.trim(),
         iban:    document.getElementById('obCoIban').value.trim(),
@@ -582,12 +633,57 @@
         country: document.getElementById('obCoCountry').value,
       };
       localStorage.setItem('cc-company-v1', JSON.stringify(company));
+      renderPriceStep(vertical);
       goStep(3);
     });
+
+    // ── Preisschritt branchenabhängig aufbauen ───────────────────
+    function renderPriceStep(vertical) {
+      const isClean = vertical === 'reinigung';
+      const rein = document.getElementById('priceReinigung');
+      const gen  = document.getElementById('priceGeneric');
+      const title = document.getElementById('priceTitle');
+      if (rein) rein.style.display = isClean ? '' : 'none';
+      if (gen)  gen.style.display  = isClean ? 'none' : '';
+      if (title) title.textContent = isClean ? 'Stundenpreise' : 'Preise & Tarife';
+      if (isClean || !window.MosaVertical) { if (gen) gen.innerHTML = ''; return; }
+
+      const svcs = MosaVertical.preset(vertical).services || [];
+      gen.innerHTML = svcs.map(s => {
+        const suffix = s.unit === 'h' ? 'CHF / Std.' : 'CHF pauschal';
+        return `
+          <div class="ob-group-title">${escapeHtmlOb(s.title)}</div>
+          <div style="font-size:12px;color:var(--text-subtle);margin:-4px 0 8px;line-height:1.4;">${escapeHtmlOb(s.desc)}</div>
+          <div class="field">
+            <label>${s.unit === 'h' ? 'Stundensatz' : 'Pauschalpreis'} — ${suffix}</label>
+            <input type="number" step="${s.unit === 'h' ? '0.5' : '5'}" min="0"
+                   data-gprice="${vertical}_${s.key}_price" value="${s.price}" />
+          </div>`;
+      }).join('');
+    }
+
+    function escapeHtmlOb(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
 
     // ── Step 3: Preise ───────────────────────────────────────────
     document.getElementById('pricesForm').addEventListener('submit', (e) => {
       e.preventDefault();
+      const vertical = (document.getElementById('obVertical') || {}).value || 'reinigung';
+
+      // Nicht-Reinigung: generische Branchen-Tarife (gleiche Keys wie die App: <branche>_<service>_price).
+      if (vertical !== 'reinigung') {
+        let prices = {};
+        try { prices = JSON.parse(localStorage.getItem('cc-prices') || '{}'); } catch (e) {}
+        document.querySelectorAll('#priceGeneric [data-gprice]').forEach(inp => {
+          prices[inp.getAttribute('data-gprice')] = parseFloat(inp.value) || 0;
+        });
+        localStorage.setItem('cc-prices', JSON.stringify(prices));
+        goStep(4);
+        return;
+      }
+
       const g = id => parseFloat(document.getElementById('pr-' + id)?.value) || 0;
       const prices = {
         'unterhalt-rate': g('unterhalt-rate'),
@@ -657,11 +753,23 @@
         const dd = document.createElement('dd'); dd.textContent = value || '—';
         dl.appendChild(dt); dl.appendChild(dd);
       };
+      const vertical = company.vertical || 'reinigung';
+      const vLabel = (window.MosaVertical && MosaVertical.PRESETS[vertical]) ? MosaVertical.PRESETS[vertical].label : 'Gebäudereinigung';
+      row('Geschäftsfeld', vLabel);
       row('Firma', company.name);
       row('Adresse', [company.addr1, company.addr2].filter(Boolean).join(', '));
       row('IBAN', company.iban || '(noch nicht eingetragen)');
-      row('Unterhaltsreinigung', prices['unterhalt-rate'] ? `CHF ${prices['unterhalt-rate']}/h` : '—');
-      row('Endreinigung', prices['end-rate'] ? `CHF ${prices['end-rate']}/h` : '—');
+      if (vertical === 'reinigung') {
+        row('Unterhaltsreinigung', prices['unterhalt-rate'] ? `CHF ${prices['unterhalt-rate']}/h` : '—');
+        row('Endreinigung', prices['end-rate'] ? `CHF ${prices['end-rate']}/h` : '—');
+      } else if (window.MosaVertical) {
+        // Erste zwei Branchen-Leistungen als Beleg, dass Preise gesetzt sind.
+        (MosaVertical.preset(vertical).services || []).slice(0, 2).forEach(s => {
+          const v = prices[`${vertical}_${s.key}_price`];
+          const suffix = s.unit === 'h' ? '/h' : ' pauschal';
+          row(s.title, (v != null) ? `CHF ${v}${suffix}` : '—');
+        });
+      }
       if (nonDemo.length > 0) {
         row('1. Mitarbeiter', `${nonDemo[0].firstname} ${nonDemo[0].lastname}`.trim());
       }
