@@ -181,6 +181,39 @@
  *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
  *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
  *
+ *   -- Köderstellen / Monitoring (Schädlingsbekämpfung)
+ *   CREATE TABLE IF NOT EXISTS bait_stations (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     customer_id  TEXT, objekt_name TEXT,
+ *     number       TEXT, location TEXT, type TEXT, agent TEXT,
+ *     status       TEXT DEFAULT 'ok',
+ *     last_check   TEXT, interval_days INTEGER, note TEXT,
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE bait_stations ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "bait_tenant" ON bait_stations;
+ *   CREATE POLICY "bait_tenant" ON bait_stations FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
+ *   -- Behandlungs-/Kontrollprotokolle (HACCP-Nachweis, Schädlingsbekämpfung)
+ *   CREATE TABLE IF NOT EXISTS pest_protocols (
+ *     id           TEXT PRIMARY KEY,
+ *     tenant_id    UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+ *     customer_id  TEXT, objekt_name TEXT,
+ *     date         TEXT, technician TEXT, pest_type TEXT,
+ *     measure      TEXT, agent TEXT, amount TEXT, findings TEXT,
+ *     recheck      TEXT, signed BOOLEAN DEFAULT false, note TEXT,
+ *     created_at   TIMESTAMPTZ DEFAULT NOW(),
+ *     updated_at   TIMESTAMPTZ DEFAULT NOW()
+ *   );
+ *   ALTER TABLE pest_protocols ENABLE ROW LEVEL SECURITY;
+ *   DROP POLICY IF EXISTS "pest_tenant" ON pest_protocols;
+ *   CREATE POLICY "pest_tenant" ON pest_protocols FOR ALL TO authenticated
+ *     USING  (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()))
+ *     WITH CHECK (tenant_id=(SELECT tenant_id FROM tenant_users WHERE user_id=auth.uid()));
+ *
  *   -- Firmenprofil + Preise (1 Zeile pro Mandant)
  *   CREATE TABLE IF NOT EXISTS company_settings (
  *     tenant_id   UUID PRIMARY KEY REFERENCES tenants(id) ON DELETE CASCADE,
@@ -280,6 +313,18 @@
       location: r.location, since: r.since, note: r.note };
   }
 
+  function rowToBait(r) {
+    return { id: r.id, customerId: r.customer_id, objektName: r.objekt_name,
+      number: r.number, location: r.location, type: r.type, agent: r.agent,
+      status: r.status || 'ok', lastCheck: r.last_check, interval: r.interval_days, note: r.note };
+  }
+  function rowToPestProtocol(r) {
+    return { id: r.id, customerId: r.customer_id, objektName: r.objekt_name,
+      date: r.date, technician: r.technician, pestType: r.pest_type,
+      measure: r.measure, agent: r.agent, amount: r.amount, findings: r.findings,
+      recheck: r.recheck, signed: r.signed || false, note: r.note, created: r.created_at };
+  }
+
   function unflattenJobs(rows) {
     const dict = {};
     (rows || []).forEach(r => {
@@ -361,6 +406,19 @@
       rim: t.rim || null, qty: t.qty || null, dim: t.dim || null, tread: t.tread || null,
       location: t.location || null, since: t.since || null, note: t.note || null,
       updated_at: new Date().toISOString() };
+  }
+
+  function baitToRow(b, tid) {
+    return { id: b.id, tenant_id: tid, customer_id: b.customerId || null, objekt_name: b.objektName || null,
+      number: b.number || null, location: b.location || null, type: b.type || null, agent: b.agent || null,
+      status: b.status || 'ok', last_check: b.lastCheck || null, interval_days: b.interval || null,
+      note: b.note || null, updated_at: new Date().toISOString() };
+  }
+  function pestProtocolToRow(p, tid) {
+    return { id: p.id, tenant_id: tid, customer_id: p.customerId || null, objekt_name: p.objektName || null,
+      date: p.date || null, technician: p.technician || null, pest_type: p.pestType || null,
+      measure: p.measure || null, agent: p.agent || null, amount: p.amount || null, findings: p.findings || null,
+      recheck: p.recheck || null, signed: !!p.signed, note: p.note || null, updated_at: new Date().toISOString() };
   }
 
   function flattenJobs(dict, tid) {
@@ -475,6 +533,14 @@
         const tireR = await sb.from('tire_storage').select('*').eq('tenant_id', tid);
         if (!tireR.error) await mergeArray('cc-tires-v1', tireR.data, rowToTire, 'tires');
       } catch {}
+      try {
+        const baitR = await sb.from('bait_stations').select('*').eq('tenant_id', tid);
+        if (!baitR.error) await mergeArray('cc-baitstations-v1', baitR.data, rowToBait, 'baits');
+      } catch {}
+      try {
+        const pestR = await sb.from('pest_protocols').select('*').eq('tenant_id', tid);
+        if (!pestR.error) await mergeArray('cc-pestprotocols-v1', pestR.data, rowToPestProtocol, 'pestprotocols');
+      } catch {}
 
       window._dbReady = true;
       console.log('[MosaDB] Sync OK —', { ou: ouR.data?.length, emp: empR.data?.length,
@@ -510,6 +576,10 @@
         await sb.from('work_orders').upsert(data.map(o => workOrderToRow(o, tid)), { onConflict: 'id' });
       } else if (type === 'tires') {
         await sb.from('tire_storage').upsert(data.map(t => tireToRow(t, tid)), { onConflict: 'id' });
+      } else if (type === 'baits') {
+        await sb.from('bait_stations').upsert(data.map(b => baitToRow(b, tid)), { onConflict: 'id' });
+      } else if (type === 'pestprotocols') {
+        await sb.from('pest_protocols').upsert(data.map(p => pestProtocolToRow(p, tid)), { onConflict: 'id' });
       } else if (type === 'tasks') {
         await sb.from('tasks').upsert(data.map(t => taskToRow(t, tid)), { onConflict: 'id' });
       } else if (type === 'reports') {

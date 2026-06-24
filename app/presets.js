@@ -153,7 +153,10 @@
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
       hideViews: ['nachkalkulation'],
-      extraViews: [],
+      // Schädling: Techniker fahren zu Objekten (Routen bleiben). Eigene Module:
+      // Köderstellen-Monitoring + rechtssichere Kontroll-/Behandlungsprotokolle.
+      extraViews: ['koederstellen', 'protokolle'],
+      navLabels: { planung: 'Einsatzplanung', mitarbeiter: 'Techniker', abos: 'Monitoring-Verträge' },
       checklist: [
         'Köder & Fallen',
         'Sprühgerät & Bekämpfungsmittel',

@@ -20,7 +20,7 @@
   <script src="db-sync.js"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
-  <script src="presets.js?v=5"></script>
+  <script src="presets.js?v=6"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -77,6 +77,16 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><line x1="12" y1="3" x2="12" y2="8.5"/><line x1="12" y1="15.5" x2="12" y2="21"/><line x1="3" y1="12" x2="8.5" y2="12"/><line x1="15.5" y1="12" x2="21" y2="12"/></svg>
             Reifenhotel
             <span class="nav-badge" id="reifenNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="koederstellen" data-vertical-view="koederstellen" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M7 9V6.5A2.5 2.5 0 0 1 9.5 4h5A2.5 2.5 0 0 1 17 6.5V9"/><line x1="12" y1="13" x2="12" y2="16"/></svg>
+            Köderstellen
+            <span class="nav-badge" id="koederNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="protokolle" data-vertical-view="protokolle" style="display:none;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l2 2 4-4"/></svg>
+            Protokolle
+            <span class="nav-badge" id="protokolleNavBadge" style="display:none;">0</span>
           </a>
           <a class="nav-item" data-view="planung">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -608,6 +618,53 @@
           </div>
 
           <div class="kunden-grid" id="reifenGrid">
+            <!-- via JS -->
+          </div>
+        </section>
+
+        <!-- ============ KÖDERSTELLEN (Monitoring, Schädlingsbekämpfung) ============ -->
+        <section class="view" data-view="koederstellen">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Köderstellen</h1>
+              <p class="page-subtitle" id="koederSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openBaitEditor()">+ Köderstelle</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="koederSearch" placeholder="Suchen (Objekt, Nr., Standort, Wirkstoff…)"
+              oninput="renderKoederstellen()"
+              style="flex: 1; min-width: 200px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+            <div id="koederFilter" style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn btn-secondary is-active" data-f="alle" onclick="setKoederFilter('alle')">Alle</button>
+              <button class="btn btn-secondary" data-f="befall" onclick="setKoederFilter('befall')">⚠ Befall</button>
+              <button class="btn btn-secondary" data-f="faellig" onclick="setKoederFilter('faellig')">Kontrolle fällig</button>
+            </div>
+          </div>
+
+          <div class="kunden-grid" id="koederGrid">
+            <!-- via JS -->
+          </div>
+        </section>
+
+        <!-- ============ PROTOKOLLE (Behandlungs-/Kontrollprotokoll, HACCP) ============ -->
+        <section class="view" data-view="protokolle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Protokolle</h1>
+              <p class="page-subtitle" id="protokolleSubtitle">Lade…</p>
+            </div>
+            <button class="btn btn-accent" onclick="openPestProtocolEditor()">+ Protokoll</button>
+          </div>
+
+          <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            <input type="text" id="protokolleSearch" placeholder="Suchen (Objekt, Befallsart, Techniker, Mittel…)"
+              oninput="renderPestProtocols()"
+              style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
+          </div>
+
+          <div id="protokolleList" style="display:flex; flex-direction:column; gap:10px;">
             <!-- via JS -->
           </div>
         </section>
@@ -1812,6 +1869,132 @@
         <button class="btn btn-ghost" id="custDeleteBtn" onclick="deleteCustomer()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
         <button class="btn btn-secondary" onclick="closeModal('customerEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveCustomer()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Köderstelle-Editor Modal (Schädlingsbekämpfung) -->
+  <div class="modal-backdrop" id="modal-baitEditor" onclick="if(event.target===this)closeModal('baitEditor')">
+    <div class="modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="baitEditorTitle">Neue Köderstelle</div>
+          <div class="modal-subtitle">Monitoring-Station erfassen</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('baitEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Objekt / Kunde</label>
+          <select id="baitCustomer" onchange="baitFillFromCustomer()"></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 90px 1fr; gap: 12px;">
+          <div class="field"><label>Nr.</label><input type="text" id="baitNumber" placeholder="z. B. 01" /></div>
+          <div class="field"><label>Standort im Objekt</label><input type="text" id="baitLocation" placeholder="z. B. Lager Nord, hinter Regal 3" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Typ</label>
+            <select id="baitType">
+              <option value="Köderbox">Köderbox</option>
+              <option value="Schlagfalle">Schlagfalle</option>
+              <option value="Klebefalle">Klebefalle</option>
+              <option value="Pheromonfalle">Pheromonfalle</option>
+              <option value="UV-Lichtfalle">UV-Lichtfalle</option>
+              <option value="Lebendfalle">Lebendfalle</option>
+            </select>
+          </div>
+          <div class="field"><label>Mittel / Wirkstoff</label><input type="text" id="baitAgent" placeholder="z. B. Brodifacoum 0.0029%" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Status</label>
+            <select id="baitStatus">
+              <option value="ok">In Ordnung</option>
+              <option value="angenommen">Köder angenommen</option>
+              <option value="befall">Befall</option>
+              <option value="leer">Leer / nachfüllen</option>
+              <option value="beschaedigt">Beschädigt</option>
+            </select>
+          </div>
+          <div class="field"><label>Letzte Kontrolle</label><input type="date" id="baitLastCheck" /></div>
+          <div class="field"><label>Intervall (Tage)</label><input type="number" id="baitInterval" value="60" min="1" /></div>
+        </div>
+        <div class="field">
+          <label>Notiz</label>
+          <input type="text" id="baitNote" placeholder="z. B. Box neu verankert, Schlüssel beim Hauswart" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="baitDeleteBtn" onclick="deleteBait()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('baitEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveBait()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Behandlungs-/Kontrollprotokoll-Editor Modal (HACCP-Nachweis) -->
+  <div class="modal-backdrop" id="modal-pestProtocolEditor" onclick="if(event.target===this)closeModal('pestProtocolEditor')">
+    <div class="modal" style="max-width: 620px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="pestProtoTitle">Neues Protokoll</div>
+          <div class="modal-subtitle">Kontroll-/Behandlungsprotokoll — revisionssicher (HACCP)</div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('pestProtocolEditor')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Objekt / Kunde</label>
+          <select id="pestCustomer" onchange="pestFillFromCustomer()"></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Datum</label><input type="date" id="pestDate" /></div>
+          <div class="field"><label>Techniker</label><input type="text" id="pestTechnician" placeholder="z. B. Sandro" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Befallsart</label>
+            <select id="pestType">
+              <option value="">— wählen —</option>
+              <option value="Ratten">Ratten</option>
+              <option value="Mäuse">Mäuse</option>
+              <option value="Schaben">Schaben / Kakerlaken</option>
+              <option value="Ameisen">Ameisen</option>
+              <option value="Wespen">Wespen</option>
+              <option value="Bettwanzen">Bettwanzen</option>
+              <option value="Motten">Motten</option>
+              <option value="Fliegen">Fliegen / Schädlingsflug</option>
+              <option value="Kein Befall">Kein Befall (Routinekontrolle)</option>
+              <option value="Sonstige">Sonstige</option>
+            </select>
+          </div>
+          <div class="field"><label>Maßnahme / Behandlung</label><input type="text" id="pestMeasure" placeholder="z. B. Beköderung, Sprühbehandlung, Monitoring" /></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 110px; gap: 12px;">
+          <div class="field"><label>Mittel / Wirkstoff</label><input type="text" id="pestAgent" placeholder="z. B. Cypermethrin 0.1%" /></div>
+          <div class="field"><label>Menge</label><input type="text" id="pestAmount" placeholder="z. B. 200 ml" /></div>
+        </div>
+        <div class="field">
+          <label>Befund / Ergebnis</label>
+          <input type="text" id="pestFindings" placeholder="z. B. leichter Mäusebefall im Lager, 3 Boxen angenommen" />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Nachkontrolle am</label><input type="date" id="pestRecheck" /></div>
+          <div class="field"><label>Unterschrift Kunde</label>
+            <select id="pestSigned"><option value="false">offen</option><option value="true">unterschrieben</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Notiz (intern)</label>
+          <input type="text" id="pestNote" placeholder="z. B. Kunde über bauliche Mängel informiert" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="pestDeleteBtn" onclick="deletePestProtocol()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('pestProtocolEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="savePestProtocol()">Speichern</button>
       </div>
     </div>
   </div>
@@ -3479,6 +3662,8 @@
       try { typeof renderWerkstattplan === 'function' && renderWerkstattplan(); } catch (e) {}
       try { typeof renderReifen === 'function' && renderReifen(); } catch (e) {}
       try { typeof renderFahrzeuge === 'function' && renderFahrzeuge(); } catch (e) {}
+      try { typeof renderKoederstellen === 'function' && renderKoederstellen(); } catch (e) {}
+      try { typeof renderPestProtocols === 'function' && renderPestProtocols(); } catch (e) {}
       try { typeof renderMitarbeiter === 'function' && renderMitarbeiter(); } catch (e) {}
       try { typeof renderDashboard === 'function' && renderDashboard(); } catch (e) {}
       try { typeof applyPriceSection === 'function' && applyPriceSection(); } catch (e) {}
@@ -3574,10 +3759,16 @@
         // Sichtbar nur wenn vom Abo freigeschaltet UND von der Branche nicht ausgeblendet.
         if (item) item.style.display = (f[m.key] && !hidden.includes(m.view)) ? '' : 'none';
       });
-      // Auch Kern-Module (z. B. Routenplanung), die nicht über das Abo laufen, branchenabhängig ausblenden.
-      hidden.forEach(view => {
+      // Kern-Module (z. B. Routenplanung), die NICHT übers Abo laufen, aber von einer Branche
+      // ausgeblendet werden: zuerst alle je nach Branche möglichen zurücksetzen, dann die aktuelle Branche ausblenden.
+      // (Sonst bleibt z. B. planung versteckt, wenn man von Werkstatt zu Schädling wechselt.)
+      const featureViews = new Set(FEATURE_MODULES.map(m => m.view));
+      const hideable = new Set();
+      if (window.MosaVertical) Object.values(MosaVertical.PRESETS).forEach(p => (p.hideViews || []).forEach(v => hideable.add(v)));
+      hideable.forEach(view => {
+        if (featureViews.has(view)) return;   // Abo-Module regelt die Schleife oben
         const item = document.querySelector(`.nav-item[data-view="${view}"]`);
-        if (item) item.style.display = 'none';
+        if (item) item.style.display = hidden.includes(view) ? 'none' : '';
       });
       // Branchen-eigene Module: nur in der passenden Branche zeigen, sonst aus.
       document.querySelectorAll('.nav-item[data-vertical-view]').forEach(item => {
@@ -5402,6 +5593,250 @@
       toast('Kunde gelöscht');
     }
 
+    // ============ SCHÄDLINGSBEKÄMPFUNG: Köderstellen + Protokolle ============
+    function pestCustomerName(id, fallback) {
+      if (typeof loadCustomers === 'function' && id) {
+        const c = loadCustomers().find(x => x.id === id);
+        if (c) return customerDisplayName(c);
+      }
+      return fallback || '—';
+    }
+    function pestCustomerOptions(selectedId) {
+      const cs = (typeof loadCustomers === 'function') ? loadCustomers() : [];
+      return `<option value="">— Objekt / Kunde wählen —</option>` +
+        cs.map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${escapeHtml(customerDisplayName(c))}${c.address ? ' — ' + escapeHtml(c.address) : ''}</option>`).join('');
+    }
+    function pestDaysUntil(dateStr) {
+      if (!dateStr) return null;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      return Math.round((new Date(dateStr + 'T00:00:00') - today) / 86400000);
+    }
+
+    // ── Köderstellen (Monitoring) ──
+    const BAIT_KEY = 'cc-baitstations-v1';
+    const BAIT_STATUS = {
+      ok:          { label: 'In Ordnung',       color: '#16a34a' },
+      angenommen:  { label: 'Köder angenommen', color: '#d97706' },
+      befall:      { label: 'Befall',           color: '#dc2626' },
+      leer:        { label: 'Leer / nachfüllen',color: '#64748b' },
+      beschaedigt: { label: 'Beschädigt',       color: '#dc2626' }
+    };
+    let editingBaitId = null;
+    let koederFilter = 'alle';
+    function loadBaits() { try { const v = JSON.parse(localStorage.getItem(BAIT_KEY)); if (Array.isArray(v)) return v; } catch {} return []; }
+    function saveBaits(list) { localStorage.setItem(BAIT_KEY, JSON.stringify(list)); window.MosaDB?.push('baits', list); }
+    function baitNextDue(b) {
+      if (!b.lastCheck) return null;
+      const iv = parseInt(b.interval) || 60;
+      const d = new Date(b.lastCheck + 'T00:00:00'); d.setDate(d.getDate() + iv);
+      return d.toISOString().slice(0, 10);
+    }
+    function baitIsDue(b) { const due = baitNextDue(b); if (!due) return false; const n = pestDaysUntil(due); return n != null && n <= 0; }
+    function setKoederFilter(f) {
+      koederFilter = f;
+      document.querySelectorAll('#koederFilter [data-f]').forEach(btn => btn.classList.toggle('is-active', btn.getAttribute('data-f') === f));
+      renderKoederstellen();
+    }
+    function renderKoederstellen() {
+      const grid = document.getElementById('koederGrid');
+      const subtitle = document.getElementById('koederSubtitle');
+      if (!grid) return;
+      const list = loadBaits();
+      const q = (document.getElementById('koederSearch')?.value || '').toLowerCase().trim();
+      let filtered = list.filter(b => {
+        const name = pestCustomerName(b.customerId, b.objektName).toLowerCase();
+        return !q || name.includes(q) || (b.number || '').toLowerCase().includes(q) ||
+          (b.location || '').toLowerCase().includes(q) || (b.agent || '').toLowerCase().includes(q);
+      });
+      if (koederFilter === 'befall') filtered = filtered.filter(b => b.status === 'befall' || b.status === 'angenommen');
+      else if (koederFilter === 'faellig') filtered = filtered.filter(baitIsDue);
+      const befallN = list.filter(b => b.status === 'befall').length;
+      const faelligN = list.filter(baitIsDue).length;
+      if (subtitle) subtitle.textContent = `${list.length} Stationen · ${befallN} Befall · ${faelligN} Kontrolle fällig`;
+      const badge = document.getElementById('koederNavBadge');
+      if (badge) { const warn = befallN + faelligN; badge.textContent = warn; badge.style.display = warn ? '' : 'none'; }
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">Keine Köderstellen.</div></div>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(b => {
+        const s = BAIT_STATUS[b.status] || BAIT_STATUS.ok;
+        const due = baitNextDue(b);
+        const dueN = due ? pestDaysUntil(due) : null;
+        const dueTxt = due ? (dueN <= 0 ? `Kontrolle überfällig` : `Kontrolle in ${dueN} T.`) : 'Noch nicht kontrolliert';
+        const dueColor = (dueN != null && dueN <= 0) ? 'var(--danger)' : 'var(--text-subtle)';
+        return `<div class="kunde-card" onclick="openBaitEditor('${b.id}')" style="border-left:3px solid ${s.color};">
+          <div class="kunde-avatar" style="background:${s.color}22; color:${s.color};">${escapeHtml(b.number || '#')}</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="kunde-name">${escapeHtml(pestCustomerName(b.customerId, b.objektName))}</div>
+            <div class="kunde-sub">${escapeHtml(b.type || '—')}${b.location ? ' · ' + escapeHtml(b.location) : ''}</div>
+            <div class="kunde-meta" style="color:${dueColor};">${dueTxt}${b.agent ? ' · ' + escapeHtml(b.agent) : ''}</div>
+          </div>
+          <span class="kunde-badge"><span class="dot" style="background:${s.color};"></span>${escapeHtml(s.label)}</span>
+        </div>`;
+      }).join('');
+    }
+    function populateBaitCustomer(sel) { const el = document.getElementById('baitCustomer'); if (el) el.innerHTML = pestCustomerOptions(sel); }
+    function baitFillFromCustomer() { /* Objektname wird beim Speichern aus der Auswahl übernommen */ }
+    function openBaitEditor(id) {
+      editingBaitId = id || null;
+      const b = id ? loadBaits().find(x => x.id === id) : null;
+      populateBaitCustomer(b?.customerId || '');
+      document.getElementById('baitEditorTitle').textContent = b ? `Köderstelle ${b.number || ''}`.trim() : 'Neue Köderstelle';
+      document.getElementById('baitNumber').value = b?.number || '';
+      document.getElementById('baitLocation').value = b?.location || '';
+      document.getElementById('baitType').value = b?.type || 'Köderbox';
+      document.getElementById('baitAgent').value = b?.agent || '';
+      document.getElementById('baitStatus').value = b?.status || 'ok';
+      document.getElementById('baitLastCheck').value = b?.lastCheck || '';
+      document.getElementById('baitInterval').value = b?.interval || 60;
+      document.getElementById('baitNote').value = b?.note || '';
+      document.getElementById('baitDeleteBtn').style.display = b ? 'inline-flex' : 'none';
+      openModal('baitEditor');
+    }
+    function saveBait() {
+      const customerId = document.getElementById('baitCustomer').value || null;
+      const number = document.getElementById('baitNumber').value.trim();
+      if (!customerId && !number) { toast('Objekt oder Nummer erforderlich', 'error'); return; }
+      const data = {
+        customerId, objektName: pestCustomerName(customerId, ''),
+        number,
+        location: document.getElementById('baitLocation').value.trim(),
+        type: document.getElementById('baitType').value,
+        agent: document.getElementById('baitAgent').value.trim(),
+        status: document.getElementById('baitStatus').value,
+        lastCheck: document.getElementById('baitLastCheck').value,
+        interval: parseInt(document.getElementById('baitInterval').value) || 60,
+        note: document.getElementById('baitNote').value.trim()
+      };
+      const list = loadBaits();
+      if (editingBaitId) {
+        const idx = list.findIndex(x => x.id === editingBaitId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Köderstelle aktualisiert');
+      } else { list.push({ id: 'b' + Date.now(), ...data }); toast('✓ Köderstelle angelegt'); }
+      saveBaits(list);
+      closeModal('baitEditor');
+      editingBaitId = null;
+      renderKoederstellen();
+    }
+    function deleteBait() {
+      if (!editingBaitId) return;
+      const b = loadBaits().find(x => x.id === editingBaitId);
+      if (!b) return;
+      if (!confirm(`Köderstelle ${b.number || ''} löschen?`)) return;
+      saveBaits(loadBaits().filter(x => x.id !== editingBaitId));
+      window.MosaDB?.remove('bait_stations', editingBaitId);
+      closeModal('baitEditor');
+      editingBaitId = null;
+      renderKoederstellen();
+      toast('Köderstelle gelöscht');
+    }
+
+    // ── Behandlungs-/Kontrollprotokolle (HACCP-Nachweis) ──
+    const PEST_KEY = 'cc-pestprotocols-v1';
+    let editingPestId = null;
+    function loadPestProtocols() { try { const v = JSON.parse(localStorage.getItem(PEST_KEY)); if (Array.isArray(v)) return v; } catch {} return []; }
+    function savePestProtocols(list) { localStorage.setItem(PEST_KEY, JSON.stringify(list)); window.MosaDB?.push('pestprotocols', list); }
+    function renderPestProtocols() {
+      const box = document.getElementById('protokolleList');
+      const subtitle = document.getElementById('protokolleSubtitle');
+      if (!box) return;
+      const list = loadPestProtocols().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const q = (document.getElementById('protokolleSearch')?.value || '').toLowerCase().trim();
+      const filtered = !q ? list : list.filter(p =>
+        pestCustomerName(p.customerId, p.objektName).toLowerCase().includes(q) ||
+        (p.pestType || '').toLowerCase().includes(q) || (p.technician || '').toLowerCase().includes(q) ||
+        (p.agent || '').toLowerCase().includes(q));
+      const openRecheck = list.filter(p => { const n = pestDaysUntil(p.recheck); return n != null && n >= 0 && n <= 14; }).length;
+      if (subtitle) subtitle.textContent = `${list.length} Protokolle${openRecheck ? ` · ${openRecheck} Nachkontrolle bald` : ''}`;
+      const badge = document.getElementById('protokolleNavBadge');
+      if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">Noch keine Protokolle.</div></div>`;
+        return;
+      }
+      box.innerHTML = filtered.map(p => {
+        const befall = p.pestType && p.pestType !== 'Kein Befall';
+        const recheckN = pestDaysUntil(p.recheck);
+        const recheckTxt = p.recheck ? (recheckN < 0 ? `Nachkontrolle überfällig` : `Nachkontrolle ${p.recheck}`) : '';
+        const recheckColor = (recheckN != null && recheckN < 0) ? 'var(--danger)' : 'var(--text-subtle)';
+        return `<div class="card" onclick="openPestProtocolEditor('${p.id}')" style="cursor:pointer; padding:14px 16px; border-left:3px solid ${befall ? '#dc2626' : '#16a34a'};">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+            <div style="min-width:0;">
+              <div style="font-weight:600; font-size:14px; color:var(--text);">${escapeHtml(pestCustomerName(p.customerId, p.objektName))}</div>
+              <div style="font-size:12.5px; color:var(--text-subtle); margin-top:2px;">${p.date || '—'} · ${escapeHtml(p.technician || '—')} · ${escapeHtml(p.pestType || '—')}</div>
+              ${p.measure || p.agent ? `<div style="font-size:12.5px; color:var(--text); margin-top:4px;">${escapeHtml(p.measure || '')}${p.agent ? ' — ' + escapeHtml(p.agent) + (p.amount ? ' (' + escapeHtml(p.amount) + ')' : '') : ''}</div>` : ''}
+              ${p.findings ? `<div style="font-size:12px; color:var(--text-subtle); margin-top:3px;">Befund: ${escapeHtml(p.findings)}</div>` : ''}
+            </div>
+            <div style="text-align:right; flex:none;">
+              ${p.signed === true || p.signed === 'true' ? `<span class="kunde-badge"><span class="dot" style="background:#16a34a;"></span>unterschrieben</span>` : ''}
+              ${recheckTxt ? `<div style="font-size:11.5px; color:${recheckColor}; margin-top:6px;">${recheckTxt}</div>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function populatePestCustomer(sel) { const el = document.getElementById('pestCustomer'); if (el) el.innerHTML = pestCustomerOptions(sel); }
+    function pestFillFromCustomer() { /* Objektname beim Speichern übernommen */ }
+    function openPestProtocolEditor(id) {
+      editingPestId = id || null;
+      const p = id ? loadPestProtocols().find(x => x.id === id) : null;
+      populatePestCustomer(p?.customerId || '');
+      document.getElementById('pestProtoTitle').textContent = p ? 'Protokoll bearbeiten' : 'Neues Protokoll';
+      document.getElementById('pestDate').value = p?.date || new Date().toISOString().slice(0, 10);
+      document.getElementById('pestTechnician').value = p?.technician || '';
+      document.getElementById('pestType').value = p?.pestType || '';
+      document.getElementById('pestMeasure').value = p?.measure || '';
+      document.getElementById('pestAgent').value = p?.agent || '';
+      document.getElementById('pestAmount').value = p?.amount || '';
+      document.getElementById('pestFindings').value = p?.findings || '';
+      document.getElementById('pestRecheck').value = p?.recheck || '';
+      document.getElementById('pestSigned').value = (p?.signed === true || p?.signed === 'true') ? 'true' : 'false';
+      document.getElementById('pestNote').value = p?.note || '';
+      document.getElementById('pestDeleteBtn').style.display = p ? 'inline-flex' : 'none';
+      openModal('pestProtocolEditor');
+    }
+    function savePestProtocol() {
+      const customerId = document.getElementById('pestCustomer').value || null;
+      const date = document.getElementById('pestDate').value;
+      if (!customerId) { toast('Objekt / Kunde wählen', 'error'); return; }
+      if (!date) { toast('Datum erforderlich', 'error'); return; }
+      const data = {
+        customerId, objektName: pestCustomerName(customerId, ''),
+        date,
+        technician: document.getElementById('pestTechnician').value.trim(),
+        pestType: document.getElementById('pestType').value,
+        measure: document.getElementById('pestMeasure').value.trim(),
+        agent: document.getElementById('pestAgent').value.trim(),
+        amount: document.getElementById('pestAmount').value.trim(),
+        findings: document.getElementById('pestFindings').value.trim(),
+        recheck: document.getElementById('pestRecheck').value,
+        signed: document.getElementById('pestSigned').value === 'true',
+        note: document.getElementById('pestNote').value.trim()
+      };
+      const list = loadPestProtocols();
+      if (editingPestId) {
+        const idx = list.findIndex(x => x.id === editingPestId);
+        if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        toast('✓ Protokoll aktualisiert');
+      } else { list.push({ id: 'pp' + Date.now(), created: new Date().toISOString(), ...data }); toast('✓ Protokoll erfasst'); }
+      savePestProtocols(list);
+      closeModal('pestProtocolEditor');
+      editingPestId = null;
+      renderPestProtocols();
+    }
+    function deletePestProtocol() {
+      if (!editingPestId) return;
+      if (!confirm('Protokoll wirklich löschen?')) return;
+      savePestProtocols(loadPestProtocols().filter(x => x.id !== editingPestId));
+      window.MosaDB?.remove('pest_protocols', editingPestId);
+      closeModal('pestProtocolEditor');
+      editingPestId = null;
+      renderPestProtocols();
+      toast('Protokoll gelöscht');
+    }
+
     // ============ WERKSTATTPLAN (Kernablauf Auto-Werkstatt: Auftragsboard) ============
     const WORKORDERS_KEY = 'cc-workorders-v1';
     const WO_COLUMNS = [
@@ -6466,6 +6901,16 @@
       setTimeout(renderReifen, 50);
     });
     renderReifen();
+
+    document.querySelector('.nav-item[data-view="koederstellen"]')?.addEventListener('click', () => {
+      setTimeout(renderKoederstellen, 50);
+    });
+    renderKoederstellen();
+
+    document.querySelector('.nav-item[data-view="protokolle"]')?.addEventListener('click', () => {
+      setTimeout(renderPestProtocols, 50);
+    });
+    renderPestProtocols();
 
     // ============ MONATSBERICHT CSV ============
     function exportMonatsberichtCSV() {
