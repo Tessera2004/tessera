@@ -92,8 +92,10 @@
 
   const BRANCHEN = {
     reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],          addons: ['offerten', 'anruf', 'aufgaben', 'foto', 'stunden', 'abos', 'nachkalk', 'email', 'buch', 'lohn'] },
+    werkstatt:  { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['offerten', 'stunden', 'material', 'foto', 'abos', 'email', 'buch', 'lohn'] },
+    schaedling: { basePrice: 49, base: ['route', 'kunden', 'team'],          addons: ['offerten', 'aufgaben', 'foto', 'stunden', 'abos', 'email', 'buch'] },
     handwerk:   { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['stunden', 'material', 'offerten', 'aufgaben', 'buch', 'lohn'] },
-    immobilien: { basePrice: 79, base: ['objekt', 'interessent', 'team'],    addons: ['expose', 'matching', 'besichtigung', 'aufgaben', 'buch', 'email'] },
+    garten:     { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['stunden', 'material', 'offerten', 'aufgaben', 'abos', 'buch', 'lohn'] },
   };
 
   /* ----- Währung nach Region ----- */
