@@ -3349,8 +3349,17 @@
     function onVerticalChange(key) {
       if (!window.MosaVertical) return;
       if (!hasPerm('edit_users')) { toast('Keine Berechtigung, das Geschäftsfeld zu ändern', 'error'); populateVerticalSelect(); return; }
-      MosaVertical.set(key);                 // speichert + relabelt alle [data-term] live
+      MosaVertical.set(key);                 // speichert lokal + relabelt alle [data-term] live
+      try { const co = loadCompany(); co.vertical = key; saveCompany(co); } catch (e) {}  // ins Firmenprofil → Sync (Mobile/andere Geräte)
       toast(`Geschäftsfeld: ${MosaVertical.preset().label}`);
+    }
+    // Branche aus dem (gesyncten) Firmenprofil übernehmen — beim Login/Start.
+    function applyVerticalFromCompany() {
+      if (!window.MosaVertical) return;
+      try {
+        const v = (loadCompany() || {}).vertical;
+        if (v && MosaVertical.PRESETS[v] && v !== MosaVertical.get()) MosaVertical.set(v);
+      } catch (e) {}
     }
 
     // Preis-Einstellungen: Reinigung = statische Original-Karten; andere Branchen = aus Preset gerendert.
@@ -9387,6 +9396,8 @@ ${coSig}`;
           if (typeof loadCurrentUser === 'function') loadCurrentUser();
         } catch {}
       }
+      // Branche aus dem gesyncten Firmenprofil übernehmen (vor dem Neu-Rendern).
+      applyVerticalFromCompany();
       // Login → festes Büro-Profil + Rolle, Umschalter sperren (gewinnt über Demo-Auswahl)
       applyAuthProfile();
       applyFeatureFlags();

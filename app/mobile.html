@@ -378,15 +378,17 @@
     /* ---------- Material-Checkliste vor Routenstart ---------- */
     const CL_ITEMS_KEY = 'mosaos_checklist_items';
     const CL_DONE_KEY  = 'mosaos_checklist_done';
-    // Material-Checkliste aus dem Branchen-Preset (Fallback: Reinigung).
-    const CL_DEFAULT = (window.MosaVertical && MosaVertical.preset().checklist) || [
-      'Staubsauger & Ersatzbeutel an Bord',
-      'Fensterwischer & Abzieher',
-      'Reinigungsmittel & Tücher',
-      'Müllsäcke',
-      'Fahrzeug vollgetankt',
-      'Schlüssel & Zugangscodes dabei'
-    ];
+    // Material-Checkliste aus dem Branchen-Preset (lazy — Branche steht erst nach Login fest).
+    function clDefault() {
+      return (window.MosaVertical && MosaVertical.preset().checklist) || [
+        'Staubsauger & Ersatzbeutel an Bord',
+        'Fensterwischer & Abzieher',
+        'Reinigungsmittel & Tücher',
+        'Müllsäcke',
+        'Fahrzeug vollgetankt',
+        'Schlüssel & Zugangscodes dabei'
+      ];
+    }
 
     function todayStr() { return new Date().toISOString().slice(0, 10); }
 
@@ -395,7 +397,7 @@
         const raw = localStorage.getItem(CL_ITEMS_KEY);
         if (raw) { const arr = JSON.parse(raw); if (Array.isArray(arr) && arr.length) return arr; }
       } catch (e) {}
-      return CL_DEFAULT.slice();
+      return clDefault().slice();
     }
     function saveChecklistItems(items) {
       localStorage.setItem(CL_ITEMS_KEY, JSON.stringify(items));
@@ -482,7 +484,7 @@
     })();
 
     /* ---------- Abnahmeprotokoll + Signatur ---------- */
-    const PROTO_DEFAULT_TASKS = (window.MosaVertical && MosaVertical.preset().protocolTasks) || ['Küche', 'Bad / WC', 'Böden gewischt', 'Staub gewischt', 'Müll entsorgt'];
+    function protoDefaultTasks() { return (window.MosaVertical && MosaVertical.preset().protocolTasks) || ['Küche', 'Bad / WC', 'Böden gewischt', 'Staub gewischt', 'Müll entsorgt']; }
     const PROTO_KEY = 'mosaos_protocols';
     let protoTasks = [];
     let protoEditing = false;
@@ -598,7 +600,7 @@
         window._activeJob = { objekt: MY_JOBS[idx].objekt, ort: MY_JOBS[idx].ort };
         window._activeStopIdx = idx;
       }
-      protoTasks = PROTO_DEFAULT_TASKS.map(l => ({ label: l, done: true }));
+      protoTasks = protoDefaultTasks().map(l => ({ label: l, done: true }));
       protoEditing = false;
       const ov = document.getElementById('protocolOverlay');
       ov.classList.remove('editing');
@@ -760,7 +762,28 @@
         return;
       }
       showLogin(false);
+      await mApplyVertical();
       loadMyDay();
+    }
+
+    // Branche des Mandanten aus dem Firmenprofil holen → Begriffe/Checklisten passen.
+    async function mApplyVertical() {
+      const sb = mSb();
+      if (!sb || !window._tenantId || !window.MosaVertical) return;
+      try {
+        const { data } = await sb.from('company_settings').select('profile')
+          .eq('tenant_id', window._tenantId).maybeSingle();
+        const v = data?.profile?.vertical;
+        if (v && MosaVertical.PRESETS[v]) MosaVertical.set(v);   // persistiert + relabelt (data-term)
+      } catch (e) {}
+      // Checkliste neu seeden, solange der Mitarbeiter keine eigene Liste gespeichert hat.
+      try {
+        if (!localStorage.getItem(CL_ITEMS_KEY)) {
+          clItems = clDefault().slice();
+          clChecked = clItems.map(() => false);
+          renderChecklist();
+        }
+      } catch (e) {}
     }
 
     async function mDoLogin() {
