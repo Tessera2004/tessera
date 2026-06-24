@@ -20,7 +20,7 @@
   <script src="db-sync.js"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
-  <script src="presets.js"></script>
+  <script src="presets.js?v=2"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1469,6 +1469,8 @@
             <label>Kunde</label>
             <input type="text" placeholder="Name oder bestehenden Kunden wählen…" />
           </div>
+          <!-- Branchenspezifische Felder (z. B. Werkstatt-Fahrzeug, Schädling-Nachkontrolle) -->
+          <div id="wizExtraFields"></div>
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
             <div class="field">
               <label>Datum</label>
@@ -7092,7 +7094,34 @@
         if (cleanGrid) cleanGrid.style.display = '';
         if (genGrid) genGrid.style.display = 'none';
       }
+      renderWizExtraFields();
       wizService = null;
+    }
+    // Branchenspezifische Zusatzfelder (z. B. Werkstatt-Fahrzeug) im Wizard rendern.
+    function renderWizExtraFields() {
+      const wrap = document.getElementById('wizExtraFields');
+      if (!wrap) return;
+      const fields = window.MosaVertical ? (MosaVertical.preset().extraFields || []) : [];
+      if (!fields.length) { wrap.innerHTML = ''; wrap.style.display = 'none'; return; }
+      wrap.style.display = '';
+      wrap.innerHTML = fields.map(f => `
+        <div class="field">
+          <label>${escapeHtml(f.label)}</label>
+          <input type="${f.type === 'date' ? 'date' : 'text'}" id="wizExtra_${f.key}" data-extra-key="${f.key}" placeholder="${escapeHtml(f.placeholder || '')}" />
+        </div>`).join('');
+    }
+    // Eingegebene Zusatzfelder als lesbaren Text (für die Auftrags-Notiz).
+    function collectWizExtraText() {
+      const wrap = document.getElementById('wizExtraFields');
+      if (!wrap) return '';
+      const fields = window.MosaVertical ? (MosaVertical.preset().extraFields || []) : [];
+      const parts = [];
+      fields.forEach(f => {
+        const el = document.getElementById('wizExtra_' + f.key);
+        const v = (el?.value || '').trim();
+        if (v) parts.push(`${f.label}: ${v}`);
+      });
+      return parts.join(' · ');
     }
     // Generisches Optionen-Panel je nach Einheit (Stunde vs. Pauschal) konfigurieren.
     function setupGenericOpts() {
@@ -8411,6 +8440,7 @@ ${coSig}`;
       const team = document.getElementById('wizardTeamSelect')?.value || null;
       const note = (document.getElementById('wizNote')?.value || '').trim();
       const deadline = document.getElementById('wizDeadline')?.value || null;
+      const extraText = collectWizExtraText();   // branchenspezifische Felder → Büro-Notiz
       const finalPrice = wizCalcPrice();
 
       // Wiederholung: aus einem Termin eine Serie machen
@@ -8446,7 +8476,7 @@ ${coSig}`;
           paymethod: 'rechnung',
           deadline: deadline,
           noteCrew: note,
-          noteOffice: '',
+          noteOffice: extraText,
           recurring: repeat !== 'none' ? repeat : undefined,
           seriesId: seriesId || undefined
         });

@@ -158,6 +158,10 @@
         { key: 'bekaempfung', title: 'Bekämpfung', desc: 'Behandlung gegen Schädlinge', unit: 'flat', price: 280 },
         { key: 'nachkontrolle', title: 'Nachkontrolle', desc: 'Wirkungskontrolle, Nachbehandlung', unit: 'flat', price: 90 },
         { key: 'monitoring', title: 'Monitoring-Vertrag', desc: 'Regelmäßige Kontrolle (Abo)', unit: 'flat', price: 200 }
+      ],
+      extraFields: [
+        { key: 'befall', label: 'Befallsart', type: 'text', placeholder: 'z. B. Ratten, Schaben, Wespen' },
+        { key: 'nachkontrolle', label: 'Nachkontrolle am', type: 'date' }
       ]
     },
 
@@ -193,6 +197,11 @@
         { key: 'reparatur', title: 'Reparatur', desc: 'Instandsetzung, Teiletausch', unit: 'h', price: 140 },
         { key: 'diagnose', title: 'Diagnose', desc: 'Fehlersuche, Fehlerspeicher auslesen', unit: 'flat', price: 120 },
         { key: 'reifen', title: 'Reifenwechsel', desc: 'Wechsel, Wuchten, Einlagerung', unit: 'flat', price: 80 }
+      ],
+      extraFields: [
+        { key: 'kennzeichen', label: 'Kennzeichen', type: 'text', placeholder: 'z. B. ZH 123 456' },
+        { key: 'fahrzeug', label: 'Fahrzeug (Marke / Modell)', type: 'text', placeholder: 'z. B. VW Golf 1.4 TSI' },
+        { key: 'km', label: 'Kilometerstand', type: 'text', placeholder: 'km' }
       ]
     }
   };
