@@ -20,7 +20,7 @@
   <script src="db-sync.js"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
-  <script src="presets.js?v=7"></script>
+  <script src="presets.js?v=8"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -686,7 +686,7 @@
               <h1 class="page-title">Baustellen</h1>
               <p class="page-subtitle" id="baustellenSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openSiteEditor()">+ Baustelle</button>
+            <button class="btn btn-accent" id="baustellenAddBtn" onclick="openSiteEditor()">+ Baustelle</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
@@ -1952,7 +1952,7 @@
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field"><label>Auftragsart</label><input type="text" id="siteType" placeholder="z. B. Sanitär, Heizung, Elektro" /></div>
-          <div class="field"><label>Verantwortl. Monteur</label><input type="text" id="siteMonteur" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label id="siteMonteurLabel">Verantwortl. Monteur</label><input type="text" id="siteMonteur" placeholder="z. B. Sandro" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field"><label>Status</label>
@@ -1997,7 +1997,7 @@
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field"><label>Datum</label><input type="date" id="rapDate" /></div>
-          <div class="field"><label>Monteur</label><input type="text" id="rapMonteur" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label id="rapMonteurLabel">Monteur</label><input type="text" id="rapMonteur" placeholder="z. B. Sandro" /></div>
         </div>
 
         <div style="margin-top: 6px; display:flex; align-items:center; justify-content:space-between;">
@@ -3971,7 +3971,22 @@
         const tn = navLabelTextNode(item);
         if (tn) tn.textContent = ' ' + label + '\n            ';
       });
+      // Auch die Seiten-Überschrift (h1) der branchen-eigenen Views nachziehen,
+      // damit z. B. „Baustellen" in der Garten-Branche als „Gartenprojekte" erscheint.
+      if (!VIEW_TITLE_DEFAULTS) {
+        VIEW_TITLE_DEFAULTS = {};
+        BRANCH_VIEW_TITLES.forEach(v => {
+          const el = document.querySelector(`.view[data-view="${v}"] .page-title`);
+          if (el) VIEW_TITLE_DEFAULTS[v] = el.textContent;
+        });
+      }
+      BRANCH_VIEW_TITLES.forEach(v => {
+        const el = document.querySelector(`.view[data-view="${v}"] .page-title`);
+        if (el) el.textContent = (over[v] != null ? over[v] : VIEW_TITLE_DEFAULTS[v]);
+      });
     }
+    const BRANCH_VIEW_TITLES = ['werkstattplan', 'fahrzeuge', 'reifen', 'koederstellen', 'protokolle', 'baustellen', 'rapporte'];
+    let VIEW_TITLE_DEFAULTS = null;
     function renderModuleSettings() {
       const wrap = document.getElementById('moduleSettings');
       if (!wrap) return;
@@ -5778,7 +5793,9 @@
       const active = all.filter(s => s.status !== 'abgeschlossen');
       const badge = document.getElementById('baustellenNavBadge');
       if (badge) { badge.textContent = active.length; badge.style.display = active.length ? '' : 'none'; }
-      if (subtitle) subtitle.textContent = `${active.length} offene · ${all.length} Baustellen gesamt`;
+      if (subtitle) subtitle.textContent = `${active.length} offen · ${all.length} gesamt`;
+      const addBtn = document.getElementById('baustellenAddBtn');
+      if (addBtn) addBtn.textContent = (window.MosaVertical && MosaVertical.get() === 'garten') ? '+ Gartenprojekt' : '+ Baustelle';
       board.innerHTML = SITE_COLUMNS.map(col => {
         const cards = all.filter(s => s.status === col.key && match(s));
         const cardHtml = cards.length ? cards.map(s => {
@@ -5825,6 +5842,8 @@
       editingSiteId = id || null;
       const s = id ? loadSites().find(x => x.id === id) : null;
       document.getElementById('siteCustomer').innerHTML = pestCustomerOptions(s?.customerId || '');
+      const wt = window.MosaVertical ? MosaVertical.t('feldMitarbeiter') : 'Monteur';
+      document.getElementById('siteMonteurLabel').textContent = 'Verantwortl. ' + wt;
       document.getElementById('siteEditorTitle').textContent = s ? siteLabel(s) : 'Neue Baustelle';
       document.getElementById('siteTitle').value = s?.title || '';
       document.getElementById('siteAddress').value = s?.address || '';
@@ -5972,6 +5991,7 @@
       editingRapId = id || null;
       const r = id ? loadRapporte().find(x => x.id === id) : null;
       populateRapSite(r?.siteId || '');
+      document.getElementById('rapMonteurLabel').textContent = window.MosaVertical ? MosaVertical.t('feldMitarbeiter') : 'Monteur';
       document.getElementById('rapportEditorTitle').textContent = r ? 'Rapport bearbeiten' : 'Neuer Rapport';
       document.getElementById('rapCustomer').value = r?.objektName || '';
       document.getElementById('rapDate').value = r?.date || new Date().toISOString().slice(0, 10);

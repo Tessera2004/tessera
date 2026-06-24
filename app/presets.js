@@ -117,7 +117,9 @@
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
       hideViews: ['nachkalkulation'],   // Garten: Pauschal-/Stundenarbeit, keine Soll/Ist-Nachkalkulation
-      extraViews: [],
+      // Garten: projektbasiert wie Handwerk (Gartenprojekte + Rapporte) + saisonaler Unterhalt (Abo).
+      extraViews: ['baustellen', 'rapporte'],
+      navLabels: { baustellen: 'Gartenprojekte', mitarbeiter: 'Gärtner', planung: 'Tourenplanung', abos: 'Unterhaltsverträge' },
       checklist: [
         'Rasenmäher & Treibstoff',
         'Heckenschere / Motorsense',
