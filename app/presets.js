@@ -79,7 +79,14 @@
         'Arbeitsschutz (Brille/Handschuhe)',
         'Fahrzeug vollgetankt'
       ],
-      protocolTasks: ['Material montiert', 'Funktion geprüft', 'Arbeitsbereich gereinigt', 'Kunde eingewiesen']
+      protocolTasks: ['Material montiert', 'Funktion geprüft', 'Arbeitsbereich gereinigt', 'Kunde eingewiesen'],
+      // Leistungs-Vorlagen (Platzhalter-Preise CHF — vom Kunden anpassbar). unit: 'h' = pro Stunde, 'flat' = pauschal.
+      services: [
+        { key: 'installation', title: 'Installation / Montage', desc: 'Neuinstallation, Montage vor Ort', unit: 'h', price: 95 },
+        { key: 'reparatur', title: 'Reparatur', desc: 'Störungsbehebung, Instandsetzung', unit: 'h', price: 110 },
+        { key: 'wartung', title: 'Wartung / Service', desc: 'Regelmäßiger Unterhalt, Servicevertrag', unit: 'flat', price: 180 },
+        { key: 'notfall', title: 'Notfall-Einsatz', desc: 'Pikett / dringende Störung', unit: 'h', price: 150 }
+      ]
     },
 
     garten: {
@@ -109,7 +116,13 @@
         'Arbeitshandschuhe & Gehörschutz',
         'Fahrzeug vollgetankt'
       ],
-      protocolTasks: ['Rasen gemäht', 'Hecken / Sträucher geschnitten', 'Schnittgut entsorgt', 'Wege gereinigt']
+      protocolTasks: ['Rasen gemäht', 'Hecken / Sträucher geschnitten', 'Schnittgut entsorgt', 'Wege gereinigt'],
+      services: [
+        { key: 'rasen', title: 'Rasenpflege', desc: 'Mähen, Vertikutieren, Düngen', unit: 'h', price: 75 },
+        { key: 'hecke', title: 'Heckenschnitt', desc: 'Schneiden, Formschnitt, Entsorgung', unit: 'h', price: 80 },
+        { key: 'pflanzung', title: 'Pflanzung / Gestaltung', desc: 'Bepflanzung, Umgestaltung', unit: 'flat', price: 0 },
+        { key: 'unterhalt', title: 'Gartenunterhalt', desc: 'Regelmäßige Pflege (Abo)', unit: 'flat', price: 120 }
+      ]
     },
 
     schaedling: {
@@ -139,7 +152,13 @@
         'Sicherheitsdatenblätter dabei',
         'Fahrzeug vollgetankt'
       ],
-      protocolTasks: ['Befall lokalisiert', 'Köder / Fallen platziert', 'Behandlung durchgeführt', 'Nachkontrolle vereinbart']
+      protocolTasks: ['Befall lokalisiert', 'Köder / Fallen platziert', 'Behandlung durchgeführt', 'Nachkontrolle vereinbart'],
+      services: [
+        { key: 'inspektion', title: 'Erstinspektion', desc: 'Befallsanalyse vor Ort', unit: 'flat', price: 150 },
+        { key: 'bekaempfung', title: 'Bekämpfung', desc: 'Behandlung gegen Schädlinge', unit: 'flat', price: 280 },
+        { key: 'nachkontrolle', title: 'Nachkontrolle', desc: 'Wirkungskontrolle, Nachbehandlung', unit: 'flat', price: 90 },
+        { key: 'monitoring', title: 'Monitoring-Vertrag', desc: 'Regelmäßige Kontrolle (Abo)', unit: 'flat', price: 200 }
+      ]
     },
 
     werkstatt: {
@@ -168,7 +187,13 @@
         'Hebebühne frei',
         'Schutzbezüge (Sitz/Lenkrad/Boden)'
       ],
-      protocolTasks: ['Diagnose erstellt', 'Teile ersetzt', 'Probefahrt durchgeführt', 'Endkontrolle']
+      protocolTasks: ['Diagnose erstellt', 'Teile ersetzt', 'Probefahrt durchgeführt', 'Endkontrolle'],
+      services: [
+        { key: 'service', title: 'Service / Inspektion', desc: 'Wartung nach Herstellervorgabe', unit: 'flat', price: 280 },
+        { key: 'reparatur', title: 'Reparatur', desc: 'Instandsetzung, Teiletausch', unit: 'h', price: 140 },
+        { key: 'diagnose', title: 'Diagnose', desc: 'Fehlersuche, Fehlerspeicher auslesen', unit: 'flat', price: 120 },
+        { key: 'reifen', title: 'Reifenwechsel', desc: 'Wechsel, Wuchten, Einlagerung', unit: 'flat', price: 80 }
+      ]
     }
   };
 
