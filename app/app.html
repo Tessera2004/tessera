@@ -2196,7 +2196,7 @@
               <option value="abgeschlossen">Abgeschlossen</option>
             </select>
           </div>
-          <div class="field"><label>Mechaniker</label><input type="text" id="woMechanic" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label>Mechaniker</label><select id="woMechanic"></select></div>
           <div class="field"><label>Hebebühne / Platz</label><input type="text" id="woBay" placeholder="z. B. Bühne 2" /></div>
           <div class="field"><label>Abholtermin</label><input type="date" id="woDue" /></div>
         </div>
@@ -2229,6 +2229,7 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" id="woDeleteBtn" onclick="deleteWorkOrder()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
         <button class="btn btn-secondary" id="woPdfBtn" onclick="downloadWorkOrderPDF()" style="display: none;">PDF</button>
+        <button class="btn btn-secondary" onclick="workOrderToOffert()" title="Aus diesem Auftrag einen Kostenvoranschlag erstellen">→ Kostenvoranschlag</button>
         <button class="btn btn-secondary" onclick="closeModal('workOrderEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveWorkOrder()">Speichern</button>
       </div>
@@ -6426,6 +6427,20 @@
       try { const p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); const pk = `${MosaVertical.get()}_${s.key}_price`; if (p[pk] != null) return p[pk]; } catch {}
       return s.price;
     }
+    // Mechaniker-Dropdown aus der Mitarbeiterliste (EMPLOYEES). Legacy-Freitext wird als Option bewahrt.
+    function populateWoMechanics(selected) {
+      const sel = document.getElementById('woMechanic');
+      if (!sel) return;
+      const names = (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES : []).map(empName);
+      let opts = '<option value="">— ' + (window.MosaVertical ? MosaVertical.t('feldMitarbeiter') : 'Mechaniker') + ' wählen —</option>';
+      opts += names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+      // Gespeicherter Wert nicht (mehr) in der Liste (z. B. alter Freitext) → als Option erhalten.
+      if (selected && !names.includes(selected)) {
+        opts += `<option value="${escapeHtml(selected)}">${escapeHtml(selected)}</option>`;
+      }
+      sel.innerHTML = opts;
+      sel.value = selected || '';
+    }
     function populateWoServices() {
       const sel = document.getElementById('woServicePick');
       if (!sel) return;
@@ -6473,7 +6488,7 @@
       document.getElementById('woOwner').value = o?.owner || '';
       document.getElementById('woComplaint').value = o?.complaint || '';
       document.getElementById('woStatus').value = o?.status || 'angenommen';
-      document.getElementById('woMechanic').value = o?.mechanic || '';
+      populateWoMechanics(o?.mechanic || '');
       document.getElementById('woBay').value = o?.bay || '';
       document.getElementById('woDue').value = o?.due || '';
       document.getElementById('woNote').value = o?.note || '';
@@ -6507,9 +6522,11 @@
       if (editingWorkOrderId) {
         const idx = list.findIndex(x => x.id === editingWorkOrderId);
         if (idx >= 0) list[idx] = { ...list[idx], ...data };
+        lastSavedWorkOrderId = editingWorkOrderId;
         toast('✓ Auftrag aktualisiert');
       } else {
-        list.push({ id: 'wo' + Date.now(), created: new Date().toISOString(), ...data });
+        lastSavedWorkOrderId = 'wo' + Date.now();
+        list.push({ id: lastSavedWorkOrderId, created: new Date().toISOString(), ...data });
         toast('✓ Auftrag angenommen');
       }
       saveWorkOrders(list);
@@ -6517,6 +6534,7 @@
       editingWorkOrderId = null;
       renderWerkstattplan();
     }
+    let lastSavedWorkOrderId = null;
     function deleteWorkOrder() {
       if (!editingWorkOrderId) return;
       const o = loadWorkOrders().find(x => x.id === editingWorkOrderId);
@@ -6528,6 +6546,73 @@
       editingWorkOrderId = null;
       renderWerkstattplan();
       toast('Auftrag gelöscht');
+    }
+
+    // Werkstattauftrag → Kostenvoranschlag (Offerte). Speichert den Auftrag, baut daraus
+    // eine Offerte (Positionen + Total) und öffnet sie im Offerten-Editor zum Feinschliff.
+    function woNum(n) { const v = Number(n) || 0; return Number.isInteger(v) ? String(v) : v.toFixed(2); }
+    function workOrderToOffert() {
+      const plate = document.getElementById('woPlate').value.trim();
+      const model = document.getElementById('woModel').value.trim();
+      if (!plate && !model) { toast('Kennzeichen oder Fahrzeug erforderlich', 'error'); return; }
+      if (!requirePerm('edit_offerts', 'Offerten')) return;
+
+      // Auftrag zuerst sichern, damit Offerte und Auftrag denselben Stand haben.
+      // saveWorkOrder vergibt/merkt die ID in lastSavedWorkOrderId (auch bei neuem Auftrag).
+      saveWorkOrder();
+      const woId = lastSavedWorkOrderId;
+
+      const owner = document.getElementById('woOwner').value.trim();
+      const complaint = document.getElementById('woComplaint').value.trim();
+      const works = collectWorks();
+      const parts = collectParts();
+      const total = workOrderTotal({ works, parts });
+
+      const lines = [];
+      lines.push('Kostenvoranschlag');
+      lines.push('');
+      lines.push('Fahrzeug: ' + [plate, model].filter(Boolean).join(' · '));
+      if (complaint) lines.push('Anliegen: ' + complaint);
+      if (works.length) {
+        lines.push('');
+        lines.push('Arbeiten:');
+        works.forEach(w => lines.push(`· ${w.title || 'Arbeit'} — ${chf((Number(w.hours) || 0) * (Number(w.rate) || 0))}`));
+      }
+      if (parts.length) {
+        lines.push('');
+        lines.push('Teile / Material:');
+        parts.forEach(p => lines.push(`· ${p.name || 'Teil'} (${woNum(p.qty)}×) — ${chf((Number(p.qty) || 0) * (Number(p.price) || 0))}`));
+      }
+      lines.push('');
+      lines.push('Gesamtbetrag: ' + chf(total));
+      lines.push('');
+      lines.push('Dieser Kostenvoranschlag ist unverbindlich. Allfällige Zusatzarbeiten werden vor Ausführung mit Ihnen abgesprochen.');
+
+      const svcKey = (window.MosaVertical && (MosaVertical.preset().services || [])[0]) ? MosaVertical.preset().services[0].key : '';
+      const authorName = currentUser ? getUserName(currentUser) : 'Unbekannt';
+      const off = {
+        id: 'off-' + Date.now(),
+        service: svcKey,
+        kunde: owner || workOrderLabel({ plate, model }),
+        adresse: [plate, model].filter(Boolean).join(' · '),
+        preis: total.toFixed(2),
+        datum: todayISO(),
+        text: lines.join('\n'),
+        images: [], history: [],
+        status: 'Entwurf',
+        createdBy: authorName,
+        lastUpdatedBy: authorName,
+        fromWorkOrder: woId || null,
+        updated: new Date().toISOString()
+      };
+      const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+      offerts.unshift(off);
+      localStorage.setItem('cc-offerts', JSON.stringify(offerts));
+
+      // saveWorkOrder hat das Auftrags-Modal bereits geschlossen. In die Offerten-Ansicht wechseln und Editor öffnen.
+      try { document.querySelector('.nav-item[data-view="offerten"]')?.click(); } catch (e) {}
+      openOffertEditor(off.id);
+      toast('✓ Kostenvoranschlag erstellt');
     }
 
     // ============ REIFENHOTEL (Reifeneinlagerung, Auto-Werkstatt) ============
