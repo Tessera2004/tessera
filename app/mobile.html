@@ -235,7 +235,7 @@
       <div class="cl-icon" style="background:var(--success-soft); color:var(--success);">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </div>
-      <div class="cl-title">Abnahmeprotokoll</div>
+      <div class="cl-title" id="protoTitle">Abnahmeprotokoll</div>
       <div class="cl-sub" id="protoObjekt">Objekt</div>
 
       <div style="font-size:13px; font-weight:600; margin:4px 0 8px;">Erledigte Arbeiten</div>
@@ -245,6 +245,15 @@
         <button class="btn btn-accent" onclick="addProtoTask()" style="padding:0 16px;">+</button>
       </div>
       <button class="cl-edit-toggle" style="align-self:flex-start; margin:6px 0 2px;" onclick="toggleProtoEdit()" id="protoEditBtn">Liste bearbeiten</button>
+
+      <!-- Rapport: Stunden + Material (nur Handwerk/Garten) -->
+      <div id="protoRapport" style="display:none; width:100%; margin-top:6px;">
+        <div style="font-size:13px; font-weight:600; margin:10px 0 8px;">Stunden &amp; Material</div>
+        <input type="number" id="protoHours" step="0.25" min="0" inputmode="decimal" placeholder="Stunden vor Ort (z. B. 2.5)"
+          style="width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font-size:14px; font-family:inherit; margin-bottom:8px;" />
+        <div id="protoMaterial" style="display:flex; flex-direction:column; gap:6px;"></div>
+        <button class="cl-edit-toggle" style="align-self:flex-start; margin:8px 0 2px;" onclick="addMobMatRow()">+ Material</button>
+      </div>
 
       <div id="protoPhotoInfo" style="font-size:12.5px; color:var(--text-muted); margin:10px 0;"></div>
 
@@ -594,6 +603,32 @@
     function removeProtoTask(i) { protoTasks.splice(i, 1); renderProtoTasks(); }
     function toggleProtoEdit() { protoEditing = !protoEditing; document.getElementById('protocolOverlay').classList.toggle('editing', protoEditing); document.getElementById('protoEditBtn').textContent = protoEditing ? 'Fertig' : 'Liste bearbeiten'; }
 
+    // Branchen-gerechte Protokoll-Titel + Rapport-Erfassung (Handwerk/Garten)
+    const PROTO_TITLES = { reinigung: 'Abnahmeprotokoll', schaedling: 'Behandlungsprotokoll', handwerk: 'Rapport', garten: 'Rapport', werkstatt: 'Auftrag abschliessen' };
+    function currentVertical() { return (window.MosaVertical ? MosaVertical.get() : 'reinigung'); }
+    function isRapportVertical() { const v = currentVertical(); return v === 'handwerk' || v === 'garten'; }
+    function addMobMatRow(d) {
+      d = d || {};
+      const wrap = document.getElementById('protoMaterial');
+      if (!wrap) return;
+      const row = document.createElement('div');
+      row.className = 'mob-mat';
+      row.style.cssText = 'display:grid; grid-template-columns:1fr 64px 30px; gap:6px; align-items:center;';
+      const inp = 'padding:10px; border:1px solid var(--border); border-radius:9px; background:var(--surface); color:var(--text); font-size:13px; font-family:inherit; width:100%;';
+      row.innerHTML =
+        '<input class="mm-name" type="text" placeholder="Material" value="' + (d.name || '') + '" style="' + inp + '">' +
+        '<input class="mm-qty" type="number" min="0" inputmode="numeric" placeholder="Menge" value="' + (d.qty != null ? d.qty : 1) + '" style="' + inp + '">' +
+        '<button type="button" onclick="this.closest(\'.mob-mat\').remove()" style="background:none;border:none;color:var(--text-subtle);font-size:20px;line-height:1;cursor:pointer;">×</button>';
+      wrap.appendChild(row);
+    }
+    function collectMobMaterial() {
+      return [...document.querySelectorAll('#protoMaterial .mob-mat')].map(r => ({
+        name: r.querySelector('.mm-name').value.trim(),
+        qty: parseFloat(r.querySelector('.mm-qty').value) || 0,
+        price: 0
+      })).filter(m => m.name);
+    }
+
     function openProtocol(idx) {
       // Aktiven Auftrag merken (für Objektname + Abschluss)
       if (typeof idx === 'number' && MY_JOBS[idx]) {
@@ -606,6 +641,15 @@
       ov.classList.remove('editing');
       document.getElementById('protoEditBtn').textContent = 'Liste bearbeiten';
       document.getElementById('protoObjekt').textContent = currentObjektName();
+      // Branchen-Titel + Rapport-Block (Stunden/Material) für Handwerk/Garten
+      const tEl = document.getElementById('protoTitle');
+      if (tEl) tEl.textContent = PROTO_TITLES[currentVertical()] || 'Protokoll';
+      const rap = document.getElementById('protoRapport');
+      if (rap) {
+        const show = isRapportVertical();
+        rap.style.display = show ? 'block' : 'none';
+        if (show) { document.getElementById('protoHours').value = ''; document.getElementById('protoMaterial').innerHTML = ''; }
+      }
       const n = currentPhotoCount();
       document.getElementById('protoPhotoInfo').textContent = n > 0 ? `${n} Foto${n > 1 ? 's' : ''} angehängt` : 'Noch keine Fotos angehängt';
       renderProtoTasks();
@@ -681,6 +725,25 @@
 
       // Ins Backend (Supabase) schreiben → im Büro-Dashboard sichtbar
       window.MosaDB?.push('report_one', rep);
+
+      // Handwerk/Garten: zusätzlich einen Arbeitsrapport (Stunden + Material) erfassen → Büro-Modul „Rapporte"
+      if (isRapportVertical()) {
+        const hours = parseFloat(document.getElementById('protoHours')?.value) || 0;
+        const material = collectMobMaterial();
+        if (hours > 0 || material.length) {
+          const wr = {
+            id: 'wr' + Date.now(),
+            siteId: null, siteTitle: proto.objekt, customerId: null, objektName: proto.objekt,
+            date: proto.date.slice(0, 10), monteur: window._fieldUser || '',
+            works: hours > 0 ? [{ title: 'Arbeitszeit vor Ort', hours: hours, rate: 0 }] : [],
+            material: material, note: '', signed: !!signed, created: new Date().toISOString()
+          };
+          let wrs = []; try { wrs = JSON.parse(localStorage.getItem('cc-workreports-v1')) || []; } catch {}
+          wrs.push(wr);
+          try { localStorage.setItem('cc-workreports-v1', JSON.stringify(wrs)); } catch {}
+          window.MosaDB?.push('workreports', [wr]);
+        }
+      }
     }
     function markStopDone() {
       // Echten Auftrag als erledigt markieren und Liste neu zeichnen
