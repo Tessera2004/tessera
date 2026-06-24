@@ -7446,6 +7446,24 @@
     }
 
     function updatePriceSummary() {
+      // Generische Branchen: Summe aus dem generischen Preis (CHF), Reinigungs-Detailzeilen aus.
+      if (isGenericVertical()) {
+        const price = wizCalcPrice();
+        const def = genericServiceDef(wizService);
+        const sumDur = document.getElementById('sumDur');
+        const sumRate = document.getElementById('sumRate');
+        const sumFeeRow = document.getElementById('sumFeeRow');
+        const sumMinRow = document.getElementById('sumMinRow');
+        const sumTotal = document.getElementById('sumTotal');
+        if (sumDur) sumDur.textContent = (def && def.unit === 'h') ? `${parseFloat(document.getElementById('wizDuration')?.value) || 0} h` : '—';
+        if (sumRate) sumRate.textContent = document.getElementById('wizPriceHint')?.textContent || '';
+        if (sumFeeRow) sumFeeRow.style.display = 'none';
+        if (sumMinRow) sumMinRow.style.display = 'none';
+        if (sumTotal) sumTotal.textContent = priceOverrideActive
+          ? `${(parseFloat(document.getElementById('priceOverride').value) || 0).toFixed(2)} CHF (manuell)`
+          : `CHF ${price.toFixed(2)}`;
+        return;
+      }
       const p = calcPriceForService();
       if (!p) return;
       const fmt = v => `${v.toFixed(2)} €`;
