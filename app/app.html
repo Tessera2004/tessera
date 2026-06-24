@@ -1218,10 +1218,21 @@
               <div class="svc-card-desc">Mit Statorreinigung, Algenentfernung, Imprägnierung — alles wählbar.</div>
             </button>
           </div>
+          <!-- Generisches Service-Raster (Nicht-Reinigungs-Branchen, aus Preset) -->
+          <div id="wizGenericGrid" class="svc-grid" style="display:none;"></div>
         </div>
 
         <!-- ====== Schritt 2: Details je nach Typ ====== -->
         <div class="wizard-page" data-page="2">
+
+          <!-- Generisches Optionen-Panel (Nicht-Reinigungs-Branchen) -->
+          <div class="svc-options" id="wizGenericOpts" style="display:none; flex-direction:column; gap:16px;">
+            <div class="field" id="wizGenericQtyWrap">
+              <label id="wizGenericQtyLabel">Anzahl / Menge</label>
+              <input type="number" id="wizGenericQty" value="1" min="1" step="1" oninput="wizCalcPrice()" />
+            </div>
+            <div id="wizGenericHint" style="font-size:12.5px; color:var(--text-subtle); line-height:1.5;"></div>
+          </div>
 
           <!-- Unterhaltsreinigung -->
           <div class="svc-options" data-svc-opts="unterhalt" style="display: none; flex-direction: column; gap: 16px;">
@@ -6035,6 +6046,7 @@
       document.getElementById('modal-' + id).classList.add('open');
       if (id === 'newAuftrag') {
         populateWizardTeams();
+        setupWizardForVertical();
         const wd = document.getElementById('wizDate');
         if (wd && !wd.value) wd.value = isoDate(planCurrentDate);
       }
@@ -7034,6 +7046,61 @@
       fassade: 'Fassadenreinigung'
     };
 
+    // ── Branchen-Wizard-Helfer (Nicht-Reinigungs-Branchen) ──
+    function isGenericVertical() { return !!(window.MosaVertical && MosaVertical.get() !== 'reinigung'); }
+    function genericServiceDef(svc) { return (window.MosaVertical ? (MosaVertical.preset().services || []) : []).find(s => s.key === svc) || null; }
+    function serviceTitle(svc) { return serviceLabels[svc] || (genericServiceDef(svc)?.title) || svc || ''; }
+    function genericServicePrice(svc) {
+      const vert = MosaVertical.get();
+      let prices = {}; try { prices = JSON.parse(localStorage.getItem('cc-prices') || '{}'); } catch {}
+      const pk = `${vert}_${svc}_price`;
+      if (prices[pk] != null) return prices[pk];
+      const def = genericServiceDef(svc);
+      return def ? def.price : 0;
+    }
+    // Service-Karten aus dem Preset rendern (gleiche Klassen wie Reinigung → selectService greift).
+    function renderWizGenericServices() {
+      const grid = document.getElementById('wizGenericGrid');
+      if (!grid || !window.MosaVertical) return;
+      const svcs = MosaVertical.preset().services || [];
+      grid.innerHTML = svcs.map(s => `
+        <button type="button" class="svc-card" data-svc="${s.key}" onclick="selectService('${s.key}')">
+          <div class="svc-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="svc-card-title">${escapeHtml(s.title)}</div>
+          <div class="svc-card-desc">${escapeHtml(s.desc)}</div>
+        </button>`).join('');
+    }
+    // Beim Öffnen des Wizards: Reinigung = Original-Raster, andere = generisches Raster.
+    function setupWizardForVertical() {
+      const cleanGrid = document.querySelector('.wizard-page[data-page="1"] .svc-grid:not(#wizGenericGrid)');
+      const genGrid = document.getElementById('wizGenericGrid');
+      if (isGenericVertical()) {
+        if (cleanGrid) cleanGrid.style.display = 'none';
+        if (genGrid) { genGrid.style.display = ''; renderWizGenericServices(); }
+      } else {
+        if (cleanGrid) cleanGrid.style.display = '';
+        if (genGrid) genGrid.style.display = 'none';
+      }
+      wizService = null;
+    }
+    // Generisches Optionen-Panel je nach Einheit (Stunde vs. Pauschal) konfigurieren.
+    function setupGenericOpts() {
+      const def = genericServiceDef(wizService);
+      const qtyWrap = document.getElementById('wizGenericQtyWrap');
+      const hint = document.getElementById('wizGenericHint');
+      if (!def) return;
+      if (def.unit === 'h') {
+        if (qtyWrap) qtyWrap.style.display = 'none';
+        if (hint) hint.textContent = 'Abgerechnet nach Stunden — die Dauer legst du im nächsten Schritt fest.';
+      } else {
+        if (qtyWrap) qtyWrap.style.display = '';
+        const q = document.getElementById('wizGenericQty'); if (q && !q.value) q.value = '1';
+        if (hint) hint.textContent = 'Pauschalpreis pro Einheit — bei Bedarf Anzahl erhöhen.';
+      }
+    }
+
     function selectService(svc) {
       wizService = svc;
       document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
@@ -7050,7 +7117,7 @@
       }
       // when leaving step 1, require service selected
       if (wizCurrent === 1 && dir > 0 && !wizService) {
-        toast('Bitte zuerst eine Reinigungsart wählen');
+        toast(`Bitte zuerst eine ${VT('leistungsart')} wählen`);
         return;
       }
       wizCurrent = target;
@@ -7069,10 +7136,17 @@
       // show service-specific options on step 2
       if (wizCurrent === 2 && wizService) {
         document.querySelectorAll('.svc-options').forEach(o => o.style.display = 'none');
-        const opts = document.querySelector(`.svc-options[data-svc-opts="${wizService}"]`);
-        if (opts) opts.style.display = 'flex';
-        document.getElementById('wizSub').textContent = serviceLabels[wizService] + ' — Details konfigurieren';
-        if (wizService === 'end') recalcStart();
+        if (isGenericVertical()) {
+          const gp = document.getElementById('wizGenericOpts');
+          if (gp) gp.style.display = 'flex';
+          setupGenericOpts();
+          document.getElementById('wizSub').textContent = serviceTitle(wizService) + ' — Details';
+        } else {
+          const opts = document.querySelector(`.svc-options[data-svc-opts="${wizService}"]`);
+          if (opts) opts.style.display = 'flex';
+          document.getElementById('wizSub').textContent = serviceLabels[wizService] + ' — Details konfigurieren';
+          if (wizService === 'end') recalcStart();
+        }
       }
 
       // titles per step
@@ -7172,8 +7246,8 @@
     }
 
     function onPriceChange() {
-      // live save to localStorage
-      const data = {};
+      // live save to localStorage — bestehende Keys (auch generische <branche>_<service>_price) bewahren.
+      let data = {}; try { data = JSON.parse(localStorage.getItem('cc-prices') || '{}'); } catch {}
       document.querySelectorAll('[data-price]').forEach(el => {
         data[el.dataset.price] = parseFloat(el.value) || 0;
       });
@@ -7191,6 +7265,7 @@
 
     // Überträgt die in Schritt 2 eingegebenen Minuten als Stunden in das wizDuration-Feld
     function _syncWizDuration() {
+      if (isGenericVertical()) return;   // generische Branchen: Dauer manuell in Schritt 3
       if (!wizService || wizService === 'fassade') return;
       const p = calcPriceForService();
       if (!p?.mins) return;
@@ -7203,6 +7278,30 @@
       const hoursEl = document.getElementById('wizDuration');
       const out = document.getElementById('wizPriceCalc');
       const hint = document.getElementById('wizPriceHint');
+      // Generische Branchen: Stundensatz × Dauer ODER Pauschale × Anzahl.
+      if (isGenericVertical()) {
+        if (priceOverrideActive) {
+          const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
+          if (out) out.textContent = 'CHF ' + ov.toFixed(2);
+          if (hint) hint.textContent = 'eigener Preis';
+          return ov;
+        }
+        const def = genericServiceDef(wizService);
+        const base = genericServicePrice(wizService);
+        let price, htxt;
+        if (def && def.unit === 'h') {
+          const hours = parseFloat(hoursEl?.value) || 0;
+          price = Math.round((hours * base) * 20) / 20;
+          htxt = `${String(hours).replace('.', ',')} Std × CHF ${base}`;
+        } else {
+          const qty = parseInt(document.getElementById('wizGenericQty')?.value) || 1;
+          price = Math.round((base * qty) * 20) / 20;
+          htxt = qty > 1 ? `${qty} × CHF ${base} pauschal` : `Pauschale CHF ${base}`;
+        }
+        if (out) out.textContent = 'CHF ' + price.toFixed(2);
+        if (hint) hint.textContent = htxt;
+        return price;
+      }
       if (!hoursEl) return 0;
       const hours = parseFloat(hoursEl.value) || 0;
       const svc = wizService || 'unterhalt';
@@ -8235,7 +8334,7 @@ ${coSig}`
     function submitAuftrag() {
       const name = (document.getElementById('termName')?.value || '').trim();
       const addr = (document.getElementById('wizAddress')?.value || '').trim();
-      const objekt = name || addr || (serviceLabels[wizService] || 'Neuer Auftrag');
+      const objekt = name || addr || serviceTitle(wizService) || 'Neuer Auftrag';
       const dateInput = document.getElementById('wizDate');
       const dateKey = (dateInput && dateInput.value) ? dateInput.value : isoDate(planCurrentDate);
       const start = (document.getElementById('wizStart')?.value) || '08:00';
