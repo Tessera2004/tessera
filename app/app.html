@@ -177,7 +177,7 @@
           <button class="btn-icon skin-toggle" id="skinToggle" title="Ansicht: Büro (dunkel) ⇄ Standard" onclick="toggleSkin()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
           </button>
-          <button class="btn-icon" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html','_blank')">
+          <button class="btn-icon" data-term="feldAnsichtTitel" data-term-attr="title" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html','_blank')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </button>
           <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
@@ -250,7 +250,7 @@
               <div class="card-header">
                 <div>
                   <div class="card-title">Heutige Einsätze</div>
-                  <div class="card-subtitle">Live-Status aller Objekte</div>
+                  <div class="card-subtitle">Live-Status aller <span data-term="objektPlural">Objekte</span></div>
                 </div>
                 <button class="btn btn-ghost" onclick="navTo('planung')">Alle ansehen →</button>
               </div>
@@ -361,7 +361,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Mitarbeiter</h1>
-              <p class="page-subtitle" id="mitSubtitle">— Reiniger</p>
+              <p class="page-subtitle" id="mitSubtitle">— <span data-term="feldMitarbeiterPlural">Reiniger</span></p>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
               <button class="btn btn-secondary" onclick="openTeamManager()">Teams verwalten</button>
@@ -402,7 +402,7 @@
                 <div class="emp-avatar" style="background: linear-gradient(135deg, #16A34A, #0EA5E9);">MC</div>
                 <div>
                   <div class="emp-name">Maria Costa</div>
-                  <div class="emp-role">Reinigungskraft</div>
+                  <div class="emp-role" data-term="rolle">Reinigungskraft</div>
                 </div>
                 <span class="badge badge-info" style="margin-left: auto;"><span class="dot" style="background: var(--accent)"></span>Unterwegs</span>
               </div>
@@ -425,7 +425,7 @@
                 <div class="emp-avatar" style="background: linear-gradient(135deg, #D97706, #DC2626);">KW</div>
                 <div>
                   <div class="emp-name">Klaus Weber</div>
-                  <div class="emp-role">Reinigungskraft</div>
+                  <div class="emp-role" data-term="rolle">Reinigungskraft</div>
                 </div>
                 <span class="badge badge-danger" style="margin-left: auto;"><span class="dot" style="background: var(--danger)"></span>Krank</span>
               </div>
@@ -448,7 +448,7 @@
                 <div class="emp-avatar" style="background: linear-gradient(135deg, #EC4899, #8B5CF6);">PS</div>
                 <div>
                   <div class="emp-name">Petra Schmidt</div>
-                  <div class="emp-role">Reinigungskraft</div>
+                  <div class="emp-role" data-term="rolle">Reinigungskraft</div>
                 </div>
                 <span class="badge badge-success" style="margin-left: auto;"><span class="dot" style="background: var(--success)"></span>Aktiv</span>
               </div>
@@ -471,7 +471,7 @@
                 <div class="emp-avatar" style="background: linear-gradient(135deg, #0EA5E9, #6366F1);">TÖ</div>
                 <div>
                   <div class="emp-name">Tomasz Öztürk</div>
-                  <div class="emp-role">Reinigungskraft</div>
+                  <div class="emp-role" data-term="rolle">Reinigungskraft</div>
                 </div>
                 <span class="badge badge-success" style="margin-left: auto;"><span class="dot" style="background: var(--success)"></span>Aktiv</span>
               </div>
@@ -494,7 +494,7 @@
                 <div class="emp-avatar" style="background: linear-gradient(135deg, #F59E0B, #EF4444);">EN</div>
                 <div>
                   <div class="emp-name">Elena Novak</div>
-                  <div class="emp-role">Reinigungskraft</div>
+                  <div class="emp-role" data-term="rolle">Reinigungskraft</div>
                 </div>
                 <span class="badge badge-muted" style="margin-left: auto;">Feierabend</span>
               </div>
@@ -1292,7 +1292,7 @@
               <div style="flex: 1;">
                 <div class="calc-label">Automatisch berechnet</div>
                 <div class="calc-val"><span id="calcStart">10:30</span> Uhr Anfahrt · <span id="calcDur">3h 0min</span> Reinigung</div>
-                <div class="calc-sub">Reiniger ist <span id="calcBuffer">30 Min</span> vor Abgabe-Termin fertig.</div>
+                <div class="calc-sub"><span data-term="feldMitarbeiter">Reiniger</span> ist <span id="calcBuffer">30 Min</span> vor Abgabe-Termin fertig.</div>
               </div>
             </div>
           </div>
@@ -1551,7 +1551,7 @@
             <div style="font-size: 18px; font-weight: 600; margin-top: 2px;" id="detailFreq">—</div>
           </div>
           <div>
-            <div style="font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;">Reiniger</div>
+            <div style="font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;" data-term="feldMitarbeiterPlural">Reiniger</div>
             <div style="font-size: 18px; font-weight: 600; margin-top: 2px;" id="detailEmp">—</div>
           </div>
         </div>
@@ -1951,7 +1951,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="mitModalTitle">Neuer Mitarbeiter</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Reiniger / Fahrer — Stammdaten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;"><span data-term="feldStamm">Reiniger / Fahrer</span> — Stammdaten</div>
         </div>
         <button class="btn-icon" onclick="closeModal('mitarbeiterEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1989,7 +1989,7 @@
           <div class="field">
             <label>Rolle</label>
             <select id="mitRole">
-              <option value="Reinigungskraft">Reinigungskraft</option>
+              <option value="Reinigungskraft" data-term="rolle">Reinigungskraft</option>
               <option value="Vorarbeiterin">Vorarbeiterin</option>
               <option value="Vorarbeiter">Vorarbeiter</option>
               <option value="Aushilfe">Aushilfe</option>
@@ -2301,7 +2301,7 @@
         <div class="field">
           <label>Rolle</label>
           <div class="opt-row" id="inviteRoleChips"></div>
-          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;">Reiniger im Aussendienst (nur Mobile-App): Read-only genügt.</div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;"><span data-term="feldMitarbeiterPlural">Reiniger</span> im Aussendienst (nur Mobile-App): Read-only genügt.</div>
         </div>
         <div id="inviteError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
       </div>
@@ -3179,6 +3179,9 @@
       rechnungen: 'Rechnungen'
     };
 
+    // Kurzhelfer: Branchen-Begriff holen (Fallback = Key, falls Engine fehlt).
+    const VT = (k) => (window.MosaVertical ? MosaVertical.t(k) : k);
+
     // Branchen-Begriff in den Topbar-Titel der Objekte-Ansicht spiegeln (reinigung => 'Objekte').
     function syncVerticalTitles() {
       if (!window.MosaVertical) return;
@@ -3187,7 +3190,12 @@
       if (active && titleEl) titleEl.textContent = titles[active.dataset.view] || titleEl.textContent;
     }
     syncVerticalTitles();
-    document.addEventListener('mosa-vertical-changed', syncVerticalTitles);
+    // Bei Branchenwechsel: Titel + JS-gerenderte Ansichten aktualisieren.
+    document.addEventListener('mosa-vertical-changed', () => {
+      syncVerticalTitles();
+      try { typeof renderMitarbeiter === 'function' && renderMitarbeiter(); } catch (e) {}
+      try { typeof renderDashboard === 'function' && renderDashboard(); } catch (e) {}
+    });
 
     function navTo(view) {
       const item = document.querySelector(`.nav-item[data-view="${view}"]`);
@@ -5720,7 +5728,7 @@
       if (!grid) return;
       const aktiv = EMPLOYEES.filter(e => e.status !== 'abwesend').length;
       const abw = EMPLOYEES.length - aktiv;
-      sub.textContent = `${EMPLOYEES.length} Reiniger · ${aktiv} aktiv · ${abw} abwesend`;
+      sub.textContent = `${EMPLOYEES.length} ${VT('feldMitarbeiterPlural')} · ${aktiv} aktiv · ${abw} abwesend`;
       if (EMPLOYEES.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-subtle);">Noch keine Mitarbeiter. Klick oben rechts auf „+ Mitarbeiter hinzufügen".</div>`;
         return;
@@ -5745,7 +5753,7 @@
             <div class="emp-avatar" style="background: var(--bg-subtle, #F3F4F6); color: var(--text); border: 2px solid ${teamColor}; overflow: hidden;">${avatarInner}</div>
             <div style="min-width: 0; flex: 1;">
               <div class="emp-name">${empName(e)}</div>
-              <div class="emp-role">${e.role || 'Reinigungskraft'} · ${teamName}</div>
+              <div class="emp-role">${e.role || VT('rolle')} · ${teamName}</div>
             </div>
             ${statusBadge}
           </div>
@@ -5765,7 +5773,7 @@
       document.getElementById('mitFirstname').value = e?.firstName || '';
       document.getElementById('mitLastname').value = e?.lastName || '';
       document.getElementById('mitEmail').value = e?.email || '';
-      document.getElementById('mitRole').value = e?.role || 'Reinigungskraft';
+      document.getElementById('mitRole').value = e?.role || VT('rolle');
       document.getElementById('mitTeam').value = e?.teamId || (PLAN_TEAMS[0] ? PLAN_TEAMS[0].id : '');
       document.getElementById('mitStatus').value = e?.status || 'aktiv';
       document.getElementById('mitCanDrive').checked = !!e?.canDrive;
@@ -6188,7 +6196,7 @@
     // ============ Neuer Auftrag speichern ============
     function saveAuftrag() {
       closeModal('newAuftrag');
-      toast('Neues Objekt angelegt');
+      toast(`Neues ${VT('objekt')} angelegt`);
     }
 
     // ============ Klickbare Objekt-Karten ============
@@ -6253,7 +6261,7 @@
         return `<div class="report-card" onclick="openReportDetail('${r.id}')" style="cursor:pointer;">
           <div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-              <strong style="font-size: 14px;">${escapeHtml(r.objekt || 'Ohne Objekt')}</strong>
+              <strong style="font-size: 14px;">${escapeHtml(r.objekt || ('Ohne ' + VT('objekt')))}</strong>
               <span class="badge ${st.cls}"><span class="dot" style="background: ${st.col}"></span>${st.label}</span>
             </div>
             <div style="font-size: 12.5px; color: var(--text-muted);">${escapeHtml(meta)}</div>
@@ -6289,7 +6297,7 @@
         if (title) title.textContent = 'Willkommen bei deinem Cockpit.';
         if (sub) sub.textContent = 'Lege deine Mitarbeiter, Kunden und den ersten Auftrag an — in wenigen Minuten läuft alles.';
       } else {
-        if (eyebrow) eyebrow.textContent = `${aktiv} Reiniger aktiv`;
+        if (eyebrow) eyebrow.textContent = `${aktiv} ${VT('feldMitarbeiterPlural')} aktiv`;
         if (title) title.textContent = 'Dein Tag im Überblick.';
         if (sub) sub.textContent = `${total} Mitarbeiter · ${kunden} Kunden · ${reports.length} Berichte erfasst.`;
       }
@@ -6870,7 +6878,7 @@
     }
     function saveReport() {
       const objekt = document.getElementById('repObjekt').value.trim();
-      if (!objekt) { toast('Objekt / Kunde erforderlich', 'error'); return; }
+      if (!objekt) { toast(`${VT('objektKunde')} erforderlich`, 'error'); return; }
       const data = {
         objekt,
         employee: document.getElementById('repEmployee').value.trim(),
@@ -7237,7 +7245,7 @@
           showFee: feeBau > 0,
           minApplied: usedMin,
           minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} €` : null,
-          breakdown: cleaners > 1 ? [`${cleaners} Reiniger`] : []
+          breakdown: cleaners > 1 ? [`${cleaners} ${VT('feldMitarbeiterPlural')}`] : []
         };
       }
 

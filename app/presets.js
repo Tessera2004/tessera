@@ -34,6 +34,9 @@
         feldMitarbeiterPlural: 'Reiniger',
         aktiveFeldMitarbeiter: 'Aktive Reiniger',
         anzahlFeld: 'Anzahl Reiniger',
+        rolle: 'Reinigungskraft',
+        feldStamm: 'Reiniger / Fahrer',
+        feldAnsichtTitel: 'Reiniger-Ansicht öffnen',
         suchePlatzhalter: 'Objekt, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
@@ -60,6 +63,9 @@
         feldMitarbeiterPlural: 'Monteure',
         aktiveFeldMitarbeiter: 'Aktive Monteure',
         anzahlFeld: 'Anzahl Monteure',
+        rolle: 'Monteur',
+        feldStamm: 'Monteur / Fahrer',
+        feldAnsichtTitel: 'Monteur-Ansicht öffnen',
         suchePlatzhalter: 'Baustelle, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'nachkalkulation', 'rechnungen'],
@@ -86,6 +92,9 @@
         feldMitarbeiterPlural: 'Gärtner',
         aktiveFeldMitarbeiter: 'Aktive Gärtner',
         anzahlFeld: 'Anzahl Gärtner',
+        rolle: 'Gärtner',
+        feldStamm: 'Gärtner / Fahrer',
+        feldAnsichtTitel: 'Gärtner-Ansicht öffnen',
         suchePlatzhalter: 'Grundstück, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
@@ -112,6 +121,9 @@
         feldMitarbeiterPlural: 'Techniker',
         aktiveFeldMitarbeiter: 'Aktive Techniker',
         anzahlFeld: 'Anzahl Techniker',
+        rolle: 'Schädlingstechniker',
+        feldStamm: 'Techniker / Fahrer',
+        feldAnsichtTitel: 'Techniker-Ansicht öffnen',
         suchePlatzhalter: 'Objekt, Mitarbeiter, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'abos', 'berichte', 'zeiten', 'rechnungen'],
@@ -138,6 +150,9 @@
         feldMitarbeiterPlural: 'Mechaniker',
         aktiveFeldMitarbeiter: 'Aktive Mechaniker',
         anzahlFeld: 'Anzahl Mechaniker',
+        rolle: 'Mechaniker',
+        feldStamm: 'Mechaniker / Fahrer',
+        feldAnsichtTitel: 'Mechaniker-Ansicht öffnen',
         suchePlatzhalter: 'Fahrzeug, Kennzeichen, Kunde...'
       },
       modules: ['offerten', 'aufgaben', 'berichte', 'zeiten', 'rechnungen'],

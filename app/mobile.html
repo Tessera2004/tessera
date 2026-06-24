@@ -12,6 +12,7 @@
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
   <script src="db-sync.js"></script>
+  <script src="presets.js"></script>
   <style>
     body { background: var(--bg); }
     .device-frame {
@@ -203,7 +204,7 @@
 
     <!-- QR-Scanner -->
     <div class="qr-overlay" id="qrOverlay">
-      <div class="qr-title">QR-Code am Objekt scannen</div>
+      <div class="qr-title">QR-Code am <span data-term="objekt">Objekt</span> scannen</div>
       <div class="qr-sub">Halte die Kamera auf den QR-Aufkleber beim Eingang.</div>
       <div id="qr-reader"></div>
       <div class="qr-status" id="qrStatus">Kamera wird gestartet …</div>
@@ -377,7 +378,8 @@
     /* ---------- Material-Checkliste vor Routenstart ---------- */
     const CL_ITEMS_KEY = 'mosaos_checklist_items';
     const CL_DONE_KEY  = 'mosaos_checklist_done';
-    const CL_DEFAULT = [
+    // Material-Checkliste aus dem Branchen-Preset (Fallback: Reinigung).
+    const CL_DEFAULT = (window.MosaVertical && MosaVertical.preset().checklist) || [
       'Staubsauger & Ersatzbeutel an Bord',
       'Fensterwischer & Abzieher',
       'Reinigungsmittel & Tücher',
@@ -480,13 +482,14 @@
     })();
 
     /* ---------- Abnahmeprotokoll + Signatur ---------- */
-    const PROTO_DEFAULT_TASKS = ['Küche', 'Bad / WC', 'Böden gewischt', 'Staub gewischt', 'Müll entsorgt'];
+    const PROTO_DEFAULT_TASKS = (window.MosaVertical && MosaVertical.preset().protocolTasks) || ['Küche', 'Bad / WC', 'Böden gewischt', 'Staub gewischt', 'Müll entsorgt'];
     const PROTO_KEY = 'mosaos_protocols';
     let protoTasks = [];
     let protoEditing = false;
 
     function currentObjektName() {
-      return (window._activeJob && window._activeJob.objekt) ? window._activeJob.objekt : 'Objekt';
+      const fallback = (window.MosaVertical ? MosaVertical.t('objekt') : 'Objekt');
+      return (window._activeJob && window._activeJob.objekt) ? window._activeJob.objekt : fallback;
     }
     function currentPhotoCount() { return window._protoPhotoCount || 0; }
 
