@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=3"></script>
+  <script src="app-i18n.js?v=4"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1024,24 +1024,24 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="view.preise">Preise & Konditionen</h1>
-              <p class="page-subtitle">Stundensätze und Mindestbuchungen pro <span data-term="leistungsart">Reinigungsart</span> — fließen automatisch in jeden neuen Auftrag.</p>
+              <p class="page-subtitle"><span data-i18n="set.pricesSubA">Stundensätze und Mindestbuchungen pro </span><span data-term="leistungsart">Reinigungsart</span><span data-i18n="set.pricesSubB"> — fließen automatisch in jeden neuen Auftrag.</span></p>
             </div>
-            <button class="btn btn-accent" onclick="savePrices()">Änderungen speichern</button>
+            <button class="btn btn-accent" data-i18n="set.saveChanges" onclick="savePrices()">Änderungen speichern</button>
           </div>
 
           <div class="readonly-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — Preise können nicht gespeichert werden.
+            <span data-i18n="set.readonlyBanner">Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — Preise können nicht gespeichert werden.</span>
           </div>
 
           <!-- Geschäftsfeld / Branche (Preset-Engine) -->
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:10px;">
-              <div style="font-weight:700; font-size:15px;">Geschäftsfeld</div>
-              <div style="font-size:12.5px; color:var(--text-subtle);">Bestimmt Begriffe, Checklisten &amp; Vorlagen in der ganzen App. „Gebäudereinigung" ist der Standard.</div>
+              <div style="font-weight:700; font-size:15px;" data-i18n="set.businessField">Geschäftsfeld</div>
+              <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.businessFieldDesc">Bestimmt Begriffe, Checklisten &amp; Vorlagen in der ganzen App. „Gebäudereinigung" ist der Standard.</div>
             </div>
             <div class="field" style="max-width:440px;">
-              <label>Branche</label>
+              <label data-i18n="set.branch">Branche</label>
               <select id="verticalSelect" onchange="onVerticalChange(this.value)" style="padding:10px 12px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); color:var(--text); font-family:inherit; font-size:14px; width:100%;"></select>
             </div>
           </div>
@@ -1050,39 +1050,39 @@
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
               <div>
-                <div style="font-weight:700; font-size:15px;">Firma & Zahlungsangaben</div>
-                <div style="font-size:12.5px; color:var(--text-subtle);">Erscheinen auf jeder Rechnung. Land steuert Steuersatz, Währung und Zahlteil (CH: QR-Einzahlschein · DE/AT: SEPA).</div>
+                <div style="font-weight:700; font-size:15px;" data-i18n="set.companyTitle">Firma & Zahlungsangaben</div>
+                <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.companyDesc">Erscheinen auf jeder Rechnung. Land steuert Steuersatz, Währung und Zahlteil (CH: QR-Einzahlschein · DE/AT: SEPA).</div>
               </div>
-              <button class="btn btn-accent" onclick="saveCompanyForm()">Speichern</button>
+              <button class="btn btn-accent" data-i18n="common.save" onclick="saveCompanyForm()">Speichern</button>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-              <div class="field"><label>Firmenname</label><input type="text" id="coName" /></div>
-              <div class="field"><label>Land</label>
+              <div class="field"><label data-i18n="set.coName">Firmenname</label><input type="text" id="coName" /></div>
+              <div class="field"><label data-i18n="set.country">Land</label>
                 <select id="coCountry" onchange="onCompanyCountryChange()">
-                  <option value="CH">Schweiz (CH)</option>
-                  <option value="DE">Deutschland (DE)</option>
-                  <option value="AT">Österreich (AT)</option>
+                  <option value="CH" data-i18n="set.countryCH">Schweiz (CH)</option>
+                  <option value="DE" data-i18n="set.countryDE">Deutschland (DE)</option>
+                  <option value="AT" data-i18n="set.countryAT">Österreich (AT)</option>
                 </select>
               </div>
               <div class="field"><label>IBAN</label><input type="text" id="coIban" placeholder="CH.. .... .... .... .... ." /></div>
               <div class="field"><label id="coMwstLabel">MWST-Nr.</label><input type="text" id="coMwst" placeholder="CHE-123.456.789" /></div>
-              <div class="field"><label>Strasse & Nr.</label><input type="text" id="coAddr1" /></div>
-              <div class="field"><label>PLZ & Ort</label><input type="text" id="coAddr2" /></div>
-              <div class="field" style="grid-column:1/-1;"><label>E-Mail / Telefon</label><input type="text" id="coContact" /></div>
+              <div class="field"><label data-i18n="set.street">Strasse & Nr.</label><input type="text" id="coAddr1" /></div>
+              <div class="field"><label data-i18n="set.cityZip">PLZ & Ort</label><input type="text" id="coAddr2" /></div>
+              <div class="field" style="grid-column:1/-1;"><label data-i18n="set.emailPhone">E-Mail / Telefon</label><input type="text" id="coContact" /></div>
             </div>
-            <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;">Hinterlege deine echte IBAN — sonst zeigt die QR-Rechnung die Demo-IBAN.</div>
+            <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;" data-i18n="set.ibanHint">Hinterlege deine echte IBAN — sonst zeigt die QR-Rechnung die Demo-IBAN.</div>
           </div>
 
           <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:6px;">
-              <div style="font-weight:700; font-size:15px;">Module</div>
-              <div style="font-size:12.5px; color:var(--text-subtle);">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
+              <div style="font-weight:700; font-size:15px;" data-i18n="set.modules">Module</div>
+              <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.modulesDesc">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
             </div>
             <div id="moduleSettings" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-top:14px;"></div>
           </div>
 
-          <h2 style="font-size:15px; font-weight:600; margin:0 0 4px;">Preise pro Leistung</h2>
+          <h2 style="font-size:15px; font-weight:600; margin:0 0 4px;" data-i18n="set.pricesPerService">Preise pro Leistung</h2>
           <!-- Datengetriebene Preis-Karten für Nicht-Reinigungs-Branchen (aus dem Preset) -->
           <div id="priceGridGeneric" style="display:none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
           <!-- Reinigungs-Original (unverändert) -->
@@ -1094,27 +1094,27 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l3-3h12l3 3M3 6l3 14h12l3-14M3 6h18"/><path d="M9 10v6M15 10v6"/></svg>
                 </div>
                 <div>
-                  <div class="price-card-title">Unterhaltsreinigung</div>
-                  <div class="price-card-sub">Regelmäßige Pflegereinigung</div>
+                  <div class="price-card-title" data-i18n="price.unterhalt.t">Unterhaltsreinigung</div>
+                  <div class="price-card-sub" data-i18n="price.unterhalt.s">Regelmäßige Pflegereinigung</div>
                 </div>
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>Stundensatz</label>
+                  <label data-i18n="price.row.rate">Stundensatz</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="unterhalt-rate" value="35" step="0.5" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / h</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestbuchung</label>
+                  <label data-i18n="price.row.minBooking">Mindestbuchung</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="unterhalt-min" value="1" step="0.5" oninput="onPriceChange()" />
                     <span class="price-suffix">h</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Anfahrt pauschal</label>
+                  <label data-i18n="price.row.travelFlat">Anfahrt pauschal</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="unterhalt-fee" value="0" step="1" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
@@ -1129,27 +1129,27 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
                 </div>
                 <div>
-                  <div class="price-card-title">Endreinigung</div>
-                  <div class="price-card-sub">Wohnungsübergabe / Auszug</div>
+                  <div class="price-card-title" data-i18n="price.end.t">Endreinigung</div>
+                  <div class="price-card-sub" data-i18n="price.end.s">Wohnungsübergabe / Auszug</div>
                 </div>
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>Preis pro m²</label>
+                  <label data-i18n="price.row.perSqm">Preis pro m²</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="end-qm" value="3.2" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestauftrag</label>
+                  <label data-i18n="price.row.minOrder">Mindestauftrag</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="end-min" value="250" step="10" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Anfahrt pauschal</label>
+                  <label data-i18n="price.row.travelFlat">Anfahrt pauschal</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="end-fee" value="25" step="1" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
@@ -1164,34 +1164,34 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
                 </div>
                 <div>
-                  <div class="price-card-title">Fensterreinigung</div>
-                  <div class="price-card-sub">Innen, außen, mit/ohne Leiter</div>
+                  <div class="price-card-title" data-i18n="price.fenster.t">Fensterreinigung</div>
+                  <div class="price-card-sub" data-i18n="price.fenster.s">Innen, außen, mit/ohne Leiter</div>
                 </div>
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>Stundensatz (ohne Leiter)</label>
+                  <label data-i18n="price.row.rateNoLadder">Stundensatz (ohne Leiter)</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fenster-rate" value="40" step="0.5" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / h</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Aufschlag mit Leiter</label>
+                  <label data-i18n="price.row.ladderSurcharge">Aufschlag mit Leiter</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fenster-leiter" value="15" step="1" oninput="onPriceChange()" />
                     <span class="price-suffix">%</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestbuchung</label>
+                  <label data-i18n="price.row.minBooking">Mindestbuchung</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fenster-min" value="2" step="0.5" oninput="onPriceChange()" />
                     <span class="price-suffix">h</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Anfahrt pauschal</label>
+                  <label data-i18n="price.row.travelFlat">Anfahrt pauschal</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fenster-fee" value="20" step="1" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
@@ -1206,27 +1206,27 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22h20"/><path d="M6 18h12V8l-6-5-6 5z"/><path d="M9 22v-6h6v6"/></svg>
                 </div>
                 <div>
-                  <div class="price-card-title">Baureinigung</div>
-                  <div class="price-card-sub">Grob-, Fein-, Endreinigung Bau</div>
+                  <div class="price-card-title" data-i18n="price.bau.t">Baureinigung</div>
+                  <div class="price-card-sub" data-i18n="price.bau.s">Grob-, Fein-, Endreinigung Bau</div>
                 </div>
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>Preis pro m²</label>
+                  <label data-i18n="price.row.perSqm">Preis pro m²</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="bau-qm" value="2.8" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestauftrag</label>
+                  <label data-i18n="price.row.minOrder">Mindestauftrag</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="bau-min" value="400" step="10" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Anfahrt pauschal</label>
+                  <label data-i18n="price.row.travelFlat">Anfahrt pauschal</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="bau-fee" value="35" step="1" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
@@ -1241,34 +1241,34 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
                 </div>
                 <div>
-                  <div class="price-card-title">Fassadenreinigung</div>
-                  <div class="price-card-sub">Stator, Algen, Imprägnierung</div>
+                  <div class="price-card-title" data-i18n="price.fassade.t">Fassadenreinigung</div>
+                  <div class="price-card-sub" data-i18n="price.fassade.s">Stator, Algen, Imprägnierung</div>
                 </div>
               </div>
               <div class="price-card-body">
                 <div class="price-row">
-                  <label>m²-Preis Statorreinigung</label>
+                  <label data-i18n="price.row.statorSqm">m²-Preis Statorreinigung</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fassade-stator" value="8.5" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Aufschlag Algen-Entfernung</label>
+                  <label data-i18n="price.row.algaeSurcharge">Aufschlag Algen-Entfernung</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fassade-algen" value="3.5" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Imprägnierung</label>
+                  <label data-i18n="price.row.impregnation">Imprägnierung</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fassade-impraeg" value="4.0" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
                   </div>
                 </div>
                 <div class="price-row">
-                  <label>Mindestauftragswert</label>
+                  <label data-i18n="price.row.minOrderValue">Mindestauftragswert</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="fassade-min" value="800" step="10" oninput="onPriceChange()" />
                     <span class="price-suffix">€</span>
@@ -1283,12 +1283,12 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                 </div>
                 <div>
-                  <div class="price-card-title">Eigene Leistung</div>
-                  <div class="price-card-sub">Spezialreinigung, Sonderauftrag, …</div>
+                  <div class="price-card-title" data-i18n="price.custom.t">Eigene Leistung</div>
+                  <div class="price-card-sub" data-i18n="price.custom.s">Spezialreinigung, Sonderauftrag, …</div>
                 </div>
               </div>
               <div class="price-card-body" style="text-align: center; padding-top: 20px; padding-bottom: 24px;">
-                <button class="btn btn-secondary" style="width: 100%;">+ Service hinzufügen</button>
+                <button class="btn btn-secondary" style="width: 100%;" data-i18n="price.addService">+ Service hinzufügen</button>
               </div>
             </div>
 
@@ -1296,20 +1296,20 @@
 
           <div style="margin-top: 24px; padding: 16px 20px; background: var(--accent-soft); border-radius: var(--radius); display: flex; align-items: center; gap: 12px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <div style="font-size: 13px; color: var(--text-muted);">
+            <div style="font-size: 13px; color: var(--text-muted);" data-i18n="set.howItWorks">
               <strong style="color: var(--text);">Wie das funktioniert:</strong> Im Auftrags-Wizard wird der Preis aus diesen Sätzen + den Service-Optionen automatisch berechnet. Du kannst ihn jederzeit pro Auftrag überschreiben — zum Beispiel wenn der Kunde eine andere Offerte bekommen hat.
             </div>
           </div>
 
           <!-- Gefahrenzone: Konto löschen (DSG – Recht auf Löschung) -->
           <div class="card" style="padding:20px 22px; margin-top:24px; border:1px solid var(--danger);">
-            <div style="font-weight:700; font-size:15px; color:var(--danger);">Konto löschen</div>
-            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:4px; max-width:640px;">
+            <div style="font-weight:700; font-size:15px; color:var(--danger);" data-i18n="set.deleteAccount">Konto löschen</div>
+            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:4px; max-width:640px;" data-i18n="set.deleteAccountDesc">
               Löscht dein Benutzerkonto endgültig. <strong>Wenn du der einzige Nutzer deiner Firma bist, werden auch alle Firmendaten</strong>
               (Kunden, Mitarbeiter, Aufträge, Nachweise, Abo) unwiderruflich gelöscht und ein laufendes Abo gekündigt.
               Bist du nur Teammitglied, wird nur dein Zugang entfernt.
             </div>
-            <button class="btn btn-secondary" style="margin-top:14px; color:var(--danger); border-color:var(--danger);" onclick="deleteAccount()">Mein Konto löschen</button>
+            <button class="btn btn-secondary" style="margin-top:14px; color:var(--danger); border-color:var(--danger);" onclick="deleteAccount()" data-i18n="set.deleteAccountBtn">Mein Konto löschen</button>
           </div>
         </section>
 
