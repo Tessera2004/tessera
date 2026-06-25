@@ -1494,6 +1494,17 @@ h1 {
   font-size: 12px;
   color: var(--text-subtle);
 }
+.legal-note {
+  margin: 0 0 28px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--swiss);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-subtle);
+}
 
 /* ----- Über uns ----- */
 .about-grid {

@@ -29,6 +29,13 @@
       <div class="nav-actions">
         <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
         <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+        <div class="lang-switch">
+          <button data-lang="de">DE</button>
+          <button data-lang="fr">FR</button>
+          <button data-lang="it">IT</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
       </div>
     </div>
   </header>
@@ -39,40 +46,42 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
         </svg>
-        Zurück zur Startseite
+        <span data-i18n="sub.back">Zurück zur Startseite</span>
       </a>
 
       <div class="sub-head">
-        <div class="eyebrow">Rechtliches</div>
-        <h1>Impressum</h1>
-        <p class="section-sub">Angaben gemäß Schweizer Bundesgesetz gegen den unlauteren Wettbewerb (UWG).</p>
+        <div class="eyebrow" data-i18n="impressum.eyebrow">Rechtliches</div>
+        <h1 data-i18n="impressum.title">Impressum</h1>
+        <p class="section-sub" data-i18n="impressum.sub">Angaben gemäß Schweizer Bundesgesetz gegen den unlauteren Wettbewerb (UWG).</p>
       </div>
 
+      <p class="legal-note" data-i18n="legal.authoritative">Rechtsverbindlich ist die deutsche Fassung. Übersetzungen dienen nur dem Verständnis.</p>
+
       <article class="legal-body">
-        <h2>Anbieter</h2>
-        <p data-cfg-only="einzelunternehmen">
+        <h2 data-i18n="impressum.h.anbieter">Anbieter</h2>
+        <p data-cfg-only="einzelunternehmen" data-i18n="impressum.p.anbieter.einzel">
           Einzelunternehmen <span data-cfg="brand">MosaOS</span><br/>
           Inhaber: <span data-cfg="owner">[Vor- und Nachname]</span><br/>
           <span data-cfg="street">[Strasse]</span><br/>
           <span data-cfg="zip">4614</span> <span data-cfg="city">Hägendorf</span><br/>
           <span data-cfg="country">Schweiz</span>
         </p>
-        <p data-cfg-only="gmbh">
+        <p data-cfg-only="gmbh" data-i18n="impressum.p.anbieter.gmbh">
           <span data-cfg="brand">MosaOS</span> GmbH<br/>
           <span data-cfg="street">[Strasse]</span><br/>
           <span data-cfg="zip">4614</span> <span data-cfg="city">Hägendorf</span><br/>
           <span data-cfg="country">Schweiz</span>
         </p>
 
-        <h2>Kontakt</h2>
-        <p>
+        <h2 data-i18n="impressum.h.kontakt">Kontakt</h2>
+        <p data-i18n="impressum.p.kontakt">
           E-Mail: <a data-cfg="email">info.mosaos@gmail.com</a><br/>
           Telefon: <a data-cfg="phone">+41 …</a>
         </p>
 
         <div data-cfg-only="einzelunternehmen">
-          <h2>Rechtsform</h2>
-          <p>
+          <h2 data-i18n="impressum.h.rechtsform">Rechtsform</h2>
+          <p data-i18n="impressum.p.rechtsform">
             <span data-cfg="brand">MosaOS</span> wird als Einzelunternehmen im Sinne von Art. 945 OR betrieben.
             Verantwortlich für sämtliche Inhalte und Geschäftshandlungen ist
             <span data-cfg="owner">[Vor- und Nachname]</span>.
@@ -80,42 +89,42 @@
         </div>
 
         <div data-cfg-only="gmbh">
-          <h2>Handelsregister</h2>
-          <p>
+          <h2 data-i18n="impressum.h.hr">Handelsregister</h2>
+          <p data-i18n="impressum.p.hr">
             Eingetragen im Handelsregister des Kantons Solothurn<br/>
             <span data-cfg-row><span data-cfg="uid" data-cfg-hide-if-empty>UID</span></span>
           </p>
-          <h2>Vertretungsberechtigte Person</h2>
-          <p><span data-cfg="owner">[Name]</span>, Geschäftsführer</p>
+          <h2 data-i18n="impressum.h.vertretung">Vertretungsberechtigte Person</h2>
+          <p><span data-cfg="owner">[Name]</span>, <span data-i18n="impressum.geschaeftsfuehrer">Geschäftsführer</span></p>
         </div>
 
         <div data-cfg-row>
-          <h2>MWST</h2>
-          <p>MWST-Nr.: <span data-cfg="mwst" data-cfg-hide-if-empty>CHE-… MWST</span></p>
+          <h2 data-i18n="impressum.h.mwst">MWST</h2>
+          <p><span data-i18n="impressum.mwst.label">MWST-Nr.:</span> <span data-cfg="mwst" data-cfg-hide-if-empty>CHE-… MWST</span></p>
         </div>
 
-        <h2>Haftungsausschluss</h2>
-        <p>
+        <h2 data-i18n="impressum.h.haftung">Haftungsausschluss</h2>
+        <p data-i18n="impressum.p.haftung">
           Der Anbieter übernimmt keinerlei Gewähr hinsichtlich der inhaltlichen Richtigkeit, Genauigkeit, Aktualität, Zuverlässigkeit
           und Vollständigkeit der Informationen. Haftungsansprüche gegen den Anbieter wegen Schäden materieller oder immaterieller Art,
           welche aus dem Zugriff oder der Nutzung bzw. Nichtnutzung der veröffentlichten Informationen entstanden sind, werden
           ausgeschlossen.
         </p>
 
-        <h2>Haftung für Links</h2>
-        <p>
+        <h2 data-i18n="impressum.h.links">Haftung für Links</h2>
+        <p data-i18n="impressum.p.links">
           Verweise und Links auf Webseiten Dritter liegen ausserhalb unseres Verantwortungsbereichs. Es wird jegliche Verantwortung
           für solche Webseiten abgelehnt. Der Zugriff und die Nutzung solcher Webseiten erfolgen auf eigene Gefahr.
         </p>
 
-        <h2>Urheberrechte</h2>
-        <p>
+        <h2 data-i18n="impressum.h.urheber">Urheberrechte</h2>
+        <p data-i18n="impressum.p.urheber">
           Die Urheber- und alle anderen Rechte an Inhalten, Bildern, Fotos oder anderen Dateien auf dieser Website gehören ausschliesslich
           dem Anbieter <span data-cfg="owner">Brian Knuchel</span> oder den speziell genannten Rechtsinhabern. Für die Reproduktion jeglicher
           Elemente ist die schriftliche Zustimmung der Urheberrechtsträger im Voraus einzuholen.
         </p>
 
-        <p class="legal-meta">Stand: Juni 2026</p>
+        <p class="legal-meta" data-i18n="legal.updated">Stand: Juni 2026</p>
       </article>
     </div>
   </main>

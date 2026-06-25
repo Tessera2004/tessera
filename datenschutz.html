@@ -29,6 +29,13 @@
       <div class="nav-actions">
         <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
         <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+        <div class="lang-switch">
+          <button data-lang="de">DE</button>
+          <button data-lang="fr">FR</button>
+          <button data-lang="it">IT</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
       </div>
     </div>
   </header>
@@ -39,19 +46,21 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
         </svg>
-        Zurück zur Startseite
+        <span data-i18n="sub.back">Zurück zur Startseite</span>
       </a>
 
       <div class="sub-head">
-        <div class="eyebrow">Rechtliches</div>
-        <h1>Datenschutzerklärung</h1>
-        <p class="section-sub">DSG-konform · Hosting in der EU · Klartext statt Juristendeutsch.</p>
+        <div class="eyebrow" data-i18n="ds.eyebrow">Rechtliches</div>
+        <h1 data-i18n="ds.title">Datenschutzerklärung</h1>
+        <p class="section-sub" data-i18n="ds.sub">DSG-konform · Hosting in der EU · Klartext statt Juristendeutsch.</p>
       </div>
+
+      <p class="legal-note" data-i18n="legal.authoritative">Rechtsverbindlich ist die deutsche Fassung. Übersetzungen dienen nur dem Verständnis.</p>
 
       <article class="legal-body">
 
-        <h2>1. Verantwortlicher</h2>
-        <p>
+        <h2 data-i18n="ds.h1">1. Verantwortlicher</h2>
+        <p data-i18n="ds.p1">
           <span data-cfg="owner">Brian Knuchel</span> (Einzelunternehmen <span data-cfg="brand">MosaOS</span>),
           <span data-cfg="street">Sandgrube 21</span>,
           <span data-cfg="zip">4614</span> <span data-cfg="city">Hägendorf</span>,
@@ -59,90 +68,90 @@
           E-Mail: <a data-cfg="emailPrivacy">help.mosaos@gmail.com</a>
         </p>
 
-        <h2>2. Geltungsbereich</h2>
-        <p>
+        <h2 data-i18n="ds.h2">2. Geltungsbereich</h2>
+        <p data-i18n="ds.p2">
           Diese Erklärung gilt für die Marketing-Website und für die SaaS-Plattform <span data-cfg="brand">MosaOS</span>.
           Sie erläutert, welche personenbezogenen Daten wir erheben, zu welchem Zweck und wie wir sie schützen.
         </p>
 
-        <h2>3. Welche Daten wir erheben</h2>
-        <h3>3.1 Beim Besuch der Website</h3>
-        <p>
+        <h2 data-i18n="ds.h3">3. Welche Daten wir erheben</h2>
+        <h3 data-i18n="ds.h3a">3.1 Beim Besuch der Website</h3>
+        <p data-i18n="ds.p3a">
           Server-Logs: IP-Adresse (gekürzt), Datum/Uhrzeit, aufgerufene Seite, Referrer, User-Agent. Diese Daten werden
           14 Tage gespeichert und ausschließlich zur Sicherheit und Fehlerbehebung verwendet.
         </p>
-        <h3>3.2 Bei Anfragen über das Kontaktformular</h3>
-        <p>
+        <h3 data-i18n="ds.h3b">3.2 Bei Anfragen über das Kontaktformular</h3>
+        <p data-i18n="ds.p3b">
           Name, Firma, E-Mail, optional Telefon, deine Nachricht. Diese Daten verwenden wir ausschließlich zur
           Bearbeitung deiner Anfrage. Aufbewahrung max. 24 Monate, dann automatische Löschung.
         </p>
-        <h3>3.3 Bei der Nutzung der Plattform</h3>
-        <p>
+        <h3 data-i18n="ds.h3c">3.3 Bei der Nutzung der Plattform</h3>
+        <p data-i18n="ds.p3c">
           Account-Daten (E-Mail, Name, Rolle), die von dir eingegebenen Geschäftsdaten (Kunden, Mitarbeiter, Aufträge),
           Nutzungs-Logs zur Sicherheit. Die Daten sind Eigentum des jeweiligen Mandanten (Firma).
         </p>
 
-        <h2>4. Wofür wir die Daten nutzen</h2>
+        <h2 data-i18n="ds.h4">4. Wofür wir die Daten nutzen</h2>
         <ul>
-          <li>Bereitstellung und Betrieb der Plattform</li>
-          <li>Beantwortung deiner Anfragen</li>
-          <li>Abrechnung der Abonnements</li>
-          <li>Sicherheit und Missbrauchsschutz</li>
-          <li>Gesetzliche Aufbewahrungspflichten (Buchhaltung 10 Jahre gemäß Schweizer OR)</li>
+          <li data-i18n="ds.l4a">Bereitstellung und Betrieb der Plattform</li>
+          <li data-i18n="ds.l4b">Beantwortung deiner Anfragen</li>
+          <li data-i18n="ds.l4c">Abrechnung der Abonnements</li>
+          <li data-i18n="ds.l4d">Sicherheit und Missbrauchsschutz</li>
+          <li data-i18n="ds.l4e">Gesetzliche Aufbewahrungspflichten (Buchhaltung 10 Jahre gemäß Schweizer OR)</li>
         </ul>
 
-        <h2>5. Wo deine Daten gespeichert sind</h2>
-        <p>
+        <h2 data-i18n="ds.h5">5. Wo deine Daten gespeichert sind</h2>
+        <p data-i18n="ds.p5">
           Die Plattformdaten werden bei unserem Infrastruktur-Dienstleister Supabase in einem Rechenzentrum
           innerhalb der EU (Region Irland) verarbeitet und gespeichert. Die EU verfügt aus Sicht der Schweiz
           über ein angemessenes Datenschutzniveau; ein Transfer in unsichere Drittländer findet nicht statt.
           Backups werden ebenfalls innerhalb der EU aufbewahrt.
         </p>
 
-        <h2>6. Weitergabe an Dritte</h2>
-        <p>
+        <h2 data-i18n="ds.h6">6. Weitergabe an Dritte</h2>
+        <p data-i18n="ds.p6">
           Wir geben keine Daten an Dritte weiter — außer an Auftragsverarbeiter, die wir für den Betrieb benötigen:
         </p>
         <ul>
-          <li>Supabase (Datenbank- und Datei-Hosting der Plattform, EU/Irland) — als Auftragsverarbeiter</li>
-          <li>Hosting-/CDN-Provider der Website</li>
-          <li>Mailversender für Transaktions- und Anfrage-Mails</li>
+          <li data-i18n="ds.l6a">Supabase (Datenbank- und Datei-Hosting der Plattform, EU/Irland) — als Auftragsverarbeiter</li>
+          <li data-i18n="ds.l6b">Hosting-/CDN-Provider der Website</li>
+          <li data-i18n="ds.l6c">Mailversender für Transaktions- und Anfrage-Mails</li>
         </ul>
-        <p>Mit unseren Auftragsverarbeitern bestehen entsprechende Auftragsverarbeitungsverträge (AVV).</p>
+        <p data-i18n="ds.p6b">Mit unseren Auftragsverarbeitern bestehen entsprechende Auftragsverarbeitungsverträge (AVV).</p>
 
-        <h2>7. Cookies und Tracking</h2>
-        <p>
+        <h2 data-i18n="ds.h7">7. Cookies und Tracking</h2>
+        <p data-i18n="ds.p7">
           Wir verwenden ausschließlich technisch notwendige Cookies bzw. lokalen Speicher (Anmelde-Sitzung,
           Spracheinstellung). Es findet kein Tracking durch Drittanbieter statt — keine Werbe-Pixel, kein
           Google Analytics, keine Reichweitenmessung.
         </p>
 
-        <h2>8. Deine Rechte</h2>
-        <p>Du hast jederzeit das Recht auf:</p>
+        <h2 data-i18n="ds.h8">8. Deine Rechte</h2>
+        <p data-i18n="ds.p8">Du hast jederzeit das Recht auf:</p>
         <ul>
-          <li>Auskunft über deine gespeicherten Daten</li>
-          <li>Berichtigung unrichtiger Daten</li>
-          <li>Löschung deiner Daten (sofern keine Aufbewahrungspflicht entgegensteht)</li>
-          <li>Datenübertragung in einem gängigen Format</li>
-          <li>Widerspruch gegen die Verarbeitung</li>
+          <li data-i18n="ds.l8a">Auskunft über deine gespeicherten Daten</li>
+          <li data-i18n="ds.l8b">Berichtigung unrichtiger Daten</li>
+          <li data-i18n="ds.l8c">Löschung deiner Daten (sofern keine Aufbewahrungspflicht entgegensteht)</li>
+          <li data-i18n="ds.l8d">Datenübertragung in einem gängigen Format</li>
+          <li data-i18n="ds.l8e">Widerspruch gegen die Verarbeitung</li>
         </ul>
-        <p>Anfragen an <a data-cfg="emailPrivacy">datenschutz@mosaos.ch</a>. Antwort innerhalb von 30 Tagen.</p>
+        <p data-i18n="ds.p8b">Anfragen an <a data-cfg="emailPrivacy">datenschutz@mosaos.ch</a>. Antwort innerhalb von 30 Tagen.</p>
 
-        <h2>9. Datensicherheit</h2>
-        <p>
+        <h2 data-i18n="ds.h9">9. Datensicherheit</h2>
+        <p data-i18n="ds.p9">
           Die Übertragung erfolgt verschlüsselt (TLS), die Daten werden beim Hosting-Dienstleister verschlüsselt
           gespeichert (Verschlüsselung at Rest). Der Zugriff erfolgt über persönliche, passwortgeschützte Logins;
           die Daten der einzelnen Firmen sind auf Datenbankebene strikt voneinander getrennt (Row Level Security).
           Passwörter werden ausschließlich als nicht umkehrbarer Hash gespeichert.
         </p>
 
-        <h2>10. Änderungen</h2>
-        <p>
+        <h2 data-i18n="ds.h10">10. Änderungen</h2>
+        <p data-i18n="ds.p10">
           Diese Erklärung kann angepasst werden, wenn sich die Rechtslage oder unsere Verarbeitungspraxis ändert.
           Wir informieren bei wesentlichen Änderungen per E-Mail.
         </p>
 
-        <p class="legal-meta">Stand: Juni 2026</p>
+        <p class="legal-meta" data-i18n="legal.updated">Stand: Juni 2026</p>
       </article>
     </div>
   </main>

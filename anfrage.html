@@ -30,6 +30,13 @@
       <div class="nav-actions">
         <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
         <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+        <div class="lang-switch">
+          <button data-lang="de">DE</button>
+          <button data-lang="fr">FR</button>
+          <button data-lang="it">IT</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
       </div>
       <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
         <span></span><span></span><span></span>
@@ -44,13 +51,13 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
         </svg>
-        Zurück zur Startseite
+        <span data-i18n="sub.back">Zurück zur Startseite</span>
       </a>
 
       <div class="sub-head">
-        <div class="eyebrow">Anfrage</div>
-        <h1 id="anfrageTitle">Lass uns reden.</h1>
-        <p class="section-sub" id="anfrageSub">
+        <div class="eyebrow" data-i18n="anfrage.eyebrow">Anfrage</div>
+        <h1 id="anfrageTitle" data-i18n="anfrage.title">Lass uns reden.</h1>
+        <p class="section-sub" id="anfrageSub" data-i18n="anfrage.sub">
           Sag uns kurz, was du brauchst. Wir melden uns innerhalb eines Werktags — versprochen.
         </p>
       </div>
@@ -60,89 +67,89 @@
 
           <div class="form-row">
             <label class="form-field">
-              <span>Vorname</span>
+              <span data-i18n="anfrage.f.firstName">Vorname</span>
               <input type="text" name="firstName" required autocomplete="given-name" />
             </label>
             <label class="form-field">
-              <span>Nachname</span>
+              <span data-i18n="anfrage.f.lastName">Nachname</span>
               <input type="text" name="lastName" required autocomplete="family-name" />
             </label>
           </div>
 
           <label class="form-field">
-            <span>Firma</span>
+            <span data-i18n="anfrage.f.company">Firma</span>
             <input type="text" name="company" required autocomplete="organization" />
           </label>
 
           <div class="form-row">
             <label class="form-field">
-              <span>E-Mail</span>
+              <span data-i18n="anfrage.f.email">E-Mail</span>
               <input type="email" name="email" required autocomplete="email" />
             </label>
             <label class="form-field">
-              <span>Telefon (optional)</span>
+              <span data-i18n="anfrage.f.phone">Telefon (optional)</span>
               <input type="tel" name="phone" autocomplete="tel" />
             </label>
           </div>
 
           <label class="form-field">
-            <span>Branche</span>
+            <span data-i18n="anfrage.f.branche">Branche</span>
             <select name="branche" id="brancheSelect">
-              <option value="reinigung">🧹 Reinigung</option>
-              <option value="werkstatt">🚗 Auto-Werkstatt</option>
-              <option value="schaedling">🛡️ Schädlingsbekämpfung</option>
-              <option value="handwerk">🔧 Handwerk</option>
-              <option value="garten">🌳 Garten-/Landschaftsbau</option>
-              <option value="custom">✨ Andere — sag uns welche</option>
+              <option value="reinigung" data-i18n="anfrage.opt.reinigung">🧹 Reinigung</option>
+              <option value="werkstatt" data-i18n="anfrage.opt.werkstatt">🚗 Auto-Werkstatt</option>
+              <option value="schaedling" data-i18n="anfrage.opt.schaedling">🛡️ Schädlingsbekämpfung</option>
+              <option value="handwerk" data-i18n="anfrage.opt.handwerk">🔧 Handwerk</option>
+              <option value="garten" data-i18n="anfrage.opt.garten">🌳 Garten-/Landschaftsbau</option>
+              <option value="custom" data-i18n="anfrage.opt.custom">✨ Andere — sag uns welche</option>
             </select>
           </label>
 
           <label class="form-field" id="customBrancheField" hidden>
-            <span>Welche Branche?</span>
-            <input type="text" name="customBranche" placeholder="z. B. Gärtnerei, Pflege, Transport" />
+            <span data-i18n="anfrage.f.customBranche">Welche Branche?</span>
+            <input type="text" name="customBranche" data-i18n-placeholder="anfrage.ph.customBranche" placeholder="z. B. Gärtnerei, Pflege, Transport" />
           </label>
 
           <label class="form-field">
-            <span>Was beschäftigt dich gerade?</span>
-            <textarea name="message" rows="5" placeholder="Was läuft heute mühsam im Büro? Welche Module würden helfen?" required></textarea>
+            <span data-i18n="anfrage.f.message">Was beschäftigt dich gerade?</span>
+            <textarea name="message" rows="5" data-i18n-placeholder="anfrage.ph.message" placeholder="Was läuft heute mühsam im Büro? Welche Module würden helfen?" required></textarea>
           </label>
 
           <label class="form-checkbox">
             <input type="checkbox" name="consent" required />
-            <span>Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage verwendet werden. <a href="datenschutz.html">Datenschutz</a></span>
+            <span data-i18n="anfrage.consent">Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage verwendet werden. <a href="datenschutz.html">Datenschutz</a></span>
           </label>
 
           <button type="submit" class="btn btn-primary btn-lg btn-block">
-            Anfrage absenden
+            <span data-i18n="anfrage.submit">Anfrage absenden</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
 
-          <p class="form-meta">
+          <p class="form-meta" data-i18n="anfrage.meta">
             Lieber direkt schreiben? <a data-cfg="email">info.mosaos@gmail.com</a>
           </p>
         </form>
 
         <aside class="form-side">
           <div class="form-side-card">
-            <h3>Was passiert nach der Anfrage?</h3>
+            <h3 data-i18n="anfrage.side.title">Was passiert nach der Anfrage?</h3>
             <ol class="steps-mini">
-              <li><strong>Innerhalb 1 Werktag</strong> meldet sich jemand von uns per Mail.</li>
-              <li>15 min Call, in dem wir verstehen, was du brauchst — keine Verkaufspräsentation.</li>
-              <li>Du bekommst eine Testumgebung mit deinen Modulen — 14 Tage gratis.</li>
+              <li data-i18n="anfrage.side.s1"><strong>Innerhalb 1 Werktag</strong> meldet sich jemand von uns per Mail.</li>
+              <li data-i18n="anfrage.side.s2">15 min Call, in dem wir verstehen, was du brauchst — keine Verkaufspräsentation.</li>
+              <li data-i18n="anfrage.side.s3">Du bekommst eine Testumgebung mit deinen Modulen — 14 Tage gratis.</li>
             </ol>
           </div>
           <div class="form-side-card form-side-quiet">
-            <h4>🔒 Was wir mit deinen Daten machen</h4>
-            <p>Wir speichern deine Anfrage zur Bearbeitung. Keine Newsletter ohne dein Ja, kein Verkauf an Dritte. Löschung jederzeit auf Zuruf.</p>
+            <h4 data-i18n="anfrage.privacy.title">🔒 Was wir mit deinen Daten machen</h4>
+            <p data-i18n="anfrage.privacy.desc">Wir speichern deine Anfrage zur Bearbeitung. Keine Newsletter ohne dein Ja, kein Verkauf an Dritte. Löschung jederzeit auf Zuruf.</p>
           </div>
         </aside>
       </div>
 
       <div class="form-success" id="formSuccess" hidden>
         <div class="success-icon">✓</div>
-        <h2>Danke, wir sind dran.</h2>
-        <p>Deine Anfrage ist angekommen. Du bekommst innerhalb eines Werktags Antwort auf deine E-Mail.</p>
-        <a href="index.html" class="btn btn-primary">Zurück zur Startseite</a>
+        <h2 data-i18n="anfrage.success.title">Danke, wir sind dran.</h2>
+        <p data-i18n="anfrage.success.desc">Deine Anfrage ist angekommen. Du bekommst innerhalb eines Werktags Antwort auf deine E-Mail.</p>
+        <a href="index.html" class="btn btn-primary" data-i18n="anfrage.success.cta">Zurück zur Startseite</a>
       </div>
 
     </div>
@@ -179,24 +186,54 @@
         customField.hidden = sel.value !== 'custom';
       };
 
+      const t = (key) => {
+        const i = window.MOSAOS_I18N;
+        if (!i) return null;
+        const lang = (document.documentElement.lang || 'de');
+        const d = i.dict[lang] || i.dict.de;
+        return d[key] != null ? d[key] : (i.dict.de[key] != null ? i.dict.de[key] : null);
+      };
+
+      // Setzt Titel/Untertitel über i18n-Keys, damit der Sprachwechsel mitzieht.
+      const applyContext = () => {
+        if (branche && sel) {
+          const liveKeys = {
+            reinigung: 'branche.reinigung',
+            werkstatt: 'branche.werkstatt',
+            schaedling: 'branche.schaedling',
+            handwerk: 'branche.handwerk',
+            garten: 'branche.garten',
+          };
+          if (liveKeys[branche] && title) {
+            const name = t(liveKeys[branche]) || '';
+            const suffix = t('anfrage.ctx.liveSuffix') || '';
+            title.textContent = name + suffix;
+            sub.textContent = t('anfrage.ctx.liveSub') || sub.textContent;
+            return;
+          }
+        }
+        if (paket === 'custom' && title) {
+          title.textContent = t('anfrage.ctx.customTitle') || title.textContent;
+          sub.textContent = t('anfrage.ctx.customSub') || sub.textContent;
+        }
+      };
+
       if (branche && sel) {
         const opt = Array.from(sel.options).find((o) => o.value === branche);
         if (opt) sel.value = branche;
-        const liveBranchen = {
-          reinigung: 'Reinigung',
-          werkstatt: 'Auto-Werkstatt',
-          schaedling: 'Schädlingsbekämpfung',
-          handwerk: 'Handwerk',
-          garten: 'Garten-/Landschaftsbau',
-        };
-        if (liveBranchen[branche] && title) {
-          title.textContent = liveBranchen[branche] + ' — leg los';
-          sub.textContent = 'Diese Branche ist live. Sag uns kurz, was du brauchst, und wir richten dir die Testumgebung ein.';
-        }
       }
-      if (paket === 'custom' && title) {
-        title.textContent = 'Deine Konfiguration starten';
-        sub.textContent = 'Du hast die Module gewählt — wir richten dir die Testumgebung ein.';
+
+      // Wenn ein Kontext (branche/paket) gesetzt ist, übernehmen wir die Steuerung
+      // der Überschrift und entfernen die statischen data-i18n-Keys, damit apply()
+      // sie nicht überschreibt. applyContext läuft danach bei jedem Sprachwechsel.
+      const hasContext = (branche && {reinigung:1,werkstatt:1,schaedling:1,handwerk:1,garten:1}[branche]) || paket === 'custom';
+      if (hasContext) {
+        if (title) title.removeAttribute('data-i18n');
+        if (sub) sub.removeAttribute('data-i18n');
+        applyContext();
+        document.querySelectorAll('.lang-switch button[data-lang]').forEach((btn) => {
+          btn.addEventListener('click', () => setTimeout(applyContext, 0));
+        });
       }
 
       if (sel) sel.addEventListener('change', setCustomVisibility);

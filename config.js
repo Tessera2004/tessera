@@ -44,11 +44,12 @@ window.MOSAOS_CONFIG = {
 (function () {
   const cfg = window.MOSAOS_CONFIG;
   const get = (path) => path.split('.').reduce((acc, k) => (acc ? acc[k] : null), cfg);
-  document.addEventListener('DOMContentLoaded', () => {
-    // Body-Klasse für Rechtsform — CSS/HTML können je nach Form anders rendern
-    document.body.classList.add('lf-' + (cfg.legalForm || 'einzelunternehmen'));
 
-    document.querySelectorAll('[data-cfg]').forEach((el) => {
+  /* Füllt alle [data-cfg]-Elemente innerhalb von root (Standard: document).
+     Als Funktion ausgelagert, damit i18n nach einem innerHTML-Update (data-i18n)
+     die data-cfg-Spans erneut befüllen kann. */
+  function fillCfg(root) {
+    (root || document).querySelectorAll('[data-cfg]').forEach((el) => {
       const val = get(el.dataset.cfg);
       if (val == null || val === '') {
         // Leere Steuer-Felder ausblenden (Container mit data-cfg-hide-if-empty)
@@ -70,6 +71,16 @@ window.MOSAOS_CONFIG = {
         el.textContent = val;
       }
     });
+  }
+
+  // Nach außen verfügbar, damit i18n.js nach innerHTML-Updates erneut befüllen kann.
+  window.MOSAOS_CONFIG_FILL = fillCfg;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Body-Klasse für Rechtsform — CSS/HTML können je nach Form anders rendern
+    document.body.classList.add('lf-' + (cfg.legalForm || 'einzelunternehmen'));
+
+    fillCfg(document);
 
     // Sektionen nur für eine Rechtsform anzeigen
     document.querySelectorAll('[data-cfg-only]').forEach((el) => {

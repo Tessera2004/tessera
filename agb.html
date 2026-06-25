@@ -29,6 +29,13 @@
       <div class="nav-actions">
         <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
         <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+        <div class="lang-switch">
+          <button data-lang="de">DE</button>
+          <button data-lang="fr">FR</button>
+          <button data-lang="it">IT</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
       </div>
     </div>
   </header>
@@ -39,89 +46,91 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
         </svg>
-        Zurück zur Startseite
+        <span data-i18n="sub.back">Zurück zur Startseite</span>
       </a>
 
       <div class="sub-head">
-        <div class="eyebrow">Rechtliches</div>
-        <h1>Allgemeine Geschäftsbedingungen</h1>
-        <p class="section-sub">Die Konditionen, zu denen wir MosaOS anbieten. In normaler Sprache.</p>
+        <div class="eyebrow" data-i18n="agb.eyebrow">Rechtliches</div>
+        <h1 data-i18n="agb.title">Allgemeine Geschäftsbedingungen</h1>
+        <p class="section-sub" data-i18n="agb.sub">Die Konditionen, zu denen wir MosaOS anbieten. In normaler Sprache.</p>
       </div>
 
+      <p class="legal-note" data-i18n="legal.authoritative">Rechtsverbindlich ist die deutsche Fassung. Übersetzungen dienen nur dem Verständnis.</p>
+
       <article class="legal-body">
-        <h2>1. Geltungsbereich</h2>
-        <p>
+        <h2 data-i18n="agb.h1">1. Geltungsbereich</h2>
+        <p data-i18n="agb.p1">
           Diese AGB regeln das Verhältnis zwischen der <span data-cfg="legalName">MosaOS GmbH</span>
           («Anbieter», «wir») und ihren Kundinnen und Kunden («Kunde», «du») bei der Nutzung der
           Software-as-a-Service-Plattform <span data-cfg="brand">MosaOS</span>. Mit der Registrierung
           akzeptierst du diese AGB.
         </p>
 
-        <h2>2. Leistungen</h2>
-        <p>
+        <h2 data-i18n="agb.h2">2. Leistungen</h2>
+        <p data-i18n="agb.p2">
           Wir stellen <span data-cfg="brand">MosaOS</span> als webbasierte Plattform zur Verfügung. Die konkreten
           Funktionen ergeben sich aus dem gewählten Basis-Paket und den zusätzlich gebuchten Modulen. Wir bemühen
           uns um eine Verfügbarkeit von 99,5% im Jahresmittel, ausgenommen geplante Wartungsfenster.
         </p>
 
-        <h2>3. Vertragslaufzeit und Kündigung</h2>
-        <p>
+        <h2 data-i18n="agb.h3">3. Vertragslaufzeit und Kündigung</h2>
+        <p data-i18n="agb.p3">
           Das Abonnement läuft monatlich. Du kannst es jederzeit zum Ende des laufenden Abrechnungsmonats kündigen —
           direkt im Account, ohne Begründung. Bezahlte Beträge für den laufenden Monat werden nicht zurückerstattet.
         </p>
 
-        <h2>4. Testphase</h2>
-        <p>
+        <h2 data-i18n="agb.h4">4. Testphase</h2>
+        <p data-i18n="agb.p4">
           Die erste Nutzung beinhaltet 14 Tage gratis. Ohne aktive Buchung eines Abos läuft der Account nach 14 Tagen
           aus. Es ist keine Kreditkarte erforderlich.
         </p>
 
-        <h2>5. Preise und Zahlung</h2>
-        <p>
+        <h2 data-i18n="agb.h5">5. Preise und Zahlung</h2>
+        <p data-i18n="agb.p5">
           Die Preise verstehen sich in Schweizer Franken (CHF) zuzüglich allfälliger gesetzlicher Mehrwertsteuer.
           Die Abrechnung erfolgt monatlich im Voraus per Kreditkarte oder Lastschrift. Preiserhöhungen werden
           30 Tage im Voraus angekündigt.
         </p>
 
-        <h2>6. Pflichten des Kunden</h2>
-        <p>
+        <h2 data-i18n="agb.h6">6. Pflichten des Kunden</h2>
+        <p data-i18n="agb.p6">
           Du sorgst dafür, dass Zugangsdaten geheim bleiben, deine Mitarbeitenden die Plattform sachgerecht nutzen
           und keine Inhalte verarbeitet werden, die gegen geltendes Recht verstoßen. Du bleibst Verantwortlicher für
           die in MosaOS gespeicherten Daten im Sinne des Datenschutzrechts.
         </p>
 
-        <h2>7. Datenschutz und Datensicherheit</h2>
-        <p>
+        <h2 data-i18n="agb.h7">7. Datenschutz und Datensicherheit</h2>
+        <p data-i18n="agb.p7">
           Wir verarbeiten Daten gemäß unserer <a href="datenschutz.html">Datenschutzerklärung</a>. Die Daten werden
           in Rechenzentren innerhalb der EU (Region Irland) gehostet. Bei Vertragsende exportieren wir auf Wunsch alle Daten
           und löschen sie 30 Tage nach Ende.
         </p>
 
-        <h2>8. Verfügbarkeit und Wartung</h2>
-        <p>
+        <h2 data-i18n="agb.h8">8. Verfügbarkeit und Wartung</h2>
+        <p data-i18n="agb.p8">
           Geplante Wartungen kündigen wir mindestens 48 Stunden vorher an und legen sie nach Möglichkeit außerhalb
           der Bürozeiten. Ungeplante Ausfälle versuchen wir so schnell wie möglich zu beheben.
         </p>
 
-        <h2>9. Haftung</h2>
-        <p>
+        <h2 data-i18n="agb.h9">9. Haftung</h2>
+        <p data-i18n="agb.p9">
           Wir haften für Schäden, die aus grober Fahrlässigkeit oder Vorsatz resultieren. Die Haftung ist auf den
           Betrag der in den letzten 12 Monaten gezahlten Abogebühren begrenzt. Für entgangenen Gewinn oder
           Folgeschäden haften wir nicht.
         </p>
 
-        <h2>10. Änderungen der AGB</h2>
-        <p>
+        <h2 data-i18n="agb.h10">10. Änderungen der AGB</h2>
+        <p data-i18n="agb.p10">
           Wir können diese AGB anpassen. Änderungen werden 30 Tage im Voraus per E-Mail mitgeteilt. Widersprichst
           du nicht innerhalb dieser Frist, gelten die neuen Bedingungen.
         </p>
 
-        <h2>11. Anwendbares Recht und Gerichtsstand</h2>
-        <p>
+        <h2 data-i18n="agb.h11">11. Anwendbares Recht und Gerichtsstand</h2>
+        <p data-i18n="agb.p11">
           Es gilt Schweizer Recht. Ausschließlicher Gerichtsstand ist <span data-cfg="city">Aarau</span>.
         </p>
 
-        <p class="legal-meta">Stand: Juni 2026</p>
+        <p class="legal-meta" data-i18n="legal.updated">Stand: Juni 2026</p>
       </article>
     </div>
   </main>
