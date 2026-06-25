@@ -1460,7 +1460,7 @@
             <div id="abgabe-mit" style="display: flex; flex-direction: column; gap: 12px;">
               <div class="field">
                 <label>Abgabe-Uhrzeit (Vermieter-Termin)</label>
-                <input type="time" id="abgabeTime" value="14:00" onchange="recalcStart()" />
+                <input type="time" id="abgabeTime" value="14:00" step="900" onchange="recalcStart()" />
               </div>
             </div>
 
@@ -1665,7 +1665,7 @@
             </div>
             <div class="field">
               <label>Startzeit</label>
-              <input type="time" id="wizStart" value="08:00" />
+              <input type="time" id="wizStart" value="08:00" step="900" />
             </div>
             <div class="field">
               <label>Dauer (Stunden)</label>
@@ -1682,7 +1682,7 @@
             </div>
             <div class="field">
               <label>Übergabe bis (optional)</label>
-              <input type="time" id="wizDeadline" />
+              <input type="time" id="wizDeadline" step="900" />
               <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">Fester Termin (z. B. Wohnungsabgabe) — wird bei Routenoptimierung eingehalten.</div>
             </div>
           </div>
@@ -2371,7 +2371,7 @@
 
         <div class="field">
           <label>Wann?</label>
-          <input type="datetime-local" id="callDate" />
+          <input type="datetime-local" id="callDate" step="900" />
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -2478,7 +2478,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
           <div class="field">
             <label>Startzeit</label>
-            <input type="time" id="jobEditStart" />
+            <input type="time" id="jobEditStart" step="900" />
           </div>
           <div class="field">
             <label>Dauer (Minuten)</label>
