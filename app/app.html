@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=4"></script>
+  <script src="app-i18n.js?v=5"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -268,9 +268,9 @@
 
           <div class="kpi-grid">
             <div class="kpi">
-              <div class="kpi-label">Einsätze heute</div>
+              <div class="kpi-label" data-i18n="dash.kpiJobsToday">Einsätze heute</div>
               <div class="kpi-value" id="kpiEinsaetze">0</div>
-              <div class="kpi-meta">geplant für heute</div>
+              <div class="kpi-meta" data-i18n="dash.kpiJobsTodayMeta">geplant für heute</div>
             </div>
             <div class="kpi">
               <div class="kpi-label" data-term="aktiveFeldMitarbeiter">Aktive Reiniger</div>
@@ -278,12 +278,12 @@
               <div class="kpi-meta" id="kpiReinigerMeta">noch keine erfasst</div>
             </div>
             <div class="kpi">
-              <div class="kpi-label">Kunden</div>
+              <div class="kpi-label" data-i18n="nav.kunden">Kunden</div>
               <div class="kpi-value" id="kpiKunden">0</div>
-              <div class="kpi-meta">im Stamm</div>
+              <div class="kpi-meta" data-i18n="dash.kpiCustomersMeta">im Stamm</div>
             </div>
             <div class="kpi">
-              <div class="kpi-label">Berichte</div>
+              <div class="kpi-label" data-i18n="dash.kpiReports">Berichte</div>
               <div class="kpi-value" id="kpiBerichte">0</div>
               <div class="kpi-meta" id="kpiBerichteMeta">Foto-Nachweise</div>
             </div>
@@ -293,23 +293,23 @@
             <div class="card">
               <div class="card-header">
                 <div>
-                  <div class="card-title">Heutige Einsätze</div>
-                  <div class="card-subtitle">Live-Status aller <span data-term="objektPlural">Objekte</span></div>
+                  <div class="card-title" data-i18n="dash.todayJobs">Heutige Einsätze</div>
+                  <div class="card-subtitle"><span data-i18n="dash.liveStatusA">Live-Status aller </span><span data-term="objektPlural">Objekte</span></div>
                 </div>
-                <button class="btn btn-ghost" onclick="navTo('planung')">Alle ansehen →</button>
+                <button class="btn btn-ghost" data-i18n="dash.viewAll" onclick="navTo('planung')">Alle ansehen →</button>
               </div>
               <div class="table-wrap" style="border: none;">
                 <table>
                   <thead>
                     <tr>
-                      <th>Zeit</th>
+                      <th data-i18n="th.time">Zeit</th>
                       <th data-term="objekt">Objekt</th>
                       <th data-term="feldMitarbeiterPlural">Reiniger</th>
-                      <th>Status</th>
+                      <th data-i18n="th.status">Status</th>
                     </tr>
                   </thead>
                   <tbody id="dashTodayBody">
-                    <tr><td colspan="4" style="text-align:center; padding:28px; color:var(--text-subtle);">Noch keine Einsätze geplant.</td></tr>
+                    <tr><td colspan="4" style="text-align:center; padding:28px; color:var(--text-subtle);" data-i18n="dash.noJobs">Noch keine Einsätze geplant.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -318,10 +318,10 @@
             <div style="display: flex; flex-direction: column; gap: var(--space-5);">
               <div class="card">
                 <div class="card-header">
-                  <div class="card-title">Aktivität</div>
+                  <div class="card-title" data-i18n="dash.activity">Aktivität</div>
                 </div>
                 <div class="activity" id="dashActivity">
-                  <div style="text-align:center; padding:24px; color:var(--text-subtle); font-size:13px;">Noch keine Aktivität.</div>
+                  <div style="text-align:center; padding:24px; color:var(--text-subtle); font-size:13px;" data-i18n="dash.noActivity">Noch keine Aktivität.</div>
                 </div>
               </div>
 
@@ -337,12 +337,12 @@
               <p class="page-subtitle" id="planSubtitle">Lade…</p>
             </div>
             <div style="display: flex; gap: 8px;">
-              <button class="btn btn-secondary" onclick="planShiftWeek(-1)">← Vorwoche</button>
-              <button class="btn btn-secondary" onclick="planGoToday()">Heute</button>
-              <button class="btn btn-secondary" onclick="planShiftWeek(1)">Nächste Woche →</button>
+              <button class="btn btn-secondary" data-i18n="plan.prevWeek" onclick="planShiftWeek(-1)">← Vorwoche</button>
+              <button class="btn btn-secondary" data-i18n="plan.today" onclick="planGoToday()">Heute</button>
+              <button class="btn btn-secondary" data-i18n="plan.nextWeek" onclick="planShiftWeek(1)">Nächste Woche →</button>
               <button class="btn btn-accent" id="autoPlanBtn" onclick="runAutoPlan()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                Routen optimieren
+                <span data-i18n="plan.optimize">Routen optimieren</span>
               </button>
             </div>
           </div>
@@ -356,12 +356,12 @@
           <div class="daycrew-card" id="daycrewCard">
             <div class="daycrew-head">
               <div>
-                <div class="daycrew-title">Heutige Besetzung · <span id="daycrewDayLabel">heute</span></div>
+                <div class="daycrew-title"><span data-i18n="plan.crewToday">Heutige Besetzung · </span><span id="daycrewDayLabel">heute</span></div>
                 <div class="daycrew-sub" id="daycrewSummary">Lade…</div>
               </div>
               <div style="display:flex; gap:8px;">
-                <button class="btn btn-ghost" onclick="resetDayCrew()" id="daycrewResetBtn" style="display:none; font-size:12px;">Auf Standard zurück</button>
-                <button class="btn btn-accent" onclick="openDayCrewModal()" style="font-size:12px;">Crew bearbeiten</button>
+                <button class="btn btn-ghost" onclick="resetDayCrew()" id="daycrewResetBtn" style="display:none; font-size:12px;" data-i18n="plan.resetDefault">Auf Standard zurück</button>
+                <button class="btn btn-accent" onclick="openDayCrewModal()" style="font-size:12px;" data-i18n="plan.editCrew">Crew bearbeiten</button>
               </div>
             </div>
             <div class="daycrew-teams" id="daycrewTeams"><!-- via JS --></div>
@@ -372,10 +372,10 @@
           <div class="team-status-bar">
             <div class="team-status-head">
               <div>
-                <div class="team-status-title">Teams · <span id="dayLabel">heute</span></div>
+                <div class="team-status-title"><span data-i18n="plan.teamsLabel">Teams · </span><span id="dayLabel">heute</span></div>
                 <div class="team-status-sub" id="teamStatusSummary">Lade…</div>
               </div>
-              <button class="btn btn-ghost" onclick="navTo('mitarbeiter')" style="font-size: 12px;">Teams verwalten →</button>
+              <button class="btn btn-ghost" onclick="navTo('mitarbeiter')" style="font-size: 12px;" data-i18n="plan.manageTeamsLink">Teams verwalten →</button>
             </div>
             <div class="team-status-grid" id="teamStatusGrid">
               <!-- via JS -->
@@ -386,12 +386,12 @@
           <div class="plan-status-card">
             <div class="plan-status-pill">
               <span class="dot" style="background: var(--success);"></span>
-              Plan optimiert
+              <span data-i18n="plan.optimized">Plan optimiert</span>
             </div>
-            <div style="font-size: 13px; color: var(--text-muted);">
+            <div style="font-size: 13px; color: var(--text-muted);" data-i18n="plan.demoStatus">
               Letzte Berechnung vor 4 Minuten · 2h 14min Fahrzeit gespart · alle Zeitfenster eingehalten
             </div>
-            <button class="btn btn-ghost" onclick="toast('Keine Konflikte heute')" style="margin-left: auto;">Konflikte anzeigen (0)</button>
+            <button class="btn btn-ghost" onclick="toast('Keine Konflikte heute')" style="margin-left: auto;" data-i18n="plan.showConflicts">Konflikte anzeigen (0)</button>
           </div>
 
           <!-- Single-Day Timeline -->
@@ -408,8 +408,8 @@
               <p class="page-subtitle" id="mitSubtitle">— <span data-term="feldMitarbeiterPlural">Reiniger</span></p>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button class="btn btn-secondary" onclick="openTeamManager()">Teams verwalten</button>
-              <button class="btn btn-accent" onclick="openMitarbeiterModal(null)">+ Mitarbeiter hinzufügen</button>
+              <button class="btn btn-secondary" data-i18n="common.manageTeams" onclick="openTeamManager()">Teams verwalten</button>
+              <button class="btn btn-accent" data-i18n="common.addEmployee" onclick="openMitarbeiterModal(null)">+ Mitarbeiter hinzufügen</button>
             </div>
           </div>
 
@@ -564,11 +564,11 @@
               <h1 class="page-title" data-i18n="nav.kunden">Kunden</h1>
               <p class="page-subtitle" id="kundenSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openCustomerEditor()">+ Neuer Kunde</button>
+            <button class="btn btn-accent" data-i18n="cust.newCustomer" onclick="openCustomerEditor()">+ Neuer Kunde</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="kundenSearch" placeholder="Kunden suchen (Name, Ort, Telefon…)"
+            <input type="text" id="kundenSearch" data-i18n-ph="cust.searchPh" placeholder="Kunden suchen (Name, Ort, Telefon…)"
               oninput="renderKunden()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -1318,23 +1318,23 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="nav.team">Büro-Team</h1>
-              <p class="page-subtitle">Wer arbeitet im Büro? Welche Rechte hat wer? Wer hat was geändert?</p>
+              <p class="page-subtitle" data-i18n="team.subtitle">Wer arbeitet im Büro? Welche Rechte hat wer? Wer hat was geändert?</p>
             </div>
             <div style="display:flex; gap:8px;">
-              <button class="btn btn-secondary" onclick="openInviteModal()" id="inviteBtn">Einladen</button>
-              <button class="btn btn-accent" onclick="openUserEditor()" id="addUserBtn">+ Mitarbeiter hinzufügen</button>
+              <button class="btn btn-secondary" onclick="openInviteModal()" id="inviteBtn" data-i18n="team.invite">Einladen</button>
+              <button class="btn btn-accent" onclick="openUserEditor()" id="addUserBtn" data-i18n="common.addEmployee">+ Mitarbeiter hinzufügen</button>
             </div>
           </div>
 
           <div class="readonly-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — keine Änderungen möglich. Wechsle oben rechts den Benutzer.
+            <span data-i18n="team.readonlyBanner">Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — keine Änderungen möglich. Wechsle oben rechts den Benutzer.</span>
           </div>
 
           <!-- Rollen-Erklärung -->
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <div style="font-size:13px; font-weight:600; color:var(--text-subtle);">Rollen & Rechte</div>
-            <button class="btn btn-secondary" id="manageRolesBtn" style="font-size:12.5px; padding:6px 12px;" onclick="openRoleManager()">⚙ Rollen verwalten</button>
+            <div style="font-size:13px; font-weight:600; color:var(--text-subtle);" data-i18n="team.rolesRights">Rollen & Rechte</div>
+            <button class="btn btn-secondary" id="manageRolesBtn" style="font-size:12.5px; padding:6px 12px;" onclick="openRoleManager()" data-i18n="team.manageRoles">⚙ Rollen verwalten</button>
           </div>
           <div class="roles-legend" id="rolesLegend"></div>
 
@@ -1345,8 +1345,8 @@
 
           <!-- Offene Einladungen -->
           <div id="invitesSection" style="display:none; margin-top:28px;">
-            <h2 style="font-size:15px; font-weight:600; margin-bottom:4px;">Offene Einladungen</h2>
-            <p style="font-size:12.5px; color:var(--text-subtle); margin-bottom:14px;">Eingeladene Personen registrieren sich mit ihrer E-Mail und landen automatisch in deinem Team.</p>
+            <h2 style="font-size:15px; font-weight:600; margin-bottom:4px;" data-i18n="team.openInvites">Offene Einladungen</h2>
+            <p style="font-size:12.5px; color:var(--text-subtle); margin-bottom:14px;" data-i18n="team.openInvitesDesc">Eingeladene Personen registrieren sich mit ihrer E-Mail und landen automatisch in deinem Team.</p>
             <div id="invitesList" style="display:flex; flex-direction:column; gap:8px;"></div>
           </div>
         </section>
