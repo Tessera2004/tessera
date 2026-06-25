@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=6"></script>
+  <script src="app-i18n.js?v=7"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1360,7 +1360,7 @@
     <div class="modal" style="max-width: 640px;">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Neuer Auftrag</div>
+          <div class="modal-title" data-i18n="wiz.title">Neuer Auftrag</div>
           <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" id="wizSub">Wähle die Reinigungsart aus</div>
         </div>
         <button class="btn-icon" onclick="closeModal('newAuftrag')">
@@ -1371,9 +1371,9 @@
       <div class="wizard-steps">
         <div class="wstep active" data-step="1"><div class="wstep-num">1</div><span data-term="leistungsart">Reinigungsart</span></div>
         <div class="wstep-sep"></div>
-        <div class="wstep" data-step="2"><div class="wstep-num">2</div>Details</div>
+        <div class="wstep" data-step="2"><div class="wstep-num">2</div><span data-i18n="wiz.stepDetails">Details</span></div>
         <div class="wstep-sep"></div>
-        <div class="wstep" data-step="3"><div class="wstep-num">3</div>Termin</div>
+        <div class="wstep" data-step="3"><div class="wstep-num">3</div><span data-i18n="wiz.stepDate">Termin</span></div>
       </div>
 
       <div class="modal-body">
@@ -1385,40 +1385,40 @@
               <div class="svc-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l3-3h12l3 3M3 6l3 14h12l3-14M3 6h18"/><path d="M9 10v6M15 10v6"/></svg>
               </div>
-              <div class="svc-card-title">Unterhaltsreinigung</div>
-              <div class="svc-card-desc">Regelmäßige Büro-, Praxis-, Hotel- oder Studiopflege.</div>
+              <div class="svc-card-title" data-i18n="price.unterhalt.t">Unterhaltsreinigung</div>
+              <div class="svc-card-desc" data-i18n="wiz.svcUnterhaltDesc">Regelmäßige Büro-, Praxis-, Hotel- oder Studiopflege.</div>
             </button>
 
             <button type="button" class="svc-card" data-svc="end" style="--svc-color: var(--svc-end); --svc-color-soft: var(--svc-end-soft);" onclick="selectService('end')">
               <div class="svc-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
               </div>
-              <div class="svc-card-title">Endreinigung</div>
-              <div class="svc-card-desc">Wohnungsübergabe — automatisch passend zur Abgabezeit.</div>
+              <div class="svc-card-title" data-i18n="price.end.t">Endreinigung</div>
+              <div class="svc-card-desc" data-i18n="wiz.svcEndDesc">Wohnungsübergabe — automatisch passend zur Abgabezeit.</div>
             </button>
 
             <button type="button" class="svc-card" data-svc="fenster" style="--svc-color: var(--svc-fenster); --svc-color-soft: var(--svc-fenster-soft);" onclick="selectService('fenster')">
               <div class="svc-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
               </div>
-              <div class="svc-card-title">Fensterreinigung</div>
-              <div class="svc-card-desc">Innen, außen, mit oder ohne Leiter — flexibel.</div>
+              <div class="svc-card-title" data-i18n="price.fenster.t">Fensterreinigung</div>
+              <div class="svc-card-desc" data-i18n="wiz.svcFensterDesc">Innen, außen, mit oder ohne Leiter — flexibel.</div>
             </button>
 
             <button type="button" class="svc-card" data-svc="bau" style="--svc-color: var(--svc-bau); --svc-color-soft: var(--svc-bau-soft);" onclick="selectService('bau')">
               <div class="svc-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22h20"/><path d="M6 18h12V8l-6-5-6 5z"/><path d="M9 22v-6h6v6"/></svg>
               </div>
-              <div class="svc-card-title">Baureinigung</div>
-              <div class="svc-card-desc">Grob-, Fein- oder Endreinigung nach dem Bau.</div>
+              <div class="svc-card-title" data-i18n="price.bau.t">Baureinigung</div>
+              <div class="svc-card-desc" data-i18n="wiz.svcBauDesc">Grob-, Fein- oder Endreinigung nach dem Bau.</div>
             </button>
 
             <button type="button" class="svc-card" data-svc="fassade" style="--svc-color: var(--svc-fassade); --svc-color-soft: var(--svc-fassade-soft); grid-column: span 2;" onclick="selectService('fassade')">
               <div class="svc-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
               </div>
-              <div class="svc-card-title">Fassadenreinigung</div>
-              <div class="svc-card-desc">Mit Statorreinigung, Algenentfernung, Imprägnierung — alles wählbar.</div>
+              <div class="svc-card-title" data-i18n="price.fassade.t">Fassadenreinigung</div>
+              <div class="svc-card-desc" data-i18n="wiz.svcFassadeDesc">Mit Statorreinigung, Algenentfernung, Imprägnierung — alles wählbar.</div>
             </button>
           </div>
           <!-- Generisches Service-Raster (Nicht-Reinigungs-Branchen, aus Preset) -->
@@ -1431,7 +1431,7 @@
           <!-- Generisches Optionen-Panel (Nicht-Reinigungs-Branchen) -->
           <div class="svc-options" id="wizGenericOpts" style="display:none; flex-direction:column; gap:16px;">
             <div class="field" id="wizGenericQtyWrap">
-              <label id="wizGenericQtyLabel">Anzahl / Menge</label>
+              <label id="wizGenericQtyLabel" data-i18n="wiz.qtyAmount">Anzahl / Menge</label>
               <input type="number" id="wizGenericQty" value="1" min="1" step="1" oninput="wizCalcPrice()" />
             </div>
             <div id="wizGenericHint" style="font-size:12.5px; color:var(--text-subtle); line-height:1.5;"></div>
@@ -1440,24 +1440,24 @@
           <!-- Unterhaltsreinigung -->
           <div class="svc-options" data-svc-opts="unterhalt" style="display: none; flex-direction: column; gap: 16px;">
             <div class="field">
-              <label>Wochentage</label>
+              <label data-i18n="wiz.weekdays">Wochentage</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Mo</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Di</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Mi</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Do</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Fr</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Sa</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">So</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dMo">Mo</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dDi">Di</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dMi">Mi</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dDo">Do</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dFr">Fr</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dSa">Sa</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dSo">So</button>
               </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
-                <label>Fläche (m²)</label>
+                <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
                 <input type="number" value="120" />
               </div>
               <div class="field">
-                <label>Geschätzte Dauer (min)</label>
+                <label data-i18n="wiz.estDurMin">Geschätzte Dauer (min)</label>
                 <input type="number" value="90" />
               </div>
             </div>
@@ -1466,39 +1466,39 @@
           <!-- Endreinigung -->
           <div class="svc-options" data-svc-opts="end" style="display: none; flex-direction: column; gap: 16px;">
             <div class="field">
-              <label>Abgabe der Wohnung</label>
+              <label data-i18n="wiz.handover">Abgabe der Wohnung</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" data-abgabe="mit" onclick="setAbgabe(this,'mit')">Übergabe mit uns</button>
-                <button type="button" class="opt-chip" data-abgabe="ohne" onclick="setAbgabe(this,'ohne')">Ohne uns</button>
+                <button type="button" class="opt-chip on" data-abgabe="mit" onclick="setAbgabe(this,'mit')" data-i18n="wiz.handoverWith">Übergabe mit uns</button>
+                <button type="button" class="opt-chip" data-abgabe="ohne" onclick="setAbgabe(this,'ohne')" data-i18n="wiz.handoverWithout">Ohne uns</button>
               </div>
             </div>
 
             <div id="abgabe-mit" style="display: flex; flex-direction: column; gap: 12px;">
               <div class="field">
-                <label>Abgabe-Uhrzeit (Vermieter-Termin)</label>
+                <label data-i18n="wiz.handoverTime">Abgabe-Uhrzeit (Vermieter-Termin)</label>
                 <input type="time" id="abgabeTime" value="14:00" step="900" onchange="recalcStart()" />
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
-                <label>Fläche (m²)</label>
+                <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
                 <input type="number" id="endFlaeche" value="65" onchange="recalcStart()" />
               </div>
               <div class="field">
-                <label>Zimmeranzahl</label>
+                <label data-i18n="wiz.rooms">Zimmeranzahl</label>
                 <input type="number" id="endRaeume" value="2" onchange="recalcStart()" />
               </div>
             </div>
 
             <div class="field">
-              <label>Zusatzleistungen</label>
+              <label data-i18n="wiz.extras">Zusatzleistungen</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip add-task" data-time="20" onclick="this.classList.toggle('on'); recalcStart()">Fenster innen <span style="opacity: 0.6; font-size: 11px;">+20 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="15" onclick="this.classList.toggle('on'); recalcStart()">Backofen <span style="opacity: 0.6; font-size: 11px;">+15 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="10" onclick="this.classList.toggle('on'); recalcStart()">Kühlschrank <span style="opacity: 0.6; font-size: 11px;">+10 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="25" onclick="this.classList.toggle('on'); recalcStart()">Balkon/Terrasse <span style="opacity: 0.6; font-size: 11px;">+25 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="20" onclick="this.classList.toggle('on'); recalcStart()">Keller <span style="opacity: 0.6; font-size: 11px;">+20 min</span></button>
+                <button type="button" class="opt-chip add-task" data-time="20" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addWindowInside">Fenster innen</span> <span style="opacity: 0.6; font-size: 11px;">+20 min</span></button>
+                <button type="button" class="opt-chip add-task" data-time="15" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addOven">Backofen</span> <span style="opacity: 0.6; font-size: 11px;">+15 min</span></button>
+                <button type="button" class="opt-chip add-task" data-time="10" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addFridge">Kühlschrank</span> <span style="opacity: 0.6; font-size: 11px;">+10 min</span></button>
+                <button type="button" class="opt-chip add-task" data-time="25" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addBalcony">Balkon/Terrasse</span> <span style="opacity: 0.6; font-size: 11px;">+25 min</span></button>
+                <button type="button" class="opt-chip add-task" data-time="20" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addCellar">Keller</span> <span style="opacity: 0.6; font-size: 11px;">+20 min</span></button>
               </div>
             </div>
 
@@ -1507,9 +1507,9 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
               <div style="flex: 1;">
-                <div class="calc-label">Automatisch berechnet</div>
-                <div class="calc-val"><span id="calcStart">10:30</span> Uhr Anfahrt · <span id="calcDur">3h 0min</span> Reinigung</div>
-                <div class="calc-sub"><span data-term="feldMitarbeiter">Reiniger</span> ist <span id="calcBuffer">30 Min</span> vor Abgabe-Termin fertig.</div>
+                <div class="calc-label" data-i18n="wiz.autoCalc">Automatisch berechnet</div>
+                <div class="calc-val"><span id="calcStart">10:30</span><span data-i18n="wiz.calcArrival"> Uhr Anfahrt · </span><span id="calcDur">3h 0min</span><span data-i18n="wiz.calcCleaning"> Reinigung</span></div>
+                <div class="calc-sub"><span data-term="feldMitarbeiter">Reiniger</span><span data-i18n="wiz.calcSubA"> ist </span><span id="calcBuffer">30 Min</span><span data-i18n="wiz.calcSubB"> vor Abgabe-Termin fertig.</span></div>
               </div>
             </div>
           </div>
@@ -1517,36 +1517,36 @@
           <!-- Fensterreinigung -->
           <div class="svc-options" data-svc-opts="fenster" style="display: none; flex-direction: column; gap: 16px;">
             <div class="field">
-              <label>Mit Leiter?</label>
+              <label data-i18n="wiz.withLadder">Mit Leiter?</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)">Ohne Leiter</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Mit Leiter (bis 3m)</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Hubsteiger nötig</button>
+                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.ladderNo">Ohne Leiter</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.ladderYes3m">Mit Leiter (bis 3m)</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.ladderLift">Hubsteiger nötig</button>
               </div>
             </div>
             <div class="field">
-              <label>Bereich</label>
+              <label data-i18n="wiz.area">Bereich</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)">Innen + Außen</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Nur innen</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Nur außen</button>
+                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.areaInOut">Innen + Außen</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaInOnly">Nur innen</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaOutOnly">Nur außen</button>
               </div>
             </div>
             <div class="field">
-              <label>Zusatzleistungen</label>
+              <label data-i18n="wiz.extras">Zusatzleistungen</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Rahmen mit reinigen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Rolläden / Jalousien</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Fensterbänke</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addFrames">Rahmen mit reinigen</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addBlinds">Rolläden / Jalousien</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addSills">Fensterbänke</button>
               </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
-                <label>Anzahl Fenster</label>
+                <label data-i18n="wiz.windowCount">Anzahl Fenster</label>
                 <input type="number" value="24" />
               </div>
               <div class="field">
-                <label>Geschätzte Dauer (min)</label>
+                <label data-i18n="wiz.estDurMin">Geschätzte Dauer (min)</label>
                 <input type="number" value="120" />
               </div>
             </div>
@@ -1555,24 +1555,24 @@
           <!-- Baureinigung -->
           <div class="svc-options" data-svc-opts="bau" style="display: none; flex-direction: column; gap: 16px;">
             <div class="field">
-              <label>Phase</label>
+              <label data-i18n="wiz.phase">Phase</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)">Grobreinigung</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Feinreinigung</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Endreinigung Bau</button>
+                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.phaseRough">Grobreinigung</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.phaseFine">Feinreinigung</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.phaseFinal">Endreinigung Bau</button>
               </div>
             </div>
             <div class="field">
-              <label>Zusatzleistungen</label>
+              <label data-i18n="wiz.extras">Zusatzleistungen</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Bauschutt entfernen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Container stellen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Estrich abkratzen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Klebereste entfernen</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addDebris">Bauschutt entfernen</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addContainer">Container stellen</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addScreed">Estrich abkratzen</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addGlue">Klebereste entfernen</button>
               </div>
             </div>
             <div class="field">
-              <label>Fläche (m²)</label>
+              <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
               <input type="number" value="200" />
             </div>
           </div>
@@ -1580,29 +1580,29 @@
           <!-- Fassadenreinigung -->
           <div class="svc-options" data-svc-opts="fassade" style="display: none; flex-direction: column; gap: 16px;">
             <div class="field">
-              <label>Verfahren</label>
+              <label data-i18n="wiz.method">Verfahren</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="this.classList.toggle('on')">Statorreinigung (Hochdruck)</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Algen-/Moosentfernung</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Imprägnierung</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')">Graffitientfernung</button>
+                <button type="button" class="opt-chip on" onclick="this.classList.toggle('on')" data-i18n="wiz.methStator">Statorreinigung (Hochdruck)</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methAlgae">Algen-/Moosentfernung</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methImpreg">Imprägnierung</button>
+                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methGraffiti">Graffitientfernung</button>
               </div>
             </div>
             <div class="field">
-              <label>Zugang</label>
+              <label data-i18n="wiz.access">Zugang</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)">Hubsteiger</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Gerüst</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)">Seilzugang</button>
+                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.accessLift">Hubsteiger</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.accessScaffold">Gerüst</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.accessRope">Seilzugang</button>
               </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
-                <label>Fläche (m²)</label>
+                <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
                 <input type="number" value="350" />
               </div>
               <div class="field">
-                <label>Höhe (Stockwerke)</label>
+                <label data-i18n="wiz.heightFloors">Höhe (Stockwerke)</label>
                 <input type="number" value="4" />
               </div>
             </div>
@@ -1615,110 +1615,110 @@
 
           <div class="price-summary" id="priceSummary">
             <div class="price-row-summary">
-              <span>Geschätzte Dauer</span>
+              <span data-i18n="wiz.sumDur">Geschätzte Dauer</span>
               <span id="sumDur">—</span>
             </div>
             <div class="price-row-summary">
-              <span>Stundensatz</span>
+              <span data-i18n="price.row.rate">Stundensatz</span>
               <span id="sumRate">—</span>
             </div>
             <div class="price-row-summary" id="sumFeeRow">
-              <span>Anfahrt</span>
+              <span data-i18n="wiz.travel">Anfahrt</span>
               <span id="sumFee">—</span>
             </div>
             <div class="price-row-summary" id="sumMinRow" style="display: none;">
-              <span style="opacity: 0.7;">Mindestbuchung angewendet</span>
+              <span style="opacity: 0.7;" data-i18n="wiz.minApplied">Mindestbuchung angewendet</span>
               <span id="sumMin">—</span>
             </div>
             <div class="price-row-summary total">
-              <span>Gesamtpreis netto</span>
+              <span data-i18n="wiz.totalNet">Gesamtpreis netto</span>
               <span><strong id="sumTotal">—</strong></span>
             </div>
             <div style="position: relative; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; opacity: 0.8;">Preis manuell anpassen?</span>
+              <span style="font-size: 12px; opacity: 0.8;" data-i18n="wiz.priceManual">Preis manuell anpassen?</span>
               <button class="price-override-toggle" style="background: rgba(255,255,255,0.12); color: white;" onclick="togglePriceOverride()">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Bearbeiten
+                <span data-i18n="common.edit">Bearbeiten</span>
               </button>
             </div>
           </div>
 
           <div class="field" id="priceOverrideField" style="display: none;">
             <label style="display: flex; justify-content: space-between; align-items: center;">
-              <span>Eigener Auftragspreis (netto)</span>
-              <button type="button" style="background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-weight: 500;" onclick="resetPriceOverride()">Auto zurück</button>
+              <span data-i18n="wiz.ownPrice">Eigener Auftragspreis (netto)</span>
+              <button type="button" style="background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-weight: 500;" onclick="resetPriceOverride()" data-i18n="wiz.autoBack">Auto zurück</button>
             </label>
-            <input type="number" id="priceOverride" class="price-override-input" placeholder="Eigener Preis in €" step="1" oninput="updateOverrideDisplay()" />
-            <div style="font-size: 11.5px; color: var(--text-subtle); margin-top: 6px;">
+            <input type="number" id="priceOverride" class="price-override-input" data-i18n-ph="wiz.ownPricePh" placeholder="Eigener Preis in €" step="1" oninput="updateOverrideDisplay()" />
+            <div style="font-size: 11.5px; color: var(--text-subtle); margin-top: 6px;" data-i18n="wiz.ownPriceHint">
               Praktisch wenn deine Offerte einen anderen Pauschalpreis enthält oder du einen Rabatt gewährt hast.
             </div>
           </div>
 
           <div class="field">
-            <label>Auftrag-/Objektname</label>
-            <input type="text" id="termName" placeholder="z. B. Wohnung Schmidt – Karlstraße 12" />
+            <label data-i18n="wiz.orderName">Auftrag-/Objektname</label>
+            <input type="text" id="termName" data-i18n-ph="wiz.orderNamePh" placeholder="z. B. Wohnung Schmidt – Karlstraße 12" />
           </div>
           <div class="field">
-            <label>Adresse</label>
-            <input type="text" id="wizAddress" placeholder="Straße Hausnr., PLZ Ort" />
+            <label data-i18n="wiz.address">Adresse</label>
+            <input type="text" id="wizAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" />
           </div>
           <div class="field">
-            <label>Kunde</label>
-            <input type="text" placeholder="Name oder bestehenden Kunden wählen…" />
+            <label data-i18n="wiz.customer">Kunde</label>
+            <input type="text" data-i18n-ph="wiz.customerPh" placeholder="Name oder bestehenden Kunden wählen…" />
           </div>
           <!-- Branchenspezifische Felder (z. B. Werkstatt-Fahrzeug, Schädling-Nachkontrolle) -->
           <div id="wizExtraFields"></div>
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
             <div class="field">
-              <label>Datum</label>
+              <label data-i18n="th.date">Datum</label>
               <input type="date" id="wizDate" />
             </div>
             <div class="field">
-              <label>Startzeit</label>
+              <label data-i18n="wiz.startTime">Startzeit</label>
               <input type="time" id="wizStart" value="08:00" step="900" />
             </div>
             <div class="field">
-              <label>Dauer (Stunden)</label>
+              <label data-i18n="wiz.durationH">Dauer (Stunden)</label>
               <input type="number" id="wizDuration" value="1.5" min="0.25" step="0.25" oninput="wizCalcPrice()" />
             </div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="field">
-              <label>Preis (Dauer × Stundensatz)</label>
+              <label data-i18n="wiz.priceCalc">Preis (Dauer × Stundensatz)</label>
               <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
                 <strong id="wizPriceCalc" style="font-size:18px; color:var(--brand-primary);">CHF —</strong>
                 <span id="wizPriceHint" style="font-size:11px; color:var(--text-subtle);"></span>
               </div>
             </div>
             <div class="field">
-              <label>Übergabe bis (optional)</label>
+              <label data-i18n="wiz.handoverBy">Übergabe bis (optional)</label>
               <input type="time" id="wizDeadline" step="900" />
-              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">Fester Termin (z. B. Wohnungsabgabe) — wird bei Routenoptimierung eingehalten.</div>
+              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.handoverByHint">Fester Termin (z. B. Wohnungsabgabe) — wird bei Routenoptimierung eingehalten.</div>
             </div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="field">
-              <label>Wiederholung</label>
+              <label data-i18n="wiz.repeat">Wiederholung</label>
               <select id="wizRepeat" onchange="wizToggleRepeat()" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
-                <option value="none">Einmalig</option>
-                <option value="weekly">Wöchentlich</option>
-                <option value="biweekly">Alle 2 Wochen</option>
-                <option value="monthly">Monatlich</option>
+                <option value="none" data-i18n="wiz.repeatNone">Einmalig</option>
+                <option value="weekly" data-i18n="wiz.repeatWeekly">Wöchentlich</option>
+                <option value="biweekly" data-i18n="wiz.repeatBiweekly">Alle 2 Wochen</option>
+                <option value="monthly" data-i18n="wiz.repeatMonthly">Monatlich</option>
               </select>
-              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">Serie wird automatisch im Planer geblockt.</div>
+              <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.repeatHint">Serie wird automatisch im Planer geblockt.</div>
             </div>
             <div class="field" id="wizRepeatCountWrap" style="display:none;">
-              <label>Anzahl Termine</label>
+              <label data-i18n="wiz.repeatCount">Anzahl Termine</label>
               <input type="number" id="wizRepeatCount" value="8" min="2" max="52" oninput="wizUpdateRepeatHint()" />
               <div id="wizRepeatHint" style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;"></div>
             </div>
           </div>
           <div class="field">
-            <label>Zugewiesenes Team</label>
+            <label data-i18n="wiz.assignedTeam">Zugewiesenes Team</label>
             <select id="wizardTeamSelect" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
-              <option value="">Auto-Zuweisung (empfohlen)</option>
+              <option value="" data-i18n="wiz.autoAssign">Auto-Zuweisung (empfohlen)</option>
             </select>
-            <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;">
+            <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.teamHint">
               Fahrer = fährt selbst · Beifahrer = braucht Mitfahrgelegenheit
             </div>
           </div>
@@ -1726,17 +1726,17 @@
           <div id="wizAvail" class="wiz-avail"></div>
 
           <div class="field">
-            <label>Notizen / Sonderwünsche</label>
-            <input type="text" id="wizNote" placeholder="Schlüssel beim Hausmeister, Code 1234, Hund vorhanden, …" />
+            <label data-i18n="wiz.notes">Notizen / Sonderwünsche</label>
+            <input type="text" id="wizNote" data-i18n-ph="wiz.notesPh" placeholder="Schlüssel beim Hausmeister, Code 1234, Hund vorhanden, …" />
           </div>
         </div>
 
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="wizBack" onclick="wizStep(-1)" style="display: none;">← Zurück</button>
-        <button class="btn btn-secondary" onclick="closeModal('newAuftrag')">Abbrechen</button>
-        <button class="btn btn-accent" id="wizNext" onclick="wizStep(1)">Weiter →</button>
+        <button class="btn btn-ghost" id="wizBack" onclick="wizStep(-1)" style="display: none;" data-i18n="wiz.back">← Zurück</button>
+        <button class="btn btn-secondary" onclick="closeModal('newAuftrag')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" id="wizNext" onclick="wizStep(1)" data-i18n="wiz.next">Weiter →</button>
       </div>
     </div>
   </div>
