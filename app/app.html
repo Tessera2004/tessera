@@ -3996,6 +3996,12 @@
         const el = document.querySelector(`.view[data-view="${v}"] .page-title`);
         if (el) el.textContent = (over[v] != null ? over[v] : VIEW_TITLE_DEFAULTS[v]);
       });
+      // Mitarbeiter-Seitenüberschrift + Topbar-Titel = Nav-Label der Branche
+      // (reinigung bleibt „Mitarbeiter", werkstatt → „Mechaniker" usw.).
+      const mitLabel = over['mitarbeiter'] != null ? over['mitarbeiter'] : (NAV_LABEL_DEFAULTS['mitarbeiter'] || 'Mitarbeiter');
+      const mitTitle = document.querySelector('.view[data-view="mitarbeiter"] .page-title');
+      if (mitTitle) mitTitle.textContent = mitLabel;
+      if (typeof titles === 'object' && titles) titles.mitarbeiter = mitLabel;
     }
     const BRANCH_VIEW_TITLES = ['werkstattplan', 'fahrzeuge', 'reifen', 'koederstellen', 'protokolle', 'baustellen', 'rapporte'];
     let VIEW_TITLE_DEFAULTS = null;
@@ -5956,7 +5962,7 @@
         div.innerHTML =
           `<input class="rw-title" type="text" placeholder="Arbeit (z. B. Leitung verlegt)" value="${escapeHtml(d.title || '')}" style="${WO_INP}">
            <input class="rw-hours" type="number" step="0.25" min="0" placeholder="Std" value="${d.hours != null ? d.hours : ''}" oninput="rapRecalcTotal()" style="${WO_INP}">
-           <input class="rw-rate" type="number" step="1" min="0" placeholder="Satz" value="${d.rate != null ? d.rate : woDefaultRate()}" oninput="rapRecalcTotal()" style="${WO_INP}">
+           <input class="rw-rate" type="number" step="1" min="0" placeholder="Satz" value="${d.rate != null ? d.rate : rapDefaultRate()}" oninput="rapRecalcTotal()" style="${WO_INP}">
            <button class="btn-icon" type="button" onclick="this.closest('.rap-row').remove(); rapRecalcTotal();" style="width:28px;height:28px;flex:none;">✕</button>`;
       } else {
         div.innerHTML =
@@ -6358,6 +6364,22 @@
     function woDefaultRate() {
       try { const p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); if (p.werkstatt_reparatur_price != null) return p.werkstatt_reparatur_price; } catch {}
       return 140;
+    }
+    // Default-Stundensatz für Rapporte = erster Stunden-Leistungssatz der AKTUELLEN Branche
+    // (Handwerk/Garten haben eigene Kataloge — nicht den Werkstatt-Satz borgen).
+    function rapDefaultRate() {
+      try {
+        const vert = MosaVertical.get();
+        const svcs = (MosaVertical.preset().services || []);
+        const hourly = svcs.find(s => s.unit === 'h') || svcs[0];
+        if (hourly) {
+          const p = JSON.parse(localStorage.getItem('cc-prices') || '{}');
+          const pk = `${vert}_${hourly.key}_price`;
+          if (p[pk] != null) return p[pk];
+          if (hourly.price != null) return hourly.price;
+        }
+      } catch {}
+      return 95;
     }
     function workOrderTotal(o) {
       const w = (o.works || []).reduce((s, x) => s + (Number(x.hours) || 0) * (Number(x.rate) || 0), 0);
@@ -6855,15 +6877,17 @@
       const wrap = document.getElementById('vehHistoryWrap');
       const box = document.getElementById('vehHistory');
       if (!wrap || !box) return;
-      if (!v || typeof loadWorkOrders !== 'function') { wrap.style.display = 'none'; return; }
-      const orders = loadWorkOrders().filter(o =>
-        (o.vehicleId && o.vehicleId === v.id) ||
-        (o.plate && v.plate && o.plate.replace(/\s/g, '').toLowerCase() === v.plate.replace(/\s/g, '').toLowerCase()));
-      if (!orders.length) { wrap.style.display = 'none'; return; }
+      if (!v) { wrap.style.display = 'none'; return; }
+      const samePlate = (p) => p && v.plate && p.replace(/\s/g, '').toLowerCase() === v.plate.replace(/\s/g, '').toLowerCase();
+      const orders = (typeof loadWorkOrders === 'function' ? loadWorkOrders() : []).filter(o =>
+        (o.vehicleId && o.vehicleId === v.id) || samePlate(o.plate));
+      const tires = (typeof loadTires === 'function' ? loadTires() : []).filter(t =>
+        (t.vehicleId && t.vehicleId === v.id) || samePlate(t.plate));
+      if (!orders.length && !tires.length) { wrap.style.display = 'none'; return; }
       orders.sort((a, b) => (b.created || '').localeCompare(a.created || ''));
       const statusLabel = { angenommen: 'Angenommen', inarbeit: 'In Arbeit', wartetteile: 'Wartet auf Teile', abholbereit: 'Abholbereit', abgeschlossen: 'Abgeschlossen' };
       wrap.style.display = '';
-      box.innerHTML = orders.map(o => {
+      const orderHtml = orders.map(o => {
         const date = o.created ? o.created.slice(0, 10) : '—';
         return `<div onclick="closeModal('vehicleEditor'); openWorkOrderEditor('${o.id}');" style="cursor:pointer; border:1px solid var(--border); border-radius:8px; padding:9px 11px; display:flex; justify-content:space-between; align-items:center; gap:10px; background:var(--surface);">
           <div style="min-width:0;">
@@ -6873,6 +6897,18 @@
           <span style="font-size:13px; font-weight:600; color:var(--text); white-space:nowrap;">${chf(workOrderTotal(o))}</span>
         </div>`;
       }).join('');
+      // Eingelagerte Reifen (Reifenhotel) dieses Fahrzeugs.
+      const tireHtml = tires.map(t => {
+        const info = [t.season, t.qty ? t.qty + '×' : '', t.dim, t.location ? 'Platz ' + t.location : ''].filter(Boolean).join(' · ');
+        return `<div onclick="closeModal('vehicleEditor'); openTireEditor('${t.id}');" style="cursor:pointer; border:1px solid var(--border); border-radius:8px; padding:9px 11px; display:flex; justify-content:space-between; align-items:center; gap:10px; background:var(--surface);">
+          <div style="min-width:0;">
+            <div style="font-size:13px; color:var(--text);">Reifeneinlagerung</div>
+            <div style="font-size:11.5px; color:var(--text-subtle); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(info || '—')}</div>
+          </div>
+          <span style="font-size:11.5px; color:var(--text-subtle); white-space:nowrap;">${t.since ? 'seit ' + t.since : ''}</span>
+        </div>`;
+      }).join('');
+      box.innerHTML = orderHtml + tireHtml;
     }
     function saveVehicle() {
       const plate = document.getElementById('vehPlate').value.trim();
