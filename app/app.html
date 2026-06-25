@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=2"></script>
+  <script src="app-i18n.js?v=3"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -196,7 +196,7 @@
     <!-- ============ MAIN ============ -->
     <main class="main">
       <header class="topbar">
-        <button class="nav-toggle" id="navToggle" aria-label="Liste ein-/ausklappen" title="Liste ein-/ausklappen" onclick="toggleSidebar()">
+        <button class="nav-toggle" id="navToggle" aria-label="Liste ein-/ausklappen" data-i18n-title="common.toggleNav" title="Liste ein-/ausklappen" onclick="toggleSidebar()">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div class="topbar-title" id="topbarTitle">Dashboard</div>
@@ -206,11 +206,11 @@
             <input type="text" data-term="suchePlatzhalter" data-term-attr="placeholder" placeholder="Objekt, Mitarbeiter, Kunde..." />
             <span class="kbd">⌘K</span>
           </div>
-          <button class="btn-icon theme-toggle" title="Theme wechseln" onclick="toggleTheme()">
+          <button class="btn-icon theme-toggle" data-i18n-title="common.themeToggle" title="Theme wechseln" onclick="toggleTheme()">
             <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
           </button>
-          <button class="btn-icon skin-toggle" id="skinToggle" title="Ansicht: Büro (dunkel) ⇄ Standard" onclick="toggleSkin()">
+          <button class="btn-icon skin-toggle" id="skinToggle" data-i18n-title="common.skinToggle" title="Ansicht: Büro (dunkel) ⇄ Standard" onclick="toggleSkin()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
           </button>
           <select data-lang-select data-i18n-title="common.lang" title="Sprache" onchange="window.MosaI18n && MosaI18n.set(this.value)"
@@ -224,7 +224,7 @@
           <button class="btn-icon" data-term="feldAnsichtTitel" data-term-attr="title" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html','_blank')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </button>
-          <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
+          <button class="btn btn-accent" data-i18n="common.newAuftrag" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
           <div class="user-switcher" id="userSwitcher">
             <button class="user-chip" id="userChipBtn" onclick="toggleUserMenu(event)">
               <span class="user-avatar" id="userAvatar">BK</span>
@@ -235,18 +235,18 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="user-menu" id="userMenu">
-              <div class="user-menu-label">Eingeloggt als</div>
+              <div class="user-menu-label" data-i18n="common.loggedInAs">Eingeloggt als</div>
               <div id="userMenuList"></div>
               <div class="user-menu-divider"></div>
               <button class="user-menu-item" onclick="closeUserMenu(); navTo('team')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
-                Team verwalten
+                <span data-i18n="common.manageTeam">Team verwalten</span>
               </button>
               <div class="user-menu-divider"></div>
               <div id="authStatusRow" style="padding:6px 12px 2px;font-size:11px;color:var(--text-subtle);"></div>
               <button class="user-menu-item" id="authActionBtn" onclick="onAuthAction()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                <span id="authActionLabel">Abmelden</span>
+                <span id="authActionLabel" data-i18n="common.logout">Abmelden</span>
               </button>
             </div>
           </div>
@@ -333,7 +333,7 @@
         <section class="view" data-view="planung">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Routenplanung</h1>
+              <h1 class="page-title" data-i18n="nav.planung">Routenplanung</h1>
               <p class="page-subtitle" id="planSubtitle">Lade…</p>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -561,7 +561,7 @@
         <section class="view" data-view="kunden">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Kunden</h1>
+              <h1 class="page-title" data-i18n="nav.kunden">Kunden</h1>
               <p class="page-subtitle" id="kundenSubtitle">Lade…</p>
             </div>
             <button class="btn btn-accent" onclick="openCustomerEditor()">+ Neuer Kunde</button>
@@ -734,7 +734,7 @@
         <section class="view" data-view="anrufprotokoll">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Anrufprotokoll</h1>
+              <h1 class="page-title" data-i18n="nav.anrufprotokoll">Anrufprotokoll</h1>
               <p class="page-subtitle" id="anrufSubtitle">— Anrufe</p>
             </div>
             <button class="btn btn-accent" onclick="openCallModal(null)">+ Anruf vermerken</button>
@@ -761,7 +761,7 @@
         <section class="view" data-view="aufgaben">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Aufgaben</h1>
+              <h1 class="page-title" data-i18n="nav.aufgaben">Aufgaben</h1>
               <p class="page-subtitle" id="aufgabenSubtitle">— Aufgaben offen</p>
             </div>
             <button class="btn btn-accent" onclick="openTaskModal(null)">+ Neue Aufgabe</button>
@@ -785,7 +785,7 @@
         <section class="view" data-view="email">
           <div class="page-header">
             <div>
-              <h1 class="page-title">E-Mail</h1>
+              <h1 class="page-title" data-i18n="nav.email">E-Mail</h1>
               <p class="page-subtitle" id="mailSubtitle">Lade…</p>
             </div>
             <button class="btn btn-accent" onclick="openModal('mailConnect')">+ Postfach verbinden</button>
@@ -833,7 +833,7 @@
         <section class="view" data-view="berichte">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Nachweise & Berichte</h1>
+              <h1 class="page-title" data-i18n="nav.berichte">Nachweise & Berichte</h1>
               <p class="page-subtitle">Foto-Doku, QR-Anwesenheit, Kundenberichte — automatisch erstellt</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -855,7 +855,7 @@
         <section class="view" data-view="zeiten">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Zeiterfassung</h1>
+              <h1 class="page-title" data-i18n="nav.zeiten">Zeiterfassung</h1>
               <p class="page-subtitle" id="zeitenSubtitle">Einsatzzeiten via QR-Check-in · Wochenübersicht</p>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
@@ -892,7 +892,7 @@
         <section class="view" data-view="nachkalkulation">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Soll-Ist-Nachkalkulation</h1>
+              <h1 class="page-title" data-i18n="view.nachkalkulation">Soll-Ist-Nachkalkulation</h1>
               <p class="page-subtitle">Geplante Stunden aus der Planung vs. tatsächlich gebrauchte Zeit — wo verdienst du, wo zahlst du drauf?</p>
             </div>
             <input type="month" id="nkMonth" class="nk-month" onchange="renderNachkalkulation()" />
@@ -949,7 +949,7 @@
         <section class="view" data-view="abos">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Abo-Verträge</h1>
+              <h1 class="page-title" data-i18n="nav.abos">Abo-Verträge</h1>
               <p class="page-subtitle">Alle wiederkehrenden Aufträge auf einen Blick — Intervall, nächster Termin, Team. Eine Serie endest du mit einem Klick.</p>
             </div>
             <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
@@ -961,7 +961,7 @@
         <section class="view" data-view="offerten">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Offerten</h1>
+              <h1 class="page-title" data-i18n="nav.offerten">Offerten</h1>
               <p class="page-subtitle">Vorgefertigte Angebote pro <span data-term="leistungsart">Reinigungsart</span> — bearbeiten, speichern, versenden.</p>
             </div>
             <button class="btn btn-accent" onclick="openOffertEditor()">+ Neue Offerte</button>
@@ -990,7 +990,7 @@
         <section class="view" data-view="rechnungen">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Rechnungen</h1>
+              <h1 class="page-title" data-i18n="nav.rechnungen">Rechnungen</h1>
               <p class="page-subtitle">Alle Einsätze mit Zahlart „Rechnung" · Status verfolgen · PDF generieren</p>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
@@ -1023,7 +1023,7 @@
         <section class="view" data-view="einstellungen">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Preise & Konditionen</h1>
+              <h1 class="page-title" data-i18n="view.preise">Preise & Konditionen</h1>
               <p class="page-subtitle">Stundensätze und Mindestbuchungen pro <span data-term="leistungsart">Reinigungsart</span> — fließen automatisch in jeden neuen Auftrag.</p>
             </div>
             <button class="btn btn-accent" onclick="savePrices()">Änderungen speichern</button>
@@ -1317,7 +1317,7 @@
         <section class="view" data-view="team">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Büro-Team</h1>
+              <h1 class="page-title" data-i18n="nav.team">Büro-Team</h1>
               <p class="page-subtitle">Wer arbeitet im Büro? Welche Rechte hat wer? Wer hat was geändert?</p>
             </div>
             <div style="display:flex; gap:8px;">
@@ -3820,12 +3820,21 @@
     // Kurzhelfer: Branchen-Begriff holen (Fallback = Key, falls Engine fehlt).
     const VT = (k) => (window.MosaVertical ? MosaVertical.t(k) : k);
 
+    // Topbar-Titel einer Ansicht: branchen-Override (navLabels, sprach-lokalisiert) →
+    // sonst Übersetzung (nav.<view>) → sonst statischer Titel. objekte/mitarbeiter werden
+    // von sync/applyVerticalNavLabels branchen+sprach-aktuell in titles[] gehalten.
+    function topbarTitle(view) {
+      if (view === 'objekte' || view === 'mitarbeiter') return titles[view] || '';
+      const over = (window.MosaVertical && MosaVertical.preset().navLabels) || {};
+      if (over[view] != null) return over[view];
+      return (window.MosaI18n ? MosaI18n.t('nav.' + view, titles[view]) : titles[view]) || '';
+    }
+
     // Branchen-Begriff in den Topbar-Titel der Objekte-Ansicht spiegeln (reinigung => 'Objekte').
     function syncVerticalTitles() {
-      if (!window.MosaVertical) return;
-      titles.objekte = MosaVertical.t('objektPlural');
+      if (window.MosaVertical) titles.objekte = MosaVertical.t('objektPlural');
       const active = document.querySelector('.nav-item.active[data-view]');
-      if (active && titleEl) titleEl.textContent = titles[active.dataset.view] || titleEl.textContent;
+      if (active && titleEl) titleEl.textContent = topbarTitle(active.dataset.view) || titleEl.textContent;
     }
     syncVerticalTitles();
     // Bei Branchenwechsel: Titel + JS-gerenderte Ansichten aktualisieren.
@@ -3895,7 +3904,7 @@
         views.forEach(v => v.classList.remove('active'));
         item.classList.add('active');
         document.querySelector(`.view[data-view="${target}"]`).classList.add('active');
-        titleEl.textContent = titles[target] || '';
+        titleEl.textContent = topbarTitle(target);
         window.scrollTo(0, 0);
         closeSidebar();
         if (target === 'team') renderTeamGrid();
@@ -4009,11 +4018,14 @@
       }
       BRANCH_VIEW_TITLES.forEach(v => {
         const el = document.querySelector(`.view[data-view="${v}"] .page-title`);
-        if (el) el.textContent = (over[v] != null ? over[v] : VIEW_TITLE_DEFAULTS[v]);
+        // Basis = Übersetzung (nav.<view>), deutscher DOM-Text als Fallback; Branche überschreibt.
+        const base = (window.MosaI18n ? MosaI18n.t('nav.' + v, VIEW_TITLE_DEFAULTS[v]) : VIEW_TITLE_DEFAULTS[v]);
+        if (el) el.textContent = (over[v] != null ? over[v] : base);
       });
       // Mitarbeiter-Seitenüberschrift + Topbar-Titel = Nav-Label der Branche
       // (reinigung bleibt „Mitarbeiter", werkstatt → „Mechaniker" usw.).
-      const mitLabel = over['mitarbeiter'] != null ? over['mitarbeiter'] : (NAV_LABEL_DEFAULTS['mitarbeiter'] || 'Mitarbeiter');
+      const mitBase = (window.MosaI18n ? MosaI18n.t('nav.mitarbeiter', NAV_LABEL_DEFAULTS['mitarbeiter'] || 'Mitarbeiter') : (NAV_LABEL_DEFAULTS['mitarbeiter'] || 'Mitarbeiter'));
+      const mitLabel = over['mitarbeiter'] != null ? over['mitarbeiter'] : mitBase;
       const mitTitle = document.querySelector('.view[data-view="mitarbeiter"] .page-title');
       if (mitTitle) mitTitle.textContent = mitLabel;
       if (typeof titles === 'object' && titles) titles.mitarbeiter = mitLabel;
