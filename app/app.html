@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=5"></script>
+  <script src="app-i18n.js?v=6"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -585,11 +585,11 @@
               <h1 class="page-title">Werkstattplan</h1>
               <p class="page-subtitle" id="werkstattplanSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openWorkOrderEditor()">+ Auftrag annehmen</button>
+            <button class="btn btn-accent" data-i18n="wp.newOrder" onclick="openWorkOrderEditor()">+ Auftrag annehmen</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="werkstattplanSearch" placeholder="Suchen (Kennzeichen, Kunde, Anliegen…)"
+            <input type="text" id="werkstattplanSearch" data-i18n-ph="wp.searchPh" placeholder="Suchen (Kennzeichen, Kunde, Anliegen…)"
               oninput="renderWerkstattplan()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -606,11 +606,11 @@
               <h1 class="page-title">Fahrzeuge</h1>
               <p class="page-subtitle" id="fahrzeugeSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openVehicleEditor()">+ Neues Fahrzeug</button>
+            <button class="btn btn-accent" data-i18n="veh.new" onclick="openVehicleEditor()">+ Neues Fahrzeug</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="fahrzeugeSearch" placeholder="Suchen (Kennzeichen, Marke, Kunde…)"
+            <input type="text" id="fahrzeugeSearch" data-i18n-ph="veh.searchPh" placeholder="Suchen (Kennzeichen, Marke, Kunde…)"
               oninput="renderFahrzeuge()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -627,11 +627,11 @@
               <h1 class="page-title">Reifenhotel</h1>
               <p class="page-subtitle" id="reifenSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openTireEditor()">+ Einlagerung</button>
+            <button class="btn btn-accent" data-i18n="tire.new" onclick="openTireEditor()">+ Einlagerung</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="reifenSearch" placeholder="Suchen (Kunde, Kennzeichen, Lagerplatz, Dimension…)"
+            <input type="text" id="reifenSearch" data-i18n-ph="tire.searchPh" placeholder="Suchen (Kunde, Kennzeichen, Lagerplatz, Dimension…)"
               oninput="renderReifen()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -648,17 +648,17 @@
               <h1 class="page-title">Köderstellen</h1>
               <p class="page-subtitle" id="koederSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openBaitEditor()">+ Köderstelle</button>
+            <button class="btn btn-accent" data-i18n="bait.new" onclick="openBaitEditor()">+ Köderstelle</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="koederSearch" placeholder="Suchen (Objekt, Nr., Standort, Wirkstoff…)"
+            <input type="text" id="koederSearch" data-i18n-ph="bait.searchPh" placeholder="Suchen (Objekt, Nr., Standort, Wirkstoff…)"
               oninput="renderKoederstellen()"
               style="flex: 1; min-width: 200px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
             <div id="koederFilter" style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn btn-secondary is-active" data-f="alle" onclick="setKoederFilter('alle')">Alle</button>
-              <button class="btn btn-secondary" data-f="befall" onclick="setKoederFilter('befall')">⚠ Befall</button>
-              <button class="btn btn-secondary" data-f="faellig" onclick="setKoederFilter('faellig')">Kontrolle fällig</button>
+              <button class="btn btn-secondary is-active" data-f="alle" onclick="setKoederFilter('alle')" data-i18n="common.filterAll">Alle</button>
+              <button class="btn btn-secondary" data-f="befall" onclick="setKoederFilter('befall')" data-i18n="bait.filterInfest">⚠ Befall</button>
+              <button class="btn btn-secondary" data-f="faellig" onclick="setKoederFilter('faellig')" data-i18n="bait.filterDue">Kontrolle fällig</button>
             </div>
           </div>
 
@@ -674,11 +674,11 @@
               <h1 class="page-title">Protokolle</h1>
               <p class="page-subtitle" id="protokolleSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openPestProtocolEditor()">+ Protokoll</button>
+            <button class="btn btn-accent" data-i18n="pest.new" onclick="openPestProtocolEditor()">+ Protokoll</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="protokolleSearch" placeholder="Suchen (Objekt, Befallsart, Techniker, Mittel…)"
+            <input type="text" id="protokolleSearch" data-i18n-ph="pest.searchPh" placeholder="Suchen (Objekt, Befallsart, Techniker, Mittel…)"
               oninput="renderPestProtocols()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -699,7 +699,7 @@
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="baustellenSearch" placeholder="Suchen (Kunde, Adresse, Bezeichnung…)"
+            <input type="text" id="baustellenSearch" data-i18n-ph="site.searchPh" placeholder="Suchen (Kunde, Adresse, Bezeichnung…)"
               oninput="renderBaustellen()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -716,11 +716,11 @@
               <h1 class="page-title">Rapporte</h1>
               <p class="page-subtitle" id="rapporteSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openRapEditor()">+ Rapport</button>
+            <button class="btn btn-accent" data-i18n="rap.new" onclick="openRapEditor()">+ Rapport</button>
           </div>
 
           <div class="card" style="padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-            <input type="text" id="rapporteSearch" placeholder="Suchen (Baustelle, Kunde, Monteur…)"
+            <input type="text" id="rapporteSearch" data-i18n-ph="rap.searchPh" placeholder="Suchen (Baustelle, Kunde, Monteur…)"
               oninput="renderRapporte()"
               style="flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);" />
           </div>
@@ -737,21 +737,21 @@
               <h1 class="page-title" data-i18n="nav.anrufprotokoll">Anrufprotokoll</h1>
               <p class="page-subtitle" id="anrufSubtitle">— Anrufe</p>
             </div>
-            <button class="btn btn-accent" onclick="openCallModal(null)">+ Anruf vermerken</button>
+            <button class="btn btn-accent" data-i18n="call.new" onclick="openCallModal(null)">+ Anruf vermerken</button>
           </div>
           <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
-            <input type="search" id="anrufSearch" placeholder="Suchen: Kunde, Anrufer, Inhalt…" oninput="renderAnrufprotokoll()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
+            <input type="search" id="anrufSearch" data-i18n-ph="call.searchPh" placeholder="Suchen: Kunde, Anrufer, Inhalt…" oninput="renderAnrufprotokoll()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
             <div class="anruf-filter" id="anrufFilter" style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button class="btn btn-secondary is-active" data-f="alle" onclick="setAnrufFilter('alle')">Alle</button>
-              <button class="btn btn-secondary" data-f="offen" onclick="setAnrufFilter('offen')">Rückruf offen</button>
-              <button class="btn btn-secondary" data-f="erledigt" onclick="setAnrufFilter('erledigt')">✓ Erledigt</button>
-              <button class="btn btn-secondary" data-f="mitkunde" onclick="setAnrufFilter('mitkunde')">👤 Mit Kunde</button>
-              <button class="btn btn-secondary" data-f="ohnekunde" onclick="setAnrufFilter('ohnekunde')">Unbekannt</button>
+              <button class="btn btn-secondary is-active" data-f="alle" onclick="setAnrufFilter('alle')" data-i18n="common.filterAll">Alle</button>
+              <button class="btn btn-secondary" data-f="offen" onclick="setAnrufFilter('offen')" data-i18n="call.fOpen">Rückruf offen</button>
+              <button class="btn btn-secondary" data-f="erledigt" onclick="setAnrufFilter('erledigt')" data-i18n="common.doneCheck">✓ Erledigt</button>
+              <button class="btn btn-secondary" data-f="mitkunde" onclick="setAnrufFilter('mitkunde')" data-i18n="call.fWithCust">👤 Mit Kunde</button>
+              <button class="btn btn-secondary" data-f="ohnekunde" onclick="setAnrufFilter('ohnekunde')" data-i18n="call.fUnknown">Unbekannt</button>
             </div>
             <select id="anrufSort" onchange="renderAnrufprotokoll()" style="padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 13px; background: var(--surface); color: var(--text);">
-              <option value="neu">Neueste zuerst</option>
-              <option value="alt">Älteste zuerst</option>
-              <option value="kunde">Kunde A–Z</option>
+              <option value="neu" data-i18n="call.sortNew">Neueste zuerst</option>
+              <option value="alt" data-i18n="call.sortOld">Älteste zuerst</option>
+              <option value="kunde" data-i18n="call.sortCust">Kunde A–Z</option>
             </select>
           </div>
           <div id="anrufList" class="anruf-list"></div>
@@ -764,18 +764,18 @@
               <h1 class="page-title" data-i18n="nav.aufgaben">Aufgaben</h1>
               <p class="page-subtitle" id="aufgabenSubtitle">— Aufgaben offen</p>
             </div>
-            <button class="btn btn-accent" onclick="openTaskModal(null)">+ Neue Aufgabe</button>
+            <button class="btn btn-accent" data-i18n="task.new" onclick="openTaskModal(null)">+ Neue Aufgabe</button>
           </div>
           <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
-            <input type="search" id="taskSearch" placeholder="Suchen: Titel, Person, Beschreibung…" oninput="renderAufgaben()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
+            <input type="search" id="taskSearch" data-i18n-ph="task.searchPh" placeholder="Suchen: Titel, Person, Beschreibung…" oninput="renderAufgaben()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
             <div class="task-filter" id="taskFilter" style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button class="btn btn-secondary is-active" data-f="alle" onclick="setTaskFilter('alle')">Alle offen</button>
-              <button class="btn btn-secondary" data-f="dringend" onclick="setTaskFilter('dringend')">Dringend</button>
-              <button class="btn btn-secondary" data-f="normal" onclick="setTaskFilter('normal')">Normal</button>
-              <button class="btn btn-secondary" data-f="erledigt" onclick="setTaskFilter('erledigt')">✓ Erledigt</button>
+              <button class="btn btn-secondary is-active" data-f="alle" onclick="setTaskFilter('alle')" data-i18n="task.fAllOpen">Alle offen</button>
+              <button class="btn btn-secondary" data-f="dringend" onclick="setTaskFilter('dringend')" data-i18n="task.fUrgent">Dringend</button>
+              <button class="btn btn-secondary" data-f="normal" onclick="setTaskFilter('normal')" data-i18n="task.fNormal">Normal</button>
+              <button class="btn btn-secondary" data-f="erledigt" onclick="setTaskFilter('erledigt')" data-i18n="common.doneCheck">✓ Erledigt</button>
             </div>
             <select id="taskAssigneeFilter" onchange="renderAufgaben()" style="padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 13px; background: var(--surface); color: var(--text);">
-              <option value="">Alle Personen</option>
+              <option value="" data-i18n="task.allPersons">Alle Personen</option>
             </select>
           </div>
           <div id="taskList" class="task-list"></div>
@@ -788,7 +788,7 @@
               <h1 class="page-title" data-i18n="nav.email">E-Mail</h1>
               <p class="page-subtitle" id="mailSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" onclick="openModal('mailConnect')">+ Postfach verbinden</button>
+            <button class="btn btn-accent" data-i18n="mail.connect" onclick="openModal('mailConnect')">+ Postfach verbinden</button>
           </div>
 
           <!-- Verbundene Konten (Pills) -->
@@ -798,8 +798,8 @@
           <div id="mailEmptyState" style="display:none;">
             <div class="mail-empty-inner">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-subtle);margin-bottom:8px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">Kein Postfach verbunden</p>
-              <p style="font-size:13.5px;max-width:400px;margin:0 auto;">Verbinde dein Postfach, um Mails in der App zu sehen und per Klick als Aufgabe zu übernehmen.</p>
+              <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;" data-i18n="mail.emptyTitle">Kein Postfach verbunden</p>
+              <p style="font-size:13.5px;max-width:400px;margin:0 auto;" data-i18n="mail.emptyDesc">Verbinde dein Postfach, um Mails in der App zu sehen und per Klick als Aufgabe zu übernehmen.</p>
             </div>
             <div class="mail-provider-grid" id="mailProviderGridEmpty"></div>
           </div>
@@ -808,11 +808,11 @@
           <div id="mailInboxWrap" style="display:none;">
             <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
               <div class="mail-filter-tabs" id="mailFilterTabs">
-                <button class="is-active" data-mf="all" onclick="setMailFilter('all')">Alle</button>
-                <button data-mf="unread" onclick="setMailFilter('unread')">Ungelesen</button>
-                <button data-mf="tasks" onclick="setMailFilter('tasks')">→ Aufgabe</button>
+                <button class="is-active" data-mf="all" onclick="setMailFilter('all')" data-i18n="common.filterAll">Alle</button>
+                <button data-mf="unread" onclick="setMailFilter('unread')" data-i18n="mail.unread">Ungelesen</button>
+                <button data-mf="tasks" onclick="setMailFilter('tasks')" data-i18n="mail.toTask">→ Aufgabe</button>
               </div>
-              <input type="search" id="mailSearch" placeholder="Betreff, Absender…" oninput="renderMailList()" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);" />
+              <input type="search" id="mailSearch" data-i18n-ph="mail.searchPh" placeholder="Betreff, Absender…" oninput="renderMailList()" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);" />
             </div>
             <div class="mail-split">
               <div class="mail-list-panel" id="mailListPanel">
@@ -821,7 +821,7 @@
               <div class="mail-detail-panel">
                 <div class="mail-detail-placeholder" id="mailDetailPlaceholder">
                   <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                  <span>Mail auswählen zum Lesen</span>
+                  <span data-i18n="mail.selectToRead">Mail auswählen zum Lesen</span>
                 </div>
                 <div id="mailDetailContent" style="display:none;"></div>
               </div>
@@ -834,16 +834,16 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="nav.berichte">Nachweise & Berichte</h1>
-              <p class="page-subtitle">Foto-Doku, QR-Anwesenheit, Kundenberichte — automatisch erstellt</p>
+              <p class="page-subtitle" data-i18n="rep.subtitle">Foto-Doku, QR-Anwesenheit, Kundenberichte — automatisch erstellt</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button class="btn btn-secondary" onclick="exportMonatsberichtCSV()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Monatsbericht CSV (Steuerberater)
+                <span data-i18n="rep.csvBtn">Monatsbericht CSV (Steuerberater)</span>
               </button>
               <button class="btn btn-accent" onclick="openReportEditor()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Bericht erfassen
+                <span data-i18n="rep.add">Bericht erfassen</span>
               </button>
             </div>
           </div>
@@ -856,13 +856,13 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="nav.zeiten">Zeiterfassung</h1>
-              <p class="page-subtitle" id="zeitenSubtitle">Einsatzzeiten via QR-Check-in · Wochenübersicht</p>
+              <p class="page-subtitle" id="zeitenSubtitle" data-i18n="time.subtitle">Einsatzzeiten via QR-Check-in · Wochenübersicht</p>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
-              <button class="btn btn-secondary" onclick="zeitenPrevWeek()">← Vorwoche</button>
+              <button class="btn btn-secondary" data-i18n="plan.prevWeek" onclick="zeitenPrevWeek()">← Vorwoche</button>
               <span id="zeitenWeekLabel" style="font-size:13px;font-weight:600;white-space:nowrap;"></span>
-              <button class="btn btn-secondary" onclick="zeitenNextWeek()">Nächste →</button>
-              <button class="btn btn-secondary" onclick="zeitenExportCsv()">CSV-Export</button>
+              <button class="btn btn-secondary" data-i18n="time.nextWeek" onclick="zeitenNextWeek()">Nächste →</button>
+              <button class="btn btn-secondary" data-i18n="time.csvExport" onclick="zeitenExportCsv()">CSV-Export</button>
             </div>
           </div>
 
@@ -870,7 +870,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>Mitarbeiter</th>
+                  <th data-i18n="th.employee">Mitarbeiter</th>
                   <th id="zhMo">Mo</th>
                   <th id="zhDi">Di</th>
                   <th id="zhMi">Mi</th>
@@ -878,7 +878,7 @@
                   <th id="zhFr">Fr</th>
                   <th id="zhSa">Sa</th>
                   <th id="zhSo">So</th>
-                  <th style="text-align:right;">Summe</th>
+                  <th style="text-align:right;" data-i18n="th.sum">Summe</th>
                 </tr>
               </thead>
               <tbody id="zeitenBody">
@@ -893,29 +893,29 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="view.nachkalkulation">Soll-Ist-Nachkalkulation</h1>
-              <p class="page-subtitle">Geplante Stunden aus der Planung vs. tatsächlich gebrauchte Zeit — wo verdienst du, wo zahlst du drauf?</p>
+              <p class="page-subtitle" data-i18n="nk.subtitle">Geplante Stunden aus der Planung vs. tatsächlich gebrauchte Zeit — wo verdienst du, wo zahlst du drauf?</p>
             </div>
             <input type="month" id="nkMonth" class="nk-month" onchange="renderNachkalkulation()" />
           </div>
 
           <div class="kpi-grid" style="margin-bottom: var(--space-6);">
             <div class="kpi">
-              <div class="kpi-label">Soll-Stunden</div>
+              <div class="kpi-label" data-i18n="nk.targetH">Soll-Stunden</div>
               <div class="kpi-value" id="nkSoll">0.0 h</div>
-              <div class="kpi-meta">geplant im Monat</div>
+              <div class="kpi-meta" data-i18n="nk.plannedMonth">geplant im Monat</div>
             </div>
             <div class="kpi">
-              <div class="kpi-label">Ist-Stunden</div>
+              <div class="kpi-label" data-i18n="nk.actualH">Ist-Stunden</div>
               <div class="kpi-value" id="nkIst">0.0 h</div>
               <div class="kpi-meta" id="nkIstMeta">erfasst</div>
             </div>
             <div class="kpi">
-              <div class="kpi-label">Differenz</div>
+              <div class="kpi-label" data-i18n="nk.diff">Differenz</div>
               <div class="kpi-value" id="nkDiff">0.0 h</div>
               <div class="kpi-meta" id="nkDiffMeta">Ist − Soll</div>
             </div>
             <div class="kpi">
-              <div class="kpi-label">Effektiver Stundensatz</div>
+              <div class="kpi-label" data-i18n="nk.effRate">Effektiver Stundensatz</div>
               <div class="kpi-value" id="nkRate">– CHF</div>
               <div class="kpi-meta" id="nkRateMeta">Umsatz ÷ Ist-Stunden</div>
             </div>
@@ -925,14 +925,14 @@
             <table>
               <thead>
                 <tr>
-                  <th>Datum</th>
+                  <th data-i18n="th.date">Datum</th>
                   <th data-term="objektKunde">Objekt / Kunde</th>
-                  <th style="text-align:right;">Soll&nbsp;h</th>
-                  <th style="text-align:right;">Ist&nbsp;h</th>
-                  <th style="text-align:right;">Δ&nbsp;h</th>
-                  <th style="text-align:right;">Umsatz</th>
-                  <th style="text-align:right;">eff.&nbsp;CHF/h</th>
-                  <th>Status</th>
+                  <th style="text-align:right;" data-i18n="nk.thTarget">Soll&nbsp;h</th>
+                  <th style="text-align:right;" data-i18n="nk.thActual">Ist&nbsp;h</th>
+                  <th style="text-align:right;" data-i18n="nk.thDelta">Δ&nbsp;h</th>
+                  <th style="text-align:right;" data-i18n="th.revenue">Umsatz</th>
+                  <th style="text-align:right;" data-i18n="nk.thEffRate">eff.&nbsp;CHF/h</th>
+                  <th data-i18n="th.status">Status</th>
                 </tr>
               </thead>
               <tbody id="nkBody">
@@ -940,7 +940,7 @@
               </tbody>
             </table>
           </div>
-          <p style="font-size:12px; color:var(--text-subtle); margin-top:10px;">
+          <p style="font-size:12px; color:var(--text-subtle); margin-top:10px;" data-i18n="nk.note">
             Trage die tatsächlich gebrauchten Stunden in die <strong>Ist&nbsp;h</strong>-Spalte ein — alles andere rechnet sich automatisch. Später füllt die Zeiterfassung der Reiniger-App diese Werte selbst.
           </p>
         </section>
@@ -950,9 +950,9 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="nav.abos">Abo-Verträge</h1>
-              <p class="page-subtitle">Alle wiederkehrenden Aufträge auf einen Blick — Intervall, nächster Termin, Team. Eine Serie endest du mit einem Klick.</p>
+              <p class="page-subtitle" data-i18n="abo.subtitle">Alle wiederkehrenden Aufträge auf einen Blick — Intervall, nächster Termin, Team. Eine Serie endest du mit einem Klick.</p>
             </div>
-            <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
+            <button class="btn btn-accent" data-i18n="common.newAuftrag" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
           </div>
           <div id="aboList" style="display:flex; flex-direction:column; gap:12px;"></div>
         </section>
@@ -962,14 +962,14 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="nav.offerten">Offerten</h1>
-              <p class="page-subtitle">Vorgefertigte Angebote pro <span data-term="leistungsart">Reinigungsart</span> — bearbeiten, speichern, versenden.</p>
+              <p class="page-subtitle"><span data-i18n="off.subtitleA">Vorgefertigte Angebote pro </span><span data-term="leistungsart">Reinigungsart</span><span data-i18n="off.subtitleB"> — bearbeiten, speichern, versenden.</span></p>
             </div>
-            <button class="btn btn-accent" onclick="openOffertEditor()">+ Neue Offerte</button>
+            <button class="btn btn-accent" data-i18n="off.new" onclick="openOffertEditor()">+ Neue Offerte</button>
           </div>
 
           <div class="readonly-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — Speichern ist gesperrt.
+            <span data-i18n="off.readonlyBanner">Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — Speichern ist gesperrt.</span>
           </div>
 
           <div id="offertList" style="display: flex; flex-direction: column; gap: 12px;">
@@ -980,9 +980,9 @@
             <div style="width: 56px; height: 56px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px;">Noch keine Offerten</div>
-            <div style="font-size: 13px; color: var(--text-muted); max-width: 360px; margin: 0 auto 16px;">Klick auf „Neue Offerte" — der vorgefertigte Text passt sich automatisch an die gewählte <span data-term="leistungsart">Reinigungsart</span> an.</div>
-            <button class="btn btn-accent" onclick="openOffertEditor()">+ Erste Offerte erstellen</button>
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px;" data-i18n="off.emptyTitle">Noch keine Offerten</div>
+            <div style="font-size: 13px; color: var(--text-muted); max-width: 360px; margin: 0 auto 16px;" data-i18n="off.emptyDesc">Klick auf „Neue Offerte" — der vorgefertigte Text passt sich automatisch an die gewählte Leistung an.</div>
+            <button class="btn btn-accent" data-i18n="off.createFirst" onclick="openOffertEditor()">+ Erste Offerte erstellen</button>
           </div>
         </section>
 
@@ -991,11 +991,11 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="nav.rechnungen">Rechnungen</h1>
-              <p class="page-subtitle">Alle Einsätze mit Zahlart „Rechnung" · Status verfolgen · PDF generieren</p>
+              <p class="page-subtitle" data-i18n="inv.subtitle">Alle Einsätze mit Zahlart „Rechnung" · Status verfolgen · PDF generieren</p>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input type="month" id="invMonth" onchange="renderRechnungen()" style="padding:8px 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;" />
-              <button class="btn btn-accent" onclick="generateAllOpenInvoices()">PDF alle offenen ↓</button>
+              <button class="btn btn-accent" data-i18n="inv.pdfAll" onclick="generateAllOpenInvoices()">PDF alle offenen ↓</button>
             </div>
           </div>
 
@@ -1005,11 +1005,11 @@
             <table>
               <thead>
                 <tr>
-                  <th>Datum</th>
+                  <th data-i18n="th.date">Datum</th>
                   <th data-term="objektKunde">Objekt / Kunde</th>
-                  <th style="text-align:right;">Betrag (CHF inkl.)</th>
-                  <th>Status</th>
-                  <th style="text-align:right;">Aktion</th>
+                  <th style="text-align:right;" data-i18n="inv.thAmount">Betrag (CHF inkl.)</th>
+                  <th data-i18n="th.status">Status</th>
+                  <th style="text-align:right;" data-i18n="th.action">Aktion</th>
                 </tr>
               </thead>
               <tbody id="invBody">
