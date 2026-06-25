@@ -89,8 +89,10 @@
             <span>Branche</span>
             <select name="branche" id="brancheSelect">
               <option value="reinigung">🧹 Reinigung</option>
+              <option value="werkstatt">🚗 Auto-Werkstatt</option>
+              <option value="schaedling">🛡️ Schädlingsbekämpfung</option>
               <option value="handwerk">🔧 Handwerk</option>
-              <option value="immobilien">🏠 Immobilien</option>
+              <option value="garten">🌳 Garten-/Landschaftsbau</option>
               <option value="custom">✨ Andere — sag uns welche</option>
             </select>
           </label>
@@ -116,7 +118,7 @@
           </button>
 
           <p class="form-meta">
-            Lieber direkt schreiben? <a data-cfg="email">hallo@mosaos.ch</a>
+            Lieber direkt schreiben? <a data-cfg="email">info.mosaos@gmail.com</a>
           </p>
         </form>
 
@@ -149,7 +151,7 @@
   <footer class="footer footer-mini">
     <div class="container">
       <div class="footer-bottom">
-        <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Aarau</span>, <span data-cfg="country">Schweiz</span></span>
+        <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span></span>
         <div class="footer-mini-links">
           <a href="impressum.html" data-i18n="footer.imprint">Impressum</a>
           <a href="agb.html" data-i18n="footer.terms">AGB</a>
@@ -180,12 +182,16 @@
       if (branche && sel) {
         const opt = Array.from(sel.options).find((o) => o.value === branche);
         if (opt) sel.value = branche;
-        if (branche === 'handwerk' && title) {
-          title.textContent = 'Frühzugang Handwerk-Modul';
-          sub.textContent = 'Wir bauen gerade die Handwerk-Variante. Sag uns, was dir wichtig ist — du bist mit dabei, sobald wir live gehen.';
-        } else if (branche === 'immobilien' && title) {
-          title.textContent = 'Frühzugang Immobilien-Modul';
-          sub.textContent = 'Die Immobilien-Variante kommt Q4 2026. Trag dich ein, dann gestaltest du sie mit.';
+        const liveBranchen = {
+          reinigung: 'Reinigung',
+          werkstatt: 'Auto-Werkstatt',
+          schaedling: 'Schädlingsbekämpfung',
+          handwerk: 'Handwerk',
+          garten: 'Garten-/Landschaftsbau',
+        };
+        if (liveBranchen[branche] && title) {
+          title.textContent = liveBranchen[branche] + ' — leg los';
+          sub.textContent = 'Diese Branche ist live. Sag uns kurz, was du brauchst, und wir richten dir die Testumgebung ein.';
         }
       }
       if (paket === 'custom' && title) {

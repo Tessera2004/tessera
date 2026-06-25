@@ -65,37 +65,30 @@
   // Preise sind Basis CHF. emoji + price hier, Name/Beschreibung kommen aus i18n (mod.<id>.name / .desc)
   const MODULES = {
     // Reinigung Basis
-    route:       { emoji: '🗺️', price: 49 },
+    route:       { emoji: '🗺️', price: 0 },
     kunden:      { emoji: '👥', price: 0 },
     team:        { emoji: '🧑‍💼', price: 0 },
     // Handwerk Basis
-    auftraege:   { emoji: '🧱', price: 59 },
-    // Immobilien Basis
-    objekt:      { emoji: '🏢', price: 79 },
-    interessent: { emoji: '🔎', price: 0 },
-    // Add-ons
+    auftraege:   { emoji: '🧱', price: 0 },
+    // Add-ons (Preise & Keys gemäss cleancockpit/stripe-config.js)
+    offerten:    { emoji: '📄', price: 25 },
+    rechnungen:  { emoji: '🧾', price: 19 },
     anruf:       { emoji: '📞', price: 19 },
     aufgaben:    { emoji: '✅', price: 15 },
-    buch:        { emoji: '📊', price: 29, tag: true },
-    foto:        { emoji: '📷', price: 19 },
     email:       { emoji: '📧', price: 39 },
-    lohn:        { emoji: '💰', price: 49, tag: true },
     abos:        { emoji: '🔁', price: 19 },
-    nachkalk:    { emoji: '🧮', price: 19 },
+    berichte:    { emoji: '📋', price: 19 },
     stunden:     { emoji: '⏱️', price: 19 },
-    material:    { emoji: '📦', price: 29 },
-    offerten:    { emoji: '📄', price: 25 },
-    expose:      { emoji: '📄', price: 29 },
-    matching:    { emoji: '🤝', price: 25 },
-    besichtigung:{ emoji: '📅', price: 19 },
+    nachkalk:    { emoji: '🧮', price: 19 },
   };
 
+  // Branchen-Module gemäss cleancockpit/presets.js (Basispreis einheitlich 49 CHF)
   const BRANCHEN = {
-    reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],          addons: ['offerten', 'anruf', 'aufgaben', 'foto', 'stunden', 'abos', 'nachkalk', 'email', 'buch', 'lohn'] },
-    werkstatt:  { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['offerten', 'stunden', 'material', 'foto', 'abos', 'email', 'buch', 'lohn'] },
-    schaedling: { basePrice: 49, base: ['route', 'kunden', 'team'],          addons: ['offerten', 'aufgaben', 'foto', 'stunden', 'abos', 'email', 'buch'] },
-    handwerk:   { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['stunden', 'material', 'offerten', 'aufgaben', 'buch', 'lohn'] },
-    garten:     { basePrice: 59, base: ['auftraege', 'kunden', 'team'],      addons: ['stunden', 'material', 'offerten', 'aufgaben', 'abos', 'buch', 'lohn'] },
+    reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],     addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'nachkalk', 'anruf', 'email'] },
+    werkstatt:  { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'berichte', 'stunden', 'anruf', 'email'] },
+    schaedling: { basePrice: 49, base: ['route', 'kunden', 'team'],     addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'anruf', 'email'] },
+    handwerk:   { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'berichte', 'stunden', 'nachkalk', 'anruf', 'email'] },
+    garten:     { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'anruf', 'email'] },
   };
 
   /* ----- Währung nach Region ----- */
@@ -183,8 +176,7 @@
     animatePrice(lastSumChf == null ? sumChf : lastSumChf, sumChf);
     lastSumChf = sumChf;
     if (activeEl) {
-      const brancheKey = 'branche.' + (currentBranche === 'immobilien' ? 'immo' : currentBranche);
-      const brancheName = t(brancheKey, currentBranche);
+      const brancheName = t('branche.' + currentBranche, currentBranche);
       const baseLabel = t('mix.h.base', 'Basis');
       const rows = [`<div class="sum-row">✓ ${escape(brancheName)} — ${escape(baseLabel)}</div>`];
       active.forEach((name) => rows.push(`<div class="sum-row">✓ ${escape(name)}</div>`));
