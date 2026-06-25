@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=7"></script>
+  <script src="app-i18n.js?v=8"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1814,21 +1814,21 @@
         <div class="field">
           <label data-term="leistungsart">Reinigungsart</label>
           <div class="opt-row" id="offSvcChips">
-            <button type="button" class="opt-chip on" data-off-svc="unterhalt" onclick="selectOffertService(this,'unterhalt')">Unterhalt</button>
-            <button type="button" class="opt-chip" data-off-svc="end" onclick="selectOffertService(this,'end')">Endreinigung</button>
-            <button type="button" class="opt-chip" data-off-svc="fenster" onclick="selectOffertService(this,'fenster')">Fenster</button>
-            <button type="button" class="opt-chip" data-off-svc="bau" onclick="selectOffertService(this,'bau')">Bau</button>
-            <button type="button" class="opt-chip" data-off-svc="fassade" onclick="selectOffertService(this,'fassade')">Fassade</button>
+            <button type="button" class="opt-chip on" data-off-svc="unterhalt" onclick="selectOffertService(this,'unterhalt')" data-i18n="off.chipUnterhalt">Unterhalt</button>
+            <button type="button" class="opt-chip" data-off-svc="end" onclick="selectOffertService(this,'end')" data-i18n="price.end.t">Endreinigung</button>
+            <button type="button" class="opt-chip" data-off-svc="fenster" onclick="selectOffertService(this,'fenster')" data-i18n="off.chipFenster">Fenster</button>
+            <button type="button" class="opt-chip" data-off-svc="bau" onclick="selectOffertService(this,'bau')" data-i18n="off.chipBau">Bau</button>
+            <button type="button" class="opt-chip" data-off-svc="fassade" onclick="selectOffertService(this,'fassade')" data-i18n="off.chipFassade">Fassade</button>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Kunde</label>
+            <label data-i18n="wiz.customer">Kunde</label>
             <input type="text" id="offKunde" placeholder="z. B. Familie Schmidt" oninput="renderOffertTemplate()" />
           </div>
           <div class="field">
-            <label>Datum</label>
+            <label data-i18n="th.date">Datum</label>
             <input type="date" id="offDatum" oninput="renderOffertTemplate()" />
           </div>
         </div>
@@ -1836,51 +1836,51 @@
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
           <div class="field">
             <label data-term="adresseObjekt">Adresse / Objekt</label>
-            <input type="text" id="offAdresse" placeholder="Straße Hausnr., PLZ Ort" oninput="renderOffertTemplate()" />
+            <input type="text" id="offAdresse" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" oninput="renderOffertTemplate()" />
           </div>
           <div class="field">
-            <label>Gesamtpreis (€)</label>
+            <label data-i18n="off.totalPrice">Gesamtpreis (€)</label>
             <input type="number" id="offPreis" placeholder="0" step="1" oninput="renderOffertTemplate()" />
           </div>
         </div>
 
         <div class="field">
           <label style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Offerten-Text</span>
-            <button type="button" style="background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-weight: 500;" onclick="regenerateOffertText()">↻ Aus Vorlage neu generieren</button>
+            <span data-i18n="off.text">Offerten-Text</span>
+            <button type="button" style="background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-weight: 500;" onclick="regenerateOffertText()" data-i18n="off.regenerate">↻ Aus Vorlage neu generieren</button>
           </label>
           <textarea id="offText" rows="10" style="padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 13.5px; line-height: 1.6; resize: vertical; background: var(--surface); color: var(--text); width: 100%; min-height: 200px;"></textarea>
         </div>
 
         <div class="field">
           <label style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Bilder zum Angebot</span>
-            <label for="offFile" style="cursor: pointer; color: var(--accent); font-size: 12px; font-weight: 500;">+ Bilder hinzufügen</label>
+            <span data-i18n="off.images">Bilder zum Angebot</span>
+            <label for="offFile" style="cursor: pointer; color: var(--accent); font-size: 12px; font-weight: 500;" data-i18n="off.addImages">+ Bilder hinzufügen</label>
             <input type="file" id="offFile" accept="image/*" multiple style="display: none;" onchange="handleOffertImages(event)" />
           </label>
           <div id="offImageGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px;">
             <!-- gefüllt per JS — wenn leer, zeigt nichts -->
           </div>
-          <div id="offNoImages" style="font-size: 12px; color: var(--text-subtle); padding: 12px 14px; background: var(--surface-2); border-radius: 8px; border: 1px dashed var(--border); text-align: center;">
+          <div id="offNoImages" style="font-size: 12px; color: var(--text-subtle); padding: 12px 14px; background: var(--surface-2); border-radius: 8px; border: 1px dashed var(--border); text-align: center;" data-i18n="off.noImages">
             Keine Bilder angehängt — der Bilder-Bereich wird in der Offerte nicht angezeigt.
           </div>
         </div>
 
         <div id="offHistory" style="display: none;">
-          <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Versionshistorie</div>
+          <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px;" data-i18n="off.versionHistory">Versionshistorie</div>
           <div id="offHistoryList" style="display: flex; flex-direction: column; gap: 6px;"></div>
         </div>
 
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="offDeleteBtn" style="display: none; color: var(--danger); margin-right: auto;" onclick="deleteOffert()">Löschen</button>
+        <button class="btn btn-ghost" id="offDeleteBtn" style="display: none; color: var(--danger); margin-right: auto;" onclick="deleteOffert()" data-i18n="common.delete">Löschen</button>
         <button class="btn btn-secondary" onclick="downloadOffertePDF()" title="Aktuellen Stand als PDF speichern (auch ohne Speichern)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           PDF
         </button>
-        <button class="btn btn-secondary" onclick="closeModal('offert')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveOffert()">Speichern</button>
+        <button class="btn btn-secondary" onclick="closeModal('offert')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveOffert()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -1891,7 +1891,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="custEditorTitle">Neuer Kunde</div>
-          <div class="modal-subtitle">Stammdaten erfassen</div>
+          <div class="modal-subtitle" data-i18n="cust.subtitle">Stammdaten erfassen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('customerEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1900,37 +1900,37 @@
       <div class="modal-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Vor-/Firmenname</label>
-            <input type="text" id="custFirstname" placeholder="z. B. Müller AG / Anna" />
+            <label data-i18n="cust.firstname">Vor-/Firmenname</label>
+            <input type="text" id="custFirstname" data-i18n-ph="cust.firstnamePh" placeholder="z. B. Müller AG / Anna" />
           </div>
           <div class="field">
-            <label>Nachname (leer = Firma)</label>
-            <input type="text" id="custLastname" placeholder="z. B. Müller" />
+            <label data-i18n="cust.lastname">Nachname (leer = Firma)</label>
+            <input type="text" id="custLastname" data-i18n-ph="cust.lastnamePh" placeholder="z. B. Müller" />
           </div>
         </div>
         <div class="field">
-          <label>Adresse</label>
-          <input type="text" id="custAddress" placeholder="Straße Nr., PLZ Ort" />
+          <label data-i18n="wiz.address">Adresse</label>
+          <input type="text" id="custAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Nr., PLZ Ort" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Telefon</label>
-            <input type="tel" id="custPhone" placeholder="+41 79 ..." />
+            <label data-i18n="cust.phone">Telefon</label>
+            <input type="tel" id="custPhone" data-i18n-ph="cust.phonePh" placeholder="+41 79 ..." />
           </div>
           <div class="field">
-            <label>E-Mail</label>
-            <input type="email" id="custEmail" placeholder="info@firma.ch" />
+            <label data-i18n="auth.email">E-Mail</label>
+            <input type="email" id="custEmail" data-i18n-ph="cust.emailPh" placeholder="info@firma.ch" />
           </div>
         </div>
         <div class="field">
-          <label>Notiz</label>
-          <input type="text" id="custNote" placeholder="z. B. Stammkunde, Schlüssel im Büro, ..." />
+          <label data-i18n="common.note">Notiz</label>
+          <input type="text" id="custNote" data-i18n-ph="cust.notePh" placeholder="z. B. Stammkunde, Schlüssel im Büro, ..." />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="custDeleteBtn" onclick="deleteCustomer()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('customerEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveCustomer()">Speichern</button>
+        <button class="btn btn-ghost" id="custDeleteBtn" onclick="deleteCustomer()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('customerEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveCustomer()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2365,8 +2365,8 @@
     <div class="modal" style="max-width: 580px;">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Anruf vermerken</div>
-          <div class="modal-subtitle">Wer hat angerufen, nach wem verlangt, was wurde gesagt</div>
+          <div class="modal-title" data-i18n="call.title">Anruf vermerken</div>
+          <div class="modal-subtitle" data-i18n="call.subtitle">Wer hat angerufen, nach wem verlangt, was wurde gesagt</div>
         </div>
         <button class="btn-icon" onclick="closeModal('callEntry')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2374,53 +2374,53 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Kunde aus Liste</label>
+          <label data-i18n="call.customerFromList">Kunde aus Liste</label>
           <select id="callCustomerSelect" onchange="onCallCustomerChange()"></select>
           <div id="callCustomerHint" style="font-size: 11.5px; color: var(--text-subtle); margin-top: 4px;"></div>
         </div>
 
         <div class="field">
-          <label>Wann?</label>
+          <label data-i18n="call.when">Wann?</label>
           <input type="datetime-local" id="callDate" step="900" />
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Wer hat angerufen?</label>
-            <input type="text" id="callWer" placeholder="z. B. Hr. Keller, Hauswart" />
+            <label data-i18n="call.whoCalled">Wer hat angerufen?</label>
+            <input type="text" id="callWer" data-i18n-ph="call.whoCalledPh" placeholder="z. B. Hr. Keller, Hauswart" />
           </div>
           <div class="field" id="callWerNummerWrap" style="display: none;">
-            <label>Telefonnummer</label>
-            <input type="tel" id="callWerNummer" placeholder="+41 79 …" />
+            <label data-i18n="call.phoneNumber">Telefonnummer</label>
+            <input type="tel" id="callWerNummer" data-i18n-ph="cust.phonePh" placeholder="+41 79 …" />
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Verlangte nach</label>
-            <input type="text" id="callVerlangteNach" placeholder="z. B. Brian, Chef, Disposition" />
+            <label data-i18n="call.askedFor">Verlangte nach</label>
+            <input type="text" id="callVerlangteNach" data-i18n-ph="call.askedForPh" placeholder="z. B. Brian, Chef, Disposition" />
           </div>
           <div class="field">
-            <label>Wer hat angenommen?</label>
+            <label data-i18n="call.answeredBy">Wer hat angenommen?</label>
             <input type="text" id="callAngenommenVon" />
           </div>
         </div>
 
         <div class="field">
-          <label>Was wurde gesagt?</label>
-          <textarea id="callText" rows="3" placeholder="Kurz notieren: Anliegen, Termin, Reklamation, …"></textarea>
+          <label data-i18n="call.whatSaid">Was wurde gesagt?</label>
+          <textarea id="callText" rows="3" data-i18n-ph="call.whatSaidPh" placeholder="Kurz notieren: Anliegen, Termin, Reklamation, …"></textarea>
         </div>
 
         <div class="field">
           <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500;">
             <input type="checkbox" id="callRueckruf" />
-            <span>Rückruf nötig (taucht in der Topbar als Erinnerung auf)</span>
+            <span data-i18n="call.callbackNeeded">Rückruf nötig (taucht in der Topbar als Erinnerung auf)</span>
           </label>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('callEntry')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveCallEntry()">Anruf speichern</button>
+        <button class="btn btn-secondary" onclick="closeModal('callEntry')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveCallEntry()" data-i18n="call.save">Anruf speichern</button>
       </div>
     </div>
   </div>
@@ -2441,14 +2441,14 @@
         <div class="cust-detail-grid" id="custDetailInfo"></div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; margin: 18px 0 10px;">
-          <div style="font-size: 14px; font-weight: 700; color: var(--text);">Telefon-Historie</div>
-          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="addCallLog()">+ Anruf vermerken</button>
+          <div style="font-size: 14px; font-weight: 700; color: var(--text);" data-i18n="cust.phoneHistory">Telefon-Historie</div>
+          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="addCallLog()" data-i18n="call.new">+ Anruf vermerken</button>
         </div>
         <div id="custCallLog" class="call-log"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="editCurrentCustomer()" style="margin-right: auto;">Stammdaten bearbeiten</button>
-        <button class="btn btn-secondary" onclick="closeModal('customerDetail')">Schliessen</button>
+        <button class="btn btn-ghost" onclick="editCurrentCustomer()" style="margin-right: auto;" data-i18n="cust.editMaster">Stammdaten bearbeiten</button>
+        <button class="btn btn-secondary" onclick="closeModal('customerDetail')" data-i18n="common.close">Schliessen</button>
       </div>
     </div>
   </div>
@@ -2475,11 +2475,11 @@
             <span id="jobEditSeriesInfo">Teil einer Serie</span>
           </div>
           <div class="field" style="margin-top:10px;">
-            <label style="font-size:12px;">Änderung / Löschung gilt für</label>
+            <label style="font-size:12px;" data-i18n="job.seriesScope">Änderung / Löschung gilt für</label>
             <select id="jobEditSeriesScope" style="padding:8px 10px; border:1.5px solid var(--border-strong); border-radius:8px; background:var(--surface); font-size:13.5px; color:var(--text); width:100%;">
-              <option value="this">Nur diesen Termin</option>
-              <option value="future">Diesen + alle künftigen</option>
-              <option value="all">Ganze Serie</option>
+              <option value="this" data-i18n="job.scopeThis">Nur diesen Termin</option>
+              <option value="future" data-i18n="job.scopeFuture">Diesen + alle künftigen</option>
+              <option value="all" data-i18n="job.scopeAll">Ganze Serie</option>
             </select>
           </div>
         </div>
@@ -2487,46 +2487,46 @@
         <!-- Zeit + Dauer + Preis -->
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Startzeit</label>
+            <label data-i18n="wiz.startTime">Startzeit</label>
             <input type="time" id="jobEditStart" step="900" />
           </div>
           <div class="field">
-            <label>Dauer (Minuten)</label>
+            <label data-i18n="job.durationMin">Dauer (Minuten)</label>
             <input type="number" id="jobEditDuration" step="15" min="15" />
           </div>
           <div class="field">
-            <label>Preis (CHF)</label>
+            <label data-i18n="job.priceCHF">Preis (CHF)</label>
             <input type="number" id="jobEditPrice" step="5" min="0" />
           </div>
         </div>
 
         <!-- Zahlart -->
         <div class="field">
-          <label>Zahlart</label>
+          <label data-i18n="job.paymethod">Zahlart</label>
           <div class="paymethod-switch" id="jobEditPaymethod">
-            <button type="button" data-pm="bar"      onclick="setJobPaymethod('bar')">Bar</button>
+            <button type="button" data-pm="bar"      onclick="setJobPaymethod('bar')" data-i18n="job.pmCash">Bar</button>
             <button type="button" data-pm="twint"    onclick="setJobPaymethod('twint')">Twint</button>
-            <button type="button" data-pm="rechnung" onclick="setJobPaymethod('rechnung')">Rechnung</button>
+            <button type="button" data-pm="rechnung" onclick="setJobPaymethod('rechnung')" data-i18n="job.pmInvoice">Rechnung</button>
           </div>
         </div>
 
         <!-- Notizen: Büro / Mitarbeiter -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Notiz fürs Büro <span style="color: var(--text-subtle); font-weight: 500;">(intern)</span></label>
-            <textarea id="jobEditNoteOffice" rows="3" placeholder="MwSt-Nr., Zahlungsfrist, Abrechnungs-Hinweise…"></textarea>
+            <label><span data-i18n="job.noteOffice">Notiz fürs Büro</span> <span style="color: var(--text-subtle); font-weight: 500;" data-i18n="job.internal">(intern)</span></label>
+            <textarea id="jobEditNoteOffice" rows="3" data-i18n-ph="job.noteOfficePh" placeholder="MwSt-Nr., Zahlungsfrist, Abrechnungs-Hinweise…"></textarea>
           </div>
           <div class="field">
-            <label>Notiz für Mitarbeiter <span style="color: var(--text-subtle); font-weight: 500;">(auf mobile sichtbar)</span></label>
-            <textarea id="jobEditNoteCrew" rows="3" placeholder="Zugang, Schlüssel, Besonderheiten vor Ort…"></textarea>
+            <label><span data-i18n="job.noteCrew">Notiz für Mitarbeiter</span> <span style="color: var(--text-subtle); font-weight: 500;" data-i18n="job.mobileVisible">(auf mobile sichtbar)</span></label>
+            <textarea id="jobEditNoteCrew" rows="3" data-i18n-ph="job.noteCrewPh" placeholder="Zugang, Schlüssel, Besonderheiten vor Ort…"></textarea>
           </div>
         </div>
 
         <!-- Mitarbeiter-Picker -->
         <div class="field">
-          <label>Mitarbeiter zuweisen <span id="jobEditAssignedCount" style="color: var(--text-subtle); font-weight: 500;">(0 ausgewählt)</span></label>
+          <label><span data-i18n="job.assignEmployees">Mitarbeiter zuweisen</span> <span id="jobEditAssignedCount" style="color: var(--text-subtle); font-weight: 500;">(0 ausgewählt)</span></label>
           <div id="jobEditEmployees" class="emp-picker"></div>
-          <div style="font-size: 11.5px; color: var(--text-subtle); margin-top: 6px;">
+          <div style="font-size: 11.5px; color: var(--text-subtle); margin-top: 6px;" data-i18n="job.assignHint">
             Fahrer fährt selbst · Beifahrer braucht Mitfahrgelegenheit · Klick auf Teamname wählt das ganze Team.
           </div>
         </div>
@@ -2535,11 +2535,11 @@
         <div id="jobEditPhoneLog" class="je-phone-log"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="jobEditResetBtn" onclick="resetJobEdit()" style="margin-right: auto;">Auf Standard zurücksetzen</button>
+        <button class="btn btn-ghost" id="jobEditResetBtn" onclick="resetJobEdit()" style="margin-right: auto;" data-i18n="job.resetDefault">Auf Standard zurücksetzen</button>
         <button class="btn btn-secondary" id="jobEditQrBtn" onclick="openJobQrModal()">QR ↗</button>
-        <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()">Rechnung</button>
-        <button class="btn btn-secondary" onclick="closeModal('jobEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveJobEdit()">Speichern</button>
+        <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()" data-i18n="job.pmInvoice">Rechnung</button>
+        <button class="btn btn-secondary" onclick="closeModal('jobEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveJobEdit()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2553,8 +2553,8 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </div>
           <div>
-            <div class="modal-title">Wieso wurde die Offerte geändert?</div>
-            <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Wird in der Versionshistorie festgehalten</div>
+            <div class="modal-title" data-i18n="rev.title">Wieso wurde die Offerte geändert?</div>
+            <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="rev.subtitle">Wird in der Versionshistorie festgehalten</div>
           </div>
         </div>
         <button class="btn-icon" onclick="closeModal('revisionReason')">
@@ -2563,22 +2563,22 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label for="revReasonInput">Grund der Änderung</label>
-          <textarea id="revReasonInput" rows="3" placeholder="z. B. Kunde wollte Pauschalpreis statt Stundensatz" style="padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 13.5px; line-height: 1.5; resize: vertical; background: var(--surface); color: var(--text); width: 100%; min-height: 80px;"></textarea>
-          <div id="revReasonError" style="display: none; font-size: 12px; color: var(--danger); margin-top: 6px;">Bitte einen Grund eingeben — wird in der Historie gespeichert.</div>
+          <label for="revReasonInput" data-i18n="rev.reason">Grund der Änderung</label>
+          <textarea id="revReasonInput" rows="3" data-i18n-ph="rev.reasonPh" placeholder="z. B. Kunde wollte Pauschalpreis statt Stundensatz" style="padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 13.5px; line-height: 1.5; resize: vertical; background: var(--surface); color: var(--text); width: 100%; min-height: 80px;"></textarea>
+          <div id="revReasonError" style="display: none; font-size: 12px; color: var(--danger); margin-top: 6px;" data-i18n="rev.error">Bitte einen Grund eingeben — wird in der Historie gespeichert.</div>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px;">
-          <button type="button" class="opt-chip" onclick="setRevReason('Preis angepasst')">Preis angepasst</button>
-          <button type="button" class="opt-chip" onclick="setRevReason('Kundenwunsch — Pauschale')">Pauschale</button>
-          <button type="button" class="opt-chip" onclick="setRevReason('Datum verschoben')">Datum verschoben</button>
-          <button type="button" class="opt-chip" onclick="setRevReason('Leistung ergänzt')">Leistung ergänzt</button>
-          <button type="button" class="opt-chip" onclick="setRevReason('Leistung entfernt')">Leistung entfernt</button>
-          <button type="button" class="opt-chip" onclick="setRevReason('Rechtschreibung / Tippfehler')">Tippfehler</button>
+          <button type="button" class="opt-chip" onclick="setRevReason('Preis angepasst')" data-i18n="rev.cPrice">Preis angepasst</button>
+          <button type="button" class="opt-chip" onclick="setRevReason('Kundenwunsch — Pauschale')" data-i18n="rev.cFlat">Pauschale</button>
+          <button type="button" class="opt-chip" onclick="setRevReason('Datum verschoben')" data-i18n="rev.cDate">Datum verschoben</button>
+          <button type="button" class="opt-chip" onclick="setRevReason('Leistung ergänzt')" data-i18n="rev.cAdd">Leistung ergänzt</button>
+          <button type="button" class="opt-chip" onclick="setRevReason('Leistung entfernt')" data-i18n="rev.cRemove">Leistung entfernt</button>
+          <button type="button" class="opt-chip" onclick="setRevReason('Rechtschreibung / Tippfehler')" data-i18n="rev.cTypo">Tippfehler</button>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('revisionReason')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="confirmRevisionAndSave()">Mit Grund speichern</button>
+        <button class="btn btn-secondary" onclick="closeModal('revisionReason')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="confirmRevisionAndSave()" data-i18n="rev.save">Mit Grund speichern</button>
       </div>
     </div>
   </div>
@@ -2783,7 +2783,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="taskModalTitle">Neue Aufgabe</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">An Büro-Mitarbeiter zuweisen · Priorität wählen</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="task.subtitle">An Büro-Mitarbeiter zuweisen · Priorität wählen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('taskEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2791,50 +2791,50 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Titel</label>
-          <input type="text" id="taskTitle" placeholder="z. B. Offerte für Hotel Stern erstellen" />
+          <label data-i18n="task.title">Titel</label>
+          <input type="text" id="taskTitle" data-i18n-ph="task.titlePh" placeholder="z. B. Offerte für Hotel Stern erstellen" />
         </div>
         <div class="field">
-          <label>Beschreibung</label>
-          <textarea id="taskDesc" rows="3" placeholder="Worum geht's? Welche Info braucht die Person?"></textarea>
+          <label data-i18n="task.desc">Beschreibung</label>
+          <textarea id="taskDesc" rows="3" data-i18n-ph="task.descPh" placeholder="Worum geht's? Welche Info braucht die Person?"></textarea>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Zuweisen an</label>
+            <label data-i18n="task.assignTo">Zuweisen an</label>
             <select id="taskAssignee"></select>
           </div>
           <div class="field">
-            <label>Fällig bis</label>
+            <label data-i18n="task.dueDate">Fällig bis</label>
             <input type="date" id="taskDueDate" />
           </div>
         </div>
         <div class="field">
-          <label>Priorität</label>
+          <label data-i18n="task.priority">Priorität</label>
           <div class="task-prio-picker" id="taskPrioPicker">
-            <button type="button" data-prio="dringend" onclick="setTaskPrio('dringend')">Dringend</button>
-            <button type="button" data-prio="normal" onclick="setTaskPrio('normal')">Normal</button>
-            <button type="button" data-prio="niedrig" onclick="setTaskPrio('niedrig')">Niedrig</button>
+            <button type="button" data-prio="dringend" onclick="setTaskPrio('dringend')" data-i18n="task.fUrgent">Dringend</button>
+            <button type="button" data-prio="normal" onclick="setTaskPrio('normal')" data-i18n="task.fNormal">Normal</button>
+            <button type="button" data-prio="niedrig" onclick="setTaskPrio('niedrig')" data-i18n="task.prioLow">Niedrig</button>
           </div>
         </div>
         <div class="field" id="taskLinkInfo" style="display:none;">
-          <label>Verknüpft mit</label>
+          <label data-i18n="task.linkedWith">Verknüpft mit</label>
           <div id="taskLinkLabel" style="font-size: 12.5px; color: var(--text-muted); padding: 6px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="field">
-            <label>Kontakt-E-Mail <span style="font-size:11px;color:var(--text-subtle);">optional</span></label>
-            <input type="email" id="taskContactEmail" placeholder="kunde@beispiel.ch" />
+            <label><span data-i18n="task.contactEmail">Kontakt-E-Mail</span> <span style="font-size:11px;color:var(--text-subtle);" data-i18n="common.optional">optional</span></label>
+            <input type="email" id="taskContactEmail" data-i18n-ph="task.contactEmailPh" placeholder="kunde@beispiel.ch" />
           </div>
           <div class="field">
-            <label>Kontakt-Telefon <span style="font-size:11px;color:var(--text-subtle);">optional</span></label>
-            <input type="tel" id="taskContactPhone" placeholder="+41 79 123 45 67" />
+            <label><span data-i18n="task.contactPhone">Kontakt-Telefon</span> <span style="font-size:11px;color:var(--text-subtle);" data-i18n="common.optional">optional</span></label>
+            <input type="tel" id="taskContactPhone" data-i18n-ph="task.contactPhonePh" placeholder="+41 79 123 45 67" />
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="taskDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteTask()">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('taskEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveTask()">Speichern</button>
+        <button class="btn btn-ghost" id="taskDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteTask()" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('taskEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveTask()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
