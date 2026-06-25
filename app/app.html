@@ -21,6 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=8"></script>
+  <script src="app-i18n.js?v=1"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -54,7 +55,7 @@
 
       <nav class="nav">
         <div class="nav-section">
-          <div class="nav-label">Übersicht</div>
+          <div class="nav-label" data-i18n="nav.sec.overview">Übersicht</div>
           <a class="nav-item active" data-view="dashboard">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
             Dashboard
@@ -62,7 +63,7 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label">Einsätze</div>
+          <div class="nav-label" data-i18n="nav.sec.jobs">Einsätze</div>
           <a class="nav-item" data-view="werkstattplan" data-vertical-view="werkstattplan" style="display:none;">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
             Werkstattplan
@@ -115,7 +116,7 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label">Kunden</div>
+          <div class="nav-label" data-i18n="nav.sec.customers">Kunden</div>
           <a class="nav-item" data-view="kunden">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Kunden
@@ -137,7 +138,7 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label">Finanzen</div>
+          <div class="nav-label" data-i18n="nav.sec.finance">Finanzen</div>
           <a class="nav-item" data-view="rechnungen">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
             Rechnungen
@@ -150,7 +151,7 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label">Team</div>
+          <div class="nav-label" data-i18n="nav.sec.team">Team</div>
           <a class="nav-item" data-view="mitarbeiter">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Mitarbeiter
@@ -172,7 +173,7 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label">System</div>
+          <div class="nav-label" data-i18n="nav.sec.system">System</div>
           <a class="nav-item" data-view="einstellungen">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Einstellungen
@@ -212,6 +213,14 @@
           <button class="btn-icon skin-toggle" id="skinToggle" title="Ansicht: Büro (dunkel) ⇄ Standard" onclick="toggleSkin()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
           </button>
+          <select data-lang-select data-i18n-title="common.lang" title="Sprache" onchange="window.MosaI18n && MosaI18n.set(this.value)"
+                  style="height:34px; padding:0 8px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); color:var(--text); font-family:inherit; font-size:13px; cursor:pointer;">
+            <option value="de">DE</option>
+            <option value="fr">FR</option>
+            <option value="it">IT</option>
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+          </select>
           <button class="btn-icon" data-term="feldAnsichtTitel" data-term-attr="title" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html','_blank')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </button>
@@ -3836,6 +3845,15 @@
       try { typeof applyPriceSection === 'function' && applyPriceSection(); } catch (e) {}
     });
 
+    // Sprachwechsel: Übersetzung ist via MosaI18n.apply() schon angewandt; jetzt die
+    // Branchen-Begriffe + Nav-Labels erneut drüberlegen und dynamische Inhalte neu rendern.
+    document.addEventListener('mosa-lang-changed', () => {
+      try { typeof MosaVertical !== 'undefined' && MosaVertical.apply(); } catch (e) {}      // data-term-Begriffe
+      try { typeof applyVerticalNavLabels === 'function' && applyVerticalNavLabels(); } catch (e) {}
+      try { typeof syncVerticalTitles === 'function' && syncVerticalTitles(); } catch (e) {}
+      try { typeof renderDashboard === 'function' && renderDashboard(); } catch (e) {}
+    });
+
     function navTo(view) {
       const item = document.querySelector(`.nav-item[data-view="${view}"]`);
       if (item) item.click();
@@ -3972,7 +3990,10 @@
       const over = (window.MosaVertical && MosaVertical.preset().navLabels) || {};
       document.querySelectorAll('.nav-item[data-view]').forEach(item => {
         const v = item.getAttribute('data-view');
-        const label = over[v] != null ? over[v] : NAV_LABEL_DEFAULTS[v];
+        // Basistext aus der Übersetzung (Fallback = ursprünglicher DOM-Text), dann
+        // branchenspezifische Überschreibung (navLabels) drüber.
+        const base = (window.MosaI18n ? MosaI18n.t('nav.' + v, NAV_LABEL_DEFAULTS[v]) : NAV_LABEL_DEFAULTS[v]);
+        const label = over[v] != null ? over[v] : base;
         if (label == null) return;
         const tn = navLabelTextNode(item);
         if (tn) tn.textContent = ' ' + label + '\n            ';
