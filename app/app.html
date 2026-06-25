@@ -1042,17 +1042,24 @@
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
               <div>
                 <div style="font-weight:700; font-size:15px;">Firma & Zahlungsangaben</div>
-                <div style="font-size:12.5px; color:var(--text-subtle);">Erscheinen auf jeder Rechnung und im Schweizer QR-Einzahlschein.</div>
+                <div style="font-size:12.5px; color:var(--text-subtle);">Erscheinen auf jeder Rechnung. Land steuert Steuersatz, Währung und Zahlteil (CH: QR-Einzahlschein · DE/AT: SEPA).</div>
               </div>
               <button class="btn btn-accent" onclick="saveCompanyForm()">Speichern</button>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div class="field"><label>Firmenname</label><input type="text" id="coName" /></div>
-              <div class="field"><label>IBAN / QR-IBAN</label><input type="text" id="coIban" placeholder="CH.. .... .... .... .... ." /></div>
+              <div class="field"><label>Land</label>
+                <select id="coCountry" onchange="onCompanyCountryChange()">
+                  <option value="CH">Schweiz (CH)</option>
+                  <option value="DE">Deutschland (DE)</option>
+                  <option value="AT">Österreich (AT)</option>
+                </select>
+              </div>
+              <div class="field"><label>IBAN</label><input type="text" id="coIban" placeholder="CH.. .... .... .... .... ." /></div>
+              <div class="field"><label id="coMwstLabel">MWST-Nr.</label><input type="text" id="coMwst" placeholder="CHE-123.456.789" /></div>
               <div class="field"><label>Strasse & Nr.</label><input type="text" id="coAddr1" /></div>
               <div class="field"><label>PLZ & Ort</label><input type="text" id="coAddr2" /></div>
-              <div class="field"><label>MWST-Nr.</label><input type="text" id="coMwst" placeholder="CHE-123.456.789" /></div>
-              <div class="field"><label>E-Mail / Telefon</label><input type="text" id="coContact" /></div>
+              <div class="field" style="grid-column:1/-1;"><label>E-Mail / Telefon</label><input type="text" id="coContact" /></div>
             </div>
             <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;">Hinterlege deine echte IBAN — sonst zeigt die QR-Rechnung die Demo-IBAN.</div>
           </div>
@@ -6313,7 +6320,41 @@
       localStorage.setItem(WORKORDERS_KEY, JSON.stringify(list));
       window.MosaDB?.push('workorders', list);
     }
-    function chf(n) { return 'CHF ' + (Number(n) || 0).toFixed(2); }
+    // ============ Firma (Stammdaten) — früh definiert, da chf()/Lokalisierung darauf zugreifen ============
+    const COMPANY_KEY = 'cc-company-v1';
+    const DEFAULT_COMPANY = {
+      name: 'MosaOS AG',
+      addr1: 'Bahnhofstrasse 10',
+      addr2: '5000 Aarau',
+      country: 'CH',
+      iban: 'CH93 0076 2011 6238 5295 7',   // Demo-IBAN — bitte ersetzen
+      mwst: 'CHE-123.456.789',
+      contact: 'info@mosaos.ch · +41 62 824 00 00'
+    };
+    function loadCompany() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(COMPANY_KEY)) || {};
+        if (stored.name && /tessera/i.test(stored.name)) {
+          localStorage.removeItem(COMPANY_KEY);
+          return { ...DEFAULT_COMPANY };
+        }
+        return Object.assign({}, DEFAULT_COMPANY, stored);
+      }
+      catch { return { ...DEFAULT_COMPANY }; }
+    }
+    function saveCompany(c) { localStorage.setItem(COMPANY_KEY, JSON.stringify(c)); window.MosaDB?.push('company_profile', c); }
+
+    // ============ Länder-Lokalisierung (Steuer / Währung / Zahlteil / Recht) ============
+    // Steuert, dass Offerten, Rechnungen und Belege die Regeln des Firmenlandes nehmen.
+    // CH = Swiss-QR-Einzahlschein + MWST 8.1 % + CHF; DE/AT = SEPA-Zahlblock + USt 19/20 % + EUR.
+    const LOCALE = {
+      CH: { vat: 0.081, cur: 'CHF', vatLabel: 'MWST 8.1%', payment: 'qr',   dateLoc: 'de-CH', vatIdLabel: 'MWST-Nr.',  vatIdEx: 'CHE-123.456.789', geo: 'ch' },
+      DE: { vat: 0.19,  cur: 'EUR', vatLabel: 'USt 19%',   payment: 'sepa', dateLoc: 'de-DE', vatIdLabel: 'USt-IdNr.', vatIdEx: 'DE123456789',     geo: 'de' },
+      AT: { vat: 0.20,  cur: 'EUR', vatLabel: 'USt 20%',   payment: 'sepa', dateLoc: 'de-AT', vatIdLabel: 'UID-Nr.',   vatIdEx: 'ATU12345678',     geo: 'at' }
+    };
+    // Lokalisierung einer Firma (Fallback CH).
+    function coLocale(c) { return LOCALE[(((c && c.country) || 'CH') + '').toUpperCase()] || LOCALE.CH; }
+    function chf(n) { return coLocale(loadCompany()).cur + ' ' + (Number(n) || 0).toFixed(2); }
     function woDefaultRate() {
       try { const p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); if (p.werkstatt_reparatur_price != null) return p.werkstatt_reparatur_price; } catch {}
       return 140;
@@ -7535,8 +7576,9 @@
       // Summenzeile
       lines.push('');
       lines.push(['', '', '', '', '', '', '', '', 'SUMME NETTO:', sumNetto.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
-      const mwst = sumNetto * 0.081;
-      lines.push(['', '', '', '', '', '', '', '', 'MwSt 8.1%:', mwst.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
+      const csvL = coLocale(loadCompany());
+      const mwst = sumNetto * csvL.vat;
+      lines.push(['', '', '', '', '', '', '', '', csvL.vatLabel + ':', mwst.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
       lines.push(['', '', '', '', '', '', '', '', 'BRUTTO TOTAL:', (sumNetto + mwst).toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
 
       // BOM für Excel-Kompatibilität (Umlaute)
@@ -8430,37 +8472,25 @@
     });
 
     // ============ Firma & QR-Rechnung ============
-    const COMPANY_KEY = 'cc-company-v1';
-    const DEFAULT_COMPANY = {
-      name: 'MosaOS AG',
-      addr1: 'Bahnhofstrasse 10',
-      addr2: '5000 Aarau',
-      country: 'CH',
-      iban: 'CH93 0076 2011 6238 5295 7',   // Demo-IBAN — bitte ersetzen
-      mwst: 'CHE-123.456.789',
-      contact: 'info@mosaos.ch · +41 62 824 00 00'
-    };
-    function loadCompany() {
-      try {
-        const stored = JSON.parse(localStorage.getItem(COMPANY_KEY)) || {};
-        if (stored.name && /tessera/i.test(stored.name)) {
-          localStorage.removeItem(COMPANY_KEY);
-          return { ...DEFAULT_COMPANY };
-        }
-        return Object.assign({}, DEFAULT_COMPANY, stored);
-      }
-      catch { return { ...DEFAULT_COMPANY }; }
-    }
-    function saveCompany(c) { localStorage.setItem(COMPANY_KEY, JSON.stringify(c)); window.MosaDB?.push('company_profile', c); }
     function fillCompanyForm() {
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
       set('coAddr2', c.addr2); set('coMwst', c.mwst); set('coContact', c.contact);
+      const cc = document.getElementById('coCountry'); if (cc) cc.value = (c.country || 'CH');
+      onCompanyCountryChange();
+    }
+    // MWST-/USt-Label + Platzhalter an das gewählte Land anpassen.
+    function onCompanyCountryChange() {
+      const cc = document.getElementById('coCountry'); if (!cc) return;
+      const L = LOCALE[cc.value] || LOCALE.CH;
+      const lbl = document.getElementById('coMwstLabel'); if (lbl) lbl.textContent = L.vatIdLabel;
+      const mw = document.getElementById('coMwst'); if (mw) mw.placeholder = L.vatIdEx;
     }
     function saveCompanyForm() {
       const g = id => (document.getElementById(id)?.value || '').trim();
-      saveCompany({ name: g('coName'), iban: g('coIban'), addr1: g('coAddr1'), addr2: g('coAddr2'), mwst: g('coMwst'), contact: g('coContact'), country: 'CH' });
+      const country = (document.getElementById('coCountry')?.value || 'CH');
+      saveCompany({ name: g('coName'), iban: g('coIban'), addr1: g('coAddr1'), addr2: g('coAddr2'), mwst: g('coMwst'), contact: g('coContact'), country });
       toast('✓ Firmen- & Zahlungsangaben gespeichert');
     }
     document.querySelector('.nav-item[data-view="einstellungen"]')?.addEventListener('click', () => {
@@ -8527,19 +8557,22 @@
       if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return; }
 
       const c = loadCompany();
+      const L = coLocale(c);
       const cust = job._customer;
       const debtorAddr = splitAddress(cust ? (cust.address || '') : (job.ort || ''));
       const debtor = { name: cust ? customerDisplayName(cust) : (job.objekt || 'Kunde'), addr1: debtorAddr.addr1, addr2: debtorAddr.addr2 };
 
       const netto = Number(job.price || 0);
-      const mwst = netto * 0.081;
+      const mwst = netto * L.vat;
       const brutto = netto + mwst;
       const invNr = (dateKey.replace(/-/g, '') + '-' + String(job.id || '').slice(-4)).toUpperCase();
       const message = `Rechnung ${invNr} · ${job.objekt || ''}`.trim();
 
       let qrUrl = null;
-      try { qrUrl = await qrDataUrl(buildSwissQrPayload(c, debtor, brutto, message)); }
-      catch (e) { toast('QR-Code konnte nicht erzeugt werden', 'error'); return; }
+      if (L.payment === 'qr') {
+        try { qrUrl = await qrDataUrl(buildSwissQrPayload(c, debtor, brutto, message)); }
+        catch (e) { toast('QR-Code konnte nicht erzeugt werden', 'error'); return; }
+      }
 
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -8554,7 +8587,7 @@
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(120);
       doc.text(`${c.addr1 || ''}, ${c.addr2 || ''}`, W - M, y - 2, { align: 'right' });
       if (c.contact) doc.text(c.contact, W - M, y + 2, { align: 'right' });
-      if (c.mwst) doc.text('MWST ' + c.mwst, W - M, y + 6, { align: 'right' });
+      if (c.mwst) doc.text(L.vatIdLabel + ' ' + c.mwst, W - M, y + 6, { align: 'right' });
       y += 14;
       doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
 
@@ -8563,7 +8596,7 @@
       doc.text('Rechnung', M, y);
       doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(120);
       doc.text('Nr. ' + invNr, W - M, y - 4, { align: 'right' });
-      doc.text('Datum: ' + new Date(dateKey + 'T00:00:00').toLocaleDateString('de-CH', { day: '2-digit', month: 'long', year: 'numeric' }), W - M, y, { align: 'right' });
+      doc.text('Datum: ' + new Date(dateKey + 'T00:00:00').toLocaleDateString(L.dateLoc, { day: '2-digit', month: 'long', year: 'numeric' }), W - M, y, { align: 'right' });
       y += 12;
       doc.setFontSize(8.5); doc.setTextColor(120); doc.text('AN', M, y); y += 5;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(20); doc.text(debtor.name, M, y); y += 5;
@@ -8577,7 +8610,7 @@
       const rate = hours > 0 ? netto / hours : 0;
       doc.setFontSize(8.5); doc.setTextColor(120);
       doc.text('LEISTUNG', M, y); doc.text('STD', W - M - 60, y, { align: 'right' });
-      doc.text('À CHF', W - M - 32, y, { align: 'right' }); doc.text('BETRAG', W - M, y, { align: 'right' });
+      doc.text('À ' + L.cur, W - M - 32, y, { align: 'right' }); doc.text('BETRAG', W - M, y, { align: 'right' });
       y += 2; doc.setDrawColor(220); doc.setLineWidth(0.3); doc.line(M, y, W - M, y); y += 6;
       doc.setFontSize(10); doc.setTextColor(30);
       const svcLbl = (typeof svcShortLabels !== 'undefined' && svcShortLabels[job.svc]) || job.svc || 'Reinigung';
@@ -8590,15 +8623,19 @@
       // Summen
       doc.setDrawColor(220); doc.line(W - M - 70, y, W - M, y); y += 6;
       doc.setFontSize(9.5); doc.setTextColor(80);
-      doc.text('Netto', W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(netto.toFixed(2) + ' CHF', W - M, y, { align: 'right' }); y += 6;
-      doc.setTextColor(80); doc.text('MWST 8.1%', W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' CHF', W - M, y, { align: 'right' }); y += 6;
+      doc.text('Netto', W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(netto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
+      doc.setTextColor(80); doc.text(L.vatLabel, W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(225, 29, 42);
-      doc.text('Total', W - M - 40, y, { align: 'right' }); doc.text(brutto.toFixed(2) + ' CHF', W - M, y, { align: 'right' });
+      doc.text('Total', W - M - 40, y, { align: 'right' }); doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' });
       doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
-      doc.text('Zahlbar innert 30 Tagen mit beiliegendem QR-Einzahlschein.', M, y + 8);
+      const ibanPay = (c.iban || '').replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+      doc.text(L.payment === 'qr'
+        ? 'Zahlbar innert 30 Tagen mit beiliegendem QR-Einzahlschein.'
+        : `Zahlbar innert 30 Tagen auf folgendes Konto: IBAN ${ibanPay}`, M, y + 8);
 
-      // ---- Schweizer QR-Einzahlschein (unten, A6-Bereich) ----
-      drawQrSlip(doc, c, debtor, brutto, message, qrUrl, W, H);
+      // ---- Zahlteil: CH = Swiss-QR-Einzahlschein, DE/AT = SEPA-Zahlblock ----
+      if (L.payment === 'qr') drawQrSlip(doc, c, debtor, brutto, message, qrUrl, W, H);
+      else drawSepaBlock(doc, c, debtor, brutto, message, L, W, H);
 
       doc.save(`Rechnung_${invNr}.pdf`);
       toast('✓ Rechnung erstellt — ' + invNr);
@@ -8658,6 +8695,26 @@
       doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.text(doc.splitTextToSize(message || '', W - ix - 5), ix, iy); iy += 8;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.text('Zahlbar durch', ix, iy); iy += 3;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(doc.splitTextToSize(payBy || '—', W - ix - 5), ix, iy);
+    }
+
+    // SEPA-Zahlblock (DE/AT) — ersetzt den Schweizer QR-Einzahlschein. Einfacher Zahlungs-Infokasten.
+    function drawSepaBlock(doc, c, debtor, amount, message, L, W, H) {
+      const M = 20;
+      const top = H - 60;
+      doc.setDrawColor(150); doc.setLineWidth(0.2); doc.line(M, top, W - M, top);
+      let y = top + 8;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(20);
+      doc.text('Zahlungsangaben (SEPA-Überweisung)', M, y); y += 7;
+      const ibanFmt = (c.iban || '').replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+      const row = (label, val) => {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(110); doc.text(label, M, y);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(20); doc.text(val || '—', M + 38, y); y += 5.5;
+      };
+      row('Empfänger', c.name || '');
+      row('IBAN', ibanFmt);
+      if (c.bic) row('BIC', c.bic);
+      row('Betrag', amount.toFixed(2) + ' ' + L.cur);
+      row('Verwendungszweck', message || '');
     }
 
     // ============ Adress-Autocomplete (echte Adressen via OpenStreetMap) ============
@@ -9808,6 +9865,7 @@ ${coSig}`;
 
       // === Header: Firma ===
       const co = loadCompany();
+      const L = coLocale(co);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.setTextColor(225, 29, 42); // brand red
@@ -9890,7 +9948,7 @@ ${coSig}`;
       // === Preis-Box ===
       if (y > H - 60) { doc.addPage(); y = M; }
       const preis = parseFloat(data.preis || 0);
-      const mwst = preis * 0.081; // CH 8.1%
+      const mwst = preis * L.vat;
       const brutto = preis + mwst;
       doc.setDrawColor(220);
       doc.setLineWidth(0.3);
@@ -9901,13 +9959,13 @@ ${coSig}`;
       doc.text('Auftragspreis netto', M + 4, y + 7);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(20);
-      doc.text(preis.toFixed(2) + ' CHF', W - M - 4, y + 7, { align: 'right' });
+      doc.text(preis.toFixed(2) + ' ' + L.cur, W - M - 4, y + 7, { align: 'right' });
 
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(80);
-      doc.text('MWST 8.1%', M + 4, y + 14);
+      doc.text(L.vatLabel, M + 4, y + 14);
       doc.setTextColor(20);
-      doc.text(mwst.toFixed(2) + ' CHF', W - M - 4, y + 14, { align: 'right' });
+      doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
 
       doc.setDrawColor(225, 29, 42);
       doc.setLineWidth(0.4);
@@ -9917,7 +9975,7 @@ ${coSig}`;
       doc.setFontSize(11.5);
       doc.setTextColor(225, 29, 42);
       doc.text('Gesamt brutto', M + 4, y + 25);
-      doc.text(brutto.toFixed(2) + ' CHF', W - M - 4, y + 25, { align: 'right' });
+      doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
       y += 38;
 
       // === Änderungshistorie (Revisionen) ===
@@ -9994,7 +10052,8 @@ ${coSig}`;
       if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), M, y + 5);
       doc.setFontSize(8.5);
       if (co.contact) doc.text(co.contact, W - M, y, { align: 'right' });
-      if (co.mwst) doc.text('MWST ' + co.mwst, W - M, y + 4, { align: 'right' });
+      const L = coLocale(co);
+      if (co.mwst) doc.text(L.vatIdLabel + ' ' + co.mwst, W - M, y + 4, { align: 'right' });
       y += 18;
       doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20);
@@ -10002,7 +10061,7 @@ ${coSig}`;
       doc.setFontSize(9.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
       (meta || []).forEach((line, i) => doc.text(line, W - M, y - 4 + i * 5, { align: 'right' }));
       y += 12;
-      return { doc, W, H, M, y };
+      return { doc, W, H, M, y, L };
     }
     // Empfänger-Block ("AN  …").
     function belegRecipient(lay, name, sub) {
@@ -10076,27 +10135,28 @@ ${coSig}`;
     // Summen-Box (netto / MWST 8.1% / brutto). withMwst=false → nur Total.
     function belegTotal(lay, netto, withMwst) {
       const { doc, W, M } = lay;
+      const L = lay.L || LOCALE.CH;
       let y = lay.y;
       const boxH = withMwst ? 30 : 14;
       if (y > lay.H - boxH - 30) { doc.addPage(); y = M; }
       doc.setDrawColor(220); doc.setLineWidth(0.3); doc.rect(M, y, W - 2 * M, boxH);
       if (withMwst) {
-        const mwst = netto * 0.081, brutto = netto + mwst;
+        const mwst = netto * L.vat, brutto = netto + mwst;
         doc.setFontSize(9.5); doc.setTextColor(80); doc.setFont('helvetica', 'normal');
         doc.text('Total netto', M + 4, y + 7);
         doc.setFont('helvetica', 'bold'); doc.setTextColor(20);
-        doc.text(netto.toFixed(2) + ' CHF', W - M - 4, y + 7, { align: 'right' });
+        doc.text(netto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 7, { align: 'right' });
         doc.setFont('helvetica', 'normal'); doc.setTextColor(80);
-        doc.text('MWST 8.1%', M + 4, y + 14);
-        doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' CHF', W - M - 4, y + 14, { align: 'right' });
+        doc.text(L.vatLabel, M + 4, y + 14);
+        doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
         doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.4); doc.line(M + 4, y + 18, W - M - 4, y + 18);
         doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(225, 29, 42);
         doc.text('Gesamt brutto', M + 4, y + 25);
-        doc.text(brutto.toFixed(2) + ' CHF', W - M - 4, y + 25, { align: 'right' });
+        doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
       } else {
         doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(225, 29, 42);
         doc.text('Total', M + 4, y + 9.5);
-        doc.text(netto.toFixed(2) + ' CHF', W - M - 4, y + 9.5, { align: 'right' });
+        doc.text(netto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 9.5, { align: 'right' });
       }
       lay.y = y + boxH + 8;
     }
@@ -11367,8 +11427,9 @@ ${coSig}`;
       const ym = selEl.value;
       const jobs = collectRechnungsJobs(ym);
       const statuses = loadInvoiceStatuses();
-      const sumOf = arr => arr.reduce((s, j) => s + (Number(j.price||0) * 1.081), 0);
-      const fmtChf = n => n.toFixed(2) + ' CHF';
+      const invL = coLocale(loadCompany());
+      const sumOf = arr => arr.reduce((s, j) => s + (Number(j.price||0) * (1 + invL.vat)), 0);
+      const fmtChf = n => n.toFixed(2) + ' ' + invL.cur;
 
       const offen    = jobs.filter(j => (statuses[j._jobKey]||'offen') === 'offen');
       const gesendet = jobs.filter(j => statuses[j._jobKey] === 'gesendet');
@@ -11400,8 +11461,8 @@ ${coSig}`;
       body.innerHTML = jobs.map(j => {
         const st     = statuses[j._jobKey] || 'offen';
         const netto  = Number(j.price || 0);
-        const brutto = (netto * 1.081).toFixed(2);
-        const dFmt   = new Date(j._dateKey + 'T00:00:00').toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+        const brutto = (netto * (1 + invL.vat)).toFixed(2);
+        const dFmt   = new Date(j._dateKey + 'T00:00:00').toLocaleDateString(invL.dateLoc, { day:'2-digit', month:'2-digit', year:'numeric' });
         const custName = j._customer ? customerDisplayName(j._customer) : (j.objekt || '—');
         const jkSafe = j._jobKey.replace(/'/g, "\\'");
         const dkSafe = j._dateKey;
