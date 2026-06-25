@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=8"></script>
+  <script src="app-i18n.js?v=9"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1941,7 +1941,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="siteEditorTitle">Neue Baustelle</div>
-          <div class="modal-subtitle">Projekt / Baustelle erfassen</div>
+          <div class="modal-subtitle" data-i18n="site.subtitle">Projekt / Baustelle erfassen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('siteEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1949,41 +1949,41 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Kunde</label>
+          <label data-i18n="wiz.customer">Kunde</label>
           <select id="siteCustomer" onchange="siteFillFromCustomer()"></select>
         </div>
         <div class="field">
-          <label>Bezeichnung</label>
-          <input type="text" id="siteTitle" placeholder="z. B. Bad-Sanierung EG, Heizungsersatz" />
+          <label data-i18n="site.title">Bezeichnung</label>
+          <input type="text" id="siteTitle" data-i18n-ph="site.titlePh" placeholder="z. B. Bad-Sanierung EG, Heizungsersatz" />
         </div>
         <div class="field">
-          <label>Adresse / Baustelle</label>
-          <input type="text" id="siteAddress" placeholder="Straße Nr., PLZ Ort" />
+          <label data-i18n="site.address">Adresse / Baustelle</label>
+          <input type="text" id="siteAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Nr., PLZ Ort" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Auftragsart</label><input type="text" id="siteType" placeholder="z. B. Sanitär, Heizung, Elektro" /></div>
-          <div class="field"><label id="siteMonteurLabel">Verantwortl. Monteur</label><input type="text" id="siteMonteur" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label data-i18n="site.orderType">Auftragsart</label><input type="text" id="siteType" data-i18n-ph="site.orderTypePh" placeholder="z. B. Sanitär, Heizung, Elektro" /></div>
+          <div class="field"><label id="siteMonteurLabel">Verantwortl. Monteur</label><input type="text" id="siteMonteur" data-i18n-ph="site.monteurPh" placeholder="z. B. Sandro" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Status</label>
+          <div class="field"><label data-i18n="th.status">Status</label>
             <select id="siteStatus">
-              <option value="angefragt">Angefragt</option>
-              <option value="offeriert">Offeriert</option>
-              <option value="inarbeit">In Arbeit</option>
-              <option value="abgeschlossen">Abgeschlossen</option>
+              <option value="angefragt" data-i18n="site.stRequested">Angefragt</option>
+              <option value="offeriert" data-i18n="site.stQuoted">Offeriert</option>
+              <option value="inarbeit" data-i18n="site.stInProgress">In Arbeit</option>
+              <option value="abgeschlossen" data-i18n="site.stDone">Abgeschlossen</option>
             </select>
           </div>
-          <div class="field"><label>Budget / Offerte (CHF)</label><input type="number" id="siteBudget" min="0" step="10" placeholder="z. B. 8500" /></div>
+          <div class="field"><label data-i18n="site.budget">Budget / Offerte (CHF)</label><input type="number" id="siteBudget" min="0" step="10" data-i18n-ph="site.budgetPh" placeholder="z. B. 8500" /></div>
         </div>
         <div class="field">
-          <label>Notiz</label>
-          <input type="text" id="siteNote" placeholder="z. B. Schlüssel beim Hauswart, Material bestellt" />
+          <label data-i18n="common.note">Notiz</label>
+          <input type="text" id="siteNote" data-i18n-ph="site.notePh" placeholder="z. B. Schlüssel beim Hauswart, Material bestellt" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="siteDeleteBtn" onclick="deleteSite()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('siteEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveSite()">Speichern</button>
+        <button class="btn btn-ghost" id="siteDeleteBtn" onclick="deleteSite()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('siteEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveSite()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -1994,7 +1994,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="rapportEditorTitle">Neuer Rapport</div>
-          <div class="modal-subtitle">Arbeitsrapport — Stunden & Material (Regie)</div>
+          <div class="modal-subtitle" data-i18n="rap.subtitle">Arbeitsrapport — Stunden & Material (Regie)</div>
         </div>
         <button class="btn-icon" onclick="closeModal('rapportEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2002,43 +2002,43 @@
       </div>
       <div class="modal-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Baustelle</label><select id="rapSite" onchange="rapFillFromSite()"></select></div>
-          <div class="field"><label>Kunde / Objekt</label><input type="text" id="rapCustomer" placeholder="wird aus Baustelle übernommen" /></div>
+          <div class="field"><label data-i18n="rap.site">Baustelle</label><select id="rapSite" onchange="rapFillFromSite()"></select></div>
+          <div class="field"><label data-i18n="rap.customerObj">Kunde / Objekt</label><input type="text" id="rapCustomer" data-i18n-ph="rap.customerObjPh" placeholder="wird aus Baustelle übernommen" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Datum</label><input type="date" id="rapDate" /></div>
-          <div class="field"><label id="rapMonteurLabel">Monteur</label><input type="text" id="rapMonteur" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label data-i18n="th.date">Datum</label><input type="date" id="rapDate" /></div>
+          <div class="field"><label id="rapMonteurLabel">Monteur</label><input type="text" id="rapMonteur" data-i18n-ph="site.monteurPh" placeholder="z. B. Sandro" /></div>
         </div>
 
         <div style="margin-top: 6px; display:flex; align-items:center; justify-content:space-between;">
-          <label style="font-weight:600; font-size:13px; color:var(--text);">Arbeiten (Stunden)</label>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="addRapWorkRow()">+ Position</button>
+          <label style="font-weight:600; font-size:13px; color:var(--text);" data-i18n="rap.works">Arbeiten (Stunden)</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addRapWorkRow()" data-i18n="rap.addPos">+ Position</button>
         </div>
         <div id="rapWorks" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
 
         <div style="margin-top: 14px; display:flex; align-items:center; justify-content:space-between;">
-          <label style="font-weight:600; font-size:13px; color:var(--text);">Material</label>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="addRapMatRow()">+ Material</button>
+          <label style="font-weight:600; font-size:13px; color:var(--text);" data-i18n="rap.material">Material</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addRapMatRow()" data-i18n="rap.addMat">+ Material</button>
         </div>
         <div id="rapMaterial" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top:14px;">
-          <div class="field"><label>Notiz</label><input type="text" id="rapNote" placeholder="z. B. Restarbeiten nächste Woche" /></div>
-          <div class="field"><label>Unterschrift Kunde</label>
-            <select id="rapSigned"><option value="false">offen</option><option value="true">unterschrieben</option></select>
+          <div class="field"><label data-i18n="common.note">Notiz</label><input type="text" id="rapNote" data-i18n-ph="rap.notePh" placeholder="z. B. Restarbeiten nächste Woche" /></div>
+          <div class="field"><label data-i18n="rap.signature">Unterschrift Kunde</label>
+            <select id="rapSigned"><option value="false" data-i18n="rap.sigOpen">offen</option><option value="true" data-i18n="rap.sigSigned">unterschrieben</option></select>
           </div>
         </div>
 
         <div style="margin-top:8px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface); display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:var(--text-subtle); font-size:13px;">Total (Regie)</span>
+          <span style="color:var(--text-subtle); font-size:13px;" data-i18n="rap.totalRegie">Total (Regie)</span>
           <span id="rapTotal" style="font-weight:700; font-size:18px; color:var(--text);">CHF 0.00</span>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="rapDeleteBtn" onclick="deleteRap()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-ghost" id="rapDeleteBtn" onclick="deleteRap()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
         <button class="btn btn-secondary" id="rapPdfBtn" onclick="downloadRapportPDF()" style="display: none;">PDF</button>
-        <button class="btn btn-secondary" onclick="closeModal('rapportEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveRap()">Speichern</button>
+        <button class="btn btn-secondary" onclick="closeModal('rapportEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveRap()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2049,7 +2049,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="baitEditorTitle">Neue Köderstelle</div>
-          <div class="modal-subtitle">Monitoring-Station erfassen</div>
+          <div class="modal-subtitle" data-i18n="bait.subtitle">Monitoring-Station erfassen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('baitEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2057,48 +2057,48 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Objekt / Kunde</label>
+          <label data-i18n="common.objCustomer">Objekt / Kunde</label>
           <select id="baitCustomer" onchange="baitFillFromCustomer()"></select>
         </div>
         <div style="display: grid; grid-template-columns: 90px 1fr; gap: 12px;">
-          <div class="field"><label>Nr.</label><input type="text" id="baitNumber" placeholder="z. B. 01" /></div>
-          <div class="field"><label>Standort im Objekt</label><input type="text" id="baitLocation" placeholder="z. B. Lager Nord, hinter Regal 3" /></div>
+          <div class="field"><label data-i18n="bait.number">Nr.</label><input type="text" id="baitNumber" data-i18n-ph="bait.numberPh" placeholder="z. B. 01" /></div>
+          <div class="field"><label data-i18n="bait.location">Standort im Objekt</label><input type="text" id="baitLocation" data-i18n-ph="bait.locationPh" placeholder="z. B. Lager Nord, hinter Regal 3" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Typ</label>
+          <div class="field"><label data-i18n="bait.type">Typ</label>
             <select id="baitType">
-              <option value="Köderbox">Köderbox</option>
-              <option value="Schlagfalle">Schlagfalle</option>
-              <option value="Klebefalle">Klebefalle</option>
-              <option value="Pheromonfalle">Pheromonfalle</option>
-              <option value="UV-Lichtfalle">UV-Lichtfalle</option>
-              <option value="Lebendfalle">Lebendfalle</option>
+              <option value="Köderbox" data-i18n="bait.tBox">Köderbox</option>
+              <option value="Schlagfalle" data-i18n="bait.tSnap">Schlagfalle</option>
+              <option value="Klebefalle" data-i18n="bait.tGlue">Klebefalle</option>
+              <option value="Pheromonfalle" data-i18n="bait.tPheromone">Pheromonfalle</option>
+              <option value="UV-Lichtfalle" data-i18n="bait.tUV">UV-Lichtfalle</option>
+              <option value="Lebendfalle" data-i18n="bait.tLive">Lebendfalle</option>
             </select>
           </div>
-          <div class="field"><label>Mittel / Wirkstoff</label><input type="text" id="baitAgent" placeholder="z. B. Brodifacoum 0.0029%" /></div>
+          <div class="field"><label data-i18n="bait.agent">Mittel / Wirkstoff</label><input type="text" id="baitAgent" data-i18n-ph="bait.agentPh" placeholder="z. B. Brodifacoum 0.0029%" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Status</label>
+          <div class="field"><label data-i18n="th.status">Status</label>
             <select id="baitStatus">
-              <option value="ok">In Ordnung</option>
-              <option value="angenommen">Köder angenommen</option>
-              <option value="befall">Befall</option>
-              <option value="leer">Leer / nachfüllen</option>
-              <option value="beschaedigt">Beschädigt</option>
+              <option value="ok" data-i18n="bait.stOk">In Ordnung</option>
+              <option value="angenommen" data-i18n="bait.stAccepted">Köder angenommen</option>
+              <option value="befall" data-i18n="bait.stInfest">Befall</option>
+              <option value="leer" data-i18n="bait.stEmpty">Leer / nachfüllen</option>
+              <option value="beschaedigt" data-i18n="bait.stDamaged">Beschädigt</option>
             </select>
           </div>
-          <div class="field"><label>Letzte Kontrolle</label><input type="date" id="baitLastCheck" /></div>
-          <div class="field"><label>Intervall (Tage)</label><input type="number" id="baitInterval" value="60" min="1" /></div>
+          <div class="field"><label data-i18n="bait.lastCheck">Letzte Kontrolle</label><input type="date" id="baitLastCheck" /></div>
+          <div class="field"><label data-i18n="bait.interval">Intervall (Tage)</label><input type="number" id="baitInterval" value="60" min="1" /></div>
         </div>
         <div class="field">
-          <label>Notiz</label>
-          <input type="text" id="baitNote" placeholder="z. B. Box neu verankert, Schlüssel beim Hauswart" />
+          <label data-i18n="common.note">Notiz</label>
+          <input type="text" id="baitNote" data-i18n-ph="bait.notePh" placeholder="z. B. Box neu verankert, Schlüssel beim Hauswart" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="baitDeleteBtn" onclick="deleteBait()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('baitEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveBait()">Speichern</button>
+        <button class="btn btn-ghost" id="baitDeleteBtn" onclick="deleteBait()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('baitEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveBait()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2109,7 +2109,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="pestProtoTitle">Neues Protokoll</div>
-          <div class="modal-subtitle">Kontroll-/Behandlungsprotokoll — revisionssicher (HACCP)</div>
+          <div class="modal-subtitle" data-i18n="pest.subtitle">Kontroll-/Behandlungsprotokoll — revisionssicher (HACCP)</div>
         </div>
         <button class="btn-icon" onclick="closeModal('pestProtocolEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2117,55 +2117,55 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Objekt / Kunde</label>
+          <label data-i18n="common.objCustomer">Objekt / Kunde</label>
           <select id="pestCustomer" onchange="pestFillFromCustomer()"></select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Datum</label><input type="date" id="pestDate" /></div>
-          <div class="field"><label>Techniker</label><input type="text" id="pestTechnician" placeholder="z. B. Sandro" /></div>
+          <div class="field"><label data-i18n="th.date">Datum</label><input type="date" id="pestDate" /></div>
+          <div class="field"><label data-i18n="pest.technician">Techniker</label><input type="text" id="pestTechnician" data-i18n-ph="site.monteurPh" placeholder="z. B. Sandro" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Befallsart</label>
+          <div class="field"><label data-i18n="pest.infestType">Befallsart</label>
             <select id="pestType">
-              <option value="">— wählen —</option>
-              <option value="Ratten">Ratten</option>
-              <option value="Mäuse">Mäuse</option>
-              <option value="Schaben">Schaben / Kakerlaken</option>
-              <option value="Ameisen">Ameisen</option>
-              <option value="Wespen">Wespen</option>
-              <option value="Bettwanzen">Bettwanzen</option>
-              <option value="Motten">Motten</option>
-              <option value="Fliegen">Fliegen / Schädlingsflug</option>
-              <option value="Kein Befall">Kein Befall (Routinekontrolle)</option>
-              <option value="Sonstige">Sonstige</option>
+              <option value="" data-i18n="pest.itSelect">— wählen —</option>
+              <option value="Ratten" data-i18n="pest.itRats">Ratten</option>
+              <option value="Mäuse" data-i18n="pest.itMice">Mäuse</option>
+              <option value="Schaben" data-i18n="pest.itRoaches">Schaben / Kakerlaken</option>
+              <option value="Ameisen" data-i18n="pest.itAnts">Ameisen</option>
+              <option value="Wespen" data-i18n="pest.itWasps">Wespen</option>
+              <option value="Bettwanzen" data-i18n="pest.itBedbugs">Bettwanzen</option>
+              <option value="Motten" data-i18n="pest.itMoths">Motten</option>
+              <option value="Fliegen" data-i18n="pest.itFlies">Fliegen / Schädlingsflug</option>
+              <option value="Kein Befall" data-i18n="pest.itNone">Kein Befall (Routinekontrolle)</option>
+              <option value="Sonstige" data-i18n="pest.itOther">Sonstige</option>
             </select>
           </div>
-          <div class="field"><label>Maßnahme / Behandlung</label><input type="text" id="pestMeasure" placeholder="z. B. Beköderung, Sprühbehandlung, Monitoring" /></div>
+          <div class="field"><label data-i18n="pest.measure">Maßnahme / Behandlung</label><input type="text" id="pestMeasure" data-i18n-ph="pest.measurePh" placeholder="z. B. Beköderung, Sprühbehandlung, Monitoring" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 110px; gap: 12px;">
-          <div class="field"><label>Mittel / Wirkstoff</label><input type="text" id="pestAgent" placeholder="z. B. Cypermethrin 0.1%" /></div>
-          <div class="field"><label>Menge</label><input type="text" id="pestAmount" placeholder="z. B. 200 ml" /></div>
+          <div class="field"><label data-i18n="bait.agent">Mittel / Wirkstoff</label><input type="text" id="pestAgent" data-i18n-ph="pest.agentPh" placeholder="z. B. Cypermethrin 0.1%" /></div>
+          <div class="field"><label data-i18n="pest.amount">Menge</label><input type="text" id="pestAmount" data-i18n-ph="pest.amountPh" placeholder="z. B. 200 ml" /></div>
         </div>
         <div class="field">
-          <label>Befund / Ergebnis</label>
-          <input type="text" id="pestFindings" placeholder="z. B. leichter Mäusebefall im Lager, 3 Boxen angenommen" />
+          <label data-i18n="pest.findings">Befund / Ergebnis</label>
+          <input type="text" id="pestFindings" data-i18n-ph="pest.findingsPh" placeholder="z. B. leichter Mäusebefall im Lager, 3 Boxen angenommen" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Nachkontrolle am</label><input type="date" id="pestRecheck" /></div>
-          <div class="field"><label>Unterschrift Kunde</label>
-            <select id="pestSigned"><option value="false">offen</option><option value="true">unterschrieben</option></select>
+          <div class="field"><label data-i18n="pest.recheck">Nachkontrolle am</label><input type="date" id="pestRecheck" /></div>
+          <div class="field"><label data-i18n="rap.signature">Unterschrift Kunde</label>
+            <select id="pestSigned"><option value="false" data-i18n="rap.sigOpen">offen</option><option value="true" data-i18n="rap.sigSigned">unterschrieben</option></select>
           </div>
         </div>
         <div class="field">
-          <label>Notiz (intern)</label>
-          <input type="text" id="pestNote" placeholder="z. B. Kunde über bauliche Mängel informiert" />
+          <label data-i18n="common.noteInternal">Notiz (intern)</label>
+          <input type="text" id="pestNote" data-i18n-ph="pest.notePh" placeholder="z. B. Kunde über bauliche Mängel informiert" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="pestDeleteBtn" onclick="deletePestProtocol()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-ghost" id="pestDeleteBtn" onclick="deletePestProtocol()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
         <button class="btn btn-secondary" id="pestPdfBtn" onclick="downloadPestProtocolPDF()" style="display: none;">PDF</button>
-        <button class="btn btn-secondary" onclick="closeModal('pestProtocolEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="savePestProtocol()">Speichern</button>
+        <button class="btn btn-secondary" onclick="closeModal('pestProtocolEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="savePestProtocol()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2176,7 +2176,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="woEditorTitle">Auftrag annehmen</div>
-          <div class="modal-subtitle">Arbeitskarte — Fahrzeug, Arbeiten, Teile</div>
+          <div class="modal-subtitle" data-i18n="wo.subtitle">Arbeitskarte — Fahrzeug, Arbeiten, Teile</div>
         </div>
         <button class="btn-icon" onclick="closeModal('workOrderEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2184,64 +2184,64 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Fahrzeug aus Akte übernehmen</label>
+          <label data-i18n="wo.vehicleFromFile">Fahrzeug aus Akte übernehmen</label>
           <select id="woVehicleSelect" onchange="woFillFromVehicle()"></select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Kennzeichen</label><input type="text" id="woPlate" placeholder="ZH 123 456" /></div>
-          <div class="field"><label>Fahrzeug</label><input type="text" id="woModel" placeholder="VW Golf 1.4 TSI" /></div>
-          <div class="field"><label>Halter / Kunde</label><input type="text" id="woOwner" placeholder="Müller AG" /></div>
+          <div class="field"><label data-i18n="common.plate">Kennzeichen</label><input type="text" id="woPlate" placeholder="ZH 123 456" /></div>
+          <div class="field"><label data-i18n="wo.vehicle">Fahrzeug</label><input type="text" id="woModel" placeholder="VW Golf 1.4 TSI" /></div>
+          <div class="field"><label data-i18n="common.owner">Halter / Kunde</label><input type="text" id="woOwner" placeholder="Müller AG" /></div>
         </div>
         <div class="field">
-          <label>Anliegen / gemeldetes Problem</label>
-          <input type="text" id="woComplaint" placeholder="z. B. Service fällig, Bremsen quietschen, MFK-Vorbereitung" />
+          <label data-i18n="wo.complaint">Anliegen / gemeldetes Problem</label>
+          <input type="text" id="woComplaint" data-i18n-ph="wo.complaintPh" placeholder="z. B. Service fällig, Bremsen quietschen, MFK-Vorbereitung" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Status</label>
+          <div class="field"><label data-i18n="th.status">Status</label>
             <select id="woStatus">
-              <option value="angenommen">Angenommen</option>
-              <option value="inarbeit">In Arbeit</option>
-              <option value="wartetteile">Wartet auf Teile</option>
-              <option value="abholbereit">Abholbereit</option>
-              <option value="abgeschlossen">Abgeschlossen</option>
+              <option value="angenommen" data-i18n="wo.stAccepted">Angenommen</option>
+              <option value="inarbeit" data-i18n="wo.stInProgress">In Arbeit</option>
+              <option value="wartetteile" data-i18n="wo.stWaitParts">Wartet auf Teile</option>
+              <option value="abholbereit" data-i18n="wo.stReady">Abholbereit</option>
+              <option value="abgeschlossen" data-i18n="wo.stDone">Abgeschlossen</option>
             </select>
           </div>
-          <div class="field"><label>Mechaniker</label><select id="woMechanic"></select></div>
-          <div class="field"><label>Hebebühne / Platz</label><input type="text" id="woBay" placeholder="z. B. Bühne 2" /></div>
-          <div class="field"><label>Abholtermin</label><input type="date" id="woDue" /></div>
+          <div class="field"><label data-i18n="wo.mechanic">Mechaniker</label><select id="woMechanic"></select></div>
+          <div class="field"><label data-i18n="wo.bay">Hebebühne / Platz</label><input type="text" id="woBay" data-i18n-ph="wo.bayPh" placeholder="z. B. Bühne 2" /></div>
+          <div class="field"><label data-i18n="wo.due">Abholtermin</label><input type="date" id="woDue" /></div>
         </div>
 
         <div style="margin-top: 6px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-          <label style="font-weight:600; font-size:13px; color:var(--text);">Arbeiten</label>
+          <label style="font-weight:600; font-size:13px; color:var(--text);" data-i18n="wo.works">Arbeiten</label>
           <div style="display:flex; gap:8px; align-items:center;">
             <select id="woServicePick" onchange="woAddService(this.value); this.value='';" style="padding:7px 10px; border:1px solid var(--border-strong); border-radius:8px; background:var(--surface); color:var(--text); font-size:12.5px; font-family:inherit;"></select>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="addWorkRow()">+ Eigene Position</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addWorkRow()" data-i18n="wo.addOwnPos">+ Eigene Position</button>
           </div>
         </div>
         <div id="woWorks" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
 
         <div style="margin-top: 14px; display:flex; align-items:center; justify-content:space-between;">
-          <label style="font-weight:600; font-size:13px; color:var(--text);">Teile / Material</label>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="addPartRow()">+ Teil</button>
+          <label style="font-weight:600; font-size:13px; color:var(--text);" data-i18n="wo.parts">Teile / Material</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addPartRow()" data-i18n="wo.addPart">+ Teil</button>
         </div>
         <div id="woParts" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
 
         <div class="field" style="margin-top:14px;">
-          <label>Notiz (intern)</label>
-          <input type="text" id="woNote" placeholder="z. B. Winterräder eingelagert, Kunde ruft Mi zurück" />
+          <label data-i18n="common.noteInternal">Notiz (intern)</label>
+          <input type="text" id="woNote" data-i18n-ph="wo.notePh" placeholder="z. B. Winterräder eingelagert, Kunde ruft Mi zurück" />
         </div>
 
         <div style="margin-top:14px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface); display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:var(--text-subtle); font-size:13px;">Voraussichtlicher Betrag</span>
+          <span style="color:var(--text-subtle); font-size:13px;" data-i18n="wo.estAmount">Voraussichtlicher Betrag</span>
           <span id="woTotal" style="font-weight:700; font-size:18px; color:var(--text);">CHF 0.00</span>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="woDeleteBtn" onclick="deleteWorkOrder()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-ghost" id="woDeleteBtn" onclick="deleteWorkOrder()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
         <button class="btn btn-secondary" id="woPdfBtn" onclick="downloadWorkOrderPDF()" style="display: none;">PDF</button>
-        <button class="btn btn-secondary" onclick="workOrderToOffert()" title="Aus diesem Auftrag einen Kostenvoranschlag erstellen">→ Kostenvoranschlag</button>
-        <button class="btn btn-secondary" onclick="closeModal('workOrderEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveWorkOrder()">Speichern</button>
+        <button class="btn btn-secondary" onclick="workOrderToOffert()" title="Aus diesem Auftrag einen Kostenvoranschlag erstellen" data-i18n="wo.toQuote">→ Kostenvoranschlag</button>
+        <button class="btn btn-secondary" onclick="closeModal('workOrderEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveWorkOrder()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2252,7 +2252,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="tireEditorTitle">Neue Einlagerung</div>
-          <div class="modal-subtitle">Reifenhotel — Räder einlagern</div>
+          <div class="modal-subtitle" data-i18n="tire.subtitle">Reifenhotel — Räder einlagern</div>
         </div>
         <button class="btn-icon" onclick="closeModal('tireEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2260,48 +2260,48 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Fahrzeug aus Akte übernehmen</label>
+          <label data-i18n="wo.vehicleFromFile">Fahrzeug aus Akte übernehmen</label>
           <select id="tireVehicleSelect" onchange="tireFillFromVehicle()"></select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Kunde / Halter</label><input type="text" id="tireOwner" placeholder="z. B. Müller AG" /></div>
-          <div class="field"><label>Kennzeichen</label><input type="text" id="tirePlate" placeholder="z. B. ZH 123 456" /></div>
+          <div class="field"><label data-i18n="tire.owner">Kunde / Halter</label><input type="text" id="tireOwner" data-i18n-ph="tire.ownerPh" placeholder="z. B. Müller AG" /></div>
+          <div class="field"><label data-i18n="common.plate">Kennzeichen</label><input type="text" id="tirePlate" data-i18n-ph="common.platePh" placeholder="z. B. ZH 123 456" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Saison</label>
+          <div class="field"><label data-i18n="tire.season">Saison</label>
             <select id="tireSeason">
-              <option value="winter">Winter</option>
-              <option value="sommer">Sommer</option>
-              <option value="ganzjahres">Ganzjahres</option>
+              <option value="winter" data-i18n="tire.sWinter">Winter</option>
+              <option value="sommer" data-i18n="tire.sSummer">Sommer</option>
+              <option value="ganzjahres" data-i18n="tire.sAllyear">Ganzjahres</option>
             </select>
           </div>
-          <div class="field"><label>Felgen</label>
+          <div class="field"><label data-i18n="tire.rim">Felgen</label>
             <select id="tireRim">
-              <option value="alu">Alu</option>
-              <option value="stahl">Stahl</option>
-              <option value="ohne">ohne Felgen</option>
+              <option value="alu" data-i18n="tire.rAlu">Alu</option>
+              <option value="stahl" data-i18n="tire.rSteel">Stahl</option>
+              <option value="ohne" data-i18n="tire.rNone">ohne Felgen</option>
             </select>
           </div>
-          <div class="field"><label>Anzahl</label><input type="number" id="tireQty" min="1" value="4" /></div>
+          <div class="field"><label data-i18n="tire.qty">Anzahl</label><input type="number" id="tireQty" min="1" value="4" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Dimension</label><input type="text" id="tireDim" placeholder="z. B. 205/55 R16 91H" /></div>
-          <div class="field"><label>Profiltiefe (mm)</label><input type="text" id="tireTread" placeholder="z. B. 6.5" /></div>
+          <div class="field"><label data-i18n="tire.dim">Dimension</label><input type="text" id="tireDim" data-i18n-ph="tire.dimPh" placeholder="z. B. 205/55 R16 91H" /></div>
+          <div class="field"><label data-i18n="tire.tread">Profiltiefe (mm)</label><input type="text" id="tireTread" data-i18n-ph="tire.treadPh" placeholder="z. B. 6.5" /></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field"><label>Lagerplatz</label><input type="text" id="tireLocation" placeholder="z. B. Regal A-12" /></div>
-          <div class="field"><label>Eingelagert seit</label><input type="date" id="tireSince" /></div>
+          <div class="field"><label data-i18n="tire.location">Lagerplatz</label><input type="text" id="tireLocation" data-i18n-ph="tire.locationPh" placeholder="z. B. Regal A-12" /></div>
+          <div class="field"><label data-i18n="tire.since">Eingelagert seit</label><input type="date" id="tireSince" /></div>
         </div>
         <div class="field">
-          <label>Notiz</label>
-          <input type="text" id="tireNote" placeholder="z. B. 1 Reifen ersetzen vor nächster Saison" />
+          <label data-i18n="common.note">Notiz</label>
+          <input type="text" id="tireNote" data-i18n-ph="tire.notePh" placeholder="z. B. 1 Reifen ersetzen vor nächster Saison" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="tireDeleteBtn" onclick="deleteTire()" style="margin-right: auto; color: var(--danger); display: none;">Auslagern / Löschen</button>
-        <button class="btn btn-secondary" id="tirePdfBtn" onclick="downloadTireReceiptPDF()" style="display: none;">Beleg PDF</button>
-        <button class="btn btn-secondary" onclick="closeModal('tireEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveTire()">Speichern</button>
+        <button class="btn btn-ghost" id="tireDeleteBtn" onclick="deleteTire()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="tire.removeDelete">Auslagern / Löschen</button>
+        <button class="btn btn-secondary" id="tirePdfBtn" onclick="downloadTireReceiptPDF()" style="display: none;" data-i18n="tire.receiptPdf">Beleg PDF</button>
+        <button class="btn btn-secondary" onclick="closeModal('tireEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveTire()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2312,7 +2312,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="vehEditorTitle">Neues Fahrzeug</div>
-          <div class="modal-subtitle">Fahrzeug-Akte erfassen</div>
+          <div class="modal-subtitle" data-i18n="veh.subtitle">Fahrzeug-Akte erfassen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('vehicleEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2321,41 +2321,41 @@
       <div class="modal-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Kennzeichen</label>
-            <input type="text" id="vehPlate" placeholder="z. B. ZH 123 456" />
+            <label data-i18n="common.plate">Kennzeichen</label>
+            <input type="text" id="vehPlate" data-i18n-ph="common.platePh" placeholder="z. B. ZH 123 456" />
           </div>
           <div class="field">
-            <label>Kilometerstand</label>
-            <input type="text" id="vehKm" placeholder="z. B. 84 500" />
+            <label data-i18n="veh.km">Kilometerstand</label>
+            <input type="text" id="vehKm" data-i18n-ph="veh.kmPh" placeholder="z. B. 84 500" />
           </div>
         </div>
         <div class="field">
-          <label>Fahrzeug (Marke / Modell)</label>
-          <input type="text" id="vehModel" placeholder="z. B. VW Golf 1.4 TSI" />
+          <label data-i18n="veh.model">Fahrzeug (Marke / Modell)</label>
+          <input type="text" id="vehModel" data-i18n-ph="veh.modelPh" placeholder="z. B. VW Golf 1.4 TSI" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Halter / Kunde</label>
-            <input type="text" id="vehOwner" placeholder="z. B. Müller AG" />
+            <label data-i18n="common.owner">Halter / Kunde</label>
+            <input type="text" id="vehOwner" data-i18n-ph="tire.ownerPh" placeholder="z. B. Müller AG" />
           </div>
           <div class="field">
-            <label>Nächster Service / MFK</label>
+            <label data-i18n="veh.nextService">Nächster Service / MFK</label>
             <input type="date" id="vehNextService" />
           </div>
         </div>
         <div class="field">
-          <label>Notiz</label>
-          <input type="text" id="vehNote" placeholder="z. B. Bremsen hinten prüfen, Winterräder eingelagert" />
+          <label data-i18n="common.note">Notiz</label>
+          <input type="text" id="vehNote" data-i18n-ph="veh.notePh" placeholder="z. B. Bremsen hinten prüfen, Winterräder eingelagert" />
         </div>
         <div id="vehHistoryWrap" style="margin-top:6px; display:none;">
-          <label style="font-weight:600; font-size:13px; color:var(--text); display:block; margin-bottom:8px;">Service-Historie</label>
+          <label style="font-weight:600; font-size:13px; color:var(--text); display:block; margin-bottom:8px;" data-i18n="veh.serviceHistory">Service-Historie</label>
           <div id="vehHistory" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="vehDeleteBtn" onclick="deleteVehicle()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('vehicleEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveVehicle()">Speichern</button>
+        <button class="btn btn-ghost" id="vehDeleteBtn" onclick="deleteVehicle()" style="margin-right: auto; color: var(--danger); display: none;" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('vehicleEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveVehicle()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
