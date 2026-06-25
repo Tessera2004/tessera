@@ -269,7 +269,7 @@
       <!-- ===== STEP 2: Firmenprofil ===== -->
       <div class="ob-panel" id="panel2">
         <h2 class="ob-title">Firmenprofil</h2>
-        <p class="ob-sub">Wähle dein Geschäftsfeld — die App passt Begriffe, Module und Preise automatisch an. Die Firmendaten erscheinen auf allen Rechnungen und dem Swiss QR-Einzahlschein.</p>
+        <p class="ob-sub">Wähle dein Geschäftsfeld — die App passt Begriffe, Module und Preise automatisch an. Das Land steuert Steuersatz, Währung und Zahlteil der Rechnung (CH: QR-Einzahlschein · DE/AT: SEPA). Die Firmendaten erscheinen auf allen Rechnungen.</p>
         <form id="companyForm" class="login-form">
           <div class="field">
             <label for="obVertical">Geschäftsfeld *</label>
@@ -289,7 +289,7 @@
             <input type="text" id="obCoAddr2" placeholder="5000 Aarau" />
           </div>
           <div class="field">
-            <label for="obCoIban">IBAN <span style="font-weight:400;color:var(--text-subtle)">(Swiss QR-Rechnung)</span></label>
+            <label for="obCoIban">IBAN <span style="font-weight:400;color:var(--text-subtle)">(für die Rechnung)</span></label>
             <input type="text" id="obCoIban" placeholder="CH93 0076 2011 6238 5295 7" />
           </div>
           <div class="ob-two-col">
@@ -329,7 +329,7 @@
           <div class="ob-group-title">Unterhaltsreinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label>CHF / Std.</label>
+              <label data-cur="CHF / Std.">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-unterhalt-rate" value="35" />
             </div>
             <div class="field">
@@ -337,7 +337,7 @@
               <input type="number" step="0.5" min="0" id="pr-unterhalt-min" value="1" />
             </div>
             <div class="field">
-              <label>Anfahrt CHF</label>
+              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-unterhalt-fee" value="0" />
             </div>
           </div>
@@ -345,7 +345,7 @@
           <div class="ob-group-title">Endreinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label>CHF / Std.</label>
+              <label data-cur="CHF / Std.">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-end-rate" value="45" />
             </div>
             <div class="field">
@@ -353,7 +353,7 @@
               <input type="number" step="0.5" min="0" id="pr-end-min" value="3" />
             </div>
             <div class="field">
-              <label>Anfahrt CHF</label>
+              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-end-fee" value="25" />
             </div>
           </div>
@@ -361,7 +361,7 @@
           <div class="ob-group-title">Fensterreinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label>CHF / Std.</label>
+              <label data-cur="CHF / Std.">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-fenster-rate" value="40" />
             </div>
             <div class="field">
@@ -369,7 +369,7 @@
               <input type="number" step="0.5" min="0" id="pr-fenster-min" value="2" />
             </div>
             <div class="field">
-              <label>Anfahrt CHF</label>
+              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-fenster-fee" value="20" />
             </div>
           </div>
@@ -377,7 +377,7 @@
           <div class="ob-group-title">Baureinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label>CHF / Std.</label>
+              <label data-cur="CHF / Std.">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-bau-rate" value="48" />
             </div>
             <div class="field">
@@ -385,7 +385,7 @@
               <input type="number" step="0.5" min="0" id="pr-bau-min" value="4" />
             </div>
             <div class="field">
-              <label>Anfahrt CHF</label>
+              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-bau-fee" value="35" />
             </div>
           </div>
@@ -638,6 +638,16 @@
     });
 
     // ── Preisschritt branchenabhängig aufbauen ───────────────────
+    // Währung nach gewähltem Land (Onboarding): CH = CHF, DE/AT = EUR.
+    function obCurrency() {
+      const c = (document.getElementById('obCoCountry') || {}).value || 'CH';
+      return c === 'CH' ? 'CHF' : 'EUR';
+    }
+    // Alle mit data-cur markierten Preislabels auf die Landeswährung setzen.
+    function obApplyCurrency() {
+      const cur = obCurrency();
+      document.querySelectorAll('[data-cur]').forEach(l => { l.textContent = l.getAttribute('data-cur').replace('CHF', cur); });
+    }
     function renderPriceStep(vertical) {
       const isClean = vertical === 'reinigung';
       const rein = document.getElementById('priceReinigung');
@@ -646,11 +656,12 @@
       if (rein) rein.style.display = isClean ? '' : 'none';
       if (gen)  gen.style.display  = isClean ? 'none' : '';
       if (title) title.textContent = isClean ? 'Stundenpreise' : 'Preise & Tarife';
-      if (isClean || !window.MosaVertical) { if (gen) gen.innerHTML = ''; return; }
+      if (isClean || !window.MosaVertical) { if (gen) gen.innerHTML = ''; obApplyCurrency(); return; }
 
+      const cur = obCurrency();
       const svcs = MosaVertical.preset(vertical).services || [];
       gen.innerHTML = svcs.map(s => {
-        const suffix = s.unit === 'h' ? 'CHF / Std.' : 'CHF pauschal';
+        const suffix = s.unit === 'h' ? cur + ' / Std.' : cur + ' pauschal';
         return `
           <div class="ob-group-title">${escapeHtmlOb(s.title)}</div>
           <div style="font-size:12px;color:var(--text-subtle);margin:-4px 0 8px;line-height:1.4;">${escapeHtmlOb(s.desc)}</div>
@@ -660,6 +671,7 @@
                    data-gprice="${vertical}_${s.key}_price" value="${s.price}" />
           </div>`;
       }).join('');
+      obApplyCurrency();
     }
 
     function escapeHtmlOb(s) {
