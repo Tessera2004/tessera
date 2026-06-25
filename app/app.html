@@ -2026,6 +2026,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="rapDeleteBtn" onclick="deleteRap()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" id="rapPdfBtn" onclick="downloadRapportPDF()" style="display: none;">PDF</button>
         <button class="btn btn-secondary" onclick="closeModal('rapportEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveRap()">Speichern</button>
       </div>
@@ -2152,6 +2153,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="pestDeleteBtn" onclick="deletePestProtocol()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" id="pestPdfBtn" onclick="downloadPestProtocolPDF()" style="display: none;">PDF</button>
         <button class="btn btn-secondary" onclick="closeModal('pestProtocolEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="savePestProtocol()">Speichern</button>
       </div>
@@ -2226,6 +2228,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="woDeleteBtn" onclick="deleteWorkOrder()" style="margin-right: auto; color: var(--danger); display: none;">Löschen</button>
+        <button class="btn btn-secondary" id="woPdfBtn" onclick="downloadWorkOrderPDF()" style="display: none;">PDF</button>
         <button class="btn btn-secondary" onclick="closeModal('workOrderEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveWorkOrder()">Speichern</button>
       </div>
@@ -2285,6 +2288,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="tireDeleteBtn" onclick="deleteTire()" style="margin-right: auto; color: var(--danger); display: none;">Auslagern / Löschen</button>
+        <button class="btn btn-secondary" id="tirePdfBtn" onclick="downloadTireReceiptPDF()" style="display: none;">Beleg PDF</button>
         <button class="btn btn-secondary" onclick="closeModal('tireEditor')">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveTire()">Speichern</button>
       </div>
@@ -6003,6 +6007,7 @@
       (r?.works && r.works.length ? r.works : [{}]).forEach(w => works.appendChild(rapRow('work', w)));
       (r?.material || []).forEach(m => mat.appendChild(rapRow('mat', m)));
       document.getElementById('rapDeleteBtn').style.display = r ? 'inline-flex' : 'none';
+      document.getElementById('rapPdfBtn').style.display = r ? 'inline-flex' : 'none';
       rapRecalcTotal();
       openModal('rapportEditor');
     }
@@ -6245,6 +6250,7 @@
       document.getElementById('pestSigned').value = (p?.signed === true || p?.signed === 'true') ? 'true' : 'false';
       document.getElementById('pestNote').value = p?.note || '';
       document.getElementById('pestDeleteBtn').style.display = p ? 'inline-flex' : 'none';
+      document.getElementById('pestPdfBtn').style.display = p ? 'inline-flex' : 'none';
       openModal('pestProtocolEditor');
     }
     function savePestProtocol() {
@@ -6476,6 +6482,7 @@
       (o?.works && o.works.length ? o.works : [{}]).forEach(w => works.appendChild(woRowWork(w)));
       (o?.parts || []).forEach(p => parts.appendChild(woRowPart(p)));
       document.getElementById('woDeleteBtn').style.display = o ? 'inline-flex' : 'none';
+      document.getElementById('woPdfBtn').style.display = o ? 'inline-flex' : 'none';
       woRecalcTotal();
       openModal('workOrderEditor');
     }
@@ -6598,6 +6605,7 @@
       document.getElementById('tireSince').value = t?.since || '';
       document.getElementById('tireNote').value = t?.note || '';
       document.getElementById('tireDeleteBtn').style.display = t ? 'inline-flex' : 'none';
+      document.getElementById('tirePdfBtn').style.display = t ? 'inline-flex' : 'none';
       openModal('tireEditor');
     }
     function saveTire() {
@@ -9877,6 +9885,254 @@ ${coSig}`;
       const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');
       doc.save(`Offerte_${offNr || 'NEU'}_${safeKunde}.pdf`);
       toast('✓ PDF heruntergeladen');
+    }
+
+    /* ============================================================
+       Branchen-Belege als PDF (Rapport, HACCP-Protokoll,
+       Werkstattauftrag, Reifen-Einlagerung)
+       — gemeinsame Helfer + ein Export je Beleg. Gleiches Layout
+       wie die Offerte (Firmen-Header, Brand-Rot, Unterschriftsleiste).
+       ============================================================ */
+    function newBelegDoc() {
+      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return null; }
+      return new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    }
+    // Firmen-Header + Dokumenttitel; liefert Layout {doc,W,H,M,y}. meta = rechts ausgerichtete Zeilen.
+    function belegHeader(doc, title, meta) {
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
+      const M = 20; let y = M;
+      const co = loadCompany();
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(225, 29, 42);
+      doc.text(co.name || 'Firma', M, y);
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
+      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), M, y + 5);
+      doc.setFontSize(8.5);
+      if (co.contact) doc.text(co.contact, W - M, y, { align: 'right' });
+      if (co.mwst) doc.text('MWST ' + co.mwst, W - M, y + 4, { align: 'right' });
+      y += 18;
+      doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20);
+      doc.text(title, M, y);
+      doc.setFontSize(9.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
+      (meta || []).forEach((line, i) => doc.text(line, W - M, y - 4 + i * 5, { align: 'right' }));
+      y += 12;
+      return { doc, W, H, M, y };
+    }
+    // Empfänger-Block ("AN  …").
+    function belegRecipient(lay, name, sub) {
+      const { doc, M } = lay; let y = lay.y;
+      doc.setFontSize(8.5); doc.setTextColor(120); doc.text('OBJEKT / KUNDE', M, y); y += 4;
+      doc.setFontSize(11); doc.setTextColor(20); doc.setFont('helvetica', 'bold');
+      doc.text(name || '—', M, y); y += 5;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      if (sub) { doc.text(sub, M, y); y += 5; }
+      lay.y = y + 6;
+    }
+    // Feld-Raster (Label/Wert-Paare, zweispaltig).
+    function belegFields(lay, pairs) {
+      const { doc, W, M } = lay; let y = lay.y;
+      const colW = (W - 2 * M) / 2;
+      pairs.filter(p => p[1]).forEach((p, i) => {
+        if (y > lay.H - 45) { doc.addPage(); y = M; }
+        const x = M + (i % 2) * colW;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(140);
+        doc.text(String(p[0]).toUpperCase(), x, y);
+        doc.setFontSize(10.5); doc.setTextColor(30);
+        doc.text(doc.splitTextToSize(String(p[1]), colW - 4), x, y + 5);
+        if (i % 2 === 1) y += 13;
+      });
+      if (pairs.filter(p => p[1]).length % 2 === 1) y += 13;
+      lay.y = y + 2;
+    }
+    // Mehrzeiliger Textblock mit Überschrift.
+    function belegText(lay, title, text) {
+      if (!text) return;
+      const { doc, W, M } = lay; let y = lay.y;
+      if (y > lay.H - 40) { doc.addPage(); y = M; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(120);
+      doc.text(title.toUpperCase(), M, y); y += 5;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(40);
+      doc.splitTextToSize(text, W - 2 * M).forEach(l => {
+        if (y > lay.H - 35) { doc.addPage(); y = M; }
+        doc.text(l, M, y); y += 5;
+      });
+      lay.y = y + 4;
+    }
+    // Positions-Tabelle (Arbeiten/Material/Teile). items = [{label, qty, suffix, price}]. Liefert Zwischensumme.
+    function belegPositions(lay, title, items) {
+      if (!items || !items.length) return 0;
+      const { doc, W, M } = lay; let y = lay.y;
+      if (y > lay.H - 50) { doc.addPage(); y = M; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(90);
+      doc.text(title, M, y); y += 5;
+      const xQty = W - M - 60, xPrice = W - M - 30, xTotal = W - M;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150);
+      doc.text('Menge', xQty, y, { align: 'right' });
+      doc.text('Einzel', xPrice, y, { align: 'right' });
+      doc.text('Total', xTotal, y, { align: 'right' });
+      y += 1.5; doc.setDrawColor(225); doc.setLineWidth(0.2); doc.line(M, y, W - M, y); y += 4.5;
+      doc.setFontSize(9.5); doc.setTextColor(40);
+      let sum = 0;
+      items.forEach(it => {
+        if (y > lay.H - 45) { doc.addPage(); y = M; }
+        const tot = (Number(it.qty) || 0) * (Number(it.price) || 0);
+        sum += tot;
+        const label = doc.splitTextToSize(it.label || '—', xQty - M - 6);
+        doc.text(label[0] || '—', M, y);
+        doc.text(`${it.qty != null ? it.qty : 0}${it.suffix || ''}`, xQty, y, { align: 'right' });
+        doc.text((Number(it.price) || 0).toFixed(2), xPrice, y, { align: 'right' });
+        doc.text(tot.toFixed(2), xTotal, y, { align: 'right' });
+        y += 5.5;
+      });
+      lay.y = y + 3;
+      return sum;
+    }
+    // Summen-Box (netto / MWST 8.1% / brutto). withMwst=false → nur Total.
+    function belegTotal(lay, netto, withMwst) {
+      const { doc, W, M } = lay;
+      let y = lay.y;
+      const boxH = withMwst ? 30 : 14;
+      if (y > lay.H - boxH - 30) { doc.addPage(); y = M; }
+      doc.setDrawColor(220); doc.setLineWidth(0.3); doc.rect(M, y, W - 2 * M, boxH);
+      if (withMwst) {
+        const mwst = netto * 0.081, brutto = netto + mwst;
+        doc.setFontSize(9.5); doc.setTextColor(80); doc.setFont('helvetica', 'normal');
+        doc.text('Total netto', M + 4, y + 7);
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(20);
+        doc.text(netto.toFixed(2) + ' CHF', W - M - 4, y + 7, { align: 'right' });
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(80);
+        doc.text('MWST 8.1%', M + 4, y + 14);
+        doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' CHF', W - M - 4, y + 14, { align: 'right' });
+        doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.4); doc.line(M + 4, y + 18, W - M - 4, y + 18);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(225, 29, 42);
+        doc.text('Gesamt brutto', M + 4, y + 25);
+        doc.text(brutto.toFixed(2) + ' CHF', W - M - 4, y + 25, { align: 'right' });
+      } else {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(225, 29, 42);
+        doc.text('Total', M + 4, y + 9.5);
+        doc.text(netto.toFixed(2) + ' CHF', W - M - 4, y + 9.5, { align: 'right' });
+      }
+      lay.y = y + boxH + 8;
+    }
+    // Unterschriftsleiste am Seitenende.
+    function belegSignature(lay, leftLabel, rightLabel) {
+      const { doc, W, H, M } = lay;
+      let y = Math.max(lay.y + 14, H - 28);
+      doc.setDrawColor(150); doc.setLineWidth(0.3);
+      doc.line(M, y, M + 70, y);
+      doc.line(W - M - 70, y, W - M, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(120);
+      doc.text(leftLabel || 'Datum / Unterschrift Kunde', M, y + 4);
+      doc.text(rightLabel || (loadCompany().name || ''), W - M, y + 4, { align: 'right' });
+    }
+    function belegNr(id) { return (id || '').slice(-6).toUpperCase() || '—'; }
+    function safeName(s) { return (s || 'beleg').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 40); }
+
+    // ── Arbeitsrapport (Handwerk / Garten) ──
+    function downloadRapportPDF(id) {
+      id = id || editingRapId;
+      const r = loadRapporte().find(x => x.id === id);
+      if (!r) { toast('Rapport zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const lay = belegHeader(doc, 'Arbeitsrapport', [`Nr. ${belegNr(r.id)}`, `Datum: ${formatDateDE(r.date) || '—'}`]);
+      belegRecipient(lay, r.siteTitle || r.objektName, r.objektName && r.siteTitle !== r.objektName ? r.objektName : '');
+      belegFields(lay, [[MosaVertical.t('feldMitarbeiter'), r.monteur]]);
+      const works = (r.works || []).map(w => ({ label: w.title, qty: w.hours, suffix: ' h', price: w.rate }));
+      const mat = (r.material || []).map(m => ({ label: m.name, qty: m.qty, suffix: '×', price: m.price }));
+      const sumW = belegPositions(lay, 'Arbeiten (Regie)', works);
+      const sumM = belegPositions(lay, 'Material', mat);
+      belegText(lay, 'Bemerkungen', r.note);
+      belegTotal(lay, sumW + sumM, false);
+      belegSignature(lay, 'Datum / Unterschrift Kunde');
+      doc.save(`Rapport_${belegNr(r.id)}_${safeName(r.siteTitle || r.objektName)}.pdf`);
+      toast('✓ Rapport-PDF heruntergeladen');
+    }
+
+    // ── Kontroll-/Behandlungsprotokoll (Schädlingsbekämpfung, HACCP-Nachweis) ──
+    function downloadPestProtocolPDF(id) {
+      id = id || editingPestId;
+      const p = loadPestProtocols().find(x => x.id === id);
+      if (!p) { toast('Protokoll zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const lay = belegHeader(doc, 'Kontroll- / Behandlungsprotokoll', [`Nr. ${belegNr(p.id)}`, `Datum: ${formatDateDE(p.date) || '—'}`]);
+      belegRecipient(lay, pestCustomerName(p.customerId, p.objektName));
+      belegFields(lay, [
+        ['Techniker', p.technician],
+        ['Befallsart', p.pestType],
+        ['Maßnahme', p.measure],
+        ['Mittel / Wirkstoff', p.agent],
+        ['Menge / Dosierung', p.amount],
+        ['Nachkontrolle am', formatDateDE(p.recheck)]
+      ]);
+      belegText(lay, 'Befund', p.findings);
+      belegText(lay, 'Bemerkungen', p.note);
+      // Köderstellen-Status dieses Objekts (HACCP-Monitoring-Nachweis).
+      const baits = (typeof loadBaits === 'function' ? loadBaits() : []).filter(b => p.customerId && b.customerId === p.customerId);
+      if (baits.length) {
+        const { doc: d, W, M } = lay; let y = lay.y;
+        if (y > lay.H - 50) { d.addPage(); y = M; }
+        d.setFont('helvetica', 'bold'); d.setFontSize(9); d.setTextColor(90);
+        d.text('Köderstellen-Kontrolle', M, y); y += 5;
+        d.setFont('helvetica', 'normal'); d.setFontSize(9); d.setTextColor(40);
+        baits.forEach(b => {
+          if (y > lay.H - 35) { d.addPage(); y = M; }
+          const st = (typeof BAIT_STATUS !== 'undefined' && BAIT_STATUS[b.status]) ? BAIT_STATUS[b.status].label : (b.status || '—');
+          const line = `Nr. ${b.number || '—'}${b.location ? ' · ' + b.location : ''} — ${st}${b.lastCheck ? ' (geprüft ' + formatDateDE(b.lastCheck) + ')' : ''}`;
+          d.splitTextToSize(line, W - 2 * M).forEach(l => { d.text(l, M, y); y += 4.6; });
+        });
+        lay.y = y + 4;
+      }
+      belegSignature(lay, 'Datum / Unterschrift Kunde', p.technician ? 'Techniker: ' + p.technician : '');
+      doc.save(`Protokoll_${belegNr(p.id)}_${safeName(pestCustomerName(p.customerId, p.objektName))}.pdf`);
+      toast('✓ Protokoll-PDF heruntergeladen');
+    }
+
+    // ── Werkstattauftrag / Reparaturrechnung (Auto-Werkstatt) ──
+    function downloadWorkOrderPDF(id) {
+      id = id || editingWorkOrderId;
+      const o = loadWorkOrders().find(x => x.id === id);
+      if (!o) { toast('Auftrag zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const datum = o.created ? o.created.slice(0, 10) : new Date().toISOString().slice(0, 10);
+      const lay = belegHeader(doc, 'Reparaturauftrag', [`Nr. ${belegNr(o.id)}`, `Datum: ${formatDateDE(datum) || '—'}`]);
+      belegRecipient(lay, o.owner || workOrderLabel(o), [o.plate, o.model].filter(Boolean).join(' · '));
+      belegFields(lay, [['Mechaniker', o.mechanic], ['Auftragsannahme', formatDateDE(datum)]]);
+      belegText(lay, 'Auftrag / Beanstandung', o.complaint);
+      const works = (o.works || []).map(w => ({ label: w.title, qty: w.hours, suffix: ' h', price: w.rate }));
+      const parts = (o.parts || []).map(pt => ({ label: pt.name, qty: pt.qty, suffix: '×', price: pt.price }));
+      const sumW = belegPositions(lay, 'Arbeiten', works);
+      const sumP = belegPositions(lay, 'Teile / Material', parts);
+      belegText(lay, 'Bemerkungen', o.note);
+      belegTotal(lay, sumW + sumP, true);
+      belegSignature(lay, 'Datum / Unterschrift Kunde');
+      doc.save(`Auftrag_${belegNr(o.id)}_${safeName(o.plate || o.owner)}.pdf`);
+      toast('✓ Auftrags-PDF heruntergeladen');
+    }
+
+    // ── Einlagerungsbeleg (Reifenhotel, Auto-Werkstatt) ──
+    function downloadTireReceiptPDF(id) {
+      id = id || editingTireId;
+      const t = loadTires().find(x => x.id === id);
+      if (!t) { toast('Einlagerung zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const lay = belegHeader(doc, 'Einlagerungsbeleg', [`Nr. ${belegNr(t.id)}`, `Reifenhotel`]);
+      belegRecipient(lay, t.owner || t.plate || 'Einlagerung', t.plate && t.owner ? t.plate : '');
+      const season = (typeof TIRE_SEASONS !== 'undefined' && TIRE_SEASONS[t.season]) ? TIRE_SEASONS[t.season].label : (t.season || '—');
+      const rim = { alu: 'Alufelgen', stahl: 'Stahlfelgen', ohne: 'ohne Felgen' }[t.rim] || t.rim || '';
+      belegFields(lay, [
+        ['Saison', season],
+        ['Anzahl', t.qty ? t.qty + ' Reifen' : ''],
+        ['Felgen', rim],
+        ['Dimension', t.dim],
+        ['Profil', t.tread ? t.tread + ' mm' : ''],
+        ['Lagerplatz', t.location],
+        ['Eingelagert seit', formatDateDE(t.since)]
+      ]);
+      belegText(lay, 'Bemerkungen', t.note);
+      belegSignature(lay, 'Datum / Unterschrift Kunde', 'Eingelagert durch ' + (loadCompany().name || ''));
+      doc.save(`Einlagerung_${belegNr(t.id)}_${safeName(t.owner || t.plate)}.pdf`);
+      toast('✓ Beleg-PDF heruntergeladen');
     }
 
     function saveOffert() {
