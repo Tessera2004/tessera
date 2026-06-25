@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MosaOS — Anmelden</title>
+  <title data-i18n="auth.pageTitle">MosaOS — Anmelden</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="app-i18n.js?v=2"></script>
   <style>
     .auth-msg { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 4px; display: none; line-height: 1.45; }
     .auth-msg.show { display: block; }
@@ -19,6 +20,10 @@
 </head>
 <body>
   <div class="login-shell">
+    <select data-lang-select onchange="window.MosaI18n && MosaI18n.set(this.value)" aria-label="Sprache"
+            style="position:absolute;top:16px;right:18px;z-index:10;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:12.5px;cursor:pointer;">
+      <option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option><option value="en">EN</option>
+    </select>
     <div class="login-form-col">
       <div class="login-box">
         <div class="brand" style="padding: 0; border: none; margin-bottom: 40px;">
@@ -41,72 +46,72 @@
           </div>
           <div>
             <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
-            <div class="brand-sub">Disposition · Nachweis · Mehr</div>
+            <div class="brand-sub" data-i18n="auth.brandSub">Disposition · Nachweis · Mehr</div>
           </div>
         </div>
 
         <!-- ===== ANMELDEN ===== -->
         <div id="loginView">
-          <h1 class="login-title">Willkommen zurück</h1>
-          <p class="login-sub">Melde dich an, um deine Planung zu öffnen.</p>
+          <h1 class="login-title" data-i18n="auth.welcome">Willkommen zurück</h1>
+          <p class="login-sub" data-i18n="auth.welcomeSub">Melde dich an, um deine Planung zu öffnen.</p>
 
           <form class="login-form" id="loginForm">
             <div class="field">
-              <label for="loginEmail">E-Mail</label>
-              <input type="email" id="loginEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+              <label for="loginEmail" data-i18n="auth.email">E-Mail</label>
+              <input type="email" id="loginEmail" data-i18n-ph="auth.emailPh" placeholder="dein.name@firma.ch" autocomplete="email" required />
             </div>
             <div class="field">
-              <label for="loginPassword">Passwort</label>
+              <label for="loginPassword" data-i18n="auth.password">Passwort</label>
               <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:2px;">
               <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-subtle);cursor:pointer;user-select:none;">
                 <input type="checkbox" id="rememberMe" checked style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;" />
-                Angemeldet bleiben
+                <span data-i18n="auth.remember">Angemeldet bleiben</span>
               </label>
-              <span class="auth-toggle-link" style="font-size:12.5px;" onclick="showReset()">Passwort vergessen?</span>
+              <span class="auth-toggle-link" style="font-size:12.5px;" onclick="showReset()" data-i18n="auth.forgot">Passwort vergessen?</span>
             </div>
             <div class="auth-msg" id="loginMsg"></div>
-            <button type="submit" class="btn btn-primary" id="loginBtn" style="height: 42px; margin-top: 8px;">
+            <button type="submit" class="btn btn-primary" id="loginBtn" style="height: 42px; margin-top: 8px;" data-i18n="auth.signIn">
               Anmelden
             </button>
           </form>
 
           <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
-            Noch kein Konto? <a class="auth-toggle-link" href="onboarding.html">Firma einrichten →</a>
+            <span data-i18n="auth.noAccount">Noch kein Konto?</span> <a class="auth-toggle-link" href="onboarding.html" data-i18n="auth.setupCompany">Firma einrichten →</a>
           </div>
         </div>
 
         <!-- ===== PASSWORT VERGESSEN ===== -->
         <div id="resetView" hidden>
-          <h1 class="login-title">Passwort zurücksetzen</h1>
-          <p class="login-sub">Wir senden dir einen Link zum Zurücksetzen an deine E-Mail.</p>
+          <h1 class="login-title" data-i18n="auth.resetTitle">Passwort zurücksetzen</h1>
+          <p class="login-sub" data-i18n="auth.resetSub">Wir senden dir einen Link zum Zurücksetzen an deine E-Mail.</p>
           <form class="login-form" id="resetForm">
             <div class="field">
-              <label for="resetEmail">E-Mail</label>
-              <input type="email" id="resetEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+              <label for="resetEmail" data-i18n="auth.email">E-Mail</label>
+              <input type="email" id="resetEmail" data-i18n-ph="auth.emailPh" placeholder="dein.name@firma.ch" autocomplete="email" required />
             </div>
             <div class="auth-msg" id="resetMsg"></div>
-            <button type="submit" class="btn btn-primary" id="resetBtn" style="height: 42px; margin-top: 8px;">
+            <button type="submit" class="btn btn-primary" id="resetBtn" style="height: 42px; margin-top: 8px;" data-i18n="auth.sendLink">
               Link senden
             </button>
           </form>
           <div style="margin-top: 24px; font-size: 12.5px; color: var(--text-subtle); text-align: center;">
-            <span class="auth-toggle-link" onclick="showLogin()">← Zurück zum Anmelden</span>
+            <span class="auth-toggle-link" onclick="showLogin()" data-i18n="auth.backToLogin">← Zurück zum Anmelden</span>
           </div>
         </div>
 
         <!-- ===== NEUES PASSWORT (nach Reset-Link) ===== -->
         <div id="newPassView" hidden>
-          <h1 class="login-title">Neues Passwort</h1>
-          <p class="login-sub">Wähle ein neues Passwort für dein Konto.</p>
+          <h1 class="login-title" data-i18n="auth.newPassTitle">Neues Passwort</h1>
+          <p class="login-sub" data-i18n="auth.newPassSub">Wähle ein neues Passwort für dein Konto.</p>
           <form class="login-form" id="newPassForm">
             <div class="field">
-              <label for="newPass">Neues Passwort</label>
-              <input type="password" id="newPass" placeholder="Mind. 8 Zeichen" autocomplete="new-password" minlength="8" required />
+              <label for="newPass" data-i18n="auth.newPassLabel">Neues Passwort</label>
+              <input type="password" id="newPass" data-i18n-ph="auth.newPassPh" placeholder="Mind. 8 Zeichen" autocomplete="new-password" minlength="8" required />
             </div>
             <div class="auth-msg" id="newPassMsg"></div>
-            <button type="submit" class="btn btn-primary" id="newPassBtn" style="height: 42px; margin-top: 8px;">
+            <button type="submit" class="btn btn-primary" id="newPassBtn" style="height: 42px; margin-top: 8px;" data-i18n="auth.savePass">
               Passwort speichern
             </button>
           </form>
@@ -143,10 +148,10 @@
       </div>
 
       <div>
-        <p class="login-quote">
+        <p class="login-quote" data-i18n="auth.quote">
           „Routen in 30 Sekunden statt 3 Stunden geplant — das Team weiß früher Bescheid, der Kunde sieht es im Nachweis."
         </p>
-        <div class="login-quote-author">Eine Plattform für jede Branche</div>
+        <div class="login-quote-author" data-i18n="auth.quoteAuthor">Eine Plattform für jede Branche</div>
       </div>
 
       <div class="login-feature-list">
@@ -154,19 +159,19 @@
           <div class="login-feature-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <div>Automatische Routenplanung in Sekunden</div>
+          <div data-i18n="auth.feat1">Automatische Routenplanung in Sekunden</div>
         </div>
         <div class="login-feature">
           <div class="login-feature-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <div>QR-Anwesenheit &amp; Foto-Nachweis — Mindestlohn-konform</div>
+          <div data-i18n="auth.feat2">QR-Anwesenheit &amp; Foto-Nachweis — Mindestlohn-konform</div>
         </div>
         <div class="login-feature">
           <div class="login-feature-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <div>Daten in der EU · DSG-konform</div>
+          <div data-i18n="auth.feat3">Daten in der EU · DSG-konform</div>
         </div>
       </div>
     </div>
@@ -175,6 +180,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
   <script>
+    // Übersetzung für dynamische Texte (Buttons/Meldungen); Fallback = deutscher Originaltext.
+    const T = (k, f) => (window.MosaI18n ? window.MosaI18n.t(k, f) : f);
     function msg(el, text, kind) {
       el.textContent = text;
       el.className = 'auth-msg show ' + (kind || 'err');
@@ -225,17 +232,17 @@
       const btn = document.getElementById('loginBtn');
       const box = document.getElementById('loginMsg');
       clearMsg(box);
-      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      if (!window.SB) { msg(box, T('auth.errNoDb', 'Verbindung zur Datenbank fehlt (Internet?).')); return; }
       const remember = document.getElementById('rememberMe').checked;
       const sb = clientFor(remember);
-      btn.disabled = true; btn.textContent = 'Anmelden …';
+      btn.disabled = true; btn.textContent = T('auth.signingIn', 'Anmelden …');
       const { error } = await sb.auth.signInWithPassword({
         email: document.getElementById('loginEmail').value.trim(),
         password: document.getElementById('loginPassword').value
       });
       if (error) {
-        msg(box, /Invalid login/i.test(error.message) ? 'E-Mail oder Passwort falsch.' : error.message);
-        btn.disabled = false; btn.textContent = 'Anmelden';
+        msg(box, /Invalid login/i.test(error.message) ? T('auth.errInvalid', 'E-Mail oder Passwort falsch.') : error.message);
+        btn.disabled = false; btn.textContent = T('auth.signIn', 'Anmelden');
       } else {
         window.location.href = 'app.html';
       }
@@ -247,15 +254,15 @@
       const btn = document.getElementById('resetBtn');
       const box = document.getElementById('resetMsg');
       clearMsg(box);
-      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      if (!window.SB) { msg(box, T('auth.errNoDb', 'Verbindung zur Datenbank fehlt (Internet?).')); return; }
       const email = document.getElementById('resetEmail').value.trim();
-      btn.disabled = true; btn.textContent = 'Senden …';
+      btn.disabled = true; btn.textContent = T('auth.sending', 'Senden …');
       const { error } = await window.SB.auth.resetPasswordForEmail(email, {
         redirectTo: location.origin + location.pathname
       });
-      btn.disabled = false; btn.textContent = 'Link senden';
+      btn.disabled = false; btn.textContent = T('auth.sendLink', 'Link senden');
       if (error) { msg(box, error.message); }
-      else { msg(box, 'Falls ein Konto existiert, ist die E-Mail unterwegs. Prüfe dein Postfach.', 'ok'); }
+      else { msg(box, T('auth.resetSent', 'Falls ein Konto existiert, ist die E-Mail unterwegs. Prüfe dein Postfach.'), 'ok'); }
     });
 
     // ---- Neues Passwort speichern (nach Reset-Link) ----
@@ -264,13 +271,13 @@
       const btn = document.getElementById('newPassBtn');
       const box = document.getElementById('newPassMsg');
       clearMsg(box);
-      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
+      if (!window.SB) { msg(box, T('auth.errNoDb', 'Verbindung zur Datenbank fehlt (Internet?).')); return; }
       const pw = document.getElementById('newPass').value;
-      btn.disabled = true; btn.textContent = 'Speichern …';
+      btn.disabled = true; btn.textContent = T('auth.saving', 'Speichern …');
       const { error } = await window.SB.auth.updateUser({ password: pw });
-      if (error) { msg(box, error.message); btn.disabled = false; btn.textContent = 'Passwort speichern'; }
+      if (error) { msg(box, error.message); btn.disabled = false; btn.textContent = T('auth.savePass', 'Passwort speichern'); }
       else {
-        msg(box, '✓ Passwort geändert. Weiterleitung …', 'ok');
+        msg(box, T('auth.pwChanged', '✓ Passwort geändert. Weiterleitung …'), 'ok');
         setTimeout(() => { window.location.href = 'app.html'; }, 1200);
       }
     });
