@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=13"></script>
+  <script src="app-i18n.js?v=14"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -8008,6 +8008,9 @@
 
     // ============ Toast notifications ============
     function toast(msg, type = 'success') {
+      // i18n: deutscher Quell-String = Key (`toast:<de>`); Deutsch nutzt Fallback, andere Sprachen übersetzen.
+      // Konkatenierte/interpolierte Toasts (mit dynamischem Teil) matchen nicht → bleiben vorerst deutsch.
+      if (typeof msg === 'string') msg = tt('toast:' + msg, msg);
       const c = document.getElementById('toasts');
       const t = document.createElement('div');
       t.className = 'toast';
