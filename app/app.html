@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=15"></script>
+  <script src="app-i18n.js?v=16"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -5184,7 +5184,7 @@
       if (jobs.length === 0) {
         wrap.innerHTML = `<div style="padding: 60px 24px; text-align: center; color: var(--text-subtle);">
           <div style="margin-bottom: 12px; display:flex; justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-subtle);opacity:.6;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-          <div style="font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px;">Keine Einsätze geplant</div>
+          <div style="font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px;">${tt('est.noJobsPlanned','Keine Einsätze geplant')}</div>
           <div style="font-size: 13px;">Klick auf „+ Neuer Auftrag" oben rechts, um etwas anzulegen.</div>
         </div>`;
         return;
@@ -5219,7 +5219,7 @@
             <div class="jbody">
               <div class="jname">${j.objekt}</div>
               <div class="jmeta">${j.ort}</div>
-              <div class="jassigned">${assignedNames || '<em style="color: var(--danger);">Keine Mitarbeiter zugewiesen</em>'}</div>
+              <div class="jassigned">${assignedNames || `<em style="color: var(--danger);">${tt('est.noStaffAssigned','Keine Mitarbeiter zugewiesen')}</em>`}</div>
             </div>
             <div class="jright">
               <div class="jdur">${j.start} – ${fmtHM(endMin)}</div>
@@ -5457,7 +5457,7 @@
           <div class="je-cc-icon">📍</div>
           <div class="je-cc-body">
             <div class="je-cc-name">${j.objekt}</div>
-            <div class="je-cc-meta">${j.ort || 'Keine Adresse'} · <em>Kein Kunde im Stamm — Einzeleinsatz</em></div>
+            <div class="je-cc-meta">${j.ort || tt('est.noAddress','Keine Adresse')} · <em>${tt('est.noCustomerSingle','Kein Kunde im Stamm — Einzeleinsatz')}</em></div>
           </div>
           <button class="btn btn-ghost btn-sm" onclick="closeModal('jobEditor'); switchView('kunden');">Kunde anlegen</button>
         `;
@@ -5561,7 +5561,7 @@
           <div class="emp-picker-rows">${rowsHtml(ohneTeam)}</div>
         </div>`;
       }
-      if (!html) html = '<div style="color:var(--text-subtle);font-size:13px;padding:8px;">Noch keine Mitarbeiter. Lege erst Mitarbeiter an.</div>';
+      if (!html) html = `<div style="color:var(--text-subtle);font-size:13px;padding:8px;">${tt('est.noStaffYetPick','Noch keine Mitarbeiter. Lege erst Mitarbeiter an.')}</div>`;
       wrap.innerHTML = html;
       updateAssignedCount();
     }
@@ -5745,7 +5745,7 @@
 
       if (filtered.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
-          <div style="font-size: 14px; color: var(--text-subtle);">Keine Kunden gefunden.</div>
+          <div style="font-size: 14px; color: var(--text-subtle);">${tt('est.noCustomersFound','Keine Kunden gefunden.')}</div>
         </div>`;
         return;
       }
@@ -5971,7 +5971,7 @@
       const badge = document.getElementById('rapporteNavBadge');
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
       if (filtered.length === 0) {
-        box.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">Noch keine Rapporte.</div></div>`;
+        box.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">${tt('est.noReports','Noch keine Rapporte.')}</div></div>`;
         return;
       }
       box.innerHTML = filtered.map(r => {
@@ -6162,7 +6162,7 @@
       const badge = document.getElementById('koederNavBadge');
       if (badge) { const warn = befallN + faelligN; badge.textContent = warn; badge.style.display = warn ? '' : 'none'; }
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">Keine Köderstellen.</div></div>`;
+        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">${tt('est.noBaitStations','Keine Köderstellen.')}</div></div>`;
         return;
       }
       grid.innerHTML = filtered.map(b => {
@@ -6259,7 +6259,7 @@
       const badge = document.getElementById('protokolleNavBadge');
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
       if (filtered.length === 0) {
-        box.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">Noch keine Protokolle.</div></div>`;
+        box.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><div style="font-size: 14px; color: var(--text-subtle);">${tt('est.noProtocols','Noch keine Protokolle.')}</div></div>`;
         return;
       }
       box.innerHTML = filtered.map(p => {
@@ -6741,7 +6741,7 @@
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
       if (filtered.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
-          <div style="font-size: 14px; color: var(--text-subtle);">Noch keine Reifen eingelagert.</div>
+          <div style="font-size: 14px; color: var(--text-subtle);">${tt('est.noTires','Noch keine Reifen eingelagert.')}</div>
         </div>`;
         return;
       }
@@ -6877,7 +6877,7 @@
 
       if (filtered.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
-          <div style="font-size: 14px; color: var(--text-subtle);">Noch keine Fahrzeuge erfasst.</div>
+          <div style="font-size: 14px; color: var(--text-subtle);">${tt('est.noVehicles','Noch keine Fahrzeuge erfasst.')}</div>
         </div>`;
         return;
       }
@@ -7012,7 +7012,7 @@
       const wrap = document.getElementById('custCallLog');
       const calls = (c.calls || []).slice().sort((a,b) => b.ts.localeCompare(a.ts));
       if (calls.length === 0) {
-        wrap.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-subtle); font-size: 13px;">Noch keine Anrufe notiert. Klick oben auf „+ Anruf vermerken" um den ersten einzutragen.</div>`;
+        wrap.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-subtle); font-size: 13px;">${tt('est.noCallsHint','Noch keine Anrufe notiert. Klick oben auf „+ Anruf vermerken" um den ersten einzutragen.')}</div>`;
         return;
       }
       wrap.innerHTML = calls.map((call, i) => {
@@ -7250,7 +7250,7 @@
       if (sub) sub.textContent = `${offen} ${tt('sub.open','offen')} · ${dringend} ${tt('sub.urgent','dringend')} · ${ueberfaellig} ${tt('sub.overdue','überfällig')}`;
 
       if (filtered.length === 0) {
-        wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">Keine Aufgaben.</div>`;
+        wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">${tt('est.noTasks','Keine Aufgaben.')}</div>`;
         updateAufgabenBadge();
         return;
       }
@@ -7474,7 +7474,7 @@
       const searchHint = q ? ` · ${filtered.length} ${tt('sub.hitsFor','Treffer für')} „${q}"` : '';
       subtitle.textContent = `${all.length} ${tt('sub.callsTotal','Anrufe gesamt')} · ${offen} ${offen === 1 ? tt('sub.callbackSg','Rückruf') : tt('sub.callbackPl','Rückrufe')} ${tt('sub.open','offen')}${searchHint}`;
       if (filtered.length === 0) {
-        wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">Keine Anrufe.</div>`;
+        wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">${tt('est.noCalls','Keine Anrufe.')}</div>`;
         return;
       }
       wrap.innerHTML = filtered.map(call => {
@@ -7735,7 +7735,7 @@
       const abw = EMPLOYEES.length - aktiv;
       sub.textContent = `${EMPLOYEES.length} ${VT('feldMitarbeiterPlural')} · ${aktiv} ${tt('sub.active','aktiv')} · ${abw} ${tt('sub.absent','abwesend')}`;
       if (EMPLOYEES.length === 0) {
-        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-subtle);">Noch keine Mitarbeiter. Klick oben rechts auf „+ Mitarbeiter hinzufügen".</div>`;
+        grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-subtle);">${tt('est.noStaffHint','Noch keine Mitarbeiter. Klick oben rechts auf „+ Mitarbeiter hinzufügen".')}</div>`;
         return;
       }
       grid.innerHTML = EMPLOYEES.map(e => {
@@ -7812,7 +7812,7 @@
       const wrap = document.getElementById('teamManagerList');
       if (!wrap) return;
       if (PLAN_TEAMS.length === 0) {
-        wrap.innerHTML = '<div style="color:var(--text-subtle);font-size:13px;padding:8px 0;">Noch keine Teams. Lege unten dein erstes Team an.</div>';
+        wrap.innerHTML = `<div style="color:var(--text-subtle);font-size:13px;padding:8px 0;">${tt('est.noTeams','Noch keine Teams. Lege unten dein erstes Team an.')}</div>`;
         return;
       }
       wrap.innerHTML = PLAN_TEAMS.map(t => {
@@ -8255,7 +8255,7 @@
       if (!list) return;
       const reports = loadReports().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       if (reports.length === 0) {
-        list.innerHTML = `<div class="card" style="text-align: center; padding: 40px; color: var(--text-subtle);">Noch keine Berichte. Klick oben rechts auf „Bericht erfassen", um einen Foto-Nachweis anzulegen.</div>`;
+        list.innerHTML = `<div class="card" style="text-align: center; padding: 40px; color: var(--text-subtle);">${tt('est.noBerichteHint','Noch keine Berichte. Klick oben rechts auf „Bericht erfassen", um einen Foto-Nachweis anzulegen.')}</div>`;
         return;
       }
       list.innerHTML = reports.map(r => {
@@ -8325,7 +8325,7 @@
         const top = events.slice(0, 8);
         actEl.innerHTML = top.length
           ? top.map(ev => `<div class="activity-item"><div class="act-icon" style="background:${ev.col}1a;color:${ev.col}">${ev.icon}</div><div class="act-body"><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div></div>`).join('')
-          : '<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">Noch keine Aktivität.</div>';
+          : `<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">${tt('dash.noActivity','Noch keine Aktivität.')}</div>`;
       }
     }
     document.querySelector('.nav-item[data-view="dashboard"]')?.addEventListener('click', () => {
@@ -8380,7 +8380,7 @@
 
       const jobs = nkCollectJobs(ym);
       if (jobs.length === 0) {
-        body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-subtle);">Keine geplanten Einsätze in diesem Monat.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-subtle);">${tt('est.noPlannedJobsMonth','Keine geplanten Einsätze in diesem Monat.')}</td></tr>`;
         document.getElementById('nkSoll').textContent = '0.0 h';
         document.getElementById('nkIst').textContent = '0.0 h';
         document.getElementById('nkDiff').textContent = '0.0 h';
@@ -8484,7 +8484,7 @@
       const today = isoDate(new Date());
       if (series.length === 0) {
         list.innerHTML = `<div class="card" style="text-align:center; padding:48px 24px; color:var(--text-subtle); border-style:dashed;">
-          Noch keine Abo-Verträge. Lege einen Auftrag mit Wiederholung an — er erscheint dann hier.</div>`;
+          ${tt('est.noAbosHint','Noch keine Abo-Verträge. Lege einen Auftrag mit Wiederholung an — er erscheint dann hier.')}</div>`;
         return;
       }
       // aktive (mit künftigen Terminen) zuerst
@@ -8956,7 +8956,7 @@
       const wrap = document.getElementById('repDetailPhotos');
       wrap.innerHTML = photos.length
         ? photos.map(p => `<a href="${p}" target="_blank" style="display:block;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border);background-image:url('${p}');background-size:cover;background-position:center;"></a>`).join('')
-        : '<div style="grid-column:1/-1;color:var(--text-subtle);font-size:13px;">Keine Fotos hinterlegt.</div>';
+        : `<div style="grid-column:1/-1;color:var(--text-subtle);font-size:13px;">${tt('est.noPhotos','Keine Fotos hinterlegt.')}</div>`;
       // Erledigte Arbeiten (aus Abnahmeprotokoll)
       const tasksSect = document.getElementById('repDetailTasks');
       if (tasksSect) {
@@ -10883,7 +10883,7 @@ ${coSig}`;
         (m.snippet||'').toLowerCase().includes(q)
       );
       if (!mails.length) {
-        wrap.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-subtle);font-size:13px;">Keine Mails gefunden.</div>`;
+        wrap.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-subtle);font-size:13px;">${tt('est.noMails','Keine Mails gefunden.')}</div>`;
         return;
       }
       wrap.innerHTML = mails.map(m => {
@@ -11434,7 +11434,7 @@ ${coSig}`;
       const isoWeekDays = weekDays.map(d => d.toISOString().slice(0, 10));
 
       if (EMPLOYEES.length === 0) {
-        body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-subtle);">Noch keine Mitarbeiter erfasst.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-subtle);">${tt('est.noStaffRecorded','Noch keine Mitarbeiter erfasst.')}</td></tr>`;
         return;
       }
 
@@ -11531,7 +11531,7 @@ ${coSig}`;
       const body = document.getElementById('invBody');
       if (!body) return;
       if (!jobs.length) {
-        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-subtle);">Keine Rechnungen im ausgewählten Monat.<br><span style="font-size:12px;">Einsätze mit Zahlart „Rechnung" erscheinen hier automatisch.</span></td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-subtle);">${tt('est.noInvoicesMonth','Keine Rechnungen im ausgewählten Monat.')}<br><span style="font-size:12px;">${tt('est.noInvoicesHint','Einsätze mit Zahlart „Rechnung" erscheinen hier automatisch.')}</span></td></tr>`;
         return;
       }
       const ST_LABELS = { offen: 'Offen', gesendet: 'Gesendet', bezahlt: 'Bezahlt ✓' };
