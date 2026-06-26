@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=9"></script>
+  <script src="app-i18n.js?v=10"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1756,11 +1756,11 @@
       <div class="modal-body">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
           <div>
-            <div style="font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;">Dauer</div>
+            <div style="font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;" data-i18n="det.duration">Dauer</div>
             <div style="font-size: 18px; font-weight: 600; margin-top: 2px;" id="detailDur">—</div>
           </div>
           <div>
-            <div style="font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;">Frequenz</div>
+            <div style="font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;" data-i18n="det.frequency">Frequenz</div>
             <div style="font-size: 18px; font-weight: 600; margin-top: 2px;" id="detailFreq">—</div>
           </div>
           <div>
@@ -1769,26 +1769,26 @@
           </div>
         </div>
         <div>
-          <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Letzte Einsätze</div>
+          <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px;" data-i18n="det.lastJobs">Letzte Einsätze</div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; justify-content: space-between; padding: 10px 12px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 13px;">
-              <span>Heute, 06:30–08:00</span>
-              <span class="badge badge-success">✓ Vollständig</span>
+              <span><span data-i18n="det.today">Heute</span>, 06:30–08:00</span>
+              <span class="badge badge-success" data-i18n="det.complete">✓ Vollständig</span>
             </div>
             <div style="display: flex; justify-content: space-between; padding: 10px 12px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 13px;">
-              <span>Gestern, 06:30–08:15</span>
-              <span class="badge badge-success">✓ Vollständig</span>
+              <span><span data-i18n="det.yesterday">Gestern</span>, 06:30–08:15</span>
+              <span class="badge badge-success" data-i18n="det.complete">✓ Vollständig</span>
             </div>
             <div style="display: flex; justify-content: space-between; padding: 10px 12px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 13px;">
-              <span>Mo, 06:30–08:00</span>
-              <span class="badge badge-success">✓ Vollständig</span>
+              <span><span data-i18n="det.mon">Mo</span>, 06:30–08:00</span>
+              <span class="badge badge-success" data-i18n="det.complete">✓ Vollständig</span>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('objektDetail')">Schließen</button>
-        <button class="btn btn-accent">Bearbeiten</button>
+        <button class="btn btn-secondary" onclick="closeModal('objektDetail')" data-i18n="common.close">Schließen</button>
+        <button class="btn btn-accent" data-i18n="common.edit">Bearbeiten</button>
       </div>
     </div>
   </div>
@@ -2589,7 +2589,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="mitModalTitle">Neuer Mitarbeiter</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;"><span data-term="feldStamm">Reiniger / Fahrer</span> — Stammdaten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;"><span data-term="feldStamm">Reiniger / Fahrer</span><span data-i18n="mit.masterDataSuffix"> — Stammdaten</span></div>
         </div>
         <button class="btn-icon" onclick="closeModal('mitarbeiterEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2597,63 +2597,63 @@
       </div>
       <div class="modal-body">
         <div class="field" style="margin-bottom: 14px;">
-          <label>Foto</label>
+          <label data-i18n="mit.photo">Foto</label>
           <div style="display: flex; align-items: center; gap: 14px;">
             <div id="mitPhotoPreview" style="width: 64px; height: 64px; border-radius: 50%; background: var(--bg-subtle, #F3F4F6); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--text-subtle); overflow: hidden; flex-shrink: 0;">👤</div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <label class="btn btn-secondary" style="cursor: pointer; margin: 0;">
-                Foto wählen
+                <span data-i18n="mit.choosePhoto">Foto wählen</span>
                 <input type="file" id="mitPhotoInput" accept="image/*" style="display: none;" onchange="onMitPhotoSelected(event)" />
               </label>
-              <button type="button" class="btn btn-ghost" id="mitPhotoRemove" style="display: none; color: var(--danger);" onclick="clearMitPhoto()">Entfernen</button>
+              <button type="button" class="btn btn-ghost" id="mitPhotoRemove" style="display: none; color: var(--danger);" onclick="clearMitPhoto()" data-i18n="common.remove">Entfernen</button>
             </div>
           </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Vorname</label>
-            <input type="text" id="mitFirstname" placeholder="z. B. Anna" />
+            <label data-i18n="common.firstname">Vorname</label>
+            <input type="text" id="mitFirstname" data-i18n-ph="mit.firstnamePh" placeholder="z. B. Anna" />
           </div>
           <div class="field">
-            <label>Nachname</label>
-            <input type="text" id="mitLastname" placeholder="z. B. Müller" />
+            <label data-i18n="common.lastname">Nachname</label>
+            <input type="text" id="mitLastname" data-i18n-ph="mit.lastnamePh" placeholder="z. B. Müller" />
           </div>
         </div>
         <div class="field">
-          <label>E-Mail <span style="font-size:11px;color:var(--text-subtle);">für Login der Mobile-App</span></label>
-          <input type="email" id="mitEmail" placeholder="anna@firma.ch" />
+          <label><span data-i18n="auth.email">E-Mail</span> <span style="font-size:11px;color:var(--text-subtle);" data-i18n="mit.emailLogin">für Login der Mobile-App</span></label>
+          <input type="email" id="mitEmail" data-i18n-ph="mit.emailPh" placeholder="anna@firma.ch" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Rolle</label>
+            <label data-i18n="common.role">Rolle</label>
             <select id="mitRole">
               <option value="Reinigungskraft" data-term="rolle">Reinigungskraft</option>
-              <option value="Vorarbeiterin">Vorarbeiterin</option>
-              <option value="Vorarbeiter">Vorarbeiter</option>
-              <option value="Aushilfe">Aushilfe</option>
+              <option value="Vorarbeiterin" data-i18n="mit.foremanF">Vorarbeiterin</option>
+              <option value="Vorarbeiter" data-i18n="mit.foremanM">Vorarbeiter</option>
+              <option value="Aushilfe" data-i18n="mit.helper">Aushilfe</option>
             </select>
           </div>
           <div class="field">
-            <label>Team-Zuweisung</label>
+            <label data-i18n="mit.teamAssign">Team-Zuweisung</label>
             <select id="mitTeam" onchange="mitTeamChanged()"></select>
           </div>
         </div>
         <div class="field">
-          <label>Status</label>
+          <label data-i18n="th.status">Status</label>
           <select id="mitStatus">
-            <option value="aktiv">Aktiv</option>
-            <option value="abwesend">Abwesend (Krank/Ferien)</option>
+            <option value="aktiv" data-i18n="mit.statusActive">Aktiv</option>
+            <option value="abwesend" data-i18n="mit.statusAbsent">Abwesend (Krank/Ferien)</option>
           </select>
         </div>
         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; margin-top: 4px;">
           <input type="checkbox" id="mitCanDrive" style="width: 18px; height: 18px; flex-shrink: 0;" />
-          <span style="font-size: 14px;"><strong>Fahrer</strong> — hat Führerschein und darf das Auto fahren</span>
+          <span style="font-size: 14px;" data-i18n="mit.driver"><strong>Fahrer</strong> — hat Führerschein und darf das Auto fahren</span>
         </label>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="mitDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteMitarbeiter()">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('mitarbeiterEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveMitarbeiter()">Speichern</button>
+        <button class="btn btn-ghost" id="mitDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteMitarbeiter()" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('mitarbeiterEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveMitarbeiter()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2663,8 +2663,8 @@
     <div class="modal" style="max-width: 520px;">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Teams verwalten</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Eigene Teams anlegen, umbenennen, Farbe wählen</div>
+          <div class="modal-title" data-i18n="tm.title">Teams verwalten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="tm.subtitle">Eigene Teams anlegen, umbenennen, Farbe wählen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('teamManager')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2673,12 +2673,12 @@
       <div class="modal-body">
         <div id="teamManagerList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
         <div style="display:flex; gap:8px; align-items:center; border-top:1px solid var(--border); padding-top:14px;">
-          <input type="text" id="newTeamName" placeholder="Neues Team — z. B. „Auto 1" oder „Team Anna"" style="flex:1;" />
-          <button class="btn btn-accent" onclick="addTeamFromManager()">+ Team</button>
+          <input type="text" id="newTeamName" data-i18n-ph="tm.newTeamPh" placeholder="Neues Team — z. B. „Auto 1" oder „Team Anna"" style="flex:1;" />
+          <button class="btn btn-accent" onclick="addTeamFromManager()" data-i18n="tm.addTeam">+ Team</button>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('teamManager')">Fertig</button>
+        <button class="btn btn-secondary" onclick="closeModal('teamManager')" data-i18n="common.done">Fertig</button>
       </div>
     </div>
   </div>
@@ -2689,7 +2689,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="reportModalTitle">Bericht erfassen</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Foto-Nachweis einer Reinigung</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="re.subtitle">Foto-Nachweis einer Reinigung</div>
         </div>
         <button class="btn-icon" onclick="closeModal('reportEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2698,50 +2698,50 @@
       <div class="modal-body">
         <div class="field" style="margin-bottom: 12px;">
           <label data-term="objektKunde">Objekt / Kunde</label>
-          <input type="text" id="repObjekt" placeholder="z. B. Bürohaus Marienplatz" />
+          <input type="text" id="repObjekt" data-i18n-ph="re.objektPh" placeholder="z. B. Bürohaus Marienplatz" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Mitarbeiter</label>
-            <input type="text" id="repEmployee" placeholder="z. B. Anna Müller" list="repEmployeeList" />
+            <label data-i18n="th.employee">Mitarbeiter</label>
+            <input type="text" id="repEmployee" data-i18n-ph="re.employeePh" placeholder="z. B. Anna Müller" list="repEmployeeList" />
             <datalist id="repEmployeeList"></datalist>
           </div>
           <div class="field">
-            <label>Datum</label>
+            <label data-i18n="th.date">Datum</label>
             <input type="date" id="repDate" />
           </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Zeit (von–bis)</label>
-            <input type="text" id="repTime" placeholder="z. B. 06:30–08:00" />
+            <label data-i18n="re.timeRange">Zeit (von–bis)</label>
+            <input type="text" id="repTime" data-i18n-ph="re.timePh" placeholder="z. B. 06:30–08:00" />
           </div>
           <div class="field">
-            <label>Status</label>
+            <label data-i18n="th.status">Status</label>
             <select id="repStatus">
-              <option value="vollstaendig">Vollständig</option>
-              <option value="fotofehlt">Foto fehlt</option>
-              <option value="reklamation">Reklamation</option>
+              <option value="vollstaendig" data-i18n="re.stComplete">Vollständig</option>
+              <option value="fotofehlt" data-i18n="re.stPhotoMissing">Foto fehlt</option>
+              <option value="reklamation" data-i18n="re.stComplaint">Reklamation</option>
             </select>
           </div>
         </div>
         <div class="field" style="margin-bottom: 12px;">
-          <label>Notiz (optional)</label>
-          <input type="text" id="repNote" placeholder="z. B. Checkliste 12/12 · Kunde benachrichtigt" />
+          <label data-i18n="re.noteOptional">Notiz (optional)</label>
+          <input type="text" id="repNote" data-i18n-ph="re.notePh" placeholder="z. B. Checkliste 12/12 · Kunde benachrichtigt" />
         </div>
         <div class="field">
-          <label>Fotos</label>
+          <label data-i18n="re.photos">Fotos</label>
           <div id="repPhotoGrid" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
           <label class="btn btn-secondary" style="cursor: pointer; margin: 0;">
-            + Fotos hinzufügen
+            <span data-i18n="re.addPhotos">+ Fotos hinzufügen</span>
             <input type="file" id="repPhotoInput" accept="image/*" multiple style="display: none;" onchange="onReportPhotosSelected(event)" />
           </label>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="repDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteReport()">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('reportEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveReport()">Speichern</button>
+        <button class="btn btn-ghost" id="repDeleteBtn" style="display:none; color: var(--danger); margin-right: auto;" onclick="deleteReport()" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('reportEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveReport()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2761,18 +2761,18 @@
       <div class="modal-body">
         <div id="repDetailNote" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;"></div>
         <div id="repDetailTasks" style="display:none; margin-bottom:16px;">
-          <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;">Erledigte Arbeiten</div>
+          <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;" data-i18n="rd.doneWorks">Erledigte Arbeiten</div>
           <div class="repd-tasks-list"></div>
         </div>
         <div id="repDetailSig" style="display:none; margin-bottom:16px;">
-          <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;">Unterschrift Kunde</div>
+          <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;" data-i18n="rap.signature">Unterschrift Kunde</div>
           <img style="max-width:100%;max-height:160px;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px;" />
         </div>
         <div id="repDetailPhotos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" style="margin-right: auto;" onclick="editReportFromDetail()">Bearbeiten</button>
-        <button class="btn btn-secondary" onclick="closeModal('reportDetail')">Schließen</button>
+        <button class="btn btn-ghost" style="margin-right: auto;" onclick="editReportFromDetail()" data-i18n="common.edit">Bearbeiten</button>
+        <button class="btn btn-secondary" onclick="closeModal('reportDetail')" data-i18n="common.close">Schließen</button>
       </div>
     </div>
   </div>
@@ -2844,24 +2844,24 @@
     <div class="modal" style="max-width: 720px;">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Crew für <span id="dayCrewModalDate">heute</span></div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Wer ist da · wer fährt mit wem · daraus ergeben sich die Routen</div>
+          <div class="modal-title"><span data-i18n="dc.crewFor">Crew für </span><span id="dayCrewModalDate">heute</span></div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="dc.subtitle">Wer ist da · wer fährt mit wem · daraus ergeben sich die Routen</div>
         </div>
         <button class="btn-icon" onclick="closeModal('dayCrew')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
+        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="dc.intro">
           Pro Mitarbeiter wählen: <strong>anwesend?</strong> und falls ja, <strong>in welcher Crew</strong>.
           Standard ist die Stamm-Team-Zuweisung. Änderungen gelten nur für diesen Tag.
         </div>
         <div id="dayCrewPicker" class="daycrew-picker"><!-- via JS --></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" style="margin-right:auto;" onclick="dayCrewMarkAllPresent()">Alle anwesend</button>
-        <button class="btn btn-secondary" onclick="closeModal('dayCrew')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveDayCrewEdit()">Speichern</button>
+        <button class="btn btn-ghost" style="margin-right:auto;" onclick="dayCrewMarkAllPresent()" data-i18n="dc.allPresent">Alle anwesend</button>
+        <button class="btn btn-secondary" onclick="closeModal('dayCrew')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveDayCrewEdit()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2872,7 +2872,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="userModalTitle">Neuer Mitarbeiter</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Büro-Team — Profil mit Rolle und Rechten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="ue.subtitle">Büro-Team — Profil mit Rolle und Rechten</div>
         </div>
         <button class="btn-icon" onclick="closeModal('userEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2881,20 +2881,20 @@
       <div class="modal-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Vorname</label>
-            <input type="text" id="userFirstname" placeholder="z. B. Brian" />
+            <label data-i18n="common.firstname">Vorname</label>
+            <input type="text" id="userFirstname" data-i18n-ph="ue.firstnamePh" placeholder="z. B. Brian" />
           </div>
           <div class="field">
-            <label>Nachname</label>
-            <input type="text" id="userLastname" placeholder="z. B. Knuchel" />
+            <label data-i18n="common.lastname">Nachname</label>
+            <input type="text" id="userLastname" data-i18n-ph="ue.lastnamePh" placeholder="z. B. Knuchel" />
           </div>
         </div>
         <div class="field">
-          <label>E-Mail (optional)</label>
-          <input type="email" id="userEmail" placeholder="vorname@firma.ch" />
+          <label data-i18n="ue.emailOptional">E-Mail (optional)</label>
+          <input type="email" id="userEmail" data-i18n-ph="ue.emailPh" placeholder="vorname@firma.ch" />
         </div>
         <div class="field">
-          <label>Rolle</label>
+          <label data-i18n="common.role">Rolle</label>
           <div class="opt-row" id="userRoleChips"></div>
           <div id="userRoleHint" style="font-size: 12px; color: var(--text-subtle); margin-top: 8px; padding: 10px 12px; background: var(--surface-2); border-radius: 6px;">
             <!-- Beschreibung via JS -->
@@ -2902,9 +2902,9 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="userDeleteBtn" style="display: none; color: var(--danger); margin-right: auto;" onclick="deleteUser()">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('userEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveUser()">Speichern</button>
+        <button class="btn btn-ghost" id="userDeleteBtn" style="display: none; color: var(--danger); margin-right: auto;" onclick="deleteUser()" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('userEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveUser()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -2914,8 +2914,8 @@
     <div class="modal" style="max-width: 520px;">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Mitarbeiter einladen</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Erstellt eine Einladung — die Person registriert sich selbst und ist dann in deinem Team.</div>
+          <div class="modal-title" data-i18n="iu.title">Mitarbeiter einladen</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="iu.subtitle">Erstellt eine Einladung — die Person registriert sich selbst und ist dann in deinem Team.</div>
         </div>
         <button class="btn-icon" onclick="closeModal('inviteUser')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2924,28 +2924,28 @@
       <div class="modal-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
-            <label>Vorname</label>
-            <input type="text" id="inviteFirstname" placeholder="z. B. Lara" />
+            <label data-i18n="common.firstname">Vorname</label>
+            <input type="text" id="inviteFirstname" data-i18n-ph="iu.firstnamePh" placeholder="z. B. Lara" />
           </div>
           <div class="field">
-            <label>Nachname</label>
-            <input type="text" id="inviteLastname" placeholder="z. B. Fischer" />
+            <label data-i18n="common.lastname">Nachname</label>
+            <input type="text" id="inviteLastname" data-i18n-ph="iu.lastnamePh" placeholder="z. B. Fischer" />
           </div>
         </div>
         <div class="field">
-          <label>E-Mail *</label>
-          <input type="email" id="inviteEmail" placeholder="lara@firma.ch" />
+          <label data-i18n="iu.emailReq">E-Mail *</label>
+          <input type="email" id="inviteEmail" data-i18n-ph="iu.emailPh" placeholder="lara@firma.ch" />
         </div>
         <div class="field">
-          <label>Rolle</label>
+          <label data-i18n="common.role">Rolle</label>
           <div class="opt-row" id="inviteRoleChips"></div>
-          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;"><span data-term="feldMitarbeiterPlural">Reiniger</span> im Aussendienst (nur Mobile-App): Read-only genügt.</div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;"><span data-term="feldMitarbeiterPlural">Reiniger</span><span data-i18n="iu.roleHint"> im Aussendienst (nur Mobile-App): Read-only genügt.</span></div>
         </div>
         <div id="inviteError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('inviteUser')">Abbrechen</button>
-        <button class="btn btn-accent" id="inviteSendBtn" onclick="sendInvite()">Einladung erstellen</button>
+        <button class="btn btn-secondary" onclick="closeModal('inviteUser')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" id="inviteSendBtn" onclick="sendInvite()" data-i18n="iu.createInvite">Einladung erstellen</button>
       </div>
     </div>
   </div>
@@ -2955,8 +2955,8 @@
     <div class="modal" style="max-width: 560px;">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Rollen verwalten</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Lege eigene Rollen mit genau den Rechten an, die deine Firma braucht.</div>
+          <div class="modal-title" data-i18n="rm.title">Rollen verwalten</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="rm.subtitle">Lege eigene Rollen mit genau den Rechten an, die deine Firma braucht.</div>
         </div>
         <button class="btn-icon" onclick="closeModal('roleManager')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2964,10 +2964,10 @@
       </div>
       <div class="modal-body">
         <div id="roleManagerList" style="display:flex; flex-direction:column; gap:8px;"></div>
-        <button class="btn btn-secondary" style="margin-top:14px;" onclick="openRoleEditor()">＋ Neue Rolle</button>
+        <button class="btn btn-secondary" style="margin-top:14px;" onclick="openRoleEditor()" data-i18n="rm.newRole">＋ Neue Rolle</button>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('roleManager')">Schliessen</button>
+        <button class="btn btn-secondary" onclick="closeModal('roleManager')" data-i18n="common.close">Schliessen</button>
       </div>
     </div>
   </div>
@@ -2978,7 +2978,7 @@
       <div class="modal-header">
         <div>
           <div class="modal-title" id="roleEditorTitle">Neue Rolle</div>
-          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;">Name, Farbe und Rechte festlegen.</div>
+          <div style="font-size: 12.5px; color: var(--text-subtle); margin-top: 2px;" data-i18n="roe.subtitle">Name, Farbe und Rechte festlegen.</div>
         </div>
         <button class="btn-icon" onclick="closeModal('roleEditor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2986,23 +2986,23 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Name der Rolle *</label>
-          <input type="text" id="roleName" placeholder="z. B. Teamleiter" />
+          <label data-i18n="roe.roleName">Name der Rolle *</label>
+          <input type="text" id="roleName" data-i18n-ph="roe.roleNamePh" placeholder="z. B. Teamleiter" />
         </div>
         <div class="field">
-          <label>Farbe</label>
+          <label data-i18n="roe.color">Farbe</label>
           <div class="opt-row" id="roleColorChips"></div>
         </div>
         <div class="field">
-          <label>Rechte</label>
+          <label data-i18n="roe.rights">Rechte</label>
           <div id="rolePermList" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;"></div>
         </div>
         <div id="roleEditorError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="roleDeleteBtn" style="display:none; color:var(--danger); margin-right:auto;" onclick="deleteRole()">Löschen</button>
-        <button class="btn btn-secondary" onclick="closeModal('roleEditor')">Abbrechen</button>
-        <button class="btn btn-accent" onclick="saveRole()">Speichern</button>
+        <button class="btn btn-ghost" id="roleDeleteBtn" style="display:none; color:var(--danger); margin-right:auto;" onclick="deleteRole()" data-i18n="common.delete">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('roleEditor')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveRole()" data-i18n="common.save">Speichern</button>
       </div>
     </div>
   </div>
@@ -3011,14 +3011,14 @@
   <div class="modal-backdrop" id="modal-mailConnect" onclick="if(event.target===this)closeModal('mailConnect')">
     <div class="modal" style="max-width:480px;">
       <div class="modal-header">
-        <div class="modal-title">Postfach verbinden</div>
+        <div class="modal-title" data-i18n="mc.title">Postfach verbinden</div>
         <button class="btn-icon" onclick="closeModal('mailConnect')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div class="modal-body" style="padding-top:8px;">
         <div class="mail-provider-grid" id="mailProviderGridModal"></div>
-        <p style="margin-top:16px;font-size:12px;color:var(--text-subtle);text-align:center;">
+        <p style="margin-top:16px;font-size:12px;color:var(--text-subtle);text-align:center;" data-i18n="mc.note">
           OAuth-Keys & Edge Function URL einmalig in <strong>mail-config.js</strong> hinterlegen.
         </p>
       </div>
@@ -3036,19 +3036,19 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label>Provider</label>
+          <label data-i18n="mi.provider">Provider</label>
           <select id="imapPreset" onchange="updateImapPreset()">
-            <option value="icloud">iCloud Mail (imap.mail.me.com)</option>
-            <option value="custom">Webmail / eigener IMAP-Server</option>
+            <option value="icloud" data-i18n="mi.optIcloud">iCloud Mail (imap.mail.me.com)</option>
+            <option value="custom" data-i18n="mi.optCustom">Webmail / eigener IMAP-Server</option>
           </select>
         </div>
         <div class="field">
-          <label>E-Mail-Adresse</label>
-          <input type="email" id="imapEmail" placeholder="vorname@icloud.com" />
+          <label data-i18n="mi.emailAddr">E-Mail-Adresse</label>
+          <input type="email" id="imapEmail" data-i18n-ph="mi.emailPh" placeholder="vorname@icloud.com" />
         </div>
         <div class="field" id="imapServerField" style="display:none;">
-          <label>IMAP-Server</label>
-          <input type="text" id="imapHost" placeholder="imap.example.com" />
+          <label data-i18n="mi.imapServer">IMAP-Server</label>
+          <input type="text" id="imapHost" data-i18n-ph="mi.hostPh" placeholder="imap.example.com" />
         </div>
         <input type="hidden" id="imapPort" value="993" />
         <div class="field">
@@ -3058,13 +3058,13 @@
             iCloud: Einstellungen → Apple-ID → Anmelden &amp; Sicherheit → App-Passwörter generieren
           </small>
         </div>
-        <div style="padding:10px 12px;background:var(--surface-2);border-radius:8px;font-size:12.5px;color:var(--text-muted);margin-top:4px;">
+        <div style="padding:10px 12px;background:var(--surface-2);border-radius:8px;font-size:12.5px;color:var(--text-muted);margin-top:4px;" data-i18n="mi.requirement">
           Voraussetzung: Supabase Edge Function <code>imap-fetch</code> deployed und URL in <strong>mail-config.js</strong> eingetragen.
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('mailImap')">Abbrechen</button>
-        <button class="btn btn-accent" id="imapConnectBtn" onclick="connectImap()">Verbinden</button>
+        <button class="btn btn-secondary" onclick="closeModal('mailImap')" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-accent" id="imapConnectBtn" onclick="connectImap()" data-i18n="mi.connect">Verbinden</button>
       </div>
     </div>
   </div>
@@ -3074,8 +3074,8 @@
     <div class="modal" style="max-width:380px;text-align:center;">
       <div class="modal-header" style="justify-content:space-between;">
         <div>
-          <div class="modal-title">QR-Code für Mitarbeiter</div>
-          <div style="font-size:12px;color:var(--text-subtle);margin-top:2px;">Beim Ankommen scannen → Zeiterfassung startet</div>
+          <div class="modal-title" data-i18n="qr.title">QR-Code für Mitarbeiter</div>
+          <div style="font-size:12px;color:var(--text-subtle);margin-top:2px;" data-i18n="qr.subtitle">Beim Ankommen scannen → Zeiterfassung startet</div>
         </div>
         <button class="btn-icon" onclick="closeModal('jobQr')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -3084,12 +3084,12 @@
       <div class="modal-body" style="padding-top:8px;">
         <canvas id="jobQrCanvas" style="width:220px;height:220px;border-radius:12px;background:#fff;padding:10px;display:block;margin:0 auto;"></canvas>
         <div id="jobQrLabel" style="font-size:13px;font-weight:600;color:var(--text);margin:14px 0 4px;"></div>
-        <div style="font-size:12px;color:var(--text-subtle);margin-bottom:12px;">24h gültig · kein Login nötig</div>
-        <a id="jobQrLink" href="#" target="_blank" style="font-size:12px;color:var(--accent);display:block;margin-bottom:6px;">Link direkt öffnen (für Tests) →</a>
+        <div style="font-size:12px;color:var(--text-subtle);margin-bottom:12px;" data-i18n="qr.validity">24h gültig · kein Login nötig</div>
+        <a id="jobQrLink" href="#" target="_blank" style="font-size:12px;color:var(--accent);display:block;margin-bottom:6px;" data-i18n="qr.openLink">Link direkt öffnen (für Tests) →</a>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('jobQr')">Schliessen</button>
-        <button class="btn btn-accent" onclick="window.print()">Drucken</button>
+        <button class="btn btn-secondary" onclick="closeModal('jobQr')" data-i18n="common.close">Schliessen</button>
+        <button class="btn btn-accent" onclick="window.print()" data-i18n="qr.print">Drucken</button>
       </div>
     </div>
   </div>
