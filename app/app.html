@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=10"></script>
+  <script src="app-i18n.js?v=11"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -3819,6 +3819,8 @@
 
     // Kurzhelfer: Branchen-Begriff holen (Fallback = Key, falls Engine fehlt).
     const VT = (k) => (window.MosaVertical ? MosaVertical.t(k) : k);
+    // Kurzhelfer: Übersetzung für JS-generierte Strings (Fallback = dt. Text, falls i18n-Engine fehlt).
+    const tt = (k, f) => (window.MosaI18n ? MosaI18n.t(k, f) : f);
 
     // Topbar-Titel einer Ansicht: branchen-Override (navLabels, sprach-lokalisiert) →
     // sonst Übersetzung (nav.<view>) → sonst statischer Titel. objekte/mitarbeiter werden
@@ -4222,7 +4224,7 @@
     function openRoleEditor(key = null) {
       editingRoleKey = key;
       const def = key ? ROLE_DEFS[key] : null;
-      document.getElementById('roleEditorTitle').textContent = def ? 'Rolle bearbeiten' : 'Neue Rolle';
+      document.getElementById('roleEditorTitle').textContent = def ? tt('dyn.roleEdit', 'Rolle bearbeiten') : tt('dyn.roleNew', 'Neue Rolle');
       document.getElementById('roleName').value = def ? def.label : '';
       document.getElementById('roleEditorError').style.display = 'none';
       roleEditorColor = def ? def.color : ROLE_COLOR_CHOICES[0];
@@ -4581,7 +4583,7 @@
       if (id) {
         const u = users.find(x => x.id === id);
         if (!u) return;
-        document.getElementById('userModalTitle').textContent = 'Mitarbeiter bearbeiten';
+        document.getElementById('userModalTitle').textContent = tt('dyn.userEdit', 'Mitarbeiter bearbeiten');
         document.getElementById('userFirstname').value = u.firstname || '';
         document.getElementById('userLastname').value = u.lastname || '';
         document.getElementById('userEmail').value = u.email || '';
@@ -4592,7 +4594,7 @@
         const isSelf = u.id === currentUser?.id;
         document.getElementById('userDeleteBtn').style.display = (isLastAdmin || isSelf) ? 'none' : 'inline-flex';
       } else {
-        document.getElementById('userModalTitle').textContent = 'Neuer Mitarbeiter';
+        document.getElementById('userModalTitle').textContent = tt('dyn.userNew', 'Neuer Mitarbeiter');
         document.getElementById('userFirstname').value = '';
         document.getElementById('userLastname').value = '';
         document.getElementById('userEmail').value = '';
@@ -5409,7 +5411,7 @@
       if (!j) return;
       editingJob = { dateKey, idx, added: !!j._added, jobId: j._jobId || null, seriesId: j.seriesId || null };
       const resetBtn = document.getElementById('jobEditResetBtn');
-      if (resetBtn) resetBtn.textContent = j.seriesId ? 'Löschen' : (j._added ? 'Auftrag löschen' : 'Auf Standard zurücksetzen');
+      if (resetBtn) resetBtn.textContent = j.seriesId ? tt('common.delete', 'Löschen') : (j._added ? tt('dyn.deleteOrder', 'Auftrag löschen') : tt('job.resetDefault', 'Auf Standard zurücksetzen'));
 
       // Serien-Banner
       const banner = document.getElementById('jobEditSeriesBanner');
@@ -5761,7 +5763,7 @@
       editingCustomerId = id || null;
       const list = loadCustomers();
       const c = id ? list.find(x => x.id === id) : null;
-      document.getElementById('custEditorTitle').textContent = c ? 'Kunde bearbeiten' : 'Neuer Kunde';
+      document.getElementById('custEditorTitle').textContent = c ? tt('dyn.custEdit', 'Kunde bearbeiten') : tt('dyn.custNew', 'Neuer Kunde');
       document.getElementById('custFirstname').value = c?.firstName || '';
       document.getElementById('custLastname').value = c?.lastName || '';
       document.getElementById('custAddress').value = c?.address || '';
@@ -5889,7 +5891,7 @@
       document.getElementById('siteCustomer').innerHTML = pestCustomerOptions(s?.customerId || '');
       const wt = window.MosaVertical ? MosaVertical.t('feldMitarbeiter') : 'Monteur';
       document.getElementById('siteMonteurLabel').textContent = 'Verantwortl. ' + wt;
-      document.getElementById('siteEditorTitle').textContent = s ? siteLabel(s) : 'Neue Baustelle';
+      document.getElementById('siteEditorTitle').textContent = s ? siteLabel(s) : tt('dyn.siteNew', 'Neue Baustelle');
       document.getElementById('siteTitle').value = s?.title || '';
       document.getElementById('siteAddress').value = s?.address || '';
       document.getElementById('siteType').value = s?.type || '';
@@ -6037,7 +6039,7 @@
       const r = id ? loadRapporte().find(x => x.id === id) : null;
       populateRapSite(r?.siteId || '');
       document.getElementById('rapMonteurLabel').textContent = window.MosaVertical ? MosaVertical.t('feldMitarbeiter') : 'Monteur';
-      document.getElementById('rapportEditorTitle').textContent = r ? 'Rapport bearbeiten' : 'Neuer Rapport';
+      document.getElementById('rapportEditorTitle').textContent = r ? tt('dyn.rapEdit', 'Rapport bearbeiten') : tt('dyn.rapNew', 'Neuer Rapport');
       document.getElementById('rapCustomer').value = r?.objektName || '';
       document.getElementById('rapDate').value = r?.date || new Date().toISOString().slice(0, 10);
       document.getElementById('rapMonteur').value = r?.monteur || '';
@@ -6178,7 +6180,7 @@
       editingBaitId = id || null;
       const b = id ? loadBaits().find(x => x.id === id) : null;
       populateBaitCustomer(b?.customerId || '');
-      document.getElementById('baitEditorTitle').textContent = b ? `Köderstelle ${b.number || ''}`.trim() : 'Neue Köderstelle';
+      document.getElementById('baitEditorTitle').textContent = b ? `${tt('dyn.baitStation', 'Köderstelle')} ${b.number || ''}`.trim() : tt('dyn.baitNew', 'Neue Köderstelle');
       document.getElementById('baitNumber').value = b?.number || '';
       document.getElementById('baitLocation').value = b?.location || '';
       document.getElementById('baitType').value = b?.type || 'Köderbox';
@@ -6571,7 +6573,7 @@
       const o = id ? loadWorkOrders().find(x => x.id === id) : null;
       populateWoVehicleSelect();
       populateWoServices();
-      document.getElementById('woEditorTitle').textContent = o ? `Auftrag · ${workOrderLabel(o)}` : 'Auftrag annehmen';
+      document.getElementById('woEditorTitle').textContent = o ? `${tt('dyn.woOrder', 'Auftrag')} · ${workOrderLabel(o)}` : tt('dyn.woNew', 'Auftrag annehmen');
       document.getElementById('woVehicleSelect').value = o?.vehicleId || '';
       document.getElementById('woPlate').value = o?.plate || '';
       document.getElementById('woModel').value = o?.model || '';
@@ -6767,7 +6769,7 @@
       editingTireId = id || null;
       const t = id ? loadTires().find(x => x.id === id) : null;
       populateTireVehicleSelect();
-      document.getElementById('tireEditorTitle').textContent = t ? 'Einlagerung bearbeiten' : 'Neue Einlagerung';
+      document.getElementById('tireEditorTitle').textContent = t ? tt('dyn.tireEdit', 'Einlagerung bearbeiten') : tt('dyn.tireNew', 'Neue Einlagerung');
       document.getElementById('tireVehicleSelect').value = t?.vehicleId || '';
       document.getElementById('tireOwner').value = t?.owner || '';
       document.getElementById('tirePlate').value = t?.plate || '';
@@ -6888,7 +6890,7 @@
     function openVehicleEditor(id) {
       editingVehicleId = id || null;
       const v = id ? loadVehicles().find(x => x.id === id) : null;
-      document.getElementById('vehEditorTitle').textContent = v ? 'Fahrzeug bearbeiten' : 'Neues Fahrzeug';
+      document.getElementById('vehEditorTitle').textContent = v ? tt('dyn.vehEdit', 'Fahrzeug bearbeiten') : tt('dyn.vehNew', 'Neues Fahrzeug');
       document.getElementById('vehPlate').value = v?.plate || '';
       document.getElementById('vehKm').value = v?.km || '';
       document.getElementById('vehModel').value = v?.model || '';
@@ -7318,7 +7320,7 @@
       if (id) {
         const t = TASKS.find(x => x.id === id);
         if (!t) return;
-        document.getElementById('taskModalTitle').textContent = 'Aufgabe bearbeiten';
+        document.getElementById('taskModalTitle').textContent = tt('dyn.taskEdit', 'Aufgabe bearbeiten');
         document.getElementById('taskTitle').value = t.title || '';
         document.getElementById('taskDesc').value = t.desc || '';
         document.getElementById('taskAssignee').value = t.assignee || users[0].id;
@@ -7334,7 +7336,7 @@
         document.getElementById('taskContactEmail').value = t.contactEmail || '';
         document.getElementById('taskContactPhone').value = t.contactPhone || '';
       } else {
-        document.getElementById('taskModalTitle').textContent = 'Neue Aufgabe';
+        document.getElementById('taskModalTitle').textContent = tt('dyn.taskNew', 'Neue Aufgabe');
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDesc').value = linkContext?.desc || '';
         const preAssignee = linkContext?.assignee && users.find(u => u.id === linkContext.assignee) ? linkContext.assignee : users[0].id;
@@ -7764,7 +7766,7 @@
       teamSel.innerHTML = '<option value="">— kein Team —</option>'
         + PLAN_TEAMS.map(t => `<option value="${t.id}">${t.name}</option>`).join('')
         + '<option value="__new__">➕ Neues Team anlegen…</option>';
-      document.getElementById('mitModalTitle').textContent = e ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter';
+      document.getElementById('mitModalTitle').textContent = e ? tt('dyn.userEdit', 'Mitarbeiter bearbeiten') : tt('dyn.userNew', 'Neuer Mitarbeiter');
       document.getElementById('mitFirstname').value = e?.firstName || '';
       document.getElementById('mitLastname').value = e?.lastName || '';
       document.getElementById('mitEmail').value = e?.email || '';
@@ -8875,7 +8877,7 @@
       // Mitarbeiter-Vorschläge
       const dl = document.getElementById('repEmployeeList');
       if (dl) dl.innerHTML = EMPLOYEES.map(e => `<option value="${empName(e)}"></option>`).join('');
-      document.getElementById('reportModalTitle').textContent = r ? 'Bericht bearbeiten' : 'Bericht erfassen';
+      document.getElementById('reportModalTitle').textContent = r ? tt('dyn.reportEdit', 'Bericht bearbeiten') : tt('dyn.reportNew', 'Bericht erfassen');
       document.getElementById('repObjekt').value = r?.objekt || '';
       document.getElementById('repEmployee').value = r?.employee || '';
       document.getElementById('repDate').value = r?.date || new Date().toISOString().slice(0, 10);
@@ -8936,7 +8938,7 @@
       if (!r) return;
       detailReportId = id;
       const st = REPORT_STATUS[r.status] || REPORT_STATUS.vollstaendig;
-      document.getElementById('repDetailTitle').textContent = r.objekt || 'Bericht';
+      document.getElementById('repDetailTitle').textContent = r.objekt || tt('dyn.report', 'Bericht');
       document.getElementById('repDetailMeta').innerHTML = [r.employee, reportDateLabel(r), r.time].filter(Boolean).map(escapeHtml).join(' · ') + ` · <span class="badge ${st.cls}"><span class="dot" style="background:${st.col}"></span>${st.label}</span>`;
       document.getElementById('repDetailNote').textContent = r.note || '';
       const photos = r.photos || [];
@@ -9745,8 +9747,8 @@ ${coSig}`;
           document.getElementById('offDatum').value = off.datum || todayISO();
           document.getElementById('offText').value = off.text || '';
           document.getElementById('offText').dataset.manuallyEdited = 'true';
-          document.getElementById('offModalTitle').textContent = 'Offerte bearbeiten';
-          document.getElementById('offModalSub').textContent = 'Beim Speichern fragen wir nach dem Grund der Änderung';
+          document.getElementById('offModalTitle').textContent = tt('dyn.offEdit', 'Offerte bearbeiten');
+          document.getElementById('offModalSub').textContent = tt('dyn.offSubEdit', 'Beim Speichern fragen wir nach dem Grund der Änderung');
           document.getElementById('offDeleteBtn').style.display = 'inline-flex';
           // Snapshot für Änderungserkennung
           currentOffertOriginal = {
@@ -9768,8 +9770,8 @@ ${coSig}`;
         document.getElementById('offDatum').value = todayISO();
         document.getElementById('offText').value = '';
         document.getElementById('offText').dataset.manuallyEdited = 'false';
-        document.getElementById('offModalTitle').textContent = 'Neue Offerte';
-        document.getElementById('offModalSub').textContent = 'Vorgefertigter Text — nur Kundendaten ergänzen';
+        document.getElementById('offModalTitle').textContent = tt('dyn.offNew', 'Neue Offerte');
+        document.getElementById('offModalSub').textContent = tt('dyn.offSubNew', 'Vorgefertigter Text — nur Kundendaten ergänzen');
         document.getElementById('offDeleteBtn').style.display = 'none';
         document.getElementById('offHistory').style.display = 'none';
         // set initial service pill (erste Leistung der Branche)
