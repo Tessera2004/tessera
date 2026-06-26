@@ -177,7 +177,18 @@
       'auth.feat3': 'Daten in der EU · DSG-konform',
       'auth.errNoDb': 'Verbindung zur Datenbank fehlt (Internet?).', 'auth.errInvalid': 'E-Mail oder Passwort falsch.',
       'auth.resetSent': 'Falls ein Konto existiert, ist die E-Mail unterwegs. Prüfe dein Postfach.',
-      'auth.pwChanged': '✓ Passwort geändert. Weiterleitung …'
+      'auth.pwChanged': '✓ Passwort geändert. Weiterleitung …',
+      // ── Etappe 4g: Rest-JS-Strings (Wizard-Untertitel, IMAP, Module, Nachkalkulation, CSV, Rollen) ──
+      'wiz.subDetails': 'Details', 'wiz.subConfigure': 'Details konfigurieren', 'wiz.subStep1': 'Wähle die {x} aus', 'wiz.subStep3': 'Termin, Adresse und Preis',
+      'site.addBtn': 'Baustelle', 'site.addBtnGarten': 'Gartenprojekt',
+      'mi.titleIcloud': 'iCloud Mail verbinden', 'mi.titleCustom': 'Webmail / IMAP verbinden', 'mi.passApp': 'App-spezifisches Passwort', 'mi.passAppHint': 'iCloud: Einstellungen → Apple-ID → Anmelden & Sicherheit → App-Passwörter generieren', 'mi.passPlain': 'Passwort',
+      'auth.statusSynced': 'synchronisiert', 'auth.statusLocal': 'Nicht angemeldet · nur lokal', 'common.login': 'Anmelden',
+      'mod.email.label': 'E-Mail-Postfach', 'mod.offerten.desc': 'Angebote schreiben, PDF, Versionshistorie', 'mod.anrufprotokoll.desc': 'Anrufe erfassen, Rückrufe, Aufgaben daraus', 'mod.aufgaben.desc': 'To-dos ans Büro-Team verteilen', 'mod.email.desc': 'Postfach anbinden (Modulstufe 2)', 'mod.abos.desc': 'Wiederkehrende Aufträge verwalten', 'mod.berichte.desc': 'Foto- und Unterschrift-Nachweise', 'mod.zeiten.desc': 'Arbeitszeiten, QR-Check-in', 'mod.nachkalkulation.desc': 'Soll/Ist je Auftrag', 'mod.rechnungen.desc': 'QR-Rechnungen erstellen',
+      'price.rateLabel': 'Stundensatz', 'price.flatLabel': 'Pauschalpreis', 'price.flatSuffix': 'CHF pauschal',
+      'nk.istMeta': 'erfasst', 'nk.diffMeta': 'Ist − Soll', 'nk.rateMeta': 'Umsatz ÷ Ist-Stunden', 'nk.recordedOf': '{n} von {t} Einsätzen erfasst', 'nk.overBudgetOne': '{n} Einsatz über Budget', 'nk.overBudgetMany': '{n} Einsätze über Budget', 'nk.effPerHour': 'effektiv pro Ist-Stunde', 'nk.enterIst': 'Ist-Stunden eintragen', 'nk.inBudget': 'Im Budget', 'nk.tight': 'Knapp', 'nk.overBudget': 'Über Budget',
+      'csv.prompt': 'Monat exportieren? Format: YYYY-MM (z.B. {ex})\n\nLeer lassen = aktueller Monat ({m})', 'csv.hDate': 'Datum', 'csv.hStart': 'Startzeit', 'csv.hDuration': 'Dauer (min)', 'csv.hObject': 'Objekt/Auftrag', 'csv.hCustomer': 'Kunde', 'csv.hAddress': 'Adresse', 'csv.hService': 'Leistung', 'csv.hStaff': 'Mitarbeiter', 'csv.hStaffCount': 'Anzahl MA', 'csv.hPrice': 'Preis (CHF)', 'csv.hPayment': 'Zahlart', 'csv.hNoteOffice': 'Notiz Büro', 'csv.sumNet': 'SUMME NETTO:', 'csv.grossTotal': 'BRUTTO TOTAL:',
+      'role.admin': 'Admin', 'role.disposition': 'Disposition', 'role.buchhaltung': 'Buchhaltung', 'role.readonly': 'Read-only', 'role.adminDesc': 'Voller Zugriff — Aufträge, Offerten, Preise, Team verwalten, Löschen.', 'role.dispositionDesc': 'Aufträge anlegen/ändern, Objekte verwalten, Offerten schreiben. Keine Preise, kein Team.', 'role.buchhaltungDesc': 'Offerten + Preise bearbeiten. Keine Auftragsplanung, kein Team.', 'role.readonlyDesc': 'Nur Ansicht — kann nichts speichern, ändern oder löschen.', 'role.viewOnly': 'Nur Ansicht — kann nichts ändern.', 'role.mayPrefix': 'Darf: ', 'role.right': 'Recht', 'role.rights': 'Rechte', 'role.builtin': 'Standard',
+      'perm.edit_auftrag': 'Aufträge bearbeiten', 'perm.edit_offerts': 'Offerten schreiben', 'perm.edit_prices': 'Preise ändern', 'perm.edit_objekte': 'Kunden / Objekte bearbeiten', 'perm.edit_users': 'Team & Rollen verwalten', 'perm.delete_offerts': 'Löschen'
     },
     fr: {
       'nav.sec.overview': 'Aperçu', 'nav.sec.jobs': 'Interventions', 'nav.sec.customers': 'Clients',
@@ -313,7 +324,17 @@
       'auth.feat3': 'Données dans l\'UE · conforme au RGPD',
       'auth.errNoDb': 'Pas de connexion à la base de données (internet ?).', 'auth.errInvalid': 'E-mail ou mot de passe incorrect.',
       'auth.resetSent': 'Si un compte existe, l\'e-mail est en route. Vérifiez votre boîte de réception.',
-      'auth.pwChanged': '✓ Mot de passe modifié. Redirection …'
+      'auth.pwChanged': '✓ Mot de passe modifié. Redirection …',
+      'wiz.subDetails': 'Détails', 'wiz.subConfigure': 'Configurer les détails', 'wiz.subStep1': 'Choisissez {x}', 'wiz.subStep3': 'Date, adresse et prix',
+      'site.addBtn': 'Chantier', 'site.addBtnGarten': 'Projet de jardin',
+      'mi.titleIcloud': 'Connecter iCloud Mail', 'mi.titleCustom': 'Connecter Webmail / IMAP', 'mi.passApp': 'Mot de passe propre à l’app', 'mi.passAppHint': 'iCloud : Réglages → identifiant Apple → Connexion et sécurité → générer un mot de passe pour app', 'mi.passPlain': 'Mot de passe',
+      'auth.statusSynced': 'synchronisé', 'auth.statusLocal': 'Non connecté · local uniquement', 'common.login': 'Se connecter',
+      'mod.email.label': 'Boîte e-mail', 'mod.offerten.desc': 'Rédiger des offres, PDF, historique des versions', 'mod.anrufprotokoll.desc': 'Enregistrer les appels, rappels, tâches associées', 'mod.aufgaben.desc': 'Répartir les tâches à l’équipe de bureau', 'mod.email.desc': 'Connecter la boîte (niveau de module 2)', 'mod.abos.desc': 'Gérer les ordres récurrents', 'mod.berichte.desc': 'Preuves photo et signature', 'mod.zeiten.desc': 'Temps de travail, check-in QR', 'mod.nachkalkulation.desc': 'Prévu/réel par intervention', 'mod.rechnungen.desc': 'Créer des factures QR',
+      'price.rateLabel': 'Taux horaire', 'price.flatLabel': 'Prix forfaitaire', 'price.flatSuffix': 'CHF forfait',
+      'nk.istMeta': 'saisi', 'nk.diffMeta': 'Réel − Prévu', 'nk.rateMeta': 'Chiffre d’affaires ÷ heures réelles', 'nk.recordedOf': '{n} interventions sur {t} saisies', 'nk.overBudgetOne': '{n} intervention hors budget', 'nk.overBudgetMany': '{n} interventions hors budget', 'nk.effPerHour': 'effectif par heure réelle', 'nk.enterIst': 'Saisir les heures réelles', 'nk.inBudget': 'Dans le budget', 'nk.tight': 'Juste', 'nk.overBudget': 'Hors budget',
+      'csv.prompt': 'Exporter le mois ? Format : YYYY-MM (p. ex. {ex})\n\nLaisser vide = mois en cours ({m})', 'csv.hDate': 'Date', 'csv.hStart': 'Heure de début', 'csv.hDuration': 'Durée (min)', 'csv.hObject': 'Objet/Mandat', 'csv.hCustomer': 'Client', 'csv.hAddress': 'Adresse', 'csv.hService': 'Prestation', 'csv.hStaff': 'Employés', 'csv.hStaffCount': 'Nb employés', 'csv.hPrice': 'Prix (CHF)', 'csv.hPayment': 'Mode de paiement', 'csv.hNoteOffice': 'Note bureau', 'csv.sumNet': 'TOTAL NET :', 'csv.grossTotal': 'TOTAL BRUT :',
+      'role.admin': 'Admin', 'role.disposition': 'Répartition', 'role.buchhaltung': 'Comptabilité', 'role.readonly': 'Lecture seule', 'role.adminDesc': 'Accès complet — mandats, offres, prix, gestion de l’équipe, suppression.', 'role.dispositionDesc': 'Créer/modifier des mandats, gérer les objets, rédiger des offres. Pas de prix, pas d’équipe.', 'role.buchhaltungDesc': 'Modifier offres + prix. Pas de planification, pas d’équipe.', 'role.readonlyDesc': 'Lecture seule — ne peut rien enregistrer, modifier ou supprimer.', 'role.viewOnly': 'Lecture seule — ne peut rien modifier.', 'role.mayPrefix': 'Autorisé : ', 'role.right': 'droit', 'role.rights': 'droits', 'role.builtin': 'Standard',
+      'perm.edit_auftrag': 'Modifier les mandats', 'perm.edit_offerts': 'Rédiger des offres', 'perm.edit_prices': 'Modifier les prix', 'perm.edit_objekte': 'Modifier clients / objets', 'perm.edit_users': 'Gérer équipe & rôles', 'perm.delete_offerts': 'Supprimer'
     },
     it: {
       'nav.sec.overview': 'Panoramica', 'nav.sec.jobs': 'Interventi', 'nav.sec.customers': 'Clienti',
@@ -449,7 +470,17 @@
       'auth.feat3': 'Dati nell\'UE · conforme al GDPR',
       'auth.errNoDb': 'Nessuna connessione al database (internet?).', 'auth.errInvalid': 'E-mail o password errati.',
       'auth.resetSent': 'Se esiste un account, l\'e-mail è in arrivo. Controlla la posta.',
-      'auth.pwChanged': '✓ Password modificata. Reindirizzamento …'
+      'auth.pwChanged': '✓ Password modificata. Reindirizzamento …',
+      'wiz.subDetails': 'Dettagli', 'wiz.subConfigure': 'Configura i dettagli', 'wiz.subStep1': 'Scegli {x}', 'wiz.subStep3': 'Data, indirizzo e prezzo',
+      'site.addBtn': 'Cantiere', 'site.addBtnGarten': 'Progetto giardino',
+      'mi.titleIcloud': 'Collega iCloud Mail', 'mi.titleCustom': 'Collega Webmail / IMAP', 'mi.passApp': 'Password specifica per app', 'mi.passAppHint': 'iCloud: Impostazioni → ID Apple → Accesso e sicurezza → genera password per app', 'mi.passPlain': 'Password',
+      'auth.statusSynced': 'sincronizzato', 'auth.statusLocal': 'Non connesso · solo locale', 'common.login': 'Accedi',
+      'mod.email.label': 'Casella e-mail', 'mod.offerten.desc': 'Scrivere offerte, PDF, cronologia versioni', 'mod.anrufprotokoll.desc': 'Registrare chiamate, richiami, attività correlate', 'mod.aufgaben.desc': 'Distribuire i to-do al team d’ufficio', 'mod.email.desc': 'Collegare la casella (livello modulo 2)', 'mod.abos.desc': 'Gestire gli ordini ricorrenti', 'mod.berichte.desc': 'Prove con foto e firma', 'mod.zeiten.desc': 'Orari di lavoro, check-in QR', 'mod.nachkalkulation.desc': 'Previsto/effettivo per intervento', 'mod.rechnungen.desc': 'Creare fatture QR',
+      'price.rateLabel': 'Tariffa oraria', 'price.flatLabel': 'Prezzo forfettario', 'price.flatSuffix': 'CHF forfait',
+      'nk.istMeta': 'registrato', 'nk.diffMeta': 'Effettivo − Previsto', 'nk.rateMeta': 'Fatturato ÷ ore effettive', 'nk.recordedOf': '{n} di {t} interventi registrati', 'nk.overBudgetOne': '{n} intervento oltre budget', 'nk.overBudgetMany': '{n} interventi oltre budget', 'nk.effPerHour': 'effettivo per ora reale', 'nk.enterIst': 'Inserire le ore effettive', 'nk.inBudget': 'Nel budget', 'nk.tight': 'Al limite', 'nk.overBudget': 'Oltre budget',
+      'csv.prompt': 'Esportare il mese? Formato: YYYY-MM (es. {ex})\n\nLasciare vuoto = mese corrente ({m})', 'csv.hDate': 'Data', 'csv.hStart': 'Ora inizio', 'csv.hDuration': 'Durata (min)', 'csv.hObject': 'Oggetto/Incarico', 'csv.hCustomer': 'Cliente', 'csv.hAddress': 'Indirizzo', 'csv.hService': 'Prestazione', 'csv.hStaff': 'Dipendenti', 'csv.hStaffCount': 'N. dipendenti', 'csv.hPrice': 'Prezzo (CHF)', 'csv.hPayment': 'Modalità pagamento', 'csv.hNoteOffice': 'Nota ufficio', 'csv.sumNet': 'TOTALE NETTO:', 'csv.grossTotal': 'TOTALE LORDO:',
+      'role.admin': 'Admin', 'role.disposition': 'Pianificazione', 'role.buchhaltung': 'Contabilità', 'role.readonly': 'Sola lettura', 'role.adminDesc': 'Accesso completo — incarichi, offerte, prezzi, gestione team, eliminazione.', 'role.dispositionDesc': 'Creare/modificare incarichi, gestire oggetti, scrivere offerte. Niente prezzi, niente team.', 'role.buchhaltungDesc': 'Modificare offerte + prezzi. Nessuna pianificazione, nessun team.', 'role.readonlyDesc': 'Sola lettura — non può salvare, modificare o eliminare.', 'role.viewOnly': 'Sola lettura — non può modificare nulla.', 'role.mayPrefix': 'Può: ', 'role.right': 'diritto', 'role.rights': 'diritti', 'role.builtin': 'Standard',
+      'perm.edit_auftrag': 'Modificare incarichi', 'perm.edit_offerts': 'Scrivere offerte', 'perm.edit_prices': 'Modificare i prezzi', 'perm.edit_objekte': 'Modificare clienti / oggetti', 'perm.edit_users': 'Gestire team e ruoli', 'perm.delete_offerts': 'Eliminare'
     },
     es: {
       'nav.sec.overview': 'Resumen', 'nav.sec.jobs': 'Servicios', 'nav.sec.customers': 'Clientes',
@@ -585,7 +616,17 @@
       'auth.feat3': 'Datos en la UE · conforme al RGPD',
       'auth.errNoDb': 'Sin conexión a la base de datos (¿internet?).', 'auth.errInvalid': 'Correo o contraseña incorrectos.',
       'auth.resetSent': 'Si existe una cuenta, el correo está en camino. Revisa tu bandeja.',
-      'auth.pwChanged': '✓ Contraseña cambiada. Redirigiendo …'
+      'auth.pwChanged': '✓ Contraseña cambiada. Redirigiendo …',
+      'wiz.subDetails': 'Detalles', 'wiz.subConfigure': 'Configurar detalles', 'wiz.subStep1': 'Elige {x}', 'wiz.subStep3': 'Fecha, dirección y precio',
+      'site.addBtn': 'Obra', 'site.addBtnGarten': 'Proyecto de jardín',
+      'mi.titleIcloud': 'Conectar iCloud Mail', 'mi.titleCustom': 'Conectar Webmail / IMAP', 'mi.passApp': 'Contraseña específica de la app', 'mi.passAppHint': 'iCloud: Ajustes → ID de Apple → Inicio de sesión y seguridad → generar contraseñas para apps', 'mi.passPlain': 'Contraseña',
+      'auth.statusSynced': 'sincronizado', 'auth.statusLocal': 'No conectado · solo local', 'common.login': 'Iniciar sesión',
+      'mod.email.label': 'Buzón de correo', 'mod.offerten.desc': 'Redactar ofertas, PDF, historial de versiones', 'mod.anrufprotokoll.desc': 'Registrar llamadas, devoluciones, tareas derivadas', 'mod.aufgaben.desc': 'Repartir tareas al equipo de oficina', 'mod.email.desc': 'Conectar el buzón (nivel de módulo 2)', 'mod.abos.desc': 'Gestionar pedidos recurrentes', 'mod.berichte.desc': 'Pruebas con foto y firma', 'mod.zeiten.desc': 'Horarios de trabajo, check-in QR', 'mod.nachkalkulation.desc': 'Previsto/real por trabajo', 'mod.rechnungen.desc': 'Crear facturas QR',
+      'price.rateLabel': 'Tarifa por hora', 'price.flatLabel': 'Precio fijo', 'price.flatSuffix': 'CHF fijo',
+      'nk.istMeta': 'registrado', 'nk.diffMeta': 'Real − Previsto', 'nk.rateMeta': 'Facturación ÷ horas reales', 'nk.recordedOf': '{n} de {t} trabajos registrados', 'nk.overBudgetOne': '{n} trabajo sobre presupuesto', 'nk.overBudgetMany': '{n} trabajos sobre presupuesto', 'nk.effPerHour': 'efectivo por hora real', 'nk.enterIst': 'Introducir horas reales', 'nk.inBudget': 'En presupuesto', 'nk.tight': 'Ajustado', 'nk.overBudget': 'Sobre presupuesto',
+      'csv.prompt': '¿Exportar el mes? Formato: YYYY-MM (p. ej. {ex})\n\nDejar vacío = mes actual ({m})', 'csv.hDate': 'Fecha', 'csv.hStart': 'Hora de inicio', 'csv.hDuration': 'Duración (min)', 'csv.hObject': 'Objeto/Encargo', 'csv.hCustomer': 'Cliente', 'csv.hAddress': 'Dirección', 'csv.hService': 'Servicio', 'csv.hStaff': 'Empleados', 'csv.hStaffCount': 'N.º empleados', 'csv.hPrice': 'Precio (CHF)', 'csv.hPayment': 'Forma de pago', 'csv.hNoteOffice': 'Nota oficina', 'csv.sumNet': 'TOTAL NETO:', 'csv.grossTotal': 'TOTAL BRUTO:',
+      'role.admin': 'Admin', 'role.disposition': 'Planificación', 'role.buchhaltung': 'Contabilidad', 'role.readonly': 'Solo lectura', 'role.adminDesc': 'Acceso completo — encargos, ofertas, precios, gestión de equipo, eliminar.', 'role.dispositionDesc': 'Crear/editar encargos, gestionar objetos, redactar ofertas. Sin precios, sin equipo.', 'role.buchhaltungDesc': 'Editar ofertas + precios. Sin planificación, sin equipo.', 'role.readonlyDesc': 'Solo lectura — no puede guardar, editar ni eliminar.', 'role.viewOnly': 'Solo lectura — no puede cambiar nada.', 'role.mayPrefix': 'Puede: ', 'role.right': 'permiso', 'role.rights': 'permisos', 'role.builtin': 'Estándar',
+      'perm.edit_auftrag': 'Editar encargos', 'perm.edit_offerts': 'Redactar ofertas', 'perm.edit_prices': 'Cambiar precios', 'perm.edit_objekte': 'Editar clientes / objetos', 'perm.edit_users': 'Gestionar equipo y roles', 'perm.delete_offerts': 'Eliminar'
     },
     en: {
       'nav.sec.overview': 'Overview', 'nav.sec.jobs': 'Jobs', 'nav.sec.customers': 'Customers',
@@ -724,7 +765,17 @@
       'auth.feat3': 'Data in the EU · GDPR-compliant',
       'auth.errNoDb': 'No connection to the database (internet?).', 'auth.errInvalid': 'Email or password incorrect.',
       'auth.resetSent': 'If an account exists, the email is on its way. Check your inbox.',
-      'auth.pwChanged': '✓ Password changed. Redirecting …'
+      'auth.pwChanged': '✓ Password changed. Redirecting …',
+      'wiz.subDetails': 'Details', 'wiz.subConfigure': 'Configure details', 'wiz.subStep1': 'Choose {x}', 'wiz.subStep3': 'Date, address and price',
+      'site.addBtn': 'Site', 'site.addBtnGarten': 'Garden project',
+      'mi.titleIcloud': 'Connect iCloud Mail', 'mi.titleCustom': 'Connect webmail / IMAP', 'mi.passApp': 'App-specific password', 'mi.passAppHint': 'iCloud: Settings → Apple ID → Sign-In & Security → generate app passwords', 'mi.passPlain': 'Password',
+      'auth.statusSynced': 'synced', 'auth.statusLocal': 'Not signed in · local only', 'common.login': 'Sign in',
+      'mod.email.label': 'Email inbox', 'mod.offerten.desc': 'Write quotes, PDF, version history', 'mod.anrufprotokoll.desc': 'Log calls, callbacks, tasks from them', 'mod.aufgaben.desc': 'Distribute to-dos to the office team', 'mod.email.desc': 'Connect mailbox (module level 2)', 'mod.abos.desc': 'Manage recurring orders', 'mod.berichte.desc': 'Photo and signature proofs', 'mod.zeiten.desc': 'Working hours, QR check-in', 'mod.nachkalkulation.desc': 'Planned/actual per job', 'mod.rechnungen.desc': 'Create QR invoices',
+      'price.rateLabel': 'Hourly rate', 'price.flatLabel': 'Flat price', 'price.flatSuffix': 'CHF flat',
+      'nk.istMeta': 'recorded', 'nk.diffMeta': 'Actual − Planned', 'nk.rateMeta': 'Revenue ÷ actual hours', 'nk.recordedOf': '{n} of {t} jobs recorded', 'nk.overBudgetOne': '{n} job over budget', 'nk.overBudgetMany': '{n} jobs over budget', 'nk.effPerHour': 'effective per actual hour', 'nk.enterIst': 'Enter actual hours', 'nk.inBudget': 'On budget', 'nk.tight': 'Tight', 'nk.overBudget': 'Over budget',
+      'csv.prompt': 'Export which month? Format: YYYY-MM (e.g. {ex})\n\nLeave empty = current month ({m})', 'csv.hDate': 'Date', 'csv.hStart': 'Start time', 'csv.hDuration': 'Duration (min)', 'csv.hObject': 'Object/Job', 'csv.hCustomer': 'Customer', 'csv.hAddress': 'Address', 'csv.hService': 'Service', 'csv.hStaff': 'Staff', 'csv.hStaffCount': 'Staff count', 'csv.hPrice': 'Price (CHF)', 'csv.hPayment': 'Payment type', 'csv.hNoteOffice': 'Office note', 'csv.sumNet': 'NET TOTAL:', 'csv.grossTotal': 'GROSS TOTAL:',
+      'role.admin': 'Admin', 'role.disposition': 'Dispatch', 'role.buchhaltung': 'Accounting', 'role.readonly': 'Read-only', 'role.adminDesc': 'Full access — jobs, quotes, prices, team management, deletion.', 'role.dispositionDesc': 'Create/edit jobs, manage objects, write quotes. No prices, no team.', 'role.buchhaltungDesc': 'Edit quotes + prices. No job planning, no team.', 'role.readonlyDesc': 'Read-only — cannot save, edit or delete anything.', 'role.viewOnly': 'Read-only — cannot change anything.', 'role.mayPrefix': 'May: ', 'role.right': 'right', 'role.rights': 'rights', 'role.builtin': 'Default',
+      'perm.edit_auftrag': 'Edit jobs', 'perm.edit_offerts': 'Write quotes', 'perm.edit_prices': 'Change prices', 'perm.edit_objekte': 'Edit customers / objects', 'perm.edit_users': 'Manage team & roles', 'perm.delete_offerts': 'Delete'
     }
   };
 

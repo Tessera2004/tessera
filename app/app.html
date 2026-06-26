@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=16"></script>
+  <script src="app-i18n.js?v=17"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -3870,7 +3870,8 @@
       ['renderKunden','renderBaustellen','renderRapporte','renderKoederstellen','renderPestProtocols',
        'renderWerkstattplan','renderReifen','renderFahrzeuge','renderMitarbeiter','renderAufgaben',
        'renderAnrufprotokoll','renderMailView','renderPlanung','renderDayTimeline','renderAbos',
-       'renderZeiten'].forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) {} });
+       'renderZeiten','renderModuleSettings','renderRolesLegend','renderNachkalkulation',
+       'applyPriceSection','refreshAuthStatus'].forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) {} });
     });
 
     function navTo(view) {
@@ -4056,8 +4057,8 @@
         <label style="display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; cursor:${canManage ? 'pointer' : 'default'}; background:var(--surface);">
           <input type="checkbox" ${f[m.key] ? 'checked' : ''} ${canManage ? '' : 'disabled'} onchange="toggleFeature('${m.key}', this.checked)" style="margin-top:2px; width:16px; height:16px; accent-color:var(--accent);" />
           <span style="min-width:0;">
-            <span style="display:block; font-weight:600; font-size:13.5px;">${m.label}</span>
-            <span style="display:block; font-size:12px; color:var(--text-subtle);">${m.desc}</span>
+            <span style="display:block; font-weight:600; font-size:13.5px;">${tt('mod.' + m.key + '.label', tt('nav.' + m.view, m.label))}</span>
+            <span style="display:block; font-size:12px; color:var(--text-subtle);">${tt('mod.' + m.key + '.desc', m.desc)}</span>
           </span>
         </label>`).join('');
     }
@@ -4068,7 +4069,7 @@
       saveFeatures(f);
       applyFeatureFlags();
       const mod = FEATURE_MODULES.find(m => m.key === key);
-      toast(`${mod?.label || tt('toastdyn.module','Modul')} ${on ? tt('toastdyn.activated','aktiviert') : tt('toastdyn.deactivated','deaktiviert')}`);
+      toast(`${mod ? tt('mod.' + mod.key + '.label', tt('nav.' + mod.view, mod.label)) : tt('toastdyn.module','Modul')} ${on ? tt('toastdyn.activated','aktiviert') : tt('toastdyn.deactivated','deaktiviert')}`);
     }
 
     // ============ BRANCHE / GESCHÄFTSFELD (Preset-Engine) ============
@@ -4113,7 +4114,7 @@
       gen.innerHTML = svcs.map(s => {
         const pk = `${vert}_${s.key}_price`;
         const val = (prices[pk] != null) ? prices[pk] : s.price;
-        const suffix = s.unit === 'h' ? 'CHF / h' : 'CHF pauschal';
+        const suffix = s.unit === 'h' ? 'CHF / h' : tt('price.flatSuffix', 'CHF pauschal');
         return `
           <div class="price-card">
             <div class="price-card-head">
@@ -4127,7 +4128,7 @@
             </div>
             <div class="price-card-body">
               <div class="price-row">
-                <label>${s.unit === 'h' ? 'Stundensatz' : 'Pauschalpreis'}</label>
+                <label>${s.unit === 'h' ? tt('price.rateLabel', 'Stundensatz') : tt('price.flatLabel', 'Pauschalpreis')}</label>
                 <div class="price-input-wrap">
                   <input type="number" class="price-input" data-gprice="${pk}" value="${val}" step="${s.unit === 'h' ? '0.5' : '5'}" oninput="onGenericPriceChange(this)" ${canEdit ? '' : 'disabled'} />
                   <span class="price-suffix">${suffix}</span>
@@ -4187,12 +4188,22 @@
       buchhaltung: 'Offerten + Preise bearbeiten. Keine Auftragsplanung, kein Team.',
       readonly: 'Nur Ansicht — kann nichts speichern, ändern oder löschen.'
     };
+    const ROLE_DESC_KEYS = { admin: 'role.adminDesc', disposition: 'role.dispositionDesc', buchhaltung: 'role.buchhaltungDesc', readonly: 'role.readonlyDesc' };
+    // Übersetztes Rollen-Label (eingebaute Rollen via i18n, eigene Rollen behalten ihren Namen).
+    function roleLabel(key) {
+      const def = ROLE_DEFS[key];
+      if (!def) return key;
+      return def.builtin ? tt('role.' + key, def.label) : def.label;
+    }
+    function permLabel(p) {
+      return tt('perm.' + p, ALL_PERMISSIONS.find(x => x.key === p)?.label || p);
+    }
     function roleDescription(key) {
-      if (ROLE_DESCRIPTIONS[key]) return ROLE_DESCRIPTIONS[key];
+      if (ROLE_DESCRIPTIONS[key]) return tt(ROLE_DESC_KEYS[key] || '', ROLE_DESCRIPTIONS[key]);
       const def = ROLE_DEFS[key];
       if (!def) return '';
-      if (!def.perms.length) return 'Nur Ansicht — kann nichts ändern.';
-      return 'Darf: ' + def.perms.map(p => ALL_PERMISSIONS.find(x => x.key === p)?.label || p).join(', ') + '.';
+      if (!def.perms.length) return tt('role.viewOnly', 'Nur Ansicht — kann nichts ändern.');
+      return tt('role.mayPrefix', 'Darf: ') + def.perms.map(p => permLabel(p)).join(', ') + '.';
     }
 
     // --- Rollen-Verwaltung (eigene Rollen anlegen) ---
@@ -4205,7 +4216,7 @@
       if (!wrap) return;
       wrap.innerHTML = Object.entries(ROLE_DEFS).map(([key, def]) => `
         <div class="role-card" data-role-card="${key}">
-          <div class="role-card-head"><span class="role-dot" style="background:${def.color};"></span><strong>${escapeHtml(def.label)}</strong></div>
+          <div class="role-card-head"><span class="role-dot" style="background:${def.color};"></span><strong>${escapeHtml(roleLabel(key))}</strong></div>
           <div class="role-card-perms">${escapeHtml(roleDescription(key))}</div>
         </div>`).join('');
     }
@@ -4222,11 +4233,11 @@
           <div style="display:flex; align-items:center; gap:10px; min-width:0;">
             <span style="width:12px;height:12px;border-radius:50%;background:${def.color};flex:none;"></span>
             <div style="min-width:0;">
-              <div style="font-weight:600;font-size:13.5px;">${escapeHtml(def.label)} ${def.builtin ? '<span style="font-size:11px;color:var(--text-subtle);font-weight:400;">· Standard</span>' : ''}</div>
-              <div style="font-size:12px;color:var(--text-subtle);">${def.perms.length} Recht${def.perms.length === 1 ? '' : 'e'}</div>
+              <div style="font-weight:600;font-size:13.5px;">${escapeHtml(roleLabel(key))} ${def.builtin ? `<span style="font-size:11px;color:var(--text-subtle);font-weight:400;">· ${tt('role.builtin', 'Standard')}</span>` : ''}</div>
+              <div style="font-size:12px;color:var(--text-subtle);">${def.perms.length} ${def.perms.length === 1 ? tt('role.right', 'Recht') : tt('role.rights', 'Rechte')}</div>
             </div>
           </div>
-          ${def.builtin ? '' : `<button class="btn btn-ghost" style="font-size:12.5px;" onclick="openRoleEditor('${key}')">Bearbeiten</button>`}
+          ${def.builtin ? '' : `<button class="btn btn-ghost" style="font-size:12.5px;" onclick="openRoleEditor('${key}')">${tt('common.edit', 'Bearbeiten')}</button>`}
         </div>`).join('');
     }
     function openRoleEditor(key = null) {
@@ -4243,7 +4254,7 @@
       const perms = def ? def.perms : [];
       document.getElementById('rolePermList').innerHTML = ALL_PERMISSIONS.map(p =>
         `<label style="display:flex;align-items:center;gap:9px;font-size:13.5px;cursor:pointer;">
-          <input type="checkbox" data-roleperm="${p.key}" ${perms.includes(p.key) ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--accent);" /> ${p.label}
+          <input type="checkbox" data-roleperm="${p.key}" ${perms.includes(p.key) ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--accent);" /> ${permLabel(p.key)}
         </label>`).join('');
       closeModal('roleManager');
       openModal('roleEditor');
@@ -4466,7 +4477,7 @@
               <div class="team-email">${u.email || ''}</div>
             </div>
           </div>
-          <span class="team-role-badge role-${u.role}">${def.label}</span>
+          <span class="team-role-badge role-${u.role}">${roleLabel(u.role)}</span>
           <div class="perms-list">${permsHtml}</div>
         </div>`;
       }).join('');
@@ -4483,7 +4494,7 @@
       const wrap = document.getElementById('inviteRoleChips');
       if (!wrap) return;
       wrap.innerHTML = Object.keys(ROLE_DEFS).map(key =>
-        `<button type="button" class="opt-chip ${key === inviteRole ? 'on' : ''}" data-invrole="${key}" onclick="selectInviteRole(this,'${key}')">${escapeHtml(ROLE_DEFS[key].label)}</button>`
+        `<button type="button" class="opt-chip ${key === inviteRole ? 'on' : ''}" data-invrole="${key}" onclick="selectInviteRole(this,'${key}')">${escapeHtml(roleLabel(key))}</button>`
       ).join('');
     }
     function openInviteModal() {
@@ -4618,7 +4629,7 @@
       const wrap = document.getElementById('userRoleChips');
       if (!wrap) return;
       wrap.innerHTML = Object.keys(ROLE_DEFS).map(key =>
-        `<button type="button" class="opt-chip ${key === editingUserRole ? 'on' : ''}" data-role="${key}" onclick="selectUserRole(this,'${key}')">${escapeHtml(ROLE_DEFS[key].label)}</button>`
+        `<button type="button" class="opt-chip ${key === editingUserRole ? 'on' : ''}" data-role="${key}" onclick="selectUserRole(this,'${key}')">${escapeHtml(roleLabel(key))}</button>`
       ).join('');
     }
     function selectUserRole(el, role) {
@@ -5850,7 +5861,7 @@
       if (badge) { badge.textContent = active.length; badge.style.display = active.length ? '' : 'none'; }
       if (subtitle) subtitle.textContent = `${active.length} ${tt('sub.open','offen')} · ${all.length} ${tt('sub.total','gesamt')}`;
       const addBtn = document.getElementById('baustellenAddBtn');
-      if (addBtn) addBtn.textContent = (window.MosaVertical && MosaVertical.get() === 'garten') ? '+ Gartenprojekt' : '+ Baustelle';
+      if (addBtn) addBtn.textContent = (window.MosaVertical && MosaVertical.get() === 'garten') ? '+ ' + tt('site.addBtnGarten', 'Gartenprojekt') : '+ ' + tt('site.addBtn', 'Baustelle');
       board.innerHTML = SITE_COLUMNS.map(col => {
         const cards = all.filter(s => s.status === col.key && match(s));
         const cardHtml = cards.length ? cards.map(s => {
@@ -7584,7 +7595,7 @@
       // Welcher Monat?
       const now = new Date();
       const monthLabel = now.toLocaleDateString(dateLocale(), { month: 'long', year: 'numeric' });
-      const ask = prompt(`Monat exportieren? Format: YYYY-MM (z.B. ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')})\n\nLeer lassen = aktueller Monat (${monthLabel})`, '');
+      const ask = prompt(tt('csv.prompt', 'Monat exportieren? Format: YYYY-MM (z.B. {ex})\n\nLeer lassen = aktueller Monat ({m})').replace('{ex}', `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`).replace('{m}', monthLabel), '');
       let yyyymm;
       if (ask === null) return;
       if (!ask.trim()) {
@@ -7630,7 +7641,7 @@
       }
 
       // CSV bauen (Semikolon — Schweizer/DE-Excel kompatibel)
-      const headers = ['Datum', 'Startzeit', 'Dauer (min)', 'Objekt/Auftrag', 'Kunde', 'Adresse', 'Leistung', 'Mitarbeiter', 'Anzahl MA', 'Preis (CHF)', 'Zahlart', 'Notiz Büro'];
+      const headers = [tt('csv.hDate','Datum'), tt('csv.hStart','Startzeit'), tt('csv.hDuration','Dauer (min)'), tt('csv.hObject','Objekt/Auftrag'), tt('csv.hCustomer','Kunde'), tt('csv.hAddress','Adresse'), tt('csv.hService','Leistung'), tt('csv.hStaff','Mitarbeiter'), tt('csv.hStaffCount','Anzahl MA'), tt('csv.hPrice','Preis (CHF)'), tt('csv.hPayment','Zahlart'), tt('csv.hNoteOffice','Notiz Büro')];
       const escape = (v) => {
         const s = String(v == null ? '' : v);
         if (/[;"\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
@@ -7648,11 +7659,11 @@
       });
       // Summenzeile
       lines.push('');
-      lines.push(['', '', '', '', '', '', '', '', 'SUMME NETTO:', sumNetto.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
+      lines.push(['', '', '', '', '', '', '', '', tt('csv.sumNet', 'SUMME NETTO:'), sumNetto.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
       const csvL = coLocale(loadCompany());
       const mwst = sumNetto * csvL.vat;
       lines.push(['', '', '', '', '', '', '', '', csvL.vatLabel + ':', mwst.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
-      lines.push(['', '', '', '', '', '', '', '', 'BRUTTO TOTAL:', (sumNetto + mwst).toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
+      lines.push(['', '', '', '', '', '', '', '', tt('csv.grossTotal', 'BRUTTO TOTAL:'), (sumNetto + mwst).toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
 
       // BOM für Excel-Kompatibilität (Umlaute)
       const csv = '\uFEFF' + lines.join('\r\n');
@@ -8385,9 +8396,9 @@
         document.getElementById('nkIst').textContent = '0.0 h';
         document.getElementById('nkDiff').textContent = '0.0 h';
         document.getElementById('nkRate').textContent = '– CHF';
-        document.getElementById('nkIstMeta').textContent = 'erfasst';
-        document.getElementById('nkDiffMeta').textContent = 'Ist − Soll';
-        document.getElementById('nkRateMeta').textContent = 'Umsatz ÷ Ist-Stunden';
+        document.getElementById('nkIstMeta').textContent = tt('nk.istMeta', 'erfasst');
+        document.getElementById('nkDiffMeta').textContent = tt('nk.diffMeta', 'Ist − Soll');
+        document.getElementById('nkRateMeta').textContent = tt('nk.rateMeta', 'Umsatz ÷ Ist-Stunden');
         return;
       }
 
@@ -8407,7 +8418,7 @@
 
         let deltaCell = '<span style="color:var(--text-subtle);">—</span>';
         let rateCell = '<span style="color:var(--text-subtle);">—</span>';
-        let statusCell = '<span class="badge badge-neutral" style="background:var(--surface-2); color:var(--text-subtle);">offen</span>';
+        let statusCell = '<span class="badge badge-neutral" style="background:var(--surface-2); color:var(--text-subtle);">' + tt('sub.open', 'offen') + '</span>';
 
         if (ist != null) {
           erfasst++;
@@ -8422,11 +8433,11 @@
           // Status: Toleranz 10 %
           const tol = sollH * 0.1;
           if (delta <= tol) {
-            statusCell = '<span class="badge badge-success">Im Budget</span>';
+            statusCell = '<span class="badge badge-success">' + tt('nk.inBudget', 'Im Budget') + '</span>';
           } else if (delta <= sollH * 0.25) {
-            statusCell = '<span class="badge badge-warning">Knapp</span>';
+            statusCell = '<span class="badge badge-warning">' + tt('nk.tight', 'Knapp') + '</span>';
           } else {
-            statusCell = '<span class="badge badge-danger">Über Budget</span>';
+            statusCell = '<span class="badge badge-danger">' + tt('nk.overBudget', 'Über Budget') + '</span>';
             ueber++;
           }
         }
@@ -8457,18 +8468,18 @@
       const diff = sumIst - sumSoll;
       document.getElementById('nkSoll').textContent = fmtH(sumSoll);
       document.getElementById('nkIst').textContent = fmtH(sumIst);
-      document.getElementById('nkIstMeta').textContent = erfasst + ' von ' + jobs.length + ' Einsätzen erfasst';
+      document.getElementById('nkIstMeta').textContent = tt('nk.recordedOf', '{n} von {t} Einsätzen erfasst').replace('{n}', erfasst).replace('{t}', jobs.length);
       const diffEl = document.getElementById('nkDiff');
       diffEl.textContent = (diff > 0 ? '+' : '') + fmtH(diff).replace(' h', '') + ' h';
       diffEl.style.color = diff > 0.05 ? 'var(--danger)' : (diff < -0.05 ? 'var(--success)' : 'var(--text)');
-      document.getElementById('nkDiffMeta').textContent = ueber > 0 ? (ueber + (ueber === 1 ? ' Einsatz' : ' Einsätze') + ' über Budget') : 'Ist − Soll';
+      document.getElementById('nkDiffMeta').textContent = ueber > 0 ? (ueber === 1 ? tt('nk.overBudgetOne', '{n} Einsatz über Budget') : tt('nk.overBudgetMany', '{n} Einsätze über Budget')).replace('{n}', ueber) : tt('nk.diffMeta', 'Ist − Soll');
       const rateEl = document.getElementById('nkRate');
       if (sumIst > 0) {
         rateEl.textContent = (sumPriceWithIst / sumIst).toFixed(0) + '.– CHF';
-        document.getElementById('nkRateMeta').textContent = 'effektiv pro Ist-Stunde';
+        document.getElementById('nkRateMeta').textContent = tt('nk.effPerHour', 'effektiv pro Ist-Stunde');
       } else {
         rateEl.textContent = '– CHF';
-        document.getElementById('nkRateMeta').textContent = 'Ist-Stunden eintragen';
+        document.getElementById('nkRateMeta').textContent = tt('nk.enterIst', 'Ist-Stunden eintragen');
       }
     }
 
@@ -9124,19 +9135,19 @@
           const gp = document.getElementById('wizGenericOpts');
           if (gp) gp.style.display = 'flex';
           setupGenericOpts();
-          document.getElementById('wizSub').textContent = serviceTitle(wizService) + ' — Details';
+          document.getElementById('wizSub').textContent = serviceTitle(wizService) + ' — ' + tt('wiz.subDetails', 'Details');
         } else {
           const opts = document.querySelector(`.svc-options[data-svc-opts="${wizService}"]`);
           if (opts) opts.style.display = 'flex';
-          document.getElementById('wizSub').textContent = serviceLabels[wizService] + ' — Details konfigurieren';
+          document.getElementById('wizSub').textContent = serviceLabels[wizService] + ' — ' + tt('wiz.subConfigure', 'Details konfigurieren');
           if (wizService === 'end') recalcStart();
         }
       }
 
       // titles per step
-      if (wizCurrent === 1) document.getElementById('wizSub').textContent = `Wähle die ${VT('leistungsart')} aus`;
+      if (wizCurrent === 1) document.getElementById('wizSub').textContent = tt('wiz.subStep1', 'Wähle die {x} aus').replace('{x}', VT('leistungsart'));
       if (wizCurrent === 3) {
-        document.getElementById('wizSub').textContent = 'Termin, Adresse und Preis';
+        document.getElementById('wizSub').textContent = tt('wiz.subStep3', 'Termin, Adresse und Preis');
         // Step 2 → Step 3: Minuten aus Service-Optionen in Stunden-Feld übernehmen
         _syncWizDuration();
         wizCalcPrice();
@@ -11162,13 +11173,13 @@ ${coSig}`;
       const passHint = document.getElementById('imapPassHint');
       if (p === 'icloud') {
         if (hostField) hostField.style.display = 'none';
-        if (title) title.textContent = 'iCloud Mail verbinden';
-        if (passLabel) passLabel.textContent = 'App-spezifisches Passwort';
-        if (passHint) passHint.textContent = 'iCloud: Einstellungen → Apple-ID → Anmelden & Sicherheit → App-Passwörter generieren';
+        if (title) title.textContent = tt('mi.titleIcloud', 'iCloud Mail verbinden');
+        if (passLabel) passLabel.textContent = tt('mi.passApp', 'App-spezifisches Passwort');
+        if (passHint) passHint.textContent = tt('mi.passAppHint', 'iCloud: Einstellungen → Apple-ID → Anmelden & Sicherheit → App-Passwörter generieren');
       } else {
         if (hostField) hostField.style.display = '';
-        if (title) title.textContent = 'Webmail / IMAP verbinden';
-        if (passLabel) passLabel.textContent = 'Passwort';
+        if (title) title.textContent = tt('mi.titleCustom', 'Webmail / IMAP verbinden');
+        if (passLabel) passLabel.textContent = tt('mi.passPlain', 'Passwort');
         if (passHint) passHint.textContent = '';
       }
     }
@@ -11255,11 +11266,11 @@ ${coSig}`;
       if (sb) { try { session = (await sb.auth.getSession()).data.session; } catch {} }
       window._authEmail = session?.user?.email || null;
       if (window._authEmail) {
-        if (rowEl) rowEl.textContent = window._authEmail + (window._dbReady ? ' · synchronisiert' : '');
-        if (lblEl) lblEl.textContent = 'Abmelden';
+        if (rowEl) rowEl.textContent = window._authEmail + (window._dbReady ? ' · ' + tt('auth.statusSynced', 'synchronisiert') : '');
+        if (lblEl) lblEl.textContent = tt('common.logout', 'Abmelden');
       } else {
-        if (rowEl) rowEl.textContent = 'Nicht angemeldet · nur lokal';
-        if (lblEl) lblEl.textContent = 'Anmelden';
+        if (rowEl) rowEl.textContent = tt('auth.statusLocal', 'Nicht angemeldet · nur lokal');
+        if (lblEl) lblEl.textContent = tt('common.login', 'Anmelden');
       }
       // Abo-Status laden → steuert, welche Module freigeschaltet sind
       if (window.MosaBilling) {
