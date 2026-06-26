@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=12"></script>
+  <script src="app-i18n.js?v=13"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -3821,6 +3821,9 @@
     const VT = (k) => (window.MosaVertical ? MosaVertical.t(k) : k);
     // Kurzhelfer: Übersetzung für JS-generierte Strings (Fallback = dt. Text, falls i18n-Engine fehlt).
     const tt = (k, f) => (window.MosaI18n ? MosaI18n.t(k, f) : f);
+    // Kurzhelfer: BCP-47-Locale für UI-Datumsformatierung aus der aktuellen Sprache (Wochentage/Monate auto-übersetzt).
+    const UI_DATE_LOCALES = { de: 'de-CH', en: 'en-GB', fr: 'fr-CH', it: 'it-CH', es: 'es-ES' };
+    const dateLocale = () => UI_DATE_LOCALES[(window.MosaI18n ? MosaI18n.get() : 'de')] || 'de-CH';
 
     // Topbar-Titel einer Ansicht: branchen-Override (navLabels, sprach-lokalisiert) →
     // sonst Übersetzung (nav.<view>) → sonst statischer Titel. objekte/mitarbeiter werden
@@ -3866,7 +3869,8 @@
       // JS-gesetzte View-Untertitel (Counts) bei Sprachwechsel neu rendern
       ['renderKunden','renderBaustellen','renderRapporte','renderKoederstellen','renderPestProtocols',
        'renderWerkstattplan','renderReifen','renderFahrzeuge','renderMitarbeiter','renderAufgaben',
-       'renderAnrufprotokoll','renderMailView'].forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) {} });
+       'renderAnrufprotokoll','renderMailView','renderPlanung','renderDayTimeline','renderAbos',
+       'renderZeiten'].forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) {} });
     });
 
     function navTo(view) {
@@ -4846,7 +4850,7 @@
       return `${y}-${m}-${day}`;
     }
     function fmtDayHeader(d) {
-      return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      return d.toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     }
     function startOfWeek(d) {
       const c = new Date(d);
@@ -5006,7 +5010,7 @@
       if (!wrap) return;
       const weekStart = startOfWeek(planCurrentDate);
       const today = new Date(); today.setHours(0,0,0,0);
-      const dows = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+      const dows = [tt('wiz.dMo','Mo'),tt('wiz.dDi','Di'),tt('wiz.dMi','Mi'),tt('wiz.dDo','Do'),tt('wiz.dFr','Fr'),tt('wiz.dSa','Sa'),tt('wiz.dSo','So')];
       wrap.innerHTML = Array.from({length: 7}, (_, i) => {
         const d = addDays(weekStart, i);
         const isActive = isSameDay(d, planCurrentDate);
@@ -5078,7 +5082,7 @@
       if (!grid) return;
       const today = new Date(); today.setHours(0,0,0,0);
       dayLabel.textContent = isSameDay(planCurrentDate, today)
-        ? 'heute' : planCurrentDate.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
+        ? tt('date.today','heute') : planCurrentDate.toLocaleDateString(dateLocale(), { weekday:'long', day:'numeric', month:'long' });
 
       const jobs = getJobsForDate(planCurrentDate);
       const nowMin = nowMinIfToday();
@@ -5093,7 +5097,7 @@
       const empsWorking = empRows.filter(r => r.tl.busy).length;
       const empsFree = EMPLOYEES.length - empsWorking;
 
-      summary.textContent = `${totalJobs} Einsätze · ${empsWorking} Mitarbeiter im Einsatz · ${empsFree} ${empsFree === 1 ? 'frei' : 'frei'}`;
+      summary.textContent = `${totalJobs} ${tt('plan.jobs','Einsätze')} · ${empsWorking} ${tt('plan.staffWorking','Mitarbeiter im Einsatz')} · ${empsFree} ${tt('plan.free','frei')}`;
 
       // Sortieren: zuerst die, die JETZT auf Job sind, dann die mit Job heute, dann die freien
       empRows.sort((a, b) => {
@@ -5175,7 +5179,7 @@
       const jobs = getJobsForDate(planCurrentDate).sort((a,b) => parseHM(a.start) - parseHM(b.start));
       const subtitle = document.getElementById('planSubtitle');
       const weekNo = getWeekNumber(planCurrentDate);
-      subtitle.textContent = `${fmtDayHeader(planCurrentDate)} · KW ${weekNo} · ${jobs.length} Einsätze · ${PLAN_TEAMS.length} Teams`;
+      subtitle.textContent = `${fmtDayHeader(planCurrentDate)} · ${tt('date.cw','KW')} ${weekNo} · ${jobs.length} ${tt('plan.jobs','Einsätze')} · ${PLAN_TEAMS.length} ${tt('plan.teams','Teams')}`;
 
       if (jobs.length === 0) {
         wrap.innerHTML = `<div style="padding: 60px 24px; text-align: center; color: var(--text-subtle);">
@@ -5274,7 +5278,7 @@
       if (!wrap) return;
       const today = new Date(); today.setHours(0,0,0,0);
       dayLbl.textContent = isSameDay(planCurrentDate, today)
-        ? 'heute' : planCurrentDate.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
+        ? tt('date.today','heute') : planCurrentDate.toLocaleDateString(dateLocale(), { weekday:'long', day:'numeric', month:'long' });
       const dateKey = isoDate(planCurrentDate);
       const dc = getDayCrew(dateKey);
       resetBtn.style.display = dc ? '' : 'none';
@@ -5325,7 +5329,7 @@
       const dateKey = isoDate(planCurrentDate);
       const today = new Date(); today.setHours(0,0,0,0);
       document.getElementById('dayCrewModalDate').textContent = isSameDay(planCurrentDate, today)
-        ? 'heute' : planCurrentDate.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
+        ? tt('date.today','heute') : planCurrentDate.toLocaleDateString(dateLocale(), { weekday:'long', day:'numeric', month:'long' });
       renderDayCrewPicker(dateKey);
       openModal('dayCrew');
     }
@@ -5422,8 +5426,8 @@
       if (j.seriesId) {
         const members = findSeriesJobs(j.seriesId, null);
         const future = members.filter(m => m.dateKey >= dateKey).length;
-        const lbl = REPEAT_LABELS[j.recurring] ? REPEAT_LABELS[j.recurring].replace(/^./, c => c.toUpperCase()) : 'Wiederkehrende';
-        document.getElementById('jobEditSeriesInfo').textContent = `${lbl} Serie · ${members.length} Termine (${future} ab hier)`;
+        const lbl = REPEAT_LABELS_DE[j.recurring] ? repeatLabel(j.recurring).replace(/^./, c => c.toUpperCase()) : tt('date.recurring','Wiederkehrende');
+        document.getElementById('jobEditSeriesInfo').textContent = `${lbl} ${tt('date.series','Serie')} · ${members.length} ${tt('date.appointments','Termine')} (${future} ${tt('date.fromHere','ab hier')})`;
         document.getElementById('jobEditSeriesScope').value = 'this';
         banner.style.display = 'block';
       } else {
@@ -5503,7 +5507,7 @@
         <div class="je-phone-head">Letzte Anrufe (${c.calls.length})</div>
         ${last3.map(call => {
           const d = new Date(call.ts);
-          const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
+          const dateStr = d.toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short' });
           const isRr = callHasRueckruf(call);
           const fup = isRr ? '<span class="je-phone-fup">Rückruf offen</span>' : '';
           const wer = call.wer || call.who || '—';
@@ -7013,7 +7017,7 @@
       }
       wrap.innerHTML = calls.map((call, i) => {
         const d = new Date(call.ts);
-        const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+        const dateStr = d.toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
         const timeStr = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         const isRueckruf = callHasRueckruf(call);
         const statusBadge = isRueckruf
@@ -7259,7 +7263,7 @@
             : '<span class="task-prio task-prio-normal">Normal</span>';
         const overdue = isOverdue(t);
         const dueLbl = t.dueDate
-          ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">${new Date(t.dueDate).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ' · überfällig' : ''}</span>`
+          ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">${new Date(t.dueDate).toLocaleDateString(dateLocale(), { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ` · ${tt('sub.overdue','überfällig')}` : ''}</span>`
           : '';
         const linkLbl = t.linkLabel ? `<span class="task-link">🔗 ${t.linkLabel}</span>` : '';
         const contactBtns = [];
@@ -7475,7 +7479,7 @@
       }
       wrap.innerHTML = filtered.map(call => {
         const d = new Date(call.ts);
-        const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+        const dateStr = d.toLocaleDateString(dateLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
         const timeStr = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         const isRr = callHasRueckruf(call);
         const statusBadge = isRr
@@ -7579,7 +7583,7 @@
     function exportMonatsberichtCSV() {
       // Welcher Monat?
       const now = new Date();
-      const monthLabel = now.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      const monthLabel = now.toLocaleDateString(dateLocale(), { month: 'long', year: 'numeric' });
       const ask = prompt(`Monat exportieren? Format: YYYY-MM (z.B. ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')})\n\nLeer lassen = aktueller Monat (${monthLabel})`, '');
       let yyyymm;
       if (ask === null) return;
@@ -8240,7 +8244,7 @@
       if (!r.date) return '';
       try {
         const d = new Date(r.date + 'T00:00:00');
-        return d.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return d.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
       } catch { return r.date; }
     }
     function renderBerichte() {
@@ -8490,9 +8494,9 @@
         const future = s.dates.filter(d => d >= today);
         const next = future[0] || null;
         const teamName = s.team ? ((PLAN_TEAMS.find(t => t.id === s.team) || {}).name || '—') : 'Auto';
-        const intervalLbl = REPEAT_LABELS[s.recurring] ? REPEAT_LABELS[s.recurring].replace(/^./, c => c.toUpperCase()) : 'Serie';
+        const intervalLbl = REPEAT_LABELS_DE[s.recurring] ? repeatLabel(s.recurring).replace(/^./, c => c.toUpperCase()) : tt('date.series','Serie');
         const nextLbl = next
-          ? new Date(next + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + (s.start || '')
+          ? new Date(next + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + (s.start || '')
           : '<span style="color:var(--text-subtle);">keine künftigen Termine</span>';
         const status = future.length > 0
           ? `<span class="badge badge-success">aktiv</span>`
@@ -10446,7 +10450,8 @@ ${coSig}`;
     renderOffertList();
 
     // ---- Wiederkehrende Aufträge (Serien) ----
-    const REPEAT_LABELS = { weekly: 'wöchentlich', biweekly: 'alle 2 Wochen', monthly: 'monatlich' };
+    const REPEAT_LABELS_DE = { weekly: 'wöchentlich', biweekly: 'alle 2 Wochen', monthly: 'monatlich' };
+    function repeatLabel(k) { return tt('repeat.' + k, REPEAT_LABELS_DE[k] || k); }
     function nextRepeatDate(baseDate, mode, i) {
       const d = new Date(baseDate);
       if (mode === 'weekly') d.setDate(d.getDate() + 7 * i);
@@ -10467,7 +10472,7 @@ ${coSig}`;
       const dv = document.getElementById('wizDate').value;
       const base = dv ? new Date(dv + 'T00:00:00') : new Date(planCurrentDate);
       const last = nextRepeatDate(base, mode, count - 1);
-      hint.textContent = 'Bis ' + last.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      hint.textContent = tt('date.until','Bis') + ' ' + last.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     // Bestes Team für eine Serie wählen (wenig Konflikte, wenig Last, viele Mitglieder)
@@ -10585,7 +10590,7 @@ ${coSig}`;
       let av = availabilityAt(dk, startMin, dur, 1);
       if (selTeam) av = av.filter(r => r.team.id === selTeam);
       const freeTeams = av.filter(r => r.available);
-      const dayLbl = new Date(dk + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'long', day: '2-digit', month: '2-digit' });
+      const dayLbl = new Date(dk + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'long', day: '2-digit', month: '2-digit' });
 
       if (freeTeams.length) {
         const names = freeTeams.map(r => `${r.team.name} (${r.freeCount} frei)`).join(', ');
@@ -10600,7 +10605,7 @@ ${coSig}`;
         chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${dk}','${fmtMinHM(sameDay)}')">${dayLbl} ab ${fmtMinHM(sameDay)}</button>`;
       }
       days.forEach(d => {
-        const dl = new Date(d.dateKey + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit' });
+        const dl = new Date(d.dateKey + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' });
         chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${d.dateKey}','${startHHMM}')">${dl}, ${startHHMM}</button>`;
       });
       box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">${dayLbl}, ${startHHMM} Uhr — belegt</div>` +
@@ -10676,12 +10681,12 @@ ${coSig}`;
       // Planer auf das (erste) Auftragsdatum stellen und anzeigen
       planSetDate(dateKey);
       navTo('planung');
-      const dLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit' });
+      const dLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' });
       if (repeat === 'none') {
         toast(`✓ Auftrag „${objekt}" angelegt — im Planer am ${dLabel}`);
       } else {
         const teamSuffix = autoTeamName ? ` · ${autoTeamName} zugewiesen` : '';
-        toast(`✓ Serie „${objekt}" angelegt — ${count} Termine (${REPEAT_LABELS[repeat]}), ab ${dLabel}${teamSuffix}`);
+        toast(`✓ Serie „${objekt}" angelegt — ${count} Termine (${repeatLabel(repeat)}), ab ${dLabel}${teamSuffix}`);
       }
 
       // Wizard zurücksetzen
@@ -10777,7 +10782,7 @@ ${coSig}`;
       const yest = new Date(now); yest.setDate(now.getDate()-1);
       if (dt.toDateString() === now.toDateString()) return dt.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
       if (dt.toDateString() === yest.toDateString()) return 'Gestern';
-      return dt.toLocaleDateString('de-CH',{day:'2-digit',month:'short'});
+      return dt.toLocaleDateString(dateLocale(),{day:'2-digit',month:'short'});
     }
     function fmtMailFull(d) {
       return new Date(d).toLocaleString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -11406,7 +11411,7 @@ ${coSig}`;
       const ws = new Date(zeitenWeekStart);
 
       // Wochentag-Header + Label
-      const DAY_NAMES = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      const DAY_NAMES = [tt('wiz.dMo','Mo'),tt('wiz.dDi','Di'),tt('wiz.dMi','Mi'),tt('wiz.dDo','Do'),tt('wiz.dFr','Fr'),tt('wiz.dSa','Sa'),tt('wiz.dSo','So')];
       const weekDays = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(ws); d.setDate(ws.getDate() + i);
         return d;
@@ -11418,7 +11423,7 @@ ${coSig}`;
       const lbl = document.getElementById('zeitenWeekLabel');
       if (lbl) {
         const opt = { day: '2-digit', month: '2-digit' };
-        lbl.textContent = `KW ${getWeekNumber(ws)} · ${ws.toLocaleDateString('de-CH', opt)} – ${weekDays[6].toLocaleDateString('de-CH', opt)}`;
+        lbl.textContent = `${tt('date.cw','KW')} ${getWeekNumber(ws)} · ${ws.toLocaleDateString(dateLocale(), opt)} – ${weekDays[6].toLocaleDateString(dateLocale(), opt)}`;
       }
       const sub = document.getElementById('zeitenSubtitle');
       if (sub) sub.textContent = window.MOSAOS_SUPABASE?.url ? tt('sub.zeitLive','Live-Daten aus Supabase timelog') : tt('sub.zeitNoCfg','Supabase nicht konfiguriert — Platzhalter');
