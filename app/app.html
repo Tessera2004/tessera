@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=11"></script>
+  <script src="app-i18n.js?v=12"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -3863,6 +3863,10 @@
       try { typeof applyVerticalNavLabels === 'function' && applyVerticalNavLabels(); } catch (e) {}
       try { typeof syncVerticalTitles === 'function' && syncVerticalTitles(); } catch (e) {}
       try { typeof renderDashboard === 'function' && renderDashboard(); } catch (e) {}
+      // JS-gesetzte View-Untertitel (Counts) bei Sprachwechsel neu rendern
+      ['renderKunden','renderBaustellen','renderRapporte','renderKoederstellen','renderPestProtocols',
+       'renderWerkstattplan','renderReifen','renderFahrzeuge','renderMitarbeiter','renderAufgaben',
+       'renderAnrufprotokoll','renderMailView'].forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) {} });
     });
 
     function navTo(view) {
@@ -5733,7 +5737,7 @@
                (c.address || '').toLowerCase().includes(q) ||
                (c.phone || '').toLowerCase().includes(q);
       });
-      subtitle.textContent = `${list.length} ${list.length === 1 ? 'Kunde' : 'Kunden'} · ${list.reduce((s,c) => s + (c.calls?.length || 0), 0)} Anrufe protokolliert`;
+      subtitle.textContent = `${list.length} ${list.length === 1 ? tt('sub.customerSg','Kunde') : tt('sub.customerPl','Kunden')} · ${list.reduce((s,c) => s + (c.calls?.length || 0), 0)} ${tt('sub.callsLogged','Anrufe protokolliert')}`;
 
       if (filtered.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
@@ -5840,7 +5844,7 @@
       const active = all.filter(s => s.status !== 'abgeschlossen');
       const badge = document.getElementById('baustellenNavBadge');
       if (badge) { badge.textContent = active.length; badge.style.display = active.length ? '' : 'none'; }
-      if (subtitle) subtitle.textContent = `${active.length} offen · ${all.length} gesamt`;
+      if (subtitle) subtitle.textContent = `${active.length} ${tt('sub.open','offen')} · ${all.length} ${tt('sub.total','gesamt')}`;
       const addBtn = document.getElementById('baustellenAddBtn');
       if (addBtn) addBtn.textContent = (window.MosaVertical && MosaVertical.get() === 'garten') ? '+ Gartenprojekt' : '+ Baustelle';
       board.innerHTML = SITE_COLUMNS.map(col => {
@@ -5959,7 +5963,7 @@
         (r.siteTitle || '').toLowerCase().includes(q) || (r.objektName || '').toLowerCase().includes(q) ||
         (r.monteur || '').toLowerCase().includes(q));
       const sum = list.reduce((s, r) => s + rapportTotal(r), 0);
-      if (subtitle) subtitle.textContent = `${list.length} Rapporte · ${chf(sum)} Regie gesamt`;
+      if (subtitle) subtitle.textContent = `${list.length} ${tt('sub.reports','Rapporte')} · ${chf(sum)} ${tt('sub.tmTotal','Regie gesamt')}`;
       const badge = document.getElementById('rapporteNavBadge');
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
       if (filtered.length === 0) {
@@ -6150,7 +6154,7 @@
       else if (koederFilter === 'faellig') filtered = filtered.filter(baitIsDue);
       const befallN = list.filter(b => b.status === 'befall').length;
       const faelligN = list.filter(baitIsDue).length;
-      if (subtitle) subtitle.textContent = `${list.length} Stationen · ${befallN} Befall · ${faelligN} Kontrolle fällig`;
+      if (subtitle) subtitle.textContent = `${list.length} ${tt('sub.stations','Stationen')} · ${befallN} ${tt('sub.infest','Befall')} · ${faelligN} ${tt('sub.checkDue','Kontrolle fällig')}`;
       const badge = document.getElementById('koederNavBadge');
       if (badge) { const warn = befallN + faelligN; badge.textContent = warn; badge.style.display = warn ? '' : 'none'; }
       if (filtered.length === 0) {
@@ -6247,7 +6251,7 @@
         (p.pestType || '').toLowerCase().includes(q) || (p.technician || '').toLowerCase().includes(q) ||
         (p.agent || '').toLowerCase().includes(q));
       const openRecheck = list.filter(p => { const n = pestDaysUntil(p.recheck); return n != null && n >= 0 && n <= 14; }).length;
-      if (subtitle) subtitle.textContent = `${list.length} Protokolle${openRecheck ? ` · ${openRecheck} Nachkontrolle bald` : ''}`;
+      if (subtitle) subtitle.textContent = `${list.length} ${tt('sub.protocols','Protokolle')}${openRecheck ? ` · ${openRecheck} ${tt('sub.recheckSoon','Nachkontrolle bald')}` : ''}`;
       const badge = document.getElementById('protokolleNavBadge');
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
       if (filtered.length === 0) {
@@ -6430,7 +6434,7 @@
       if (badge) { badge.textContent = active.length; badge.style.display = active.length ? '' : 'none'; }
       if (subtitle) {
         const done = all.length - active.length;
-        subtitle.textContent = `${active.length} offene Aufträge${done ? ` · ${done} abgeschlossen` : ''}`;
+        subtitle.textContent = `${active.length} ${tt('sub.openOrders','offene Aufträge')}${done ? ` · ${done} ${tt('sub.completed','abgeschlossen')}` : ''}`;
       }
       board.innerHTML = WO_COLUMNS.map(col => {
         const cards = all.filter(o => o.status === col.key && match(o));
@@ -6728,7 +6732,7 @@
       const filtered = !q ? list : list.filter(t =>
         (t.owner || '').toLowerCase().includes(q) || (t.plate || '').toLowerCase().includes(q) ||
         (t.location || '').toLowerCase().includes(q) || (t.dim || '').toLowerCase().includes(q));
-      if (subtitle) subtitle.textContent = `${list.length} ${list.length === 1 ? 'Satz' : 'Sätze'} eingelagert`;
+      if (subtitle) subtitle.textContent = `${list.length} ${list.length === 1 ? tt('sub.setSg','Satz') : tt('sub.setPl','Sätze')} ${tt('sub.stored','eingelagert')}`;
       const badge = document.getElementById('reifenNavBadge');
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
       if (filtered.length === 0) {
@@ -6863,7 +6867,7 @@
         (v.plate || '').toLowerCase().includes(q) ||
         (v.model || '').toLowerCase().includes(q) ||
         (v.owner || '').toLowerCase().includes(q));
-      if (subtitle) subtitle.textContent = `${list.length} ${list.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'} in der Akte`;
+      if (subtitle) subtitle.textContent = `${list.length} ${list.length === 1 ? tt('sub.vehicleSg','Fahrzeug') : tt('sub.vehiclePl','Fahrzeuge')} ${tt('sub.inFile','in der Akte')}`;
       const badge = document.getElementById('fahrzeugeNavBadge');
       if (badge) { badge.textContent = list.length; badge.style.display = list.length ? '' : 'none'; }
 
@@ -7239,7 +7243,7 @@
       const dringend = TASKS.filter(t => !t.done && t.prio === 'dringend').length;
       const ueberfaellig = TASKS.filter(isOverdue).length;
       const sub = document.getElementById('aufgabenSubtitle');
-      if (sub) sub.textContent = `${offen} offen · ${dringend} dringend · ${ueberfaellig} überfällig`;
+      if (sub) sub.textContent = `${offen} ${tt('sub.open','offen')} · ${dringend} ${tt('sub.urgent','dringend')} · ${ueberfaellig} ${tt('sub.overdue','überfällig')}`;
 
       if (filtered.length === 0) {
         wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">Keine Aufgaben.</div>`;
@@ -7463,8 +7467,8 @@
 
       const subtitle = document.getElementById('anrufSubtitle');
       const offen = all.filter(callHasRueckruf).length;
-      const searchHint = q ? ` · ${filtered.length} Treffer für „${q}"` : '';
-      subtitle.textContent = `${all.length} Anrufe gesamt · ${offen} Rückruf${offen === 1 ? '' : 'e'} offen${searchHint}`;
+      const searchHint = q ? ` · ${filtered.length} ${tt('sub.hitsFor','Treffer für')} „${q}"` : '';
+      subtitle.textContent = `${all.length} ${tt('sub.callsTotal','Anrufe gesamt')} · ${offen} ${offen === 1 ? tt('sub.callbackSg','Rückruf') : tt('sub.callbackPl','Rückrufe')} ${tt('sub.open','offen')}${searchHint}`;
       if (filtered.length === 0) {
         wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">Keine Anrufe.</div>`;
         return;
@@ -7725,7 +7729,7 @@
       if (!grid) return;
       const aktiv = EMPLOYEES.filter(e => e.status !== 'abwesend').length;
       const abw = EMPLOYEES.length - aktiv;
-      sub.textContent = `${EMPLOYEES.length} ${VT('feldMitarbeiterPlural')} · ${aktiv} aktiv · ${abw} abwesend`;
+      sub.textContent = `${EMPLOYEES.length} ${VT('feldMitarbeiterPlural')} · ${aktiv} ${tt('sub.active','aktiv')} · ${abw} ${tt('sub.absent','abwesend')}`;
       if (EMPLOYEES.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-subtle);">Noch keine Mitarbeiter. Klick oben rechts auf „+ Mitarbeiter hinzufügen".</div>`;
         return;
@@ -8281,23 +8285,23 @@
       const reports = loadReports();
       const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
       set('kpiReiniger', total === 0 ? '0' : (aktiv === total ? String(total) : `${aktiv}/${total}`));
-      set('kpiReinigerMeta', total === 0 ? 'noch keine erfasst' : (total - aktiv > 0 ? `${total - aktiv} abwesend` : 'alle aktiv'));
+      set('kpiReinigerMeta', total === 0 ? tt('dash.kpiNoneYet','noch keine erfasst') : (total - aktiv > 0 ? `${total - aktiv} ${tt('sub.absent','abwesend')}` : tt('dash.kpiAllActive','alle aktiv')));
       set('kpiKunden', kunden);
       set('kpiBerichte', reports.length);
       const reklamationen = reports.filter(r => r.status === 'reklamation').length;
-      set('kpiBerichteMeta', reklamationen > 0 ? `${reklamationen} Reklamation` : 'Foto-Nachweise');
+      set('kpiBerichteMeta', reklamationen > 0 ? `${reklamationen} ${tt('dash.kpiComplaint','Reklamation')}` : tt('dash.kpiPhotoProof','Foto-Nachweise'));
       // Hero passt sich an: leeres System vs. eingerichtet
       const eyebrow = document.getElementById('dashHeroEyebrow');
       const title = document.getElementById('dashHeroTitle');
       const sub = document.getElementById('dashHeroSub');
       if (total === 0 && kunden === 0) {
-        if (eyebrow) eyebrow.textContent = 'Bereit zum Start';
-        if (title) title.textContent = 'Willkommen bei deinem Cockpit.';
-        if (sub) sub.textContent = 'Lege deine Mitarbeiter, Kunden und den ersten Auftrag an — in wenigen Minuten läuft alles.';
+        if (eyebrow) eyebrow.textContent = tt('dash.heroReady','Bereit zum Start');
+        if (title) title.textContent = tt('dash.heroWelcomeTitle','Willkommen bei deinem Cockpit.');
+        if (sub) sub.textContent = tt('dash.heroOnboard','Lege deine Mitarbeiter, Kunden und den ersten Auftrag an — in wenigen Minuten läuft alles.');
       } else {
-        if (eyebrow) eyebrow.textContent = `${aktiv} ${VT('feldMitarbeiterPlural')} aktiv`;
-        if (title) title.textContent = 'Dein Tag im Überblick.';
-        if (sub) sub.textContent = `${total} Mitarbeiter · ${kunden} Kunden · ${reports.length} Berichte erfasst.`;
+        if (eyebrow) eyebrow.textContent = `${aktiv} ${VT('feldMitarbeiterPlural')} ${tt('sub.active','aktiv')}`;
+        if (title) title.textContent = tt('dash.heroDayTitle','Dein Tag im Überblick.');
+        if (sub) sub.textContent = `${total} ${tt('dash.heroMetaEmployees','Mitarbeiter')} · ${kunden} ${tt('dash.heroMetaCustomers','Kunden')} · ${reports.length} ${tt('dash.heroMetaReports','Berichte erfasst.')}`;
       }
       // Aktivitäts-Feed
       const actEl = document.getElementById('dashActivity');
@@ -10822,7 +10826,7 @@ ${coSig}`;
       const unread = allMails.filter(m => !m.isRead).length;
 
       const sub = document.getElementById('mailSubtitle');
-      if (sub) sub.textContent = `Demo-Konto${accounts.length ? ' · '+accounts.length+' verbunden' : ''} · ${allMails.length} Mails · ${unread} ungelesen`;
+      if (sub) sub.textContent = `${tt('sub.demoAccount','Demo-Konto')}${accounts.length ? ` · ${accounts.length} ${tt('sub.connected','verbunden')}` : ''} · ${allMails.length} ${tt('sub.mails','Mails')} · ${unread} ${tt('sub.unread','ungelesen')}`;
 
       // Nav-Badge
       const badge = document.getElementById('mailNavBadge');
@@ -10903,7 +10907,7 @@ ${coSig}`;
       const b = document.getElementById('mailNavBadge');
       if (b) { b.textContent = u; b.style.display = u > 0 ? '' : 'none'; }
       const s = document.getElementById('mailSubtitle');
-      if (s) s.textContent = `Demo-Konto · ${getAllMails().length} Mails · ${u} ungelesen`;
+      if (s) s.textContent = `${tt('sub.demoAccount','Demo-Konto')} · ${getAllMails().length} ${tt('sub.mails','Mails')} · ${u} ${tt('sub.unread','ungelesen')}`;
     }
 
     function showMailDetail(id) {
@@ -11417,7 +11421,7 @@ ${coSig}`;
         lbl.textContent = `KW ${getWeekNumber(ws)} · ${ws.toLocaleDateString('de-CH', opt)} – ${weekDays[6].toLocaleDateString('de-CH', opt)}`;
       }
       const sub = document.getElementById('zeitenSubtitle');
-      if (sub) sub.textContent = window.MOSAOS_SUPABASE?.url ? 'Live-Daten aus Supabase timelog' : 'Supabase nicht konfiguriert — Platzhalter';
+      if (sub) sub.textContent = window.MOSAOS_SUPABASE?.url ? tt('sub.zeitLive','Live-Daten aus Supabase timelog') : tt('sub.zeitNoCfg','Supabase nicht konfiguriert — Platzhalter');
 
       const isoWeekDays = weekDays.map(d => d.toISOString().slice(0, 10));
 
