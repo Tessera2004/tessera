@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=14"></script>
+  <script src="app-i18n.js?v=15"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -4068,7 +4068,7 @@
       saveFeatures(f);
       applyFeatureFlags();
       const mod = FEATURE_MODULES.find(m => m.key === key);
-      toast(`${mod?.label || 'Modul'} ${on ? 'aktiviert' : 'deaktiviert'}`);
+      toast(`${mod?.label || tt('toastdyn.module','Modul')} ${on ? tt('toastdyn.activated','aktiviert') : tt('toastdyn.deactivated','deaktiviert')}`);
     }
 
     // ============ BRANCHE / GESCHÄFTSFELD (Preset-Engine) ============
@@ -4084,7 +4084,7 @@
       if (!hasPerm('edit_users')) { toast('Keine Berechtigung, das Geschäftsfeld zu ändern', 'error'); populateVerticalSelect(); return; }
       MosaVertical.set(key);                 // speichert lokal + relabelt alle [data-term] live
       try { const co = loadCompany(); co.vertical = key; saveCompany(co); } catch (e) {}  // ins Firmenprofil → Sync (Mobile/andere Geräte)
-      toast(`Geschäftsfeld: ${MosaVertical.preset().label}`);
+      toast(`${tt('toastdyn.businessField','Geschäftsfeld')}: ${MosaVertical.preset().label}`);
     }
     // Branche aus dem (gesyncten) Firmenprofil übernehmen — beim Login/Start.
     function applyVerticalFromCompany() {
@@ -4332,7 +4332,7 @@
       currentUser = u;
       localStorage.setItem('cc-currentUser', id);
       applyCurrentUserToUI();
-      toast(`Eingeloggt als ${getUserName(u)}`);
+      toast(`${tt('common.loggedInAs','Eingeloggt als')} ${getUserName(u)}`);
       closeUserMenu();
     }
 
@@ -4372,7 +4372,7 @@
     }
     function requirePerm(perm, label = 'diese Aktion') {
       if (hasPerm(perm)) return true;
-      toast(`✗ Keine Berechtigung für ${label} (Rolle: ${ROLE_DEFS[currentUser.role]?.label})`);
+      toast(`✗ ${tt('toastdyn.noPermFor','Keine Berechtigung für')} ${label} (${tt('toastdyn.role','Rolle')}: ${ROLE_DEFS[currentUser.role]?.label})`);
       return false;
     }
 
@@ -4532,7 +4532,7 @@
           const link = inviteLink(email);
           try {
             await navigator.clipboard.writeText(link);
-            toast('✓ Einladung erstellt — Link kopiert! An ' + email + ' senden.');
+            toast(tt('toastdyn.inviteCopiedPre','✓ Einladung erstellt — Link kopiert! An ') + email + tt('toastdyn.inviteCopiedPost',' senden.'));
           } catch {
             toast('✓ Einladung erstellt. Link unten in der Liste kopieren.');
           }
@@ -7625,7 +7625,7 @@
       }
 
       if (rows.length === 0) {
-        toast(`Keine Einsätze im Monat ${yyyymm} gefunden`, 'error');
+        toast(`${tt('toastdyn.noJobsInMonthPre','Keine Einsätze im Monat ')}${yyyymm}${tt('toastdyn.noJobsInMonthPost',' gefunden')}`, 'error');
         return;
       }
 
@@ -7665,7 +7665,7 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast(`✓ ${rows.length} Einsätze exportiert · CHF ${sumNetto.toFixed(2)} netto`);
+      toast(`✓ ${rows.length} ${tt('toastdyn.jobsExported','Einsätze exportiert')} · CHF ${sumNetto.toFixed(2)} ${tt('toastdyn.net','netto')}`);
     }
 
     // ============ MITARBEITER (Reiniger) ============
@@ -8196,7 +8196,7 @@
         if (lateWarn) msg += ' · Übergabe-Termine knapp';
         toast(msg);
       } catch (e) {
-        toast('Optimierung fehlgeschlagen: ' + e.message, 'error');
+        toast(tt('toastdyn.optFailed','Optimierung fehlgeschlagen') + ': ' + e.message, 'error');
       } finally {
         btn.innerHTML = original; btn.disabled = false;
       }
@@ -8205,7 +8205,7 @@
     // ============ Neuer Auftrag speichern ============
     function saveAuftrag() {
       closeModal('newAuftrag');
-      toast(`Neues ${VT('objekt')} angelegt`);
+      toast(`${tt('toastdyn.new','Neues')} ${VT('objekt')} ${tt('toastdyn.created','angelegt')}`);
     }
 
     // ============ Klickbare Objekt-Karten ============
@@ -8227,7 +8227,7 @@
     document.querySelectorAll('.emp-card').forEach(card => {
       card.addEventListener('click', () => {
         const name = card.querySelector('.emp-name').textContent;
-        toast('Profil von ' + name + ' — Modul kommt im nächsten Schritt');
+        toast(tt('toastdyn.profileOfPre','Profil von ') + name + tt('toastdyn.profileOfPost',' — Modul kommt im nächsten Schritt'));
       });
     });
 
@@ -8540,7 +8540,7 @@
       if (!confirm(`Abo „${s.objekt}" beenden?\n${future} künftige Termine werden aus dem Planer entfernt. Vergangene Termine bleiben für die Abrechnung erhalten.`)) return;
       deleteSeries(seriesId, today);
       renderAbos();
-      toast(`✓ Abo „${s.objekt}" beendet — ${future} Termine entfernt`);
+      toast(`✓ ${tt('toastdyn.subPre','Abo')} „${s.objekt}" ${tt('toastdyn.subEnded','beendet')} — ${future} ${tt('toastdyn.datesRemoved','Termine entfernt')}`);
     }
 
     document.querySelector('.nav-item[data-view="abos"]')?.addEventListener('click', () => {
@@ -8714,7 +8714,7 @@
       else drawSepaBlock(doc, c, debtor, brutto, message, L, W, H);
 
       doc.save(`Rechnung_${invNr}.pdf`);
-      toast('✓ Rechnung erstellt — ' + invNr);
+      toast(tt('toastdyn.invoiceCreated','✓ Rechnung erstellt') + ' — ' + invNr);
     }
 
     // Zeichnet Empfangsschein + Zahlteil am Seitenfuss
@@ -8902,7 +8902,7 @@
     }
     function saveReport() {
       const objekt = document.getElementById('repObjekt').value.trim();
-      if (!objekt) { toast(`${VT('objektKunde')} erforderlich`, 'error'); return; }
+      if (!objekt) { toast(`${VT('objektKunde')} ${tt('toastdyn.required','erforderlich')}`, 'error'); return; }
       const data = {
         objekt,
         employee: document.getElementById('repEmployee').value.trim(),
@@ -9101,7 +9101,7 @@
       }
       // when leaving step 1, require service selected
       if (wizCurrent === 1 && dir > 0 && !wizService) {
-        toast(`Bitte zuerst eine ${VT('leistungsart')} wählen`);
+        toast(`${tt('toastdyn.selectFirstPre','Bitte zuerst eine ')}${VT('leistungsart')}${tt('toastdyn.selectFirstPost',' wählen')}`);
         return;
       }
       wizCurrent = target;
@@ -9242,7 +9242,7 @@
       if (!requirePerm('edit_prices', 'Preise')) return;
       onPriceChange();
       try { window.MosaDB?.push('company_prices', JSON.parse(localStorage.getItem('cc-prices')) || {}); } catch {}
-      toast(`✓ Preise gespeichert (von ${getUserName(currentUser)}) — gelten ab nächstem Auftrag`);
+      toast(`✓ ${tt('toastdyn.pricesSavedA','Preise gespeichert (von ')}${getUserName(currentUser)}${tt('toastdyn.pricesSavedB',') — gelten ab nächstem Auftrag')}`);
     }
 
     let priceOverrideActive = false;
@@ -10686,10 +10686,10 @@ ${coSig}`;
       navTo('planung');
       const dLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' });
       if (repeat === 'none') {
-        toast(`✓ Auftrag „${objekt}" angelegt — im Planer am ${dLabel}`);
+        toast(`✓ ${tt('toastdyn.orderWord','Auftrag')} „${objekt}" ${tt('toastdyn.created','angelegt')} — ${tt('toastdyn.inPlannerOn','im Planer am')} ${dLabel}`);
       } else {
-        const teamSuffix = autoTeamName ? ` · ${autoTeamName} zugewiesen` : '';
-        toast(`✓ Serie „${objekt}" angelegt — ${count} Termine (${repeatLabel(repeat)}), ab ${dLabel}${teamSuffix}`);
+        const teamSuffix = autoTeamName ? ` · ${autoTeamName} ${tt('toastdyn.assigned','zugewiesen')}` : '';
+        toast(`✓ ${tt('date.series','Serie')} „${objekt}" ${tt('toastdyn.created','angelegt')} — ${count} ${tt('date.appointments','Termine')} (${repeatLabel(repeat)}), ${tt('toastdyn.from','ab')} ${dLabel}${teamSuffix}`);
       }
 
       // Wizard zurücksetzen
@@ -11009,7 +11009,7 @@ ${coSig}`;
         if (!acc || mail.accountId === 'demo') {
           await new Promise(r => setTimeout(r, 600)); // simulierter Netzwerkaufruf
           cancelMailReply();
-          toast(`✓ Antwort an ${mail.fromName||mail.from} gesendet (Demo-Modus)`);
+          toast(`✓ ${tt('toastdyn.replyToPre','Antwort an')} ${mail.fromName||mail.from} ${tt('toastdyn.replySentDemo','gesendet (Demo-Modus)')}`);
         } else if (acc.provider === 'gmail') {
           await _sendReplyGmail(acc, mail.from, reSubject, body);
           cancelMailReply();
@@ -11024,7 +11024,7 @@ ${coSig}`;
           toast('✓ Antwort gesendet');
         }
       } catch(e) {
-        toast('Senden fehlgeschlagen: ' + e.message, 'error');
+        toast(tt('toastdyn.sendFailed','Senden fehlgeschlagen') + ': ' + e.message, 'error');
         if (btn) { btn.disabled = false; btn.textContent = 'Senden ↗'; }
       }
     }
@@ -11091,10 +11091,10 @@ ${coSig}`;
         const p = await (await fetch('https://www.googleapis.com/gmail/v1/users/me/profile', { headers:{'Authorization':'Bearer '+token} })).json();
         const acc = { id:'gmail-'+Date.now(), provider:'gmail', email:p.emailAddress, name:p.emailAddress, token };
         const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
-        toast('✓ Gmail verbunden: '+p.emailAddress);
+        toast(tt('toastdyn.gmailConnected','✓ Gmail verbunden') + ': ' + p.emailAddress);
         await fetchGmailMails(acc);
         renderMailView();
-      } catch(e) { toast('Gmail-Verbindung fehlgeschlagen: '+e.message, 'error'); }
+      } catch(e) { toast(tt('toastdyn.gmailConnFailed','Gmail-Verbindung fehlgeschlagen') + ': ' + e.message, 'error'); }
     }
     async function fetchGmailMails(acc) {
       try {
@@ -11134,10 +11134,10 @@ ${coSig}`;
         const p = await (await fetch('https://graph.microsoft.com/v1.0/me', { headers:{'Authorization':'Bearer '+token} })).json();
         const acc = { id:'outlook-'+Date.now(), provider:'outlook', email:p.mail||p.userPrincipalName, name:p.displayName, token };
         const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
-        toast('✓ Outlook verbunden: '+acc.email);
+        toast(tt('toastdyn.outlookConnected','✓ Outlook verbunden') + ': ' + acc.email);
         await fetchOutlookMails(acc);
         renderMailView();
-      } catch(e) { toast('Outlook-Verbindung fehlgeschlagen: '+e.message, 'error'); }
+      } catch(e) { toast(tt('toastdyn.outlookConnFailed','Outlook-Verbindung fehlgeschlagen') + ': ' + e.message, 'error'); }
     }
     async function fetchOutlookMails(acc) {
       try {
@@ -11193,9 +11193,9 @@ ${coSig}`;
         const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
         const c = loadMailCache(); c[acc.id] = (data.messages||[]).map(m=>({...m, accountId:acc.id})); saveMailCache(c);
         closeModal('mailImap');
-        toast(`✓ ${preset==='icloud'?'iCloud Mail':'IMAP'} verbunden: ${email}`);
+        toast(`✓ ${preset==='icloud'?'iCloud Mail':'IMAP'} ${tt('toastdyn.connectedSuffix','verbunden')}: ${email}`);
         renderMailView();
-      } catch(e) { toast('Verbindung fehlgeschlagen: '+e.message, 'error'); }
+      } catch(e) { toast(tt('toastdyn.connFailed','Verbindung fehlgeschlagen') + ': ' + e.message, 'error'); }
       finally { if (btn) { btn.disabled=false; btn.textContent='Verbinden'; } }
     }
 
@@ -11572,13 +11572,13 @@ ${coSig}`;
       const statuses = loadInvoiceStatuses();
       const jobs = collectRechnungsJobs(ym).filter(j => (statuses[j._jobKey]||'offen') === 'offen');
       if (!jobs.length) { toast('Keine offenen Rechnungen im Monat'); return; }
-      toast(`Erstelle ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} …`);
+      toast(`${tt('toastdyn.creating','Erstelle')} ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} …`);
       for (const j of jobs) {
         await generateInvoiceForJob(j, j._dateKey);
         await new Promise(r => setTimeout(r, 500));
         setInvoiceStatus(j._jobKey, 'gesendet');
       }
-      toast(`✓ ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} erstellt & auf „Gesendet" gesetzt`);
+      toast(`✓ ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} ${tt('toastdyn.pdfsCreatedSet','erstellt & auf „Gesendet" gesetzt')}`);
     }
 
     document.querySelector('.nav-item[data-view="rechnungen"]')?.addEventListener('click', () => {
