@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mein Tag — MosaOS</title>
+  <title data-i18n="m.pageTitle">Mein Tag — MosaOS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
@@ -13,6 +13,7 @@
   <script src="supabase-client.js"></script>
   <script src="db-sync.js"></script>
   <script src="presets.js?v=9"></script>
+  <script src="app-i18n.js?v=18"></script>
   <style>
     body { background: var(--bg); }
     .device-frame {
@@ -158,33 +159,37 @@
           </svg>
         </div>
         <span class="m-brand-name">Mosa<span style="color:#E11D2A">OS</span></span>
+        <select data-lang-select onchange="window.MosaI18n && MosaI18n.set(this.value)" aria-label="Sprache"
+                style="margin-left:auto;height:30px;padding:0 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:12.5px;cursor:pointer;">
+          <option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option><option value="en">EN</option>
+        </select>
       </div>
 
-      <div class="mobile-greeting" id="mGreeting">Guten Tag</div>
+      <div class="mobile-greeting" id="mGreeting" data-i18n="m.greeting">Guten Tag</div>
       <div class="mobile-name" id="mGreetName">—</div>
 
       <div class="mobile-stats">
         <div>
           <div class="mobile-stat-val" id="mStatObjekte">0</div>
-          <div class="mobile-stat-label">Objekte</div>
+          <div class="mobile-stat-label" data-i18n="m.statObjects">Objekte</div>
         </div>
         <div>
           <div class="mobile-stat-val" id="mStatStart">—</div>
-          <div class="mobile-stat-label">Start</div>
+          <div class="mobile-stat-label" data-i18n="m.statStart">Start</div>
         </div>
         <div>
           <div class="mobile-stat-val" id="mStatEnde">—</div>
-          <div class="mobile-stat-label">Ende</div>
+          <div class="mobile-stat-label" data-i18n="m.statEnd">Ende</div>
         </div>
       </div>
     </div>
 
     <div class="mobile-route">
       <div class="mobile-route-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-        <span id="mRouteDate">Heute</span>
+        <span id="mRouteDate" data-i18n="m.today">Heute</span>
         <button onclick="openChecklist()" style="background:none; border:none; color:var(--accent); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Material-Check
+          <span data-i18n="m.materialCheck">Material-Check</span>
         </button>
       </div>
 
@@ -195,20 +200,20 @@
     <div style="padding: 16px 20px 28px; border-top: 1px solid var(--border); background: var(--bg);">
       <button onclick="meldeProblem()" style="width: 100%; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text); cursor: pointer;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Problem melden / Krank
+        <span data-i18n="m.reportProblem">Problem melden / Krank</span>
       </button>
       <div style="font-size: 11px; color: var(--text-subtle); text-align: center; margin-top: 12px;">
-        Mosa<span style="color:#E11D2A">OS</span> · Mitarbeiter-Ansicht · v1.0
+        Mosa<span style="color:#E11D2A">OS</span> · <span data-i18n="m.footerRole">Mitarbeiter-Ansicht</span> · v1.0
       </div>
     </div>
 
     <!-- QR-Scanner -->
     <div class="qr-overlay" id="qrOverlay">
-      <div class="qr-title">QR-Code am <span data-term="objekt">Objekt</span> scannen</div>
-      <div class="qr-sub">Halte die Kamera auf den QR-Aufkleber beim Eingang.</div>
+      <div class="qr-title"><span data-i18n="m.qrScanPre">QR-Code am </span><span data-term="objekt">Objekt</span><span data-i18n="m.qrScanPost"> scannen</span></div>
+      <div class="qr-sub" data-i18n="m.qrSub">Halte die Kamera auf den QR-Aufkleber beim Eingang.</div>
       <div id="qr-reader"></div>
-      <div class="qr-status" id="qrStatus">Kamera wird gestartet …</div>
-      <button class="btn btn-secondary qr-close" onclick="closeScanner()">Abbrechen</button>
+      <div class="qr-status" id="qrStatus" data-i18n="m.camStarting">Kamera wird gestartet …</div>
+      <button class="btn btn-secondary qr-close" onclick="closeScanner()" data-i18n="common.cancel">Abbrechen</button>
     </div>
 
     <!-- Material-Checkliste vor Routenstart -->
@@ -216,17 +221,17 @@
       <div class="cl-icon">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </div>
-      <div class="cl-title">Bevor du losfährst</div>
-      <div class="cl-sub">Kurz durchgehen — hast du alles dabei? Erst dann startet dein Tag.</div>
+      <div class="cl-title" data-i18n="m.clTitle">Bevor du losfährst</div>
+      <div class="cl-sub" data-i18n="m.clSub">Kurz durchgehen — hast du alles dabei? Erst dann startet dein Tag.</div>
       <div class="cl-list" id="clList"><!-- via JS --></div>
       <div class="cl-add">
-        <input type="text" id="clNewItem" placeholder="Eigenen Punkt hinzufügen…" onkeydown="if(event.key==='Enter')addChecklistItem()" />
+        <input type="text" id="clNewItem" data-i18n-ph="m.clAddPh" placeholder="Eigenen Punkt hinzufügen…" onkeydown="if(event.key==='Enter')addChecklistItem()" />
         <button class="btn btn-accent" onclick="addChecklistItem()" style="padding:0 16px;">+</button>
       </div>
       <div class="cl-footer">
-        <button class="cl-edit-toggle" id="clEditBtn" onclick="toggleChecklistEdit()">Liste bearbeiten</button>
+        <button class="cl-edit-toggle" id="clEditBtn" onclick="toggleChecklistEdit()" data-i18n="m.editList">Liste bearbeiten</button>
         <div class="cl-progress" id="clProgress"></div>
-        <button class="btn btn-accent cl-start" id="clStartBtn" onclick="startDay()" disabled>Tag starten</button>
+        <button class="btn btn-accent cl-start" id="clStartBtn" onclick="startDay()" disabled data-i18n="m.startDay">Tag starten</button>
       </div>
     </div>
 
@@ -238,38 +243,38 @@
       <div class="cl-title" id="protoTitle">Abnahmeprotokoll</div>
       <div class="cl-sub" id="protoObjekt">Objekt</div>
 
-      <div style="font-size:13px; font-weight:600; margin:4px 0 8px;">Erledigte Arbeiten</div>
+      <div style="font-size:13px; font-weight:600; margin:4px 0 8px;" data-i18n="m.doneWorks">Erledigte Arbeiten</div>
       <div class="cl-list" id="protoTasks"><!-- via JS --></div>
       <div class="cl-add">
-        <input type="text" id="protoNewTask" placeholder="Weitere Arbeit hinzufügen…" onkeydown="if(event.key==='Enter')addProtoTask()" />
+        <input type="text" id="protoNewTask" data-i18n-ph="m.protoAddPh" placeholder="Weitere Arbeit hinzufügen…" onkeydown="if(event.key==='Enter')addProtoTask()" />
         <button class="btn btn-accent" onclick="addProtoTask()" style="padding:0 16px;">+</button>
       </div>
-      <button class="cl-edit-toggle" style="align-self:flex-start; margin:6px 0 2px;" onclick="toggleProtoEdit()" id="protoEditBtn">Liste bearbeiten</button>
+      <button class="cl-edit-toggle" style="align-self:flex-start; margin:6px 0 2px;" onclick="toggleProtoEdit()" id="protoEditBtn" data-i18n="m.editList">Liste bearbeiten</button>
 
       <!-- Rapport: Stunden + Material (nur Handwerk/Garten) -->
       <div id="protoRapport" style="display:none; width:100%; margin-top:6px;">
-        <div style="font-size:13px; font-weight:600; margin:10px 0 8px;">Stunden &amp; Material</div>
-        <input type="number" id="protoHours" step="0.25" min="0" inputmode="decimal" placeholder="Stunden vor Ort (z. B. 2.5)"
+        <div style="font-size:13px; font-weight:600; margin:10px 0 8px;" data-i18n="m.hoursMaterial">Stunden &amp; Material</div>
+        <input type="number" id="protoHours" step="0.25" min="0" inputmode="decimal" data-i18n-ph="m.hoursPh" placeholder="Stunden vor Ort (z. B. 2.5)"
           style="width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font-size:14px; font-family:inherit; margin-bottom:8px;" />
         <div id="protoMaterial" style="display:flex; flex-direction:column; gap:6px;"></div>
-        <button class="cl-edit-toggle" style="align-self:flex-start; margin:8px 0 2px;" onclick="addMobMatRow()">+ Material</button>
+        <button class="cl-edit-toggle" style="align-self:flex-start; margin:8px 0 2px;" onclick="addMobMatRow()" data-i18n="m.addMaterial">+ Material</button>
       </div>
 
       <div id="protoPhotoInfo" style="font-size:12.5px; color:var(--text-muted); margin:10px 0;"></div>
 
-      <div style="font-size:13px; font-weight:600; margin:6px 0 6px;">Unterschrift Kunde</div>
+      <div style="font-size:13px; font-weight:600; margin:6px 0 6px;" data-i18n="m.sigCustomer">Unterschrift Kunde</div>
       <div class="sig-wrap">
         <canvas id="sigCanvas" class="sig-canvas"></canvas>
-        <span class="sig-hint" id="sigHint">Hier mit dem Finger unterschreiben</span>
+        <span class="sig-hint" id="sigHint" data-i18n="m.sigHint">Hier mit dem Finger unterschreiben</span>
       </div>
       <div style="display:flex; gap:8px; margin-top:6px;">
-        <button class="btn btn-secondary" style="flex:1;" onclick="clearSignature()">Löschen</button>
-        <button class="btn btn-secondary" style="flex:1;" onclick="sendProtocolLink()">Kunde nicht da → Link senden</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="clearSignature()" data-i18n="m.clear">Löschen</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="sendProtocolLink()" data-i18n="m.customerAwayLink">Kunde nicht da → Link senden</button>
       </div>
 
       <div class="cl-footer">
-        <button class="btn btn-secondary" onclick="closeProtocol()">Abbrechen</button>
-        <button class="btn btn-primary cl-start" onclick="finishProtocol()">Abschliessen &amp; absenden</button>
+        <button class="btn btn-secondary" onclick="closeProtocol()" data-i18n="common.cancel">Abbrechen</button>
+        <button class="btn btn-primary cl-start" onclick="finishProtocol()" data-i18n="m.finishSend">Abschliessen &amp; absenden</button>
       </div>
     </div>
 
@@ -282,19 +287,24 @@
   <div id="mLogin" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
     <div style="width:100%;max-width:360px;">
       <div style="text-align:center;margin-bottom:28px;font-size:26px;font-weight:700;color:var(--text);letter-spacing:-.5px;">Mosa<span style="color:#E11D2A">OS</span></div>
-      <div style="text-align:center;margin-bottom:24px;color:var(--text-muted);font-size:14px;">Bitte melde dich an, um deinen Tag zu starten.</div>
-      <input id="mEmail" type="email" inputmode="email" autocomplete="username" placeholder="E-Mail"
+      <div style="text-align:center;margin-bottom:24px;color:var(--text-muted);font-size:14px;" data-i18n="m.loginIntro">Bitte melde dich an, um deinen Tag zu starten.</div>
+      <input id="mEmail" type="email" inputmode="email" autocomplete="username" data-i18n-ph="auth.email" placeholder="E-Mail"
         style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;" />
-      <input id="mPass" type="password" autocomplete="current-password" placeholder="Passwort"
+      <input id="mPass" type="password" autocomplete="current-password" data-i18n-ph="auth.password" placeholder="Passwort"
         style="width:100%;box-sizing:border-box;padding:14px;margin-bottom:8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;" />
       <div id="mLoginErr" style="display:none;color:var(--accent);font-size:13px;margin:4px 2px 12px;"></div>
-      <button id="mLoginBtn" onclick="mDoLogin()"
+      <button id="mLoginBtn" onclick="mDoLogin()" data-i18n="auth.signIn"
         style="width:100%;padding:14px;margin-top:8px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Anmelden</button>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script>
+    // i18n-Kurzhelfer (app-i18n.js liefert MosaI18n; deutscher Fallback wenn nicht geladen)
+    const tt = (k, f) => (window.MosaI18n ? MosaI18n.t(k, f) : f);
+    function mDateLocale() { const m = { de: 'de-CH', en: 'en-GB', fr: 'fr-CH', it: 'it-CH', es: 'es-ES' }; return m[(window.MosaI18n ? MosaI18n.get() : 'de')] || 'de-CH'; }
+    function mPhotoWord(n) { return n > 1 ? tt('m.photos', 'Fotos') : tt('m.photo', 'Foto'); }
+
     function toast(msg) {
       const t = document.getElementById('mToast');
       t.textContent = msg;
@@ -304,7 +314,7 @@
     }
 
     function nowTime() {
-      return new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+      return new Date().toLocaleTimeString(mDateLocale(), { hour: '2-digit', minute: '2-digit' });
     }
 
     // Markiert den aktiven Stop als eingecheckt
@@ -313,7 +323,7 @@
       if (!stop) return;
       const hint = stop.querySelector('.stop-hint');
       if (hint) {
-        hint.innerHTML = `<strong style="color: var(--success);">Eingecheckt um ${nowTime()}</strong>` + (code ? ` · ${code}` : '');
+        hint.innerHTML = `<strong style="color: var(--success);">${mEsc(tt('m.checkedInAt', 'Eingecheckt um {t}').replace('{t}', nowTime()))}</strong>` + (code ? ` · ${mEsc(code)}` : '');
       }
       stop.classList.add('checked');
     }
@@ -325,11 +335,11 @@
       const status = document.getElementById('qrStatus');
       overlay.classList.add('open');
       status.className = 'qr-status';
-      status.textContent = 'Kamera wird gestartet …';
+      status.textContent = tt('m.camStarting', 'Kamera wird gestartet …');
 
       if (!window.Html5Qrcode) {
         status.className = 'qr-status err';
-        status.textContent = 'Scanner konnte nicht geladen werden (Internet?).';
+        status.textContent = tt('m.scannerLoadFail', 'Scanner konnte nicht geladen werden (Internet?).');
         return;
       }
       html5Qr = new Html5Qrcode('qr-reader');
@@ -339,22 +349,22 @@
         (decodedText) => {
           // Erfolg
           status.className = 'qr-status ok';
-          status.textContent = 'Erkannt: ' + decodedText;
+          status.textContent = tt('m.recognized', 'Erkannt: {x}').replace('{x}', decodedText);
           if (navigator.vibrate) navigator.vibrate(120);
           markCheckedIn(decodedText);
-          setTimeout(() => { closeScanner(); toast('Anwesenheit erfasst — ' + decodedText); }, 900);
+          setTimeout(() => { closeScanner(); toast(tt('m.attendanceLogged', 'Anwesenheit erfasst — {x}').replace('{x}', decodedText)); }, 900);
         },
         () => { /* pro Frame ohne Treffer – ignorieren */ }
       ).then(() => {
-        status.textContent = 'Kamera bereit – QR-Code anvisieren.';
+        status.textContent = tt('m.camReady', 'Kamera bereit – QR-Code anvisieren.');
       }).catch((err) => {
         status.className = 'qr-status err';
         if (String(err).match(/NotAllowed|Permission/i)) {
-          status.textContent = 'Kamera-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
+          status.textContent = tt('m.camDenied', 'Kamera-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.');
         } else if (String(err).match(/NotFound|Requested device/i)) {
-          status.textContent = 'Keine Kamera gefunden.';
+          status.textContent = tt('m.camNotFound', 'Keine Kamera gefunden.');
         } else {
-          status.textContent = 'Kamera konnte nicht gestartet werden.';
+          status.textContent = tt('m.camStartFail', 'Kamera konnte nicht gestartet werden.');
         }
       });
     }
@@ -378,9 +388,9 @@
       const cnt = stop ? stop.querySelector('.stop-foto-count') : null;
       if (cnt) {
         cnt.style.display = 'block';
-        cnt.textContent = `${n} Foto${n > 1 ? 's' : ''} hochgeladen um ${nowTime()}`;
+        cnt.textContent = tt('m.photosUploadedAt', '{n} {w} hochgeladen um {t}').replace('{n}', n).replace('{w}', mPhotoWord(n)).replace('{t}', nowTime());
       }
-      toast(`${n} Foto${n > 1 ? 's' : ''} hochgeladen`);
+      toast(tt('m.photosUploaded', '{n} {w} hochgeladen').replace('{n}', n).replace('{w}', mPhotoWord(n)));
       e.target.value = '';
     });
 
@@ -440,11 +450,11 @@
     function updateChecklistState() {
       const done = clChecked.filter(Boolean).length;
       const total = clItems.length;
-      document.getElementById('clProgress').textContent = done + ' von ' + total + ' abgehakt';
+      document.getElementById('clProgress').textContent = tt('m.checkedOf', '{d} von {t} abgehakt').replace('{d}', done).replace('{t}', total);
       const allDone = total > 0 && done === total;
       const btn = document.getElementById('clStartBtn');
       btn.disabled = !allDone;
-      btn.textContent = allDone ? 'Tag starten' : 'Noch ' + (total - done) + ' offen';
+      btn.textContent = allDone ? tt('m.startDay', 'Tag starten') : tt('m.stillOpen', 'Noch {n} offen').replace('{n}', total - done);
     }
 
     function addChecklistItem() {
@@ -468,7 +478,7 @@
     function toggleChecklistEdit() {
       const ov = document.getElementById('checklistOverlay');
       const editing = ov.classList.toggle('editing');
-      document.getElementById('clEditBtn').textContent = editing ? 'Fertig bearbeiten' : 'Liste bearbeiten';
+      document.getElementById('clEditBtn').textContent = editing ? tt('m.editDone', 'Fertig bearbeiten') : tt('m.editList', 'Liste bearbeiten');
     }
 
     function openChecklist() {
@@ -480,8 +490,8 @@
       if (clChecked.filter(Boolean).length !== clItems.length) return;
       localStorage.setItem(CL_DONE_KEY, todayStr());
       document.getElementById('checklistOverlay').classList.remove('open', 'editing');
-      document.getElementById('clEditBtn').textContent = 'Liste bearbeiten';
-      toast('Material bestätigt — guten Einsatz!');
+      document.getElementById('clEditBtn').textContent = tt('m.editList', 'Liste bearbeiten');
+      toast(tt('m.materialConfirmed', 'Material bestätigt — guten Einsatz!'));
     }
 
     // Beim Öffnen der App: einmal pro Tag das Material-Tor zeigen
@@ -515,24 +525,27 @@
       document.getElementById('mStatEnde').textContent = ende;
     }
     function mEmptyStops(msg) { return `<div style="padding:32px 18px; text-align:center; color:var(--text-subtle); font-size:13.5px; line-height:1.5;">${msg}</div>`; }
+    function mSetRouteDate() {
+      const dEl = document.getElementById('mRouteDate');
+      if (dEl) dEl.textContent = tt('m.today', 'Heute') + ' · ' + new Date().toLocaleDateString(mDateLocale(), { weekday: 'short', day: 'numeric', month: 'long' });
+    }
 
     async function loadMyDay() {
       const sb = mSb();
       const tid = window._tenantId;
       const nameEl = document.getElementById('mGreetName');
       const stopsEl = document.getElementById('mStops');
-      const dEl = document.getElementById('mRouteDate');
-      if (dEl) dEl.textContent = 'Heute · ' + new Date().toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'long' });
-      if (!sb || !tid) { if (stopsEl) stopsEl.innerHTML = mEmptyStops('Nicht angemeldet.'); return; }
+      mSetRouteDate();
+      if (!sb || !tid) { if (stopsEl) stopsEl.innerHTML = mEmptyStops(tt('m.notSignedIn', 'Nicht angemeldet.')); return; }
       let me = null;
       try {
         const { data: emps } = await sb.from('employees').select('*').eq('tenant_id', tid);
         me = (emps || []).find(e => (e.email || '').toLowerCase() === (window._fieldUser || '').toLowerCase());
       } catch {}
-      if (nameEl) nameEl.textContent = me ? (`${me.first_name || ''} ${me.last_name || ''}`.trim() || window._fieldUser) : (window._fieldUser || 'Mitarbeiter');
+      if (nameEl) nameEl.textContent = me ? (`${me.first_name || ''} ${me.last_name || ''}`.trim() || window._fieldUser) : (window._fieldUser || tt('m.employee', 'Mitarbeiter'));
       if (!me) {
         mSetStats(0, '—', '—');
-        if (stopsEl) stopsEl.innerHTML = mEmptyStops('Dein Login ist noch keinem Mitarbeiter-Profil zugeordnet.<br>Bitte im Büro deine E-Mail beim Mitarbeiter hinterlegen.');
+        if (stopsEl) stopsEl.innerHTML = mEmptyStops(tt('m.noProfile', 'Dein Login ist noch keinem Mitarbeiter-Profil zugeordnet.<br>Bitte im Büro deine E-Mail beim Mitarbeiter hinterlegen.'));
         return;
       }
       window._myEmpId = me.id;
@@ -553,7 +566,7 @@
       return `<div class="stop ${cls}" ${isActive ? 'id="activeStop"' : ''}>
         <div><div class="stop-time">${mEsc(j.start_time || '—')}</div><div class="stop-duration">${dur}</div></div>
         <div class="stop-body">
-          <div class="stop-name">${mEsc(j.objekt || 'Einsatz')}</div>
+          <div class="stop-name">${mEsc(j.objekt || tt('m.job', 'Einsatz'))}</div>
           <div class="stop-addr">${mEsc(j.ort || '')}</div>
           ${inner}
         </div>
@@ -562,22 +575,22 @@
     function renderMyStops() {
       const stopsEl = document.getElementById('mStops');
       if (!stopsEl) return;
-      if (!MY_JOBS.length) { mSetStats(0, '—', '—'); stopsEl.innerHTML = mEmptyStops('Heute keine Einsätze für dich geplant.'); return; }
+      if (!MY_JOBS.length) { mSetStats(0, '—', '—'); stopsEl.innerHTML = mEmptyStops(tt('m.noJobsToday', 'Heute keine Einsätze für dich geplant.')); return; }
       const starts = MY_JOBS.map(j => j.start_time).filter(Boolean);
       const ends = MY_JOBS.map(j => j.end_time).filter(Boolean);
       mSetStats(MY_JOBS.length, starts[0] || '—', ends[ends.length - 1] || '—');
       const activeIdx = MY_JOBS.findIndex((j, i) => !_doneStops.has(i));
       stopsEl.innerHTML = MY_JOBS.map((j, i) => {
         const note = j.note_crew ? `<div style="font-size:12px;color:var(--text-subtle);margin-top:4px;">${mEsc(j.note_crew)}</div>` : '';
-        if (_doneStops.has(i)) return mStopShell(j, '<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">Abgeschlossen</div>', 'done', false);
+        if (_doneStops.has(i)) return mStopShell(j, `<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">${mEsc(tt('m.completed', 'Abgeschlossen'))}</div>`, 'done', false);
         if (i === activeIdx) {
           return mStopShell(j, `${note}
-            <div class="stop-hint" style="font-size:12px;color:var(--text-muted);margin-top:6px;"><strong style="color:var(--accent);">Jetzt aktiv</strong> · einchecken &amp; Fotos hochladen</div>
+            <div class="stop-hint" style="font-size:12px;color:var(--text-muted);margin-top:6px;"><strong style="color:var(--accent);">${mEsc(tt('m.nowActive', 'Jetzt aktiv'))}</strong>${mEsc(tt('m.checkinUpload', ' · einchecken & Fotos hochladen'))}</div>
             <div class="stop-actions">
-              <button class="btn btn-accent" style="flex:1;" onclick="openScanner()">QR scannen</button>
-              <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('fotoInput').click()">Fotos</button>
+              <button class="btn btn-accent" style="flex:1;" onclick="openScanner()">${mEsc(tt('m.scanQR', 'QR scannen'))}</button>
+              <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('fotoInput').click()">${mEsc(tt('m.photosBtn', 'Fotos'))}</button>
             </div>
-            <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="openProtocol(${i})">Einsatz abschliessen</button>
+            <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="openProtocol(${i})">${mEsc(tt('m.finishJob', 'Einsatz abschliessen'))}</button>
             <div class="stop-foto-count" style="display:none;font-size:11.5px;color:var(--success);font-weight:600;margin-top:8px;"></div>`, 'active', true);
         }
         return mStopShell(j, note, '', false);
@@ -601,10 +614,12 @@
     }
     function addProtoTask() { const inp = document.getElementById('protoNewTask'); const v = (inp.value || '').trim(); if (!v) return; protoTasks.push({ label: v, done: true }); inp.value = ''; renderProtoTasks(); }
     function removeProtoTask(i) { protoTasks.splice(i, 1); renderProtoTasks(); }
-    function toggleProtoEdit() { protoEditing = !protoEditing; document.getElementById('protocolOverlay').classList.toggle('editing', protoEditing); document.getElementById('protoEditBtn').textContent = protoEditing ? 'Fertig' : 'Liste bearbeiten'; }
+    function toggleProtoEdit() { protoEditing = !protoEditing; document.getElementById('protocolOverlay').classList.toggle('editing', protoEditing); document.getElementById('protoEditBtn').textContent = protoEditing ? tt('m.done', 'Fertig') : tt('m.editList', 'Liste bearbeiten'); }
 
     // Branchen-gerechte Protokoll-Titel + Rapport-Erfassung (Handwerk/Garten)
     const PROTO_TITLES = { reinigung: 'Abnahmeprotokoll', schaedling: 'Behandlungsprotokoll', handwerk: 'Rapport', garten: 'Rapport', werkstatt: 'Auftrag abschliessen' };
+    const PROTO_TITLE_KEYS = { reinigung: 'm.protoReinigung', schaedling: 'm.protoSchaedling', handwerk: 'm.protoRapport', garten: 'm.protoRapport', werkstatt: 'm.protoWerkstatt' };
+    function protoTitleFor(v) { return tt(PROTO_TITLE_KEYS[v] || 'm.protocol', PROTO_TITLES[v] || 'Protokoll'); }
     function currentVertical() { return (window.MosaVertical ? MosaVertical.get() : 'reinigung'); }
     function isRapportVertical() { const v = currentVertical(); return v === 'handwerk' || v === 'garten'; }
     function addMobMatRow(d) {
@@ -639,11 +654,11 @@
       protoEditing = false;
       const ov = document.getElementById('protocolOverlay');
       ov.classList.remove('editing');
-      document.getElementById('protoEditBtn').textContent = 'Liste bearbeiten';
+      document.getElementById('protoEditBtn').textContent = tt('m.editList', 'Liste bearbeiten');
       document.getElementById('protoObjekt').textContent = currentObjektName();
       // Branchen-Titel + Rapport-Block (Stunden/Material) für Handwerk/Garten
       const tEl = document.getElementById('protoTitle');
-      if (tEl) tEl.textContent = PROTO_TITLES[currentVertical()] || 'Protokoll';
+      if (tEl) tEl.textContent = protoTitleFor(currentVertical());
       const rap = document.getElementById('protoRapport');
       if (rap) {
         const show = isRapportVertical();
@@ -651,7 +666,7 @@
         if (show) { document.getElementById('protoHours').value = ''; document.getElementById('protoMaterial').innerHTML = ''; }
       }
       const n = currentPhotoCount();
-      document.getElementById('protoPhotoInfo').textContent = n > 0 ? `${n} Foto${n > 1 ? 's' : ''} angehängt` : 'Noch keine Fotos angehängt';
+      document.getElementById('protoPhotoInfo').textContent = n > 0 ? tt('m.photosAttached', '{n} {w} angehängt').replace('{n}', n).replace('{w}', mPhotoWord(n)) : tt('m.noPhotosAttached', 'Noch keine Fotos angehängt');
       renderProtoTasks();
       ov.classList.add('open');
       setTimeout(initSignature, 60);
@@ -661,7 +676,7 @@
     function protoSummaryText() {
       const done = protoTasks.filter(t => t.done).map(t => t.label);
       const n = currentPhotoCount();
-      return `Abnahmeprotokoll — ${currentObjektName()}\nErledigt: ${done.join(', ') || '—'}\n${n > 0 ? n + ' Foto(s) angehängt' : 'Keine Fotos'}\nDatum: ${new Date().toLocaleDateString('de-CH')}`;
+      return `${tt('m.shareTitle', 'Abnahmeprotokoll')} — ${currentObjektName()}\n${tt('m.summaryDone', 'Erledigt: ')}${done.join(', ') || '—'}\n${n > 0 ? tt('m.summaryPhotos', '{n} Foto(s) angehängt').replace('{n}', n) : tt('m.summaryNoPhotos', 'Keine Fotos')}\n${tt('m.summaryDate', 'Datum: ')}${new Date().toLocaleDateString(mDateLocale())}`;
     }
 
     /* Signatur-Pad (Maus + Touch) */
@@ -754,37 +769,37 @@
         return;
       }
       const s = document.getElementById('activeStop'); if (!s) return;
-      const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">Abgeschlossen um ' + nowTime() + '</strong>';
+      const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">' + mEsc(tt('m.completedAt', 'Abgeschlossen um {t}').replace('{t}', nowTime())) + '</strong>';
       s.classList.add('checked', 'done');
     }
 
     function finishProtocol() {
-      if (!sigHasInk && !confirm('Noch keine Unterschrift. Trotzdem ohne Kunden-Signatur abschliessen?')) return;
+      if (!sigHasInk && !confirm(tt('m.confirmNoSig', 'Noch keine Unterschrift. Trotzdem ohne Kunden-Signatur abschliessen?'))) return;
       saveProtocol(sigHasInk ? 'vor Ort' : 'ohne Signatur', sigHasInk);
       markStopDone();
       closeProtocol();
-      toast(sigHasInk ? 'Protokoll unterschrieben & abgeschlossen' : 'Einsatz abgeschlossen');
+      toast(sigHasInk ? tt('m.toastSigned', 'Protokoll unterschrieben & abgeschlossen') : tt('m.toastFinished', 'Einsatz abgeschlossen'));
     }
 
     function sendProtocolLink() {
-      const text = protoSummaryText() + '\n\nBitte bestätige die Abnahme.';
+      const text = protoSummaryText() + '\n\n' + tt('m.pleaseConfirm', 'Bitte bestätige die Abnahme.');
       saveProtocol('Link gesendet', false);
       if (navigator.share) {
-        navigator.share({ title: 'Abnahmeprotokoll', text })
-          .then(() => { toast('Protokoll geteilt'); markStopDone(); closeProtocol(); })
+        navigator.share({ title: tt('m.shareTitle', 'Abnahmeprotokoll'), text })
+          .then(() => { toast(tt('m.shared', 'Protokoll geteilt')); markStopDone(); closeProtocol(); })
           .catch(() => { /* abgebrochen */ });
       } else {
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-        toast('Protokoll-Link geöffnet — an Kundin senden');
+        toast(tt('m.linkOpened', 'Protokoll-Link geöffnet — an Kundin senden'));
         markStopDone(); closeProtocol();
       }
     }
 
     /* ---------- Problem melden ---------- */
     function meldeProblem() {
-      const grund = prompt('Was möchtest du melden?\n(z. B. „Krank", „Schlüssel fehlt", „Verspätung")');
+      const grund = prompt(tt('m.problemPrompt', 'Was möchtest du melden?\n(z. B. „Krank", „Schlüssel fehlt", „Verspätung")'));
       if (grund && grund.trim()) {
-        toast('Gemeldet: ' + grund.trim() + ' — Büro ist informiert');
+        toast(tt('m.reported', 'Gemeldet: {x} — Büro ist informiert').replace('{x}', grund.trim()));
       }
     }
 
@@ -819,7 +834,7 @@
       } catch {}
       if (!ok) {
         const e = document.getElementById('mLoginErr');
-        if (e) { e.textContent = 'Konto ist keiner Firma zugeordnet. Bitte beim Büro melden.'; e.style.display = 'block'; }
+        if (e) { e.textContent = tt('m.noTenant', 'Konto ist keiner Firma zugeordnet. Bitte beim Büro melden.'); e.style.display = 'block'; }
         await sb.auth.signOut();
         showLogin(true);
         return;
@@ -854,19 +869,19 @@
       const errEl = document.getElementById('mLoginErr');
       const btn = document.getElementById('mLoginBtn');
       if (errEl) errEl.style.display = 'none';
-      if (!sb) { if (errEl) { errEl.textContent = 'Server nicht erreichbar (Internet?).'; errEl.style.display = 'block'; } return; }
+      if (!sb) { if (errEl) { errEl.textContent = tt('m.serverUnreachable', 'Server nicht erreichbar (Internet?).'); errEl.style.display = 'block'; } return; }
       const email = (document.getElementById('mEmail').value || '').trim();
       const pass = document.getElementById('mPass').value || '';
-      if (!email || !pass) { if (errEl) { errEl.textContent = 'E-Mail und Passwort eingeben.'; errEl.style.display = 'block'; } return; }
-      if (btn) { btn.disabled = true; btn.textContent = 'Anmelden …'; }
+      if (!email || !pass) { if (errEl) { errEl.textContent = tt('m.enterCreds', 'E-Mail und Passwort eingeben.'); errEl.style.display = 'block'; } return; }
+      if (btn) { btn.disabled = true; btn.textContent = tt('m.loggingIn', 'Anmelden …'); }
       try {
         const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-        if (error) { if (errEl) { errEl.textContent = 'Anmeldung fehlgeschlagen. E-Mail/Passwort prüfen.'; errEl.style.display = 'block'; } }
+        if (error) { if (errEl) { errEl.textContent = tt('m.loginFailed', 'Anmeldung fehlgeschlagen. E-Mail/Passwort prüfen.'); errEl.style.display = 'block'; } }
         else { await mAfterSession(data.session); }
       } catch {
-        if (errEl) { errEl.textContent = 'Anmeldung fehlgeschlagen (Internet?).'; errEl.style.display = 'block'; }
+        if (errEl) { errEl.textContent = tt('m.loginFailedNet', 'Anmeldung fehlgeschlagen (Internet?).'); errEl.style.display = 'block'; }
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Anmelden'; }
+        if (btn) { btn.disabled = false; btn.textContent = tt('auth.signIn', 'Anmelden'); }
       }
     }
 
@@ -879,6 +894,19 @@
         else { showLogin(true); }
       } catch { showLogin(true); }
     })();
+
+    // Sprachwechsel: Branchen-Begriffe (data-term) erneut anwenden + JS-gerenderte Teile neu zeichnen.
+    document.addEventListener('mosa-lang-changed', () => {
+      try { window.MosaVertical && MosaVertical.apply(); } catch (e) {}
+      try { mSetRouteDate(); } catch (e) {}
+      try { renderChecklist(); } catch (e) {}   // setzt Fortschritt + „Tag starten"-Button neu
+      try { if (MY_JOBS.length) renderMyStops(); } catch (e) {}
+      try {
+        const ov = document.getElementById('protocolOverlay');
+        const tEl = document.getElementById('protoTitle');
+        if (ov && tEl && ov.classList.contains('open')) tEl.textContent = protoTitleFor(currentVertical());
+      } catch (e) {}
+    });
   </script>
 </body>
 </html>
