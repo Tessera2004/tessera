@@ -75,7 +75,11 @@ window.MosaBilling = (function () {
     const sub = window._subscription || { active: false, status: 'inactive', modules: [] };
     const mods = sub.modules || [];
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const rows = cfg().modules.map((m) => {
+    // Branche blendet bestimmte Module grundsätzlich aus (z. B. Werkstatt → keine Abo-Verträge).
+    // Diese dürfen dann auch im Modul-Shop NICHT buchbar sein, sonst zahlt der Kunde für ein
+    // Modul, das seine Branche nie anzeigt.
+    const hiddenByVertical = (window.MosaVertical && MosaVertical.hiddenViews) ? MosaVertical.hiddenViews() : [];
+    const rows = cfg().modules.filter((m) => !hiddenByVertical.includes(m.key)).map((m) => {
       const on = mods.includes(m.key);
       return `
       <label style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid ${on ? 'var(--accent)' : 'var(--border)'}; border-radius:10px; background:var(--surface);">
