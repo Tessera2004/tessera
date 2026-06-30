@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=2"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=19"></script>
+  <script src="app-i18n.js?v=20"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -265,6 +265,18 @@
             <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
           </div>
           <span id="dashHeroTitle" hidden></span>
+
+          <!-- Geführter Start: nur für neue/leere Konten, schließt sich wenn erledigt/weggeklickt -->
+          <div id="firstSteps" class="card" style="display:none; margin-bottom: var(--space-5); padding:18px 20px; border:1px solid var(--accent); background:var(--accent-soft);">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+              <div>
+                <div style="font-weight:700; font-size:15px;" data-i18n="fs.title">Erste Schritte</div>
+                <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;" data-i18n="fs.sub">In 3 Schritten ist dein Cockpit startklar.</div>
+              </div>
+              <button onclick="dismissFirstSteps()" data-i18n-title="fs.dismiss" title="Ausblenden" style="background:none; border:none; color:var(--text-subtle); cursor:pointer; font-size:18px; line-height:1; padding:2px 6px;">×</button>
+            </div>
+            <div id="firstStepsList" style="display:flex; flex-direction:column; gap:8px; margin-top:14px;"></div>
+          </div>
 
           <div class="kpi-grid">
             <div class="kpi">
@@ -8301,8 +8313,47 @@
     });
     renderBerichte();
 
+    // ============ Geführter Start (Erste Schritte) ============
+    // Zeigt einem neuen/leeren Konto 3 konkrete Schritte. Hakt sich automatisch ab,
+    // sobald Daten da sind; ist alles erledigt ODER weggeklickt → Karte verschwindet.
+    const FIRST_STEPS_DISMISS_KEY = 'cc-firststeps-dismissed';
+    function dismissFirstSteps() {
+      try { localStorage.setItem(FIRST_STEPS_DISMISS_KEY, '1'); } catch (e) {}
+      const c = document.getElementById('firstSteps'); if (c) c.style.display = 'none';
+    }
+    function renderFirstSteps() {
+      const card = document.getElementById('firstSteps');
+      const list = document.getElementById('firstStepsList');
+      if (!card || !list) return;
+      let dismissed = false;
+      try { dismissed = localStorage.getItem(FIRST_STEPS_DISMISS_KEY) === '1'; } catch (e) {}
+      const hasEmp = (typeof EMPLOYEES !== 'undefined') && EMPLOYEES.length > 0;
+      const hasCust = (typeof loadCustomers === 'function') && loadCustomers().length > 0;
+      let hasJob = false;
+      try { hasJob = Object.values(loadPlanJobs()).some(a => Array.isArray(a) && a.length); } catch (e) {}
+      if (dismissed || (hasEmp && hasCust && hasJob)) { card.style.display = 'none'; return; }
+      const empTerm = (typeof VT === 'function') ? VT('feldMitarbeiter') : 'Mitarbeiter';
+      const steps = [
+        { done: hasEmp, label: tt('fs.stepEmployee', 'Ersten {x} anlegen').replace('{x}', empTerm), action: "navTo('mitarbeiter')" },
+        { done: hasCust, label: tt('fs.stepCustomer', 'Ersten Kunden anlegen'), action: "navTo('kunden')" },
+        { done: hasJob, label: tt('fs.stepJob', 'Ersten Auftrag planen'), action: "openModal('newAuftrag')" }
+      ];
+      list.innerHTML = steps.map(s => `
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border:2px solid ${s.done ? 'var(--success)' : 'var(--border-strong)'};background:${s.done ? 'var(--success)' : 'transparent'};color:#fff;">
+            ${s.done ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+          </span>
+          <span style="flex:1; font-size:13.5px; ${s.done ? 'color:var(--text-subtle); text-decoration:line-through;' : 'color:var(--text); font-weight:500;'}">${escapeHtml(s.label)}</span>
+          ${s.done
+            ? `<span style="font-size:11px; font-weight:700; color:var(--success);">${escapeHtml(tt('fs.done', 'Erledigt'))}</span>`
+            : `<button class="btn btn-accent" style="font-size:12px; padding:5px 12px;" onclick="${s.action}">${escapeHtml(tt('fs.do', 'Los'))}</button>`}
+        </div>`).join('');
+      card.style.display = 'block';
+    }
+
     // ============ Dashboard (Zahlen aus echten Daten) ============
     function renderDashboard() {
+      renderFirstSteps();
       const aktiv = EMPLOYEES.filter(e => e.status !== 'abwesend').length;
       const total = EMPLOYEES.length;
       const kunden = (typeof loadCustomers === 'function') ? loadCustomers().length : 0;

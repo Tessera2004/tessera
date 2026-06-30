@@ -204,7 +204,8 @@
       'm.confirmNoSig': 'Noch keine Unterschrift. Trotzdem ohne Kunden-Signatur abschliessen?', 'm.toastSigned': 'Protokoll unterschrieben & abgeschlossen', 'm.toastFinished': 'Einsatz abgeschlossen',
       'm.problemPrompt': 'Was möchtest du melden?\n(z. B. „Krank", „Schlüssel fehlt", „Verspätung")', 'm.reported': 'Gemeldet: {x} — Büro ist informiert',
       'm.noTenant': 'Konto ist keiner Firma zugeordnet. Bitte beim Büro melden.', 'm.serverUnreachable': 'Server nicht erreichbar (Internet?).', 'm.enterCreds': 'E-Mail und Passwort eingeben.', 'm.loggingIn': 'Anmelden …', 'm.loginFailed': 'Anmeldung fehlgeschlagen. E-Mail/Passwort prüfen.', 'm.loginFailedNet': 'Anmeldung fehlgeschlagen (Internet?).',
-      'set.branchFixed': 'Beim Onboarding festgelegt. Änderung nur über den Support.'
+      'set.branchFixed': 'Beim Onboarding festgelegt. Änderung nur über den Support.',
+      'fs.title': 'Erste Schritte', 'fs.sub': 'In 3 Schritten ist dein Cockpit startklar.', 'fs.dismiss': 'Ausblenden', 'fs.stepEmployee': 'Ersten {x} anlegen', 'fs.stepCustomer': 'Ersten Kunden anlegen', 'fs.stepJob': 'Ersten Auftrag planen', 'fs.do': 'Los', 'fs.done': 'Erledigt'
     },
     fr: {
       'nav.sec.overview': 'Aperçu', 'nav.sec.jobs': 'Interventions', 'nav.sec.customers': 'Clients',
@@ -365,7 +366,8 @@
       'm.confirmNoSig': 'Pas encore de signature. Terminer quand même sans signature du client ?', 'm.toastSigned': 'Procès-verbal signé & terminé', 'm.toastFinished': 'Intervention terminée',
       'm.problemPrompt': 'Que veux-tu signaler ?\n(p. ex. « Malade », « Clé manquante », « Retard »)', 'm.reported': 'Signalé : {x} — le bureau est informé',
       'm.noTenant': 'Le compte n’est rattaché à aucune entreprise. Contacte le bureau.', 'm.serverUnreachable': 'Serveur injoignable (Internet ?).', 'm.enterCreds': 'Saisis e-mail et mot de passe.', 'm.loggingIn': 'Connexion …', 'm.loginFailed': 'Échec de la connexion. Vérifie e-mail/mot de passe.', 'm.loginFailedNet': 'Échec de la connexion (Internet ?).',
-      'set.branchFixed': 'Défini lors de l’onboarding. Modification uniquement via le support.'
+      'set.branchFixed': 'Défini lors de l’onboarding. Modification uniquement via le support.',
+      'fs.title': 'Premiers pas', 'fs.sub': 'Votre cockpit est prêt en 3 étapes.', 'fs.dismiss': 'Masquer', 'fs.stepEmployee': 'Ajouter le premier {x}', 'fs.stepCustomer': 'Ajouter le premier client', 'fs.stepJob': 'Planifier le premier mandat', 'fs.do': 'Aller', 'fs.done': 'Fait'
     },
     it: {
       'nav.sec.overview': 'Panoramica', 'nav.sec.jobs': 'Interventi', 'nav.sec.customers': 'Clienti',
@@ -526,7 +528,8 @@
       'm.confirmNoSig': 'Ancora nessuna firma. Concludere comunque senza firma del cliente?', 'm.toastSigned': 'Verbale firmato & concluso', 'm.toastFinished': 'Intervento concluso',
       'm.problemPrompt': 'Cosa vuoi segnalare?\n(es. «Malato», «Chiave mancante», «Ritardo»)', 'm.reported': 'Segnalato: {x} — l’ufficio è informato',
       'm.noTenant': 'L’account non è collegato a nessuna azienda. Contatta l’ufficio.', 'm.serverUnreachable': 'Server non raggiungibile (Internet?).', 'm.enterCreds': 'Inserisci e-mail e password.', 'm.loggingIn': 'Accesso …', 'm.loginFailed': 'Accesso non riuscito. Controlla e-mail/password.', 'm.loginFailedNet': 'Accesso non riuscito (Internet?).',
-      'set.branchFixed': 'Impostato durante l’onboarding. Modifica solo tramite il supporto.'
+      'set.branchFixed': 'Impostato durante l’onboarding. Modifica solo tramite il supporto.',
+      'fs.title': 'Primi passi', 'fs.sub': 'Il tuo cockpit è pronto in 3 passi.', 'fs.dismiss': 'Nascondi', 'fs.stepEmployee': 'Aggiungi il primo {x}', 'fs.stepCustomer': 'Aggiungi il primo cliente', 'fs.stepJob': 'Pianifica il primo incarico', 'fs.do': 'Vai', 'fs.done': 'Fatto'
     },
     es: {
       'nav.sec.overview': 'Resumen', 'nav.sec.jobs': 'Servicios', 'nav.sec.customers': 'Clientes',
@@ -687,7 +690,8 @@
       'm.confirmNoSig': 'Aún no hay firma. ¿Finalizar igualmente sin firma del cliente?', 'm.toastSigned': 'Acta firmada y finalizada', 'm.toastFinished': 'Trabajo finalizado',
       'm.problemPrompt': '¿Qué quieres reportar?\n(p. ej. «Enfermo», «Falta la llave», «Retraso»)', 'm.reported': 'Reportado: {x} — la oficina está informada',
       'm.noTenant': 'La cuenta no está vinculada a ninguna empresa. Contacta con la oficina.', 'm.serverUnreachable': 'Servidor no disponible (¿Internet?).', 'm.enterCreds': 'Introduce correo y contraseña.', 'm.loggingIn': 'Iniciando sesión …', 'm.loginFailed': 'Error al iniciar sesión. Revisa correo/contraseña.', 'm.loginFailedNet': 'Error al iniciar sesión (¿Internet?).',
-      'set.branchFixed': 'Definido en el onboarding. Cambio solo a través del soporte.'
+      'set.branchFixed': 'Definido en el onboarding. Cambio solo a través del soporte.',
+      'fs.title': 'Primeros pasos', 'fs.sub': 'Tu cockpit está listo en 3 pasos.', 'fs.dismiss': 'Ocultar', 'fs.stepEmployee': 'Añadir el primer {x}', 'fs.stepCustomer': 'Añadir el primer cliente', 'fs.stepJob': 'Planificar el primer encargo', 'fs.do': 'Ir', 'fs.done': 'Hecho'
     },
     en: {
       'nav.sec.overview': 'Overview', 'nav.sec.jobs': 'Jobs', 'nav.sec.customers': 'Customers',
@@ -851,7 +855,8 @@
       'm.confirmNoSig': 'No signature yet. Finish anyway without the customer signature?', 'm.toastSigned': 'Protocol signed & completed', 'm.toastFinished': 'Job completed',
       'm.problemPrompt': 'What would you like to report?\n(e.g. "Sick", "Missing key", "Delay")', 'm.reported': 'Reported: {x} — the office has been notified',
       'm.noTenant': 'Account is not linked to any company. Please contact the office.', 'm.serverUnreachable': 'Server unreachable (internet?).', 'm.enterCreds': 'Enter email and password.', 'm.loggingIn': 'Signing in …', 'm.loginFailed': 'Sign-in failed. Check email/password.', 'm.loginFailedNet': 'Sign-in failed (internet?).',
-      'set.branchFixed': 'Set during onboarding. Change only via support.'
+      'set.branchFixed': 'Set during onboarding. Change only via support.',
+      'fs.title': 'First steps', 'fs.sub': 'Your cockpit is ready in 3 steps.', 'fs.dismiss': 'Hide', 'fs.stepEmployee': 'Add your first {x}', 'fs.stepCustomer': 'Add your first customer', 'fs.stepJob': 'Plan your first job', 'fs.do': 'Go', 'fs.done': 'Done'
     }
   };
 
