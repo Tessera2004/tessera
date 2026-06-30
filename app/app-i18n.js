@@ -203,7 +203,8 @@
       'm.summaryDone': 'Erledigt: ', 'm.summaryPhotos': '{n} Foto(s) angehängt', 'm.summaryNoPhotos': 'Keine Fotos', 'm.summaryDate': 'Datum: ', 'm.pleaseConfirm': 'Bitte bestätige die Abnahme.', 'm.shareTitle': 'Abnahmeprotokoll', 'm.shared': 'Protokoll geteilt', 'm.linkOpened': 'Protokoll-Link geöffnet — an Kundin senden',
       'm.confirmNoSig': 'Noch keine Unterschrift. Trotzdem ohne Kunden-Signatur abschliessen?', 'm.toastSigned': 'Protokoll unterschrieben & abgeschlossen', 'm.toastFinished': 'Einsatz abgeschlossen',
       'm.problemPrompt': 'Was möchtest du melden?\n(z. B. „Krank", „Schlüssel fehlt", „Verspätung")', 'm.reported': 'Gemeldet: {x} — Büro ist informiert',
-      'm.noTenant': 'Konto ist keiner Firma zugeordnet. Bitte beim Büro melden.', 'm.serverUnreachable': 'Server nicht erreichbar (Internet?).', 'm.enterCreds': 'E-Mail und Passwort eingeben.', 'm.loggingIn': 'Anmelden …', 'm.loginFailed': 'Anmeldung fehlgeschlagen. E-Mail/Passwort prüfen.', 'm.loginFailedNet': 'Anmeldung fehlgeschlagen (Internet?).'
+      'm.noTenant': 'Konto ist keiner Firma zugeordnet. Bitte beim Büro melden.', 'm.serverUnreachable': 'Server nicht erreichbar (Internet?).', 'm.enterCreds': 'E-Mail und Passwort eingeben.', 'm.loggingIn': 'Anmelden …', 'm.loginFailed': 'Anmeldung fehlgeschlagen. E-Mail/Passwort prüfen.', 'm.loginFailedNet': 'Anmeldung fehlgeschlagen (Internet?).',
+      'set.branchFixed': 'Beim Onboarding festgelegt. Änderung nur über den Support.'
     },
     fr: {
       'nav.sec.overview': 'Aperçu', 'nav.sec.jobs': 'Interventions', 'nav.sec.customers': 'Clients',
@@ -363,7 +364,8 @@
       'm.summaryDone': 'Effectué : ', 'm.summaryPhotos': '{n} photo(s) jointe(s)', 'm.summaryNoPhotos': 'Aucune photo', 'm.summaryDate': 'Date : ', 'm.pleaseConfirm': 'Merci de confirmer la réception.', 'm.shareTitle': 'Procès-verbal de réception', 'm.shared': 'Procès-verbal partagé', 'm.linkOpened': 'Lien du procès-verbal ouvert — à envoyer au client',
       'm.confirmNoSig': 'Pas encore de signature. Terminer quand même sans signature du client ?', 'm.toastSigned': 'Procès-verbal signé & terminé', 'm.toastFinished': 'Intervention terminée',
       'm.problemPrompt': 'Que veux-tu signaler ?\n(p. ex. « Malade », « Clé manquante », « Retard »)', 'm.reported': 'Signalé : {x} — le bureau est informé',
-      'm.noTenant': 'Le compte n’est rattaché à aucune entreprise. Contacte le bureau.', 'm.serverUnreachable': 'Serveur injoignable (Internet ?).', 'm.enterCreds': 'Saisis e-mail et mot de passe.', 'm.loggingIn': 'Connexion …', 'm.loginFailed': 'Échec de la connexion. Vérifie e-mail/mot de passe.', 'm.loginFailedNet': 'Échec de la connexion (Internet ?).'
+      'm.noTenant': 'Le compte n’est rattaché à aucune entreprise. Contacte le bureau.', 'm.serverUnreachable': 'Serveur injoignable (Internet ?).', 'm.enterCreds': 'Saisis e-mail et mot de passe.', 'm.loggingIn': 'Connexion …', 'm.loginFailed': 'Échec de la connexion. Vérifie e-mail/mot de passe.', 'm.loginFailedNet': 'Échec de la connexion (Internet ?).',
+      'set.branchFixed': 'Défini lors de l’onboarding. Modification uniquement via le support.'
     },
     it: {
       'nav.sec.overview': 'Panoramica', 'nav.sec.jobs': 'Interventi', 'nav.sec.customers': 'Clienti',
@@ -523,7 +525,8 @@
       'm.summaryDone': 'Eseguito: ', 'm.summaryPhotos': '{n} foto allegate', 'm.summaryNoPhotos': 'Nessuna foto', 'm.summaryDate': 'Data: ', 'm.pleaseConfirm': 'Conferma la consegna.', 'm.shareTitle': 'Verbale di consegna', 'm.shared': 'Verbale condiviso', 'm.linkOpened': 'Link del verbale aperto — da inviare al cliente',
       'm.confirmNoSig': 'Ancora nessuna firma. Concludere comunque senza firma del cliente?', 'm.toastSigned': 'Verbale firmato & concluso', 'm.toastFinished': 'Intervento concluso',
       'm.problemPrompt': 'Cosa vuoi segnalare?\n(es. «Malato», «Chiave mancante», «Ritardo»)', 'm.reported': 'Segnalato: {x} — l’ufficio è informato',
-      'm.noTenant': 'L’account non è collegato a nessuna azienda. Contatta l’ufficio.', 'm.serverUnreachable': 'Server non raggiungibile (Internet?).', 'm.enterCreds': 'Inserisci e-mail e password.', 'm.loggingIn': 'Accesso …', 'm.loginFailed': 'Accesso non riuscito. Controlla e-mail/password.', 'm.loginFailedNet': 'Accesso non riuscito (Internet?).'
+      'm.noTenant': 'L’account non è collegato a nessuna azienda. Contatta l’ufficio.', 'm.serverUnreachable': 'Server non raggiungibile (Internet?).', 'm.enterCreds': 'Inserisci e-mail e password.', 'm.loggingIn': 'Accesso …', 'm.loginFailed': 'Accesso non riuscito. Controlla e-mail/password.', 'm.loginFailedNet': 'Accesso non riuscito (Internet?).',
+      'set.branchFixed': 'Impostato durante l’onboarding. Modifica solo tramite il supporto.'
     },
     es: {
       'nav.sec.overview': 'Resumen', 'nav.sec.jobs': 'Servicios', 'nav.sec.customers': 'Clientes',
@@ -683,7 +686,8 @@
       'm.summaryDone': 'Realizado: ', 'm.summaryPhotos': '{n} foto(s) adjunta(s)', 'm.summaryNoPhotos': 'Sin fotos', 'm.summaryDate': 'Fecha: ', 'm.pleaseConfirm': 'Confirma la recepción, por favor.', 'm.shareTitle': 'Acta de recepción', 'm.shared': 'Acta compartida', 'm.linkOpened': 'Enlace del acta abierto — enviar al cliente',
       'm.confirmNoSig': 'Aún no hay firma. ¿Finalizar igualmente sin firma del cliente?', 'm.toastSigned': 'Acta firmada y finalizada', 'm.toastFinished': 'Trabajo finalizado',
       'm.problemPrompt': '¿Qué quieres reportar?\n(p. ej. «Enfermo», «Falta la llave», «Retraso»)', 'm.reported': 'Reportado: {x} — la oficina está informada',
-      'm.noTenant': 'La cuenta no está vinculada a ninguna empresa. Contacta con la oficina.', 'm.serverUnreachable': 'Servidor no disponible (¿Internet?).', 'm.enterCreds': 'Introduce correo y contraseña.', 'm.loggingIn': 'Iniciando sesión …', 'm.loginFailed': 'Error al iniciar sesión. Revisa correo/contraseña.', 'm.loginFailedNet': 'Error al iniciar sesión (¿Internet?).'
+      'm.noTenant': 'La cuenta no está vinculada a ninguna empresa. Contacta con la oficina.', 'm.serverUnreachable': 'Servidor no disponible (¿Internet?).', 'm.enterCreds': 'Introduce correo y contraseña.', 'm.loggingIn': 'Iniciando sesión …', 'm.loginFailed': 'Error al iniciar sesión. Revisa correo/contraseña.', 'm.loginFailedNet': 'Error al iniciar sesión (¿Internet?).',
+      'set.branchFixed': 'Definido en el onboarding. Cambio solo a través del soporte.'
     },
     en: {
       'nav.sec.overview': 'Overview', 'nav.sec.jobs': 'Jobs', 'nav.sec.customers': 'Customers',
@@ -846,7 +850,8 @@
       'm.summaryDone': 'Done: ', 'm.summaryPhotos': '{n} photo(s) attached', 'm.summaryNoPhotos': 'No photos', 'm.summaryDate': 'Date: ', 'm.pleaseConfirm': 'Please confirm the handover.', 'm.shareTitle': 'Handover protocol', 'm.shared': 'Protocol shared', 'm.linkOpened': 'Protocol link opened — send to customer',
       'm.confirmNoSig': 'No signature yet. Finish anyway without the customer signature?', 'm.toastSigned': 'Protocol signed & completed', 'm.toastFinished': 'Job completed',
       'm.problemPrompt': 'What would you like to report?\n(e.g. "Sick", "Missing key", "Delay")', 'm.reported': 'Reported: {x} — the office has been notified',
-      'm.noTenant': 'Account is not linked to any company. Please contact the office.', 'm.serverUnreachable': 'Server unreachable (internet?).', 'm.enterCreds': 'Enter email and password.', 'm.loggingIn': 'Signing in …', 'm.loginFailed': 'Sign-in failed. Check email/password.', 'm.loginFailedNet': 'Sign-in failed (internet?).'
+      'm.noTenant': 'Account is not linked to any company. Please contact the office.', 'm.serverUnreachable': 'Server unreachable (internet?).', 'm.enterCreds': 'Enter email and password.', 'm.loggingIn': 'Signing in …', 'm.loginFailed': 'Sign-in failed. Check email/password.', 'm.loginFailedNet': 'Sign-in failed (internet?).',
+      'set.branchFixed': 'Set during onboarding. Change only via support.'
     }
   };
 
