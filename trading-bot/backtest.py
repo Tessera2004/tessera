@@ -12,13 +12,7 @@ import sys
 import yfinance as yf
 
 import strategy
-
-INSTRUMENTS = {
-    "EUR/USD": "EURUSD=X",
-    "GBP/USD": "GBPUSD=X",
-    "GER40 (DAX)": "^GDAXI",
-    "NAS100": "^NDX",
-}
+from instruments import INSTRUMENTS
 
 
 def run(name: str, ticker: str, interval: str):

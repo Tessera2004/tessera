@@ -41,13 +41,8 @@ INTERVAL = os.environ.get("CANDLE_INTERVAL", "15m")     # 5m, 15m, 30m, 1h
 CHECK_EVERY_SECONDS = int(os.environ.get("CHECK_EVERY_SECONDS", "300"))
 COOLDOWN_SECONDS = int(os.environ.get("COOLDOWN_SECONDS", "3600"))
 
-# Instrumente: Anzeigename -> Yahoo-Finance-Ticker
-INSTRUMENTS = {
-    "EUR/USD": "EURUSD=X",
-    "GBP/USD": "GBPUSD=X",
-    "GER40 (DAX)": "^GDAXI",
-    "NAS100": "^NDX",
-}
+# Instrumente: Anzeigename -> Yahoo-Finance-Ticker (siehe instruments.py)
+from instruments import INSTRUMENTS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -83,8 +78,16 @@ def send_message(text: str, chat_id: str = None) -> bool:
 
 
 def fmt_price(value: float, ref: float) -> str:
-    """Forex mit 5 Nachkommastellen, Indizes mit 1."""
-    return f"{value:.5f}" if ref < 100 else f"{value:,.1f}"
+    """Passende Nachkommastellen je nach Kursniveau.
+
+    Forex-Paare (~0.5-2) -> 5 Stellen, JPY-Paare (~80-250) -> 3 Stellen,
+    Gold/Indizes -> 1 Stelle mit Tausender-Trennung.
+    """
+    if ref < 20:
+        return f"{value:.5f}"
+    if ref < 1000:
+        return f"{value:.3f}"
+    return f"{value:,.1f}"
 
 
 def signal_message(name: str, sig: strategy.Signal) -> str:

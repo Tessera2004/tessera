@@ -7,12 +7,13 @@ bei deinem Broker aus** (der Bot handelt nicht automatisch).
 
 ## Überwachte Märkte
 
-- EUR/USD und GBP/USD (Forex)
-- GER40 / DAX
-- NAS100 / Nasdaq 100
+- **Forex Majors**: EUR/USD, GBP/USD, USD/JPY, USD/CHF, USD/CAD, AUD/USD, NZD/USD
+- **Forex Crosses**: EUR/GBP, EUR/JPY, GBP/JPY
+- **Indizes**: GER40 (DAX), NAS100, US30 (Dow), SPX500 (S&P 500)
+- **Rohstoffe**: Gold (XAU/USD)
 
-Weitere Märkte kannst du in `bot.py` unter `INSTRUMENTS` ergänzen
-(Yahoo-Finance-Ticker, z. B. `"Gold": "GC=F"` oder `"USD/JPY": "JPY=X"`).
+Märkte hinzufügen oder entfernen: einfach `instruments.py` bearbeiten
+(Yahoo-Finance-Ticker, z. B. `"Silber": "SI=F"` oder `"Öl WTI": "CL=F"`).
 
 ## Die Strategie (bewährte Trendfolge mit Pullback)
 
