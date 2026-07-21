@@ -59,6 +59,7 @@ class Signal:
     take_profit_2: float
     rsi_value: float
     reason: str
+    strategy: str = "Trendfolge + Pullback"
 
 
 # Parameter der Strategie
@@ -150,6 +151,93 @@ def analyze(df: pd.DataFrame) -> Optional[Signal]:
             )
 
     return None
+
+
+# ---------------------------------------------- Strategie 2: Donchian-Breakout
+
+BREAKOUT_LOOKBACK = 20        # Kerzen für das Ausbruchs-Niveau (Turtle-Klassiker)
+BREAKOUT_ATR_SL_MULT = 2.0    # Breakouts brauchen etwas mehr Luft als Pullbacks
+BREAKOUT_QUIET_BARS = 5       # so viele Kerzen davor darf es KEINEN Ausbruch geben
+
+
+def analyze_breakout(df: pd.DataFrame) -> Optional[Signal]:
+    """Donchian-Breakout (Turtle-Trading) mit EMA-200-Trendfilter.
+
+    Long: Schlusskurs bricht über das höchste Hoch der letzten 20 Kerzen
+    aus (nur im Aufwärtstrend). Short spiegelverkehrt. Gemeldet wird nur
+    der Kerzen-Schluss, an dem der Ausbruch NEU passiert.
+    """
+    if df is None or len(df) < MIN_BARS:
+        return None
+
+    close = df["Close"]
+    ema200 = ema(close, EMA_TREND)
+    rsi14 = rsi(close, RSI_PERIOD)
+    atr14 = atr(df, ATR_PERIOD)
+
+    # Kanal aus den Kerzen VOR der jeweiligen Kerze (shift(1))
+    high_ch = df["High"].shift(1).rolling(BREAKOUT_LOOKBACK).max()
+    low_ch = df["Low"].shift(1).rolling(BREAKOUT_LOOKBACK).min()
+
+    c = float(close.iloc[-1])
+    cur_atr = float(atr14.iloc[-1])
+    if cur_atr <= 0:
+        return None
+
+    uptrend = c > float(ema200.iloc[-1])
+    downtrend = c < float(ema200.iloc[-1])
+
+    # Ausbruch zählt nur, wenn die Kerzen davor ruhig im Kanal lagen —
+    # das verhindert Dauer-Alarme im bereits laufenden Ausbruch.
+    broke_up = close > high_ch
+    broke_down = close < low_ch
+    quiet_up = not bool(broke_up.iloc[-(BREAKOUT_QUIET_BARS + 1):-1].any())
+    quiet_down = not bool(broke_down.iloc[-(BREAKOUT_QUIET_BARS + 1):-1].any())
+
+    # Long-Ausbruch: jetzt über dem Kanal, vorher ruhig im Kanal
+    if uptrend and bool(broke_up.iloc[-1]) and quiet_up:
+        sl = c - BREAKOUT_ATR_SL_MULT * cur_atr
+        risk = c - sl
+        return Signal(
+            direction="LONG",
+            entry=c,
+            stop_loss=sl,
+            take_profit_1=c + risk,
+            take_profit_2=c + 2 * risk,
+            rsi_value=float(rsi14.iloc[-1]),
+            reason=(
+                f"Ausbruch über das {BREAKOUT_LOOKBACK}-Kerzen-Hoch "
+                "im Aufwärtstrend (Kurs > EMA200)"
+            ),
+            strategy="Ausbruch (Donchian)",
+        )
+
+    # Short-Ausbruch: jetzt unter dem Kanal, vorher ruhig im Kanal
+    if downtrend and bool(broke_down.iloc[-1]) and quiet_down:
+        sl = c + BREAKOUT_ATR_SL_MULT * cur_atr
+        risk = sl - c
+        return Signal(
+            direction="SHORT",
+            entry=c,
+            stop_loss=sl,
+            take_profit_1=c - risk,
+            take_profit_2=c - 2 * risk,
+            rsi_value=float(rsi14.iloc[-1]),
+            reason=(
+                f"Ausbruch unter das {BREAKOUT_LOOKBACK}-Kerzen-Tief "
+                "im Abwärtstrend (Kurs < EMA200)"
+            ),
+            strategy="Ausbruch (Donchian)",
+        )
+
+    return None
+
+
+# Name -> Analysefunktion (für bot.py und backtest.py)
+STRATEGIES = {
+    "pullback": analyze,
+    "breakout": analyze_breakout,
+}
 
 
 def trend_snapshot(df: pd.DataFrame) -> dict:

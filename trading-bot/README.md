@@ -15,7 +15,9 @@ bei deinem Broker aus** (der Bot handelt nicht automatisch).
 Märkte hinzufügen oder entfernen: einfach `instruments.py` bearbeiten
 (Yahoo-Finance-Ticker, z. B. `"Silber": "SI=F"` oder `"Öl WTI": "CL=F"`).
 
-## Die Strategie (bewährte Trendfolge mit Pullback)
+## Die Strategien (zwei bewährte Klassiker, parallel aktiv)
+
+### 1️⃣ Trendfolge + Pullback
 
 Trendfolge ist die am besten dokumentierte und über Jahrzehnte
 robusteste Strategie-Klasse. Der Bot kombiniert sie mit einem
@@ -28,6 +30,21 @@ Pullback-Einstieg, damit du nicht am Hoch kaufst:
    dreht nach oben → Kaufsignal.
 4. **Risiko-Management**: Stop-Loss = 1,5 × ATR(14).
    Ziel 1 = 1× Risiko, Ziel 2 = 2× Risiko.
+
+### 2️⃣ Ausbruch / Donchian-Breakout (Turtle-Trading)
+
+Der Klassiker der berühmten "Turtle Traders": Kaufsignal, wenn der
+Schlusskurs über das höchste Hoch der letzten 20 Kerzen ausbricht —
+aber nur im Aufwärtstrend (Kurs über EMA 200). Verkaufssignal
+spiegelverkehrt. Stop-Loss = 2 × ATR (Ausbrüche brauchen mehr Luft).
+
+Die beiden ergänzen sich: Pullback fängt Einstiege im laufenden Trend,
+Breakout fängt starke Bewegungen, die ohne Rücksetzer durchlaufen.
+Jeder Alarm zeigt an, welche Strategie ihn ausgelöst hat.
+
+Nur eine Strategie nutzen? In der `.env` einstellen:
+`STRATEGIES=pullback` oder `STRATEGIES=breakout`
+(Standard: `pullback,breakout` = beide).
 
 Empfehlung bei Alarm: Bei Ziel 1 die halbe Position schließen und den
 Stop auf den Einstieg ziehen — so ist der Trade ab dann risikofrei.

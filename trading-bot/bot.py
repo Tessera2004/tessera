@@ -41,6 +41,13 @@ INTERVAL = os.environ.get("CANDLE_INTERVAL", "15m")     # 5m, 15m, 30m, 1h
 CHECK_EVERY_SECONDS = int(os.environ.get("CHECK_EVERY_SECONDS", "300"))
 COOLDOWN_SECONDS = int(os.environ.get("COOLDOWN_SECONDS", "3600"))
 
+# Aktive Strategien: "pullback", "breakout" oder beide (kommagetrennt)
+ACTIVE_STRATEGIES = [
+    s.strip()
+    for s in os.environ.get("STRATEGIES", "pullback,breakout").split(",")
+    if s.strip()
+]
+
 # Instrumente: Anzeigename -> Yahoo-Finance-Ticker (siehe instruments.py)
 from instruments import INSTRUMENTS
 
@@ -105,6 +112,7 @@ def signal_message(name: str, sig: strategy.Signal) -> str:
         f"🎯 Ziel 1 (1R): <code>{fmt_price(sig.take_profit_1, e)}</code>\n"
         f"🎯 Ziel 2 (2R): <code>{fmt_price(sig.take_profit_2, e)}</code>\n"
         f"\n"
+        f"🧭 Strategie: {sig.strategy}\n"
         f"📊 Grund: {sig.reason}\n"
         f"📈 RSI: {sig.rsi_value:.1f}\n"
         f"\n"
@@ -149,8 +157,10 @@ HELP_TEXT = (
     "/hilfe — diese Hilfe\n\n"
     f"Überwachte Märkte: {', '.join(INSTRUMENTS)}\n"
     f"Chart: {INTERVAL} | Prüfung alle {CHECK_EVERY_SECONDS // 60} Min.\n\n"
-    "Strategie: Trendfolge (EMA 200/50) mit RSI-Pullback-Einstieg "
-    "und MACD-Bestätigung. Stop-Loss über ATR."
+    "Strategien:\n"
+    "1️⃣ Trendfolge + Pullback (EMA 200/50, RSI, MACD)\n"
+    "2️⃣ Ausbruch/Donchian (20-Kerzen-Hoch/Tief, Turtle-Trading)\n"
+    "Stop-Loss jeweils über ATR, Ziele bei 1R und 2R."
 )
 
 
@@ -207,6 +217,13 @@ def main():
             "Siehe README.md für die Einrichtung (BotFather)."
         )
 
+    unknown = [s for s in ACTIVE_STRATEGIES if s not in strategy.STRATEGIES]
+    if unknown or not ACTIVE_STRATEGIES:
+        raise SystemExit(
+            f"Fehler: Unbekannte Strategie in STRATEGIES: {unknown}. "
+            f"Erlaubt: {', '.join(strategy.STRATEGIES)}"
+        )
+
     log.info("Signal-Bot gestartet. Instrumente: %s", ", ".join(INSTRUMENTS))
     send_message(
         "✅ <b>Signal-Bot gestartet</b>\n\n" + HELP_TEXT
@@ -234,8 +251,12 @@ def main():
                     continue  # Kerze schon geprüft
                 last_candle_seen[name] = candle_ts
 
-                sig = strategy.analyze(df)
-                if sig is None:
+                signals = [
+                    sig
+                    for key in ACTIVE_STRATEGIES
+                    if (sig := strategy.STRATEGIES[key](df)) is not None
+                ]
+                if not signals:
                     log.info("%s: kein Signal", name)
                     continue
 
@@ -243,9 +264,10 @@ def main():
                     log.info("%s: Signal unterdrückt (Cooldown)", name)
                     continue
 
-                log.info("%s: %s-Signal!", name, sig.direction)
-                if send_message(signal_message(name, sig)):
-                    last_signal_time[name] = now
+                for sig in signals:
+                    log.info("%s: %s-Signal (%s)!", name, sig.direction, sig.strategy)
+                    if send_message(signal_message(name, sig)):
+                        last_signal_time[name] = now
 
         time.sleep(3)
 

@@ -15,7 +15,7 @@ import strategy
 from instruments import INSTRUMENTS
 
 
-def run(name: str, ticker: str, interval: str):
+def run(name: str, ticker: str, interval: str, analyze_fn):
     period = "2y" if interval == "1h" else "60d"
     df = yf.download(ticker, period=period, interval=interval,
                      progress=False, auto_adjust=True)
@@ -49,7 +49,7 @@ def run(name: str, ticker: str, interval: str):
                     wins += 1; total_r += 2; open_trade = None
             continue
 
-        sig = strategy.analyze(window)
+        sig = analyze_fn(window)
         if sig:
             open_trade = (sig.direction, sig.entry, sig.stop_loss,
                           sig.take_profit_2)
@@ -66,14 +66,16 @@ def run(name: str, ticker: str, interval: str):
 def main():
     interval = sys.argv[1] if len(sys.argv) > 1 else "1h"
     print(f"Backtest ({interval}-Kerzen, TP=2R, SL=1R) — vereinfacht, "
-          f"ohne Spread/Slippage:\n")
-    total = 0.0
-    for name, ticker in INSTRUMENTS.items():
-        r = run(name, ticker, interval)
-        if r is not None:
-            total += r
-    print(f"\nGesamt: {total:+.1f}R")
-    print("Hinweis: 1R = dein Risiko pro Trade. Bei 1% Risiko pro Trade "
+          f"ohne Spread/Slippage:")
+    for strat_name, analyze_fn in strategy.STRATEGIES.items():
+        print(f"\n=== Strategie: {strat_name} ===")
+        total = 0.0
+        for name, ticker in INSTRUMENTS.items():
+            r = run(name, ticker, interval, analyze_fn)
+            if r is not None:
+                total += r
+        print(f"Gesamt ({strat_name}): {total:+.1f}R")
+    print("\nHinweis: 1R = dein Risiko pro Trade. Bei 1% Risiko pro Trade "
           "entspricht +10R also +10% aufs Konto.")
 
 
