@@ -133,8 +133,15 @@ def signal_message(name: str, sig: strategy.Signal) -> str:
 
 
 def fetch_candles(ticker: str):
-    """Holt Kerzen von Yahoo Finance und entfernt die laufende Kerze."""
-    period = "1mo" if INTERVAL in ("30m", "1h") else "5d"
+    """Holt Kerzen von Yahoo Finance und entfernt die laufende Kerze.
+
+    Zeitraum großzügig wählen: Indizes handeln nur ~7-8.5 h/Tag und
+    liefern pro Tag viel weniger Kerzen als Forex (24 h) — für den
+    EMA 200 braucht es trotzdem mindestens ~220 Kerzen.
+    """
+    period = {"5m": "10d", "15m": "1mo", "30m": "2mo", "1h": "4mo"}.get(
+        INTERVAL, "1mo"
+    )
     try:
         df = yf.download(
             ticker,
