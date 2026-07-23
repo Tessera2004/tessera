@@ -103,6 +103,7 @@ def signal_message(name: str, sig: strategy.Signal) -> str:
     else:
         head = "🔴 <b>VERKAUFEN (SHORT)</b>"
     e = sig.entry
+    risk = abs(sig.entry - sig.stop_loss)
     return (
         f"{head} — <b>{name}</b>\n"
         f"🕐 {datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M')} UTC ({INTERVAL}-Chart)\n"
@@ -111,6 +112,13 @@ def signal_message(name: str, sig: strategy.Signal) -> str:
         f"🛑 Stop-Loss: <code>{fmt_price(sig.stop_loss, e)}</code>\n"
         f"🎯 Ziel 1 (1R): <code>{fmt_price(sig.take_profit_1, e)}</code>\n"
         f"🎯 Ziel 2 (2R): <code>{fmt_price(sig.take_profit_2, e)}</code>\n"
+        f"\n"
+        f"📏 <b>Für deinen Broker</b> (Abstände von DEINEM Einstiegskurs):\n"
+        f"Stop-Loss: <code>{fmt_price(risk, e)}</code> "
+        f"{'unter' if sig.direction == 'LONG' else 'über'} Einstieg\n"
+        f"Ziel 1: <code>{fmt_price(risk, e)}</code> | "
+        f"Ziel 2: <code>{fmt_price(2 * risk, e)}</code> "
+        f"{'über' if sig.direction == 'LONG' else 'unter'} Einstieg\n"
         f"\n"
         f"🧭 Strategie: {sig.strategy}\n"
         f"📊 Grund: {sig.reason}\n"
