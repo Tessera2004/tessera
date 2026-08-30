@@ -1561,7 +1561,8 @@ h1 {
     top: 100%;
     left: 0;
     right: 0;
-    background: rgba(7, 9, 26, 0.95);
+    /* Voll deckend: bei 0.95 schimmerte die grosse Hero-Schrift durch das offene Menü. */
+    background: rgb(7, 9, 26);
     backdrop-filter: blur(20px);
     padding: 24px;
     flex-direction: column;
@@ -1584,6 +1585,21 @@ h1 {
   .form-wrap { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
+  /* Kopfzeile auf schmalen Geräten kompakt halten: sonst überlappen CTA-Button und
+     Sprachumschalter das Logo und ragen aus dem Bild. */
+  .nav { padding: 10px 14px; }
+  .nav-inner { gap: 8px; }
+  .nav-logo span { font-size: 15px; }
+  .nav-logo img { width: 26px; height: 26px; }
+  .nav-logo { flex-shrink: 0; }
+  .nav-actions { gap: 6px; }
+  .nav-actions .btn { padding: 8px 12px; font-size: 12.5px; }
+  /* Kein Platz für den Kopf-CTA auf schmalen Geräten — der Hero-Button steht
+     direkt darunter, dafür bleibt der Sprachumschalter erreichbar. */
+  .nav-actions .btn-primary { display: none; }
+  .lang-switch { gap: 0; padding: 2px; }
+  .lang-switch button { padding: 4px 5px; font-size: 10px; }
+
   .section { padding: 80px 20px; }
   .hero { padding: 120px 20px 60px; }
   .strip-items { gap: 16px; }
