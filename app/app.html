@@ -8644,6 +8644,9 @@
       const L = LOCALE[cc.value] || LOCALE.CH;
       const lbl = document.getElementById('coMwstLabel'); if (lbl) lbl.textContent = L.vatIdLabel;
       const mw = document.getElementById('coMwst'); if (mw) mw.placeholder = L.vatIdEx;
+      // IBAN-Beispiel passend zum Land (sonst steht bei DE/AT ein Schweizer Format).
+      const ibanEx = { CH: 'CH.. .... .... .... .... .', DE: 'DE.. .... .... .... .... ..', AT: 'AT.. .... .... .... ....' };
+      const ib = document.getElementById('coIban'); if (ib) ib.placeholder = ibanEx[cc.value] || ibanEx.CH;
     }
     function saveCompanyForm() {
       const g = id => (document.getElementById(id)?.value || '').trim();
