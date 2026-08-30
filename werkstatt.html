@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MosaOS ist die Schweizer Werkstatt-Software für Auto-Garagen: Auftragsboard, Fahrzeugakte mit Service-Historie, Reifenhotel, Kostenvoranschlag und QR-Rechnung — inkl. MFK-/Service-Erinnerung. 14 Tage gratis testen." />
+  <meta name="keywords" content="Garagensoftware, Werkstattsoftware Schweiz, Auto-Werkstatt Software, Werkstattplaner, Fahrzeugakte, Reifenhotel Software, QR-Rechnung Garage, MFK Erinnerung" />
+  <title>Werkstatt-Software für Schweizer Garagen — Werkstattplan, Fahrzeugakte & QR-Rechnung | MosaOS</title>
+  <link rel="canonical" href="https://mosaos.pages.dev/werkstatt.html" />
+  <link rel="icon" type="image/svg+xml" href="logo/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Werkstatt-Software für Schweizer Garagen | MosaOS" />
+  <meta property="og:description" content="Auftragsboard, Fahrzeugakte, Reifenhotel und QR-Rechnung — vom Kostenvoranschlag bis zur bezahlten Rechnung. Made in Switzerland." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Landingpage-eigene Bausteine (nutzen die Design-Tokens der Website) */
+    .wk-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:44px; }
+    .wk-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 24px; transition:border-color .2s var(--ease), transform .2s var(--ease); }
+    .wk-card:hover { border-color:var(--border-strong); transform:translateY(-3px); }
+    .wk-ic { width:46px; height:46px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; color:var(--swiss); background:var(--swiss-soft); margin-bottom:16px; }
+    .wk-card h3 { font-size:17px; margin:0 0 8px; color:var(--text); }
+    .wk-card p { font-size:14px; line-height:1.55; color:var(--text-muted); margin:0; }
+
+    .wk-pain { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:36px; }
+    .wk-pain div { background:var(--bg-soft); border:1px solid var(--border-soft); border-left:3px solid var(--swiss); border-radius:var(--r-md); padding:16px 18px; font-size:14.5px; color:var(--text-soft); line-height:1.5; }
+
+    .wk-flow { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:40px; justify-content:center; }
+    .wk-step { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-full); padding:11px 20px; font-size:14px; font-weight:600; color:var(--text); }
+    .wk-arrow { color:var(--text-subtle); }
+
+    .wk-price { max-width:560px; margin:44px auto 0; background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:36px 32px; text-align:center; box-shadow:var(--shadow-lg); }
+    .wk-price .amt { font-size:46px; font-weight:800; color:var(--text); letter-spacing:-.02em; }
+    .wk-price .amt span { font-size:17px; font-weight:600; color:var(--text-muted); }
+    .wk-price ul { list-style:none; padding:0; margin:22px 0 26px; text-align:left; display:inline-block; }
+    .wk-price li { font-size:14.5px; color:var(--text-soft); padding:6px 0 6px 26px; position:relative; }
+    .wk-price li::before { content:"✓"; position:absolute; left:0; color:var(--swiss); font-weight:700; }
+
+    .wk-cta-band { text-align:center; padding:76px 20px; }
+    .wk-cta-band h2 { font-size:clamp(26px,4vw,38px); margin:0 0 14px; color:var(--text); letter-spacing:-.02em; }
+    .wk-cta-band p { font-size:16px; color:var(--text-muted); margin:0 0 28px; }
+
+    .wk-mini-footer { border-top:1px solid var(--border); padding:26px 20px; text-align:center; font-size:13px; color:var(--text-subtle); }
+    .wk-mini-footer a { color:var(--text-muted); text-decoration:none; margin:0 8px; }
+    .wk-mini-footer a:hover { color:var(--text); }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="MosaOS Startseite">
+        <img src="logo/mosaos-mark.svg" alt="" width="32" height="32" />
+        <span>Mosa<span style="color:var(--swiss)">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#funktionen">Funktionen</a>
+        <a href="#ablauf">Ablauf</a>
+        <a href="#preis">Preis</a>
+        <a href="index.html#branchen">Andere Branchen</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="app/login.html" class="btn btn-ghost">Login</a>
+        <a href="app/onboarding.html" class="btn btn-primary">Gratis starten</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top" style="min-height:auto; padding-bottom:40px;">
+    <div class="hero-mesh" aria-hidden="true"></div>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-inner" style="grid-template-columns:1fr; max-width:860px;">
+      <div class="hero-text">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span>Für Auto-Werkstätten · Made in Switzerland</span>
+        </div>
+        <h1>
+          Die ruhige Software für deine <span class="grad">Werkstatt</span>.
+        </h1>
+        <p class="hero-sub">
+          Auftragsboard, Fahrzeugakte, Reifenhotel und QR-Rechnung — vom Kostenvoranschlag
+          bis zur bezahlten Rechnung. Schluss mit Zetteln, Excel-Listen und Telefonnotizen.
+        </p>
+        <div class="hero-cta">
+          <a href="app/onboarding.html" class="btn btn-primary btn-lg">
+            <span>14 Tage gratis starten</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="app/app.html" class="btn btn-ghost btn-lg">Demo ansehen</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item"><span class="trust-check">✓</span> <span>Daten in der EU · DSG/DSGVO</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span>Schweizer QR-Rechnung</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span>Keine Kreditkarte nötig</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST-STRIP ============ -->
+  <section class="strip">
+    <div class="strip-inner">
+      <span class="strip-label">Gebaut für Schweizer Garagen</span>
+      <div class="strip-items">
+        <div class="strip-item">🇨🇭 Für die Schweiz</div>
+        <div class="strip-item">🧾 QR-Rechnung</div>
+        <div class="strip-item">🚗 Fahrzeugakte</div>
+        <div class="strip-item">🔔 MFK-/Service-Erinnerung</div>
+        <div class="strip-item">⚡ In 30 Min startklar</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">Kennst du das?</div>
+        <h2>Der Werkstattalltag frisst deine Zeit — nicht die Arbeit am Auto.</h2>
+        <p class="section-sub">
+          Aufträge auf Zetteln, Termine im Kopf, Kostenvoranschläge in Word, Reifen irgendwo im Lager.
+          MosaOS bringt das an einen Ort — ruhig und übersichtlich.
+        </p>
+      </div>
+      <div class="wk-pain">
+        <div>„Welches Auto war nochmal für heute angemeldet?" — Termine auf Zetteln und im Kopf.</div>
+        <div>Kostenvoranschlag in Word tippen, Rechnung nochmal von vorne — doppelte Arbeit.</div>
+        <div>„Wo liegen die Winterreifen von Herrn Meier?" — Reifensuche im Lager.</div>
+        <div>MFK und Service vergessen — Kunde kommt nicht wieder, Umsatz verpasst.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FUNKTIONEN ============ -->
+  <section class="section" id="funktionen" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">Funktionen</div>
+        <h2>Alles, was eine Garage wirklich braucht.</h2>
+        <p class="section-sub">Kein überladenes System — die Werkzeuge deiner Branche, ruhig gebaut.</p>
+      </div>
+      <div class="wk-grid">
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/></svg></div>
+          <h3>Werkstattplan als Auftragsboard</h3>
+          <p>Jeder Auftrag als Karte: Angenommen → In Arbeit → Wartet auf Teile → Abholbereit. Auf einen Blick, wer welches Fahrzeug bearbeitet.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H3V11l2-5h14l2 5v6h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/></svg></div>
+          <h3>Fahrzeugakte mit Service-Historie</h3>
+          <p>Kennzeichen, Modell, Halter, km-Stand — und die komplette Historie aller Aufträge pro Fahrzeug. Nichts geht verloren.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+          <h3>Reifenhotel</h3>
+          <p>Reifeneinlagerung mit Saison, Felge, Profiltiefe und Lagerplatz. Du findest jeden Satz in Sekunden — statt im Lager zu suchen.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
+          <h3>Kostenvoranschlag → Auftrag → Rechnung</h3>
+          <p>Aus dem Auftrag wird per Klick ein Kostenvoranschlag oder eine Schweizer QR-Rechnung — inkl. MWST. Keine Doppelerfassung.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+          <h3>MFK- & Service-Erinnerung</h3>
+          <p>MosaOS meldet, wenn MFK oder Service fällig wird — überfällig rot, bald fällig orange. Du holst Kunden zurück, bevor sie vergessen.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8h18"/><path d="M7 3v3M17 3v3M8 14l3 3 5-6"/></svg></div>
+          <h3>Termine & Mechaniker-Zuteilung</h3>
+          <p>Wer arbeitet wann an welchem Fahrzeug? Zeiten in 15-Minuten-Schritten, Mechaniker direkt aus deinem Team zugeteilt.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABLAUF ============ -->
+  <section class="section" id="ablauf" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">So läuft ein Auftrag</div>
+        <h2>Von der Annahme bis zur bezahlten Rechnung.</h2>
+      </div>
+      <div class="wk-flow">
+        <span class="wk-step">Fahrzeug annehmen</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step">In Arbeit</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step">Wartet auf Teile</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step">Abholbereit</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" style="border-color:var(--swiss); color:var(--swiss);">QR-Rechnung</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PREIS ============ -->
+  <section class="section" id="preis" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">Preis</div>
+        <h2>Ein fairer Preis. Module nach Bedarf.</h2>
+        <p class="section-sub">Die Werkstatt-Werkzeuge sind in der Basis dabei. Was du mehr brauchst, buchst du dazu — jederzeit kündbar.</p>
+      </div>
+      <div class="wk-price">
+        <div class="amt">CHF 49<span> / Monat</span></div>
+        <ul>
+          <li>Werkstattplan (Auftragsboard)</li>
+          <li>Fahrzeugakte + Service-Historie</li>
+          <li>Reifenhotel</li>
+          <li>Kunden, Mechaniker & Termine</li>
+          <li>Mobile-App für die Werkstatt</li>
+        </ul>
+        <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:22px;">
+          Optional dazubuchbar: QR-Rechnungen, Kostenvoranschläge, Zeiterfassung u. a.
+        </div>
+        <a href="app/onboarding.html" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;">14 Tage gratis testen — ohne Kreditkarte</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA-BAND ============ -->
+  <section class="wk-cta-band">
+    <div class="container">
+      <h2>Bring Ruhe in deine Werkstatt.</h2>
+      <p>In 30 Minuten eingerichtet. Keine Vertragsbindung, keine Kreditkarte.</p>
+      <a href="app/onboarding.html" class="btn btn-primary btn-lg">
+        <span>Jetzt gratis starten</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ MINI-FOOTER ============ -->
+  <footer class="wk-mini-footer">
+    <div>
+      <a href="index.html">Startseite</a>
+      <a href="index.html#branchen">Andere Branchen</a>
+      <a href="anfrage.html">Kontakt</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </div>
+    <div style="margin-top:12px;">
+      © <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD für SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MosaOS Werkstatt-Software",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Schweizer Werkstatt-Software für Auto-Garagen: Auftragsboard, Fahrzeugakte, Reifenhotel, Kostenvoranschlag und QR-Rechnung inkl. MFK-/Service-Erinnerung.",
+    "offers": { "@type": "Offer", "price": "49", "priceCurrency": "CHF" },
+    "areaServed": "CH"
+  }
+  </script>
+
+  <script src="config.js"></script>
+</body>
+</html>
