@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
+  <script src="app-i18n.js?v=22"></script>
+  <script src="page-i18n.js?v=1"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -39,6 +41,8 @@
     }
     .ci-header-title { font-size: 17px; font-weight: 700; color: #fff; }
     .ci-header-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+    .ci-lang { margin-left: auto; padding: 7px 8px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(0,0,0,0.14); color: #fff; font: 600 11px 'Inter', system-ui, sans-serif; }
+    .ci-lang option { color: #0f172a; }
 
     /* Main content */
     .ci-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
@@ -162,8 +166,11 @@
     <div class="ci-logo">M</div>
     <div>
       <div class="ci-header-title">Mosa<span style="color:#E11D2A">OS</span> Zeiterfassung</div>
-      <div class="ci-header-sub">Einsatz-Check-in · Check-out</div>
+      <div class="ci-header-sub" data-i18n="ci.headerSub">Einsatz-Check-in · Check-out</div>
     </div>
+    <select class="ci-lang" data-lang-select aria-label="Sprache" onchange="MosaI18n.set(this.value)">
+      <option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option><option value="en">EN</option>
+    </select>
   </div>
 
   <div class="ci-body">
@@ -173,7 +180,7 @@
 
     <!-- Job-Info -->
     <div class="job-card" id="ciJobCard" style="display:none;">
-      <div class="job-card-label">Einsatz</div>
+      <div class="job-card-label" data-i18n="ci.job">Einsatz</div>
       <div class="job-card-title" id="ciJobTitle">—</div>
       <div class="job-card-meta" id="ciJobMeta"></div>
       <div class="job-card-date" id="ciJobDate"></div>
@@ -181,15 +188,15 @@
 
     <!-- Mitarbeiter-Auswahl -->
     <div class="ci-field" id="ciEmpField" style="display:none;">
-      <div class="ci-label">Ich bin …</div>
+      <div class="ci-label" data-i18n="ci.who">Ich bin …</div>
       <select id="ciEmpSelect" class="ci-select">
-        <option value="">Bitte auswählen …</option>
+        <option value="" data-i18n="ci.choose">Bitte auswählen …</option>
       </select>
     </div>
 
     <!-- Status: Eingecheckt -->
     <div class="status-card" id="ciStatusIn">
-      <div class="sc-label">Eingecheckt seit</div>
+      <div class="sc-label" data-i18n="ci.checkedInSince">Eingecheckt seit</div>
       <div class="sc-time" id="ciCheckinTime">—</div>
       <div class="sc-name" id="ciCheckinName"></div>
       <div class="elapsed" id="ciElapsed"></div>
@@ -197,35 +204,35 @@
 
     <!-- Foto-Vorschau -->
     <div class="photo-preview" id="ciPhotoPreview" style="display:none;">
-      <img id="ciPhotoImg" src="" alt="Abschlussfoto" />
+      <img id="ciPhotoImg" src="" alt="Abschlussfoto" data-i18n-title="ci.photoAlt" />
     </div>
 
     <!-- Status: Ausgecheckt -->
     <div class="status-card checkout" id="ciStatusOut" style="display:none;">
-      <div class="sc-label">Einsatz abgeschlossen</div>
+      <div class="sc-label" data-i18n="ci.jobFinished">Einsatz abgeschlossen</div>
       <div class="sc-time" id="ciCheckoutTime">—</div>
       <div class="sc-name" id="ciCheckoutDuration"></div>
     </div>
 
     <!-- Done -->
     <div class="status-card done" id="ciStatusDone" style="display:none;">
-      <div class="sc-label">✓ Alles gespeichert</div>
-      <div class="sc-time" style="font-size:15px;margin-top:4px;">Zeit erfasst & Foto hochgeladen.</div>
-      <div class="sc-name">Das Fenster kann geschlossen werden.</div>
+      <div class="sc-label" data-i18n="ci.saved">✓ Alles gespeichert</div>
+      <div class="sc-time" style="font-size:15px;margin-top:4px;" data-i18n="ci.doneTime">Zeit erfasst & Foto hochgeladen.</div>
+      <div class="sc-name" data-i18n="ci.doneSub">Das Fenster kann geschlossen werden.</div>
     </div>
 
     <!-- Supabase nicht konfiguriert -->
     <div class="ci-info" id="ciNoSupabase" style="display:none;">
-      Supabase noch nicht konfiguriert — Zeiten werden lokal erfasst.<br>
+      <span data-i18n="ci.localInfo">Supabase noch nicht konfiguriert — Zeiten werden lokal erfasst.</span><br>
       Büro-Admin: <code>supabase-config.js</code> ausfüllen.
     </div>
 
     <div class="divider" id="ciDivider" style="display:none;"></div>
 
     <!-- Aktions-Buttons -->
-    <button class="btn-big btn-checkin"  id="btnCheckin"  onclick="doCheckin()"  style="display:none;">Einchecken ✓</button>
-    <button class="btn-big btn-photo"    id="btnPhoto"    onclick="openCamera()" style="display:none;">Abschlussfoto aufnehmen 📷</button>
-    <button class="btn-big btn-checkout" id="btnCheckout" onclick="doCheckout()" style="display:none; margin-top:8px;">Einsatz beenden</button>
+    <button class="btn-big btn-checkin"  id="btnCheckin"  onclick="doCheckin()"  style="display:none;" data-i18n="ci.checkin">Einchecken ✓</button>
+    <button class="btn-big btn-photo"    id="btnPhoto"    onclick="openCamera()" style="display:none;" data-i18n="ci.takePhoto">Abschlussfoto aufnehmen</button>
+    <button class="btn-big btn-checkout" id="btnCheckout" onclick="doCheckout()" style="display:none; margin-top:8px;" data-i18n="ci.checkout">Einsatz beenden</button>
 
   </div><!-- ci-body -->
 </div><!-- frame -->
@@ -235,8 +242,8 @@
   <video id="camVideo" autoplay playsinline muted></video>
   <canvas id="snapCanvas"></canvas>
   <div class="cam-actions">
-    <button class="cam-snap-btn" onclick="snapPhoto()">Foto aufnehmen</button>
-    <button class="cam-cancel-btn" onclick="closeCamera()">Abbrechen</button>
+    <button class="cam-snap-btn" onclick="snapPhoto()" data-i18n="ci.snap">Foto aufnehmen</button>
+    <button class="cam-cancel-btn" onclick="closeCamera()" data-i18n="ci.cancel">Abbrechen</button>
   </div>
 </div>
 
@@ -244,6 +251,21 @@
 
 <script>
   // ── Helpers ──────────────────────────────────────────────────
+  function tr(key, fallback, vars) {
+    var value = window.MosaI18n ? MosaI18n.t(key, fallback) : fallback;
+    return String(value).replace(/\{(\w+)\}/g, function (_, name) { return vars && vars[name] != null ? vars[name] : _; });
+  }
+  function locale() {
+    var lang = window.MosaI18n ? MosaI18n.get() : 'de';
+    return { de: 'de-CH', fr: 'fr-CH', it: 'it-CH', es: 'es-ES', en: 'en-GB' }[lang] || 'de-CH';
+  }
+  function refreshI18n() {
+    document.title = tr('ci.title', 'Einchecken — MosaOS');
+    document.getElementById('ciPhotoImg').alt = tr('ci.photoAlt', 'Abschlussfoto');
+    if (JOB) text('ciJobDate', JOB.d ? new Date(JOB.d + 'T00:00:00').toLocaleDateString(locale(), { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : '');
+    if (CURRENT_ERROR) text('ciError', tr(CURRENT_ERROR.key, CURRENT_ERROR.fallback));
+  }
+  document.addEventListener('mosa-lang-changed', refreshI18n);
   function toast(msg, isErr) {
     const t = document.getElementById('ciToast');
     t.textContent = msg;
@@ -257,7 +279,7 @@
   function text(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
 
   function fmtTime(iso) {
-    return new Date(iso).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   }
   function fmtDuration(minStart, minEnd) {
     const diff = Math.round((new Date(minEnd) - new Date(minStart)) / 60000);
@@ -280,30 +302,31 @@
   let SB_ROW_ID = null;   // timelog row UUID
   let SNAP_BLOB = null;   // captured photo blob
   let elapsedTimer = null;
+  let CURRENT_ERROR = null;
 
   // ── Parse URL param ───────────────────────────────────────────
   function init() {
     const params = new URLSearchParams(window.location.search);
     const raw = params.get('d');
-    if (!raw) { showError('Kein gültiger Einsatz-Link. Bitte QR-Code scannen oder vom Büro einen neuen Link anfordern.'); return; }
+    if (!raw) { showError('ci.err.noLink', 'Kein gültiger Einsatz-Link. Bitte QR-Code scannen oder vom Büro einen neuen Link anfordern.'); return; }
 
     try {
       JOB = JSON.parse(decodeURIComponent(escape(atob(raw))));
     } catch {
-      showError('QR-Code konnte nicht gelesen werden. Bitte neuen Code generieren.'); return;
+      showError('ci.err.unreadable', 'QR-Code konnte nicht gelesen werden. Bitte neuen Code generieren.'); return;
     }
 
     // Ablauf prüfen (exp = Unix-Timestamp Sekunden)
     if (JOB.exp && Date.now() / 1000 > JOB.exp) {
-      showError('Dieser QR-Code ist abgelaufen (24h Gültigkeit). Das Büro kann im Job-Editor einen neuen generieren.'); return;
+      showError('ci.err.expired', 'Dieser QR-Code ist abgelaufen (24h Gültigkeit). Das Büro kann im Job-Editor einen neuen generieren.'); return;
     }
 
     // Mandanten-ID aus QR-Payload (wird bei timelog-Insert mitgeschickt)
     TENANT_ID = JOB.tid || null;
 
     // Job-Karte befüllen
-    text('ciJobTitle', JOB.jl || JOB.jk || 'Einsatz');
-    text('ciJobDate',  JOB.d ? new Date(JOB.d + 'T00:00:00').toLocaleDateString('de-CH', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : '');
+    text('ciJobTitle', JOB.jl || JOB.jk || tr('ci.jobFallback', 'Einsatz'));
+    text('ciJobDate',  JOB.d ? new Date(JOB.d + 'T00:00:00').toLocaleDateString(locale(), { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) : '');
     show('ciJobCard');
 
     // Mitarbeiter-Dropdown
@@ -316,7 +339,7 @@
       });
     } else {
       // Fallback: Freitextfeld (wenn Mitarbeiterliste nicht im QR)
-      sel.innerHTML = '<option value="__manual__">Eigener Name unten</option>';
+      sel.innerHTML = '<option value="__manual__">' + tr('ci.manual', 'Eigener Name unten') + '</option>';
     }
     show('ciEmpField');
 
@@ -326,9 +349,10 @@
     show('btnCheckin');
   }
 
-  function showError(msg) {
+  function showError(key, fallback) {
+    CURRENT_ERROR = { key: key, fallback: fallback };
     const el = document.getElementById('ciError');
-    el.textContent = msg;
+    el.textContent = tr(key, fallback);
     el.style.display = '';
   }
 
@@ -337,10 +361,10 @@
     const sel = document.getElementById('ciEmpSelect');
     const empId = sel.value;
     const empName = sel.options[sel.selectedIndex]?.text || '—';
-    if (!empId) { toast('Bitte Mitarbeiter wählen', true); return; }
+    if (!empId) { toast(tr('ci.err.chooseEmployee', 'Bitte Mitarbeiter wählen'), true); return; }
 
     const btn = document.getElementById('btnCheckin');
-    btn.disabled = true; btn.textContent = 'Wird gespeichert …';
+    btn.disabled = true; btn.textContent = tr('ci.saving', 'Wird gespeichert …');
 
     const checkIn = new Date().toISOString();
 
@@ -358,8 +382,8 @@
         if (error) throw error;
         SB_ROW_ID = data.id;
       } catch (e) {
-        toast('Speichern fehlgeschlagen: ' + e.message, true);
-        btn.disabled = false; btn.textContent = 'Einchecken ✓';
+        toast(tr('ci.err.save', 'Speichern fehlgeschlagen: {error}', { error: e.message }), true);
+        btn.disabled = false; btn.textContent = tr('ci.checkin', 'Einchecken ✓');
         return;
       }
     }
@@ -383,10 +407,10 @@
     elapsedTimer = setInterval(() => {
       const diff = Math.round((Date.now() - startMs) / 1000);
       const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), s = diff % 60;
-      text('ciElapsed', `Laufzeit: ${h ? h + 'h ' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+      text('ciElapsed', tr('ci.running', 'Laufzeit: {time}', { time: `${h ? h + 'h ' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }));
     }, 1000);
 
-    toast(sb ? '✓ Eingecheckt & gespeichert' : '✓ Eingecheckt (lokal)');
+    toast(sb ? tr('ci.inSaved', '✓ Eingecheckt & gespeichert') : tr('ci.inLocal', '✓ Eingecheckt (lokal)'));
   }
 
   // ── Kamera ───────────────────────────────────────────────────
@@ -401,8 +425,8 @@
       })
       .catch(err => {
         overlay.classList.remove('open');
-        if (err.name === 'NotAllowedError') toast('Kamera-Zugriff verweigert — bitte in den Einstellungen erlauben', true);
-        else toast('Kamera nicht verfügbar: ' + err.message, true);
+        if (err.name === 'NotAllowedError') toast(tr('ci.err.cameraDenied', 'Kamera-Zugriff verweigert — bitte in den Einstellungen erlauben'), true);
+        else toast(tr('ci.err.camera', 'Kamera nicht verfügbar: {error}', { error: err.message }), true);
       });
   }
 
@@ -425,13 +449,13 @@
       show('btnCheckout');
     }, 'image/jpeg', 0.82);
     closeCamera();
-    toast('✓ Foto aufgenommen');
+    toast(tr('ci.photoTaken', '✓ Foto aufgenommen'));
   }
 
   // ── Check-out ────────────────────────────────────────────────
   async function doCheckout() {
     const btn = document.getElementById('btnCheckout');
-    btn.disabled = true; btn.textContent = 'Speichere …';
+    btn.disabled = true; btn.textContent = tr('ci.savingShort', 'Speichere …');
 
     const checkIn = sessionStorage.getItem('ci_checkin') || new Date().toISOString();
     const checkOut = new Date().toISOString();
@@ -462,8 +486,8 @@
           photo_url: photoUrl
         }).eq('id', rowId);
       } catch (e) {
-        toast('Fehler beim Speichern: ' + e.message, true);
-        btn.disabled = false; btn.textContent = 'Einsatz beenden';
+        toast(tr('ci.err.checkout', 'Fehler beim Speichern: {error}', { error: e.message }), true);
+        btn.disabled = false; btn.textContent = tr('ci.checkout', 'Einsatz beenden');
         return;
       }
     }
@@ -477,12 +501,13 @@
     show('ciStatusOut');
     show('ciStatusDone');
 
-    toast(sb ? '✓ Alles gespeichert' : '✓ Checkout lokal erfasst');
+    toast(sb ? tr('ci.doneSaved', '✓ Alles gespeichert') : tr('ci.doneLocal', '✓ Checkout lokal erfasst'));
     sessionStorage.clear();
   }
 
   // ── Start ─────────────────────────────────────────────────────
   init();
+  refreshI18n();
 </script>
 </body>
 </html>

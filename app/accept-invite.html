@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=2" />
+  <script src="app-i18n.js?v=22"></script>
+  <script src="page-i18n.js?v=1"></script>
   <style>
     .auth-msg { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 4px; display: none; line-height: 1.45; }
     .auth-msg.show { display: block; }
@@ -16,9 +18,13 @@
     .invite-badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--accent);
       background:var(--accent-soft); padding:5px 11px; border-radius:999px; margin-bottom:18px; }
     [hidden] { display: none !important; }
+    .invite-lang { position: fixed; top: 16px; right: 16px; z-index: 5; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: 600 12px Inter, system-ui, sans-serif; }
   </style>
 </head>
 <body>
+  <select class="invite-lang" data-lang-select aria-label="Sprache" onchange="MosaI18n.set(this.value)">
+    <option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option><option value="en">EN</option>
+  </select>
   <div class="login-shell">
     <div class="login-form-col">
       <div class="login-box">
@@ -42,42 +48,40 @@
           </div>
           <div>
             <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
-            <div class="brand-sub">Team-Einladung</div>
+            <div class="brand-sub" data-i18n="inv.brandSub">Team-Einladung</div>
           </div>
         </div>
 
         <div id="inviteView">
-          <div class="invite-badge">📨 Einladung</div>
-          <h1 class="login-title" id="inviteTitle">Du wurdest eingeladen</h1>
-          <p class="login-sub" id="inviteSub">Erstelle dein Konto, um dem Team beizutreten.</p>
+          <div class="invite-badge" data-i18n="inv.badge">Einladung</div>
+          <h1 class="login-title" id="inviteTitle" data-i18n="inv.heading">Du wurdest eingeladen</h1>
+          <p class="login-sub" id="inviteSub" data-i18n="inv.sub">Erstelle dein Konto, um dem Team beizutreten.</p>
 
           <form class="login-form" id="acceptForm">
             <div class="field">
-              <label for="invEmail">E-Mail (eingeladen)</label>
+              <label for="invEmail" data-i18n="inv.email">E-Mail (eingeladen)</label>
               <input type="email" id="invEmail" autocomplete="email" required readonly
                      style="opacity:.85; cursor:not-allowed;" />
             </div>
             <div class="field">
-              <label for="invPassword">Passwort wählen</label>
-              <input type="password" id="invPassword" placeholder="mind. 8 Zeichen" autocomplete="new-password" minlength="8" required />
+              <label for="invPassword" data-i18n="inv.password">Passwort wählen</label>
+              <input type="password" id="invPassword" placeholder="mind. 8 Zeichen" data-i18n-ph="inv.passwordPh" autocomplete="new-password" minlength="8" required />
             </div>
             <div class="auth-msg" id="inviteMsg"></div>
-            <button type="submit" class="btn btn-primary" id="acceptBtn" style="height: 42px; margin-top: 8px;">
-              Konto erstellen &amp; beitreten
-            </button>
+            <button type="submit" class="btn btn-primary" id="acceptBtn" style="height: 42px; margin-top: 8px;" data-i18n="inv.submit">Konto erstellen &amp; beitreten</button>
           </form>
 
           <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-subtle); text-align: center;">
-            Du hast schon ein Konto? <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;">Hier anmelden →</a>
+            <span data-i18n="inv.hasAccount">Du hast schon ein Konto?</span> <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;" data-i18n="inv.login">Hier anmelden →</a>
           </div>
         </div>
 
         <!-- Bestätigungs-Hinweis nach Registrierung -->
         <div id="doneView" hidden>
-          <div class="invite-badge" style="color:var(--success); background:rgba(16,185,129,0.12);">✓ Fast geschafft</div>
-          <h1 class="login-title">Bitte E-Mail bestätigen</h1>
-          <p class="login-sub" id="doneSub">Wir haben dir eine Bestätigungs-E-Mail geschickt. Klick den Link darin, danach kannst du dich anmelden.</p>
-          <a class="btn btn-primary" href="login.html" style="height:42px; margin-top:8px; display:inline-flex; align-items:center; justify-content:center;">Zur Anmeldung →</a>
+          <div class="invite-badge" style="color:var(--success); background:rgba(16,185,129,0.12);" data-i18n="inv.almost">✓ Fast geschafft</div>
+          <h1 class="login-title" data-i18n="inv.confirmHeading">Bitte E-Mail bestätigen</h1>
+          <p class="login-sub" id="doneSub" data-i18n="inv.confirmSub">Wir haben dir eine Bestätigungs-E-Mail geschickt. Klick den Link darin, danach kannst du dich anmelden.</p>
+          <a class="btn btn-primary" href="login.html" style="height:42px; margin-top:8px; display:inline-flex; align-items:center; justify-content:center;" data-i18n="inv.toLogin">Zur Anmeldung →</a>
         </div>
       </div>
     </div>
@@ -97,13 +101,13 @@
           </div>
           <div>
             <div class="brand-name" style="color: white;">Mosa<span style="color:#E11D2A">OS</span></div>
-            <div class="brand-sub" style="color: rgba(255,255,255,0.7);">Made in Switzerland</div>
+            <div class="brand-sub" style="color: rgba(255,255,255,0.7);" data-i18n="inv.madeIn">Made in Switzerland</div>
           </div>
         </div>
       </div>
       <div>
-        <p class="login-quote" id="visualQuote">Willkommen im Team. Gleich loslegen — Routen, Nachweise und Aufgaben an einem Ort.</p>
-        <div class="login-quote-author">Eine Plattform für jede Branche</div>
+        <p class="login-quote" id="visualQuote" data-i18n="inv.quote">Willkommen im Team. Gleich loslegen — Routen, Nachweise und Aufgaben an einem Ort.</p>
+        <div class="login-quote-author" data-i18n="inv.platform">Eine Plattform für jede Branche</div>
       </div>
       <div></div>
     </div>
@@ -112,6 +116,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
   <script>
+    function tr(key, fallback, vars) {
+      var value = window.MosaI18n ? MosaI18n.t(key, fallback) : fallback;
+      return String(value).replace(/\{(\w+)\}/g, function (_, name) { return vars && vars[name] != null ? vars[name] : _; });
+    }
     function msg(el, text, kind) { el.textContent = text; el.className = 'auth-msg show ' + (kind || 'err'); }
     function clearMsg(el) { el.className = 'auth-msg'; }
     const esc = (s) => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -121,17 +129,21 @@
     const invEmail = (params.get('email') || '').trim().toLowerCase();
     const firma = (params.get('firma') || '').trim();
 
+    function refreshInviteI18n() {
+      document.title = tr('inv.title', 'MosaOS — Einladung annehmen');
+      if (firma) {
+        document.getElementById('inviteTitle').textContent = tr('inv.companyTitle', 'Einladung zu {company}', { company: firma });
+        document.getElementById('inviteSub').textContent = tr('inv.companySub', 'Du wurdest zu „{company}“ eingeladen. Erstelle dein Konto, um beizutreten.', { company: firma });
+        document.getElementById('visualQuote').textContent = tr('inv.companyQuote', 'Willkommen bei {company}. Gleich loslegen — alles an einem Ort.', { company: firma });
+      } else if (!invEmail) {
+        document.getElementById('inviteSub').innerHTML = tr('inv.invalidLink', 'Kein gültiger Einladungs-Link. <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;">Zur Anmeldung</a>.');
+      }
+    }
+    document.addEventListener('mosa-lang-changed', refreshInviteI18n);
+
     // Vorausfüllen + Texte personalisieren
     document.getElementById('invEmail').value = invEmail;
-    if (firma) {
-      document.getElementById('inviteTitle').textContent = 'Einladung zu ' + firma;
-      document.getElementById('inviteSub').textContent = 'Du wurdest zu „' + firma + '" eingeladen. Erstelle dein Konto, um beizutreten.';
-      document.getElementById('visualQuote').textContent = 'Willkommen bei ' + firma + '. Gleich loslegen — alles an einem Ort.';
-    }
-    if (!invEmail) {
-      // Ohne E-Mail im Link: Hinweis + zum normalen Login/Onboarding
-      document.getElementById('inviteSub').innerHTML = 'Kein gültiger Einladungs-Link. <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;">Zur Anmeldung</a>.';
-    }
+    refreshInviteI18n();
 
     // „Angemeldet bleiben" standardmäßig, damit app.html dieselbe Session findet
     function clientRemember() {
@@ -147,11 +159,11 @@
       const btn = document.getElementById('acceptBtn');
       const box = document.getElementById('inviteMsg');
       clearMsg(box);
-      if (!window.SB) { msg(box, 'Verbindung zur Datenbank fehlt (Internet?).'); return; }
-      if (!invEmail) { msg(box, 'Dieser Link enthält keine Einladung. Bitte den Admin um einen neuen Link.'); return; }
+      if (!window.SB) { msg(box, tr('inv.err.connection', 'Verbindung zur Datenbank fehlt (Internet?).')); return; }
+      if (!invEmail) { msg(box, tr('inv.err.noInvite', 'Dieser Link enthält keine Einladung. Bitte den Admin um einen neuen Link.')); return; }
       const sb = clientRemember();
       const password = document.getElementById('invPassword').value;
-      btn.disabled = true; btn.textContent = 'Konto wird erstellt …';
+      btn.disabled = true; btn.textContent = tr('inv.creating', 'Konto wird erstellt …');
       const { data, error } = await sb.auth.signUp({
         email: invEmail,
         password,
@@ -159,11 +171,11 @@
       });
       if (error) {
         if (/already registered|already exists/i.test(error.message)) {
-          msg(box, 'Mit dieser E-Mail gibt es schon ein Konto. Bitte melde dich an — falls du noch nicht im Team bist, wende dich an die Person, die dich eingeladen hat.');
+          msg(box, tr('inv.err.exists', 'Mit dieser E-Mail gibt es schon ein Konto. Bitte melde dich an — falls du noch nicht im Team bist, wende dich an die Person, die dich eingeladen hat.'));
         } else {
           msg(box, error.message);
         }
-        btn.disabled = false; btn.textContent = 'Konto erstellen & beitreten';
+        btn.disabled = false; btn.textContent = tr('inv.submit', 'Konto erstellen & beitreten');
         return;
       }
       // Trigger handle_new_user ordnet das Konto über die offene Einladung dem Team zu.
