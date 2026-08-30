@@ -2933,6 +2933,14 @@ tr:hover td { background: var(--bg); }
     font-size: 18px;
     font-weight: 600;
   }
+  /* Auf schmalen Geräten hat die Kopfzeile nur Platz für das Nötigste:
+     Menü, Titel, Sprache, Neuer Auftrag, Benutzer. Komfort-Schalter (Theme,
+     Skin, „Feld-Ansicht öffnen") entfallen hier — sonst wird die Zeile
+     abgeschnitten und der Auftrags-Button unbrauchbar schmal. */
+  .topbar-actions .theme-toggle,
+  .topbar-actions .skin-toggle,
+  .topbar-actions .btn-icon[data-term="feldAnsichtTitel"] { display: none; }
+  .topbar-actions [data-lang-select] { height: 30px; padding: 0 4px; font-size: 12px; }
 }
 
 /* ============================================================

@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MosaOS — Einrichtung</title>
+  <title data-i18n="ob.pageTitle">MosaOS — Einrichtung</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=2" />
+  <script src="app-i18n.js?v=23"></script>
   <style>
     .ob-shell {
       min-height: 100vh;
@@ -204,6 +205,10 @@
 </head>
 <body>
   <div class="ob-shell">
+    <select data-lang-select onchange="window.MosaI18n && MosaI18n.set(this.value)" aria-label="Sprache"
+            style="position:fixed;top:16px;right:18px;z-index:10;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:12.5px;cursor:pointer;">
+      <option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option><option value="en">EN</option>
+    </select>
     <div class="ob-card">
 
       <!-- Brand header -->
@@ -227,7 +232,7 @@
         </div>
         <div>
           <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
-          <div class="brand-sub">Einrichtung</div>
+          <div class="brand-sub" data-i18n="ob.brandSub">Einrichtung</div>
         </div>
       </div>
 
@@ -244,148 +249,148 @@
 
       <!-- ===== STEP 1: Konto ===== -->
       <div class="ob-panel active" id="panel1">
-        <h2 class="ob-title">Konto erstellen</h2>
-        <p class="ob-sub">Dein Login für die App und die Zeiterfassung deiner Mitarbeiter.</p>
+        <h2 class="ob-title" data-i18n="ob.s1.title">Konto erstellen</h2>
+        <p class="ob-sub" data-i18n="ob.s1.sub">Dein Login für die App und die Zeiterfassung deiner Mitarbeiter.</p>
         <form id="accountForm" class="login-form">
           <div class="field">
-            <label for="obEmail">E-Mail-Adresse</label>
-            <input type="email" id="obEmail" placeholder="dein.name@firma.ch" autocomplete="email" required />
+            <label for="obEmail" data-i18n="ob.s1.email">E-Mail-Adresse</label>
+            <input type="email" id="obEmail" data-i18n-ph="auth.emailPh" placeholder="dein.name@firma.ch" autocomplete="email" required />
           </div>
           <div class="field">
-            <label for="obPassword">Passwort wählen</label>
-            <input type="password" id="obPassword" placeholder="mind. 6 Zeichen" autocomplete="new-password" minlength="6" required />
+            <label for="obPassword" data-i18n="ob.s1.pass">Passwort wählen</label>
+            <input type="password" id="obPassword" data-i18n-ph="ob.s1.passPh" placeholder="mind. 6 Zeichen" autocomplete="new-password" minlength="6" required />
           </div>
           <div class="ob-msg" id="accountMsg"></div>
           <div class="ob-footer">
-            <a href="login.html" style="font-size:13px;color:var(--text-subtle);text-decoration:none;">← Zurück zum Login</a>
-            <button type="submit" class="btn btn-primary" id="accountBtn" style="min-width:120px;">Weiter →</button>
+            <a href="login.html" style="font-size:13px;color:var(--text-subtle);text-decoration:none;" data-i18n="ob.s1.backLogin">← Zurück zum Login</a>
+            <button type="submit" class="btn btn-primary" id="accountBtn" style="min-width:120px;" data-i18n="ob.next">Weiter →</button>
           </div>
         </form>
         <div style="margin-top:18px;text-align:center;">
-          <button class="ob-skip-link" onclick="skipToStep2()">Kein Supabase — lokal einrichten</button>
+          <button class="ob-skip-link" onclick="skipToStep2()" data-i18n="ob.s1.localSetup">Kein Supabase — lokal einrichten</button>
         </div>
       </div>
 
       <!-- ===== STEP 2: Firmenprofil ===== -->
       <div class="ob-panel" id="panel2">
-        <h2 class="ob-title">Firmenprofil</h2>
-        <p class="ob-sub">Wähle dein Geschäftsfeld — die App passt Begriffe, Module und Preise automatisch an. Das Land steuert Steuersatz, Währung und Zahlteil der Rechnung (CH: QR-Einzahlschein · DE/AT: SEPA). Die Firmendaten erscheinen auf allen Rechnungen.</p>
+        <h2 class="ob-title" data-i18n="ob.s2.title">Firmenprofil</h2>
+        <p class="ob-sub" data-i18n="ob.s2.sub">Wähle dein Geschäftsfeld — die App passt Begriffe, Module und Preise automatisch an. Das Land steuert Steuersatz, Währung und Zahlteil der Rechnung (CH: QR-Einzahlschein · DE/AT: SEPA). Die Firmendaten erscheinen auf allen Rechnungen.</p>
         <form id="companyForm" class="login-form">
           <div class="field">
-            <label for="obVertical">Geschäftsfeld *</label>
+            <label for="obVertical" data-i18n="ob.s2.vertical">Geschäftsfeld *</label>
             <select id="obVertical"></select>
             <div id="obVerticalHint" style="font-size:12px;color:var(--text-subtle);margin-top:6px;line-height:1.45;"></div>
           </div>
           <div class="field">
-            <label for="obCoName">Firmenname *</label>
+            <label for="obCoName" data-i18n="ob.s2.coName">Firmenname *</label>
             <input type="text" id="obCoName" placeholder="z. B. Müller Reinigung GmbH" required />
           </div>
           <div class="field">
-            <label for="obCoAddr1">Strasse &amp; Hausnummer</label>
+            <label for="obCoAddr1" data-i18n="ob.s2.addr1">Strasse &amp; Hausnummer</label>
             <input type="text" id="obCoAddr1" placeholder="Bahnhofstrasse 10" />
           </div>
           <div class="field">
-            <label for="obCoAddr2">PLZ &amp; Ort</label>
+            <label for="obCoAddr2" data-i18n="ob.s2.addr2">PLZ &amp; Ort</label>
             <input type="text" id="obCoAddr2" placeholder="5000 Aarau" />
           </div>
           <div class="field">
-            <label for="obCoIban">IBAN <span style="font-weight:400;color:var(--text-subtle)">(für die Rechnung)</span></label>
+            <label for="obCoIban">IBAN <span style="font-weight:400;color:var(--text-subtle)" data-i18n="ob.s2.ibanNote">(für die Rechnung)</span></label>
             <input type="text" id="obCoIban" placeholder="CH93 0076 2011 6238 5295 7" />
           </div>
           <div class="ob-two-col">
             <div class="field">
-              <label for="obCoMwst">MWST-Nummer</label>
+              <label for="obCoMwst" data-i18n="ob.s2.mwst">MWST-Nummer</label>
               <input type="text" id="obCoMwst" placeholder="CHE-123.456.789" />
             </div>
             <div class="field">
-              <label for="obCoCountry">Land</label>
+              <label for="obCoCountry" data-i18n="ob.s2.country">Land</label>
               <select id="obCoCountry">
-                <option value="CH" selected>Schweiz (CH)</option>
-                <option value="DE">Deutschland (DE)</option>
-                <option value="AT">Österreich (AT)</option>
+                <option value="CH" selected data-i18n="ob.country.ch">Schweiz (CH)</option>
+                <option value="DE" data-i18n="ob.country.de">Deutschland (DE)</option>
+                <option value="AT" data-i18n="ob.country.at">Österreich (AT)</option>
               </select>
             </div>
           </div>
           <div class="field">
-            <label for="obCoContact">Kontakt <span style="font-weight:400;color:var(--text-subtle)">(E-Mail · Telefon)</span></label>
+            <label for="obCoContact"><span data-i18n="ob.s2.contact">Kontakt</span> <span style="font-weight:400;color:var(--text-subtle)" data-i18n="ob.s2.contactNote">(E-Mail · Telefon)</span></label>
             <input type="text" id="obCoContact" placeholder="info@firma.ch · +41 62 000 00 00" />
           </div>
           <div class="ob-msg" id="companyMsg"></div>
           <div class="ob-footer">
-            <button type="button" class="ob-back" onclick="goStep(1)" id="companyBack">← Zurück</button>
-            <button type="submit" class="btn btn-primary" style="min-width:120px;">Weiter →</button>
+            <button type="button" class="ob-back" onclick="goStep(1)" id="companyBack" data-i18n="ob.back">← Zurück</button>
+            <button type="submit" class="btn btn-primary" style="min-width:120px;" data-i18n="ob.next">Weiter →</button>
           </div>
         </form>
       </div>
 
       <!-- ===== STEP 3: Stundenpreise ===== -->
       <div class="ob-panel" id="panel3">
-        <h2 class="ob-title" id="priceTitle">Stundenpreise</h2>
-        <p class="ob-sub">Standardwerte für die Auftragsberechnung — jederzeit unter Einstellungen änderbar.</p>
+        <h2 class="ob-title" id="priceTitle" data-i18n="ob.s3.title">Stundenpreise</h2>
+        <p class="ob-sub" data-i18n="ob.s3.sub">Standardwerte für die Auftragsberechnung — jederzeit unter Einstellungen änderbar.</p>
         <form id="pricesForm" class="login-form">
 
          <!-- Reinigung: detaillierte Stundensätze (Standard) -->
          <div id="priceReinigung">
-          <div class="ob-group-title">Unterhaltsreinigung</div>
+          <div class="ob-group-title" data-i18n="ob.g.unterhalt">Unterhaltsreinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label data-cur="CHF / Std.">CHF / Std.</label>
+              <label data-cur="ob.perHour">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-unterhalt-rate" value="35" />
             </div>
             <div class="field">
-              <label>Min. Stunden</label>
+              <label data-i18n="ob.minHours">Min. Stunden</label>
               <input type="number" step="0.5" min="0" id="pr-unterhalt-min" value="1" />
             </div>
             <div class="field">
-              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
+              <label data-cur="ob.travel">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-unterhalt-fee" value="0" />
             </div>
           </div>
 
-          <div class="ob-group-title">Endreinigung</div>
+          <div class="ob-group-title" data-i18n="ob.g.end">Endreinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label data-cur="CHF / Std.">CHF / Std.</label>
+              <label data-cur="ob.perHour">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-end-rate" value="45" />
             </div>
             <div class="field">
-              <label>Min. Stunden</label>
+              <label data-i18n="ob.minHours">Min. Stunden</label>
               <input type="number" step="0.5" min="0" id="pr-end-min" value="3" />
             </div>
             <div class="field">
-              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
+              <label data-cur="ob.travel">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-end-fee" value="25" />
             </div>
           </div>
 
-          <div class="ob-group-title">Fensterreinigung</div>
+          <div class="ob-group-title" data-i18n="ob.g.fenster">Fensterreinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label data-cur="CHF / Std.">CHF / Std.</label>
+              <label data-cur="ob.perHour">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-fenster-rate" value="40" />
             </div>
             <div class="field">
-              <label>Min. Stunden</label>
+              <label data-i18n="ob.minHours">Min. Stunden</label>
               <input type="number" step="0.5" min="0" id="pr-fenster-min" value="2" />
             </div>
             <div class="field">
-              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
+              <label data-cur="ob.travel">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-fenster-fee" value="20" />
             </div>
           </div>
 
-          <div class="ob-group-title">Baureinigung</div>
+          <div class="ob-group-title" data-i18n="ob.g.bau">Baureinigung</div>
           <div class="ob-price-row">
             <div class="field">
-              <label data-cur="CHF / Std.">CHF / Std.</label>
+              <label data-cur="ob.perHour">CHF / Std.</label>
               <input type="number" step="0.5" min="0" id="pr-bau-rate" value="48" />
             </div>
             <div class="field">
-              <label>Min. Stunden</label>
+              <label data-i18n="ob.minHours">Min. Stunden</label>
               <input type="number" step="0.5" min="0" id="pr-bau-min" value="4" />
             </div>
             <div class="field">
-              <label data-cur="Anfahrt CHF">Anfahrt CHF</label>
+              <label data-cur="ob.travel">Anfahrt CHF</label>
               <input type="number" step="5" min="0" id="pr-bau-fee" value="35" />
             </div>
           </div>
@@ -395,45 +400,45 @@
          <div id="priceGeneric"></div>
 
           <div class="ob-footer">
-            <button type="button" class="ob-back" onclick="goStep(2)">← Zurück</button>
-            <button type="submit" class="btn btn-primary" style="min-width:120px;">Weiter →</button>
+            <button type="button" class="ob-back" onclick="goStep(2)" data-i18n="ob.back">← Zurück</button>
+            <button type="submit" class="btn btn-primary" style="min-width:120px;" data-i18n="ob.next">Weiter →</button>
           </div>
         </form>
       </div>
 
       <!-- ===== STEP 4: Erster Mitarbeiter (optional) ===== -->
       <div class="ob-panel" id="panel4">
-        <h2 class="ob-title">Erster Mitarbeiter</h2>
-        <p class="ob-sub">Optional — weitere Teammitglieder können jederzeit unter Büro-Team hinzugefügt werden.</p>
+        <h2 class="ob-title" data-i18n="ob.s4.title">Erster Mitarbeiter</h2>
+        <p class="ob-sub" data-i18n="ob.s4.sub">Optional — weitere Teammitglieder können jederzeit unter Büro-Team hinzugefügt werden.</p>
         <form id="userForm" class="login-form">
           <div class="ob-two-col">
             <div class="field">
-              <label for="obUFirst">Vorname</label>
+              <label for="obUFirst" data-i18n="ob.s4.first">Vorname</label>
               <input type="text" id="obUFirst" placeholder="Sandra" autocomplete="off" />
             </div>
             <div class="field">
-              <label for="obULast">Nachname</label>
+              <label for="obULast" data-i18n="ob.s4.last">Nachname</label>
               <input type="text" id="obULast" placeholder="Meier" autocomplete="off" />
             </div>
           </div>
           <div class="field">
-            <label for="obUEmail">E-Mail</label>
+            <label for="obUEmail" data-i18n="auth.email">E-Mail</label>
             <input type="email" id="obUEmail" placeholder="sandra@firma.ch" autocomplete="off" />
           </div>
           <div class="field">
-            <label for="obURole">Rolle</label>
+            <label for="obURole" data-i18n="ob.s4.role">Rolle</label>
             <select id="obURole">
-              <option value="admin">Admin — Voller Zugriff</option>
-              <option value="disposition" selected>Disposition — Aufträge &amp; Objekte</option>
-              <option value="buchhaltung">Buchhaltung — Offerten &amp; Preise</option>
-              <option value="readonly">Nur Ansicht</option>
+              <option value="admin" data-i18n="ob.role.admin">Admin — Voller Zugriff</option>
+              <option value="disposition" selected data-i18n="ob.role.disposition">Disposition — Aufträge &amp; Objekte</option>
+              <option value="buchhaltung" data-i18n="ob.role.buchhaltung">Buchhaltung — Offerten &amp; Preise</option>
+              <option value="readonly" data-i18n="ob.role.readonly">Nur Ansicht</option>
             </select>
           </div>
           <div class="ob-footer">
-            <button type="button" class="ob-back" onclick="goStep(3)">← Zurück</button>
+            <button type="button" class="ob-back" onclick="goStep(3)" data-i18n="ob.back">← Zurück</button>
             <div style="display:flex;gap:8px;">
-              <button type="button" class="btn" onclick="finishOnboarding()" style="background:var(--surface);color:var(--text);border:1px solid var(--border-strong);">Überspringen</button>
-              <button type="submit" class="btn btn-primary" style="min-width:120px;">Fertig →</button>
+              <button type="button" class="btn" onclick="finishOnboarding()" style="background:var(--surface);color:var(--text);border:1px solid var(--border-strong);" data-i18n="ob.skip">Überspringen</button>
+              <button type="submit" class="btn btn-primary" style="min-width:120px;" data-i18n="ob.finish">Fertig →</button>
             </div>
           </div>
         </form>
@@ -447,15 +452,15 @@
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <div class="ob-done-title">Mosa<span style="color:#E11D2A">OS</span> ist bereit!</div>
-          <div class="ob-done-sub" id="doneSub">Firmenprofil, Preise und Team sind eingerichtet.</div>
+          <div class="ob-done-title" data-i18n="ob.done.title">Mosa<span style="color:#E11D2A">OS</span> ist bereit!</div>
+          <div class="ob-done-sub" id="doneSub" data-i18n="ob.done.sub">Firmenprofil, Preise und Team sind eingerichtet.</div>
           <div class="ob-summary" id="obSummary">
             <dl id="summaryDl"></dl>
           </div>
-          <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;font-weight:600;" onclick="window.location.href='app.html'">
+          <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;font-weight:600;" onclick="window.location.href='app.html'" data-i18n="ob.done.open">
             App öffnen →
           </button>
-          <div style="margin-top:14px;font-size:12px;color:var(--text-subtle);">
+          <div style="margin-top:14px;font-size:12px;color:var(--text-subtle);" data-i18n="ob.done.note">
             Alle Einstellungen können jederzeit in der App unter <strong>Einstellungen</strong> geändert werden.
           </div>
         </div>
@@ -469,16 +474,30 @@
   <script src="supabase-client.js"></script>
   <script>
     let step1Skipped = false;
+    let obCurStep = 1;
+    let obIsDone = false;
+
+    // Übersetzung für JS-erzeugte Strings; Fallback = deutscher Originaltext.
+    const tt = (k, f) => (window.MosaI18n ? MosaI18n.t(k, f) : f);
+
+    // Währungs-Labels: data-cur hält den i18n-Key, die Übersetzung den Platzhalter {cur}.
+    // So bleibt die Währung landesabhängig (CHF/EUR) und der Text sprachabhängig.
+    const OB_CUR_FALLBACK = { 'ob.perHour': '{cur} / Std.', 'ob.travel': 'Anfahrt {cur}' };
 
     // ── Branchen-Wähler (Geschäftsfeld) ──────────────────────────
     // Beispiel-Firmenname je Branche — macht das Profil-Feld greifbarer.
+    // [i18n-Key, deutscher Fallback]
     const VERTICAL_NAME_EXAMPLE = {
-      reinigung: 'z. B. Müller Reinigung GmbH',
-      handwerk:  'z. B. Müller Haustechnik GmbH',
-      garten:    'z. B. Müller Gartenbau GmbH',
-      schaedling:'z. B. Müller Schädlingsbekämpfung GmbH',
-      werkstatt: 'z. B. Garage Müller AG'
+      reinigung: ['ob.namePh.reinigung',  'z. B. Müller Reinigung GmbH'],
+      handwerk:  ['ob.namePh.handwerk',   'z. B. Müller Haustechnik GmbH'],
+      garten:    ['ob.namePh.garten',     'z. B. Müller Gartenbau GmbH'],
+      schaedling:['ob.namePh.schaedling', 'z. B. Müller Schädlingsbekämpfung GmbH'],
+      werkstatt: ['ob.namePh.werkstatt',  'z. B. Garage Müller AG']
     };
+    function verticalNamePh(key) {
+      const e = VERTICAL_NAME_EXAMPLE[key];
+      return e ? tt(e[0], e[1]) : null;
+    }
 
     function initVerticalSelect() {
       const sel = document.getElementById('obVertical');
@@ -495,17 +514,17 @@
       const p = window.MosaVertical ? MosaVertical.PRESETS[key] : null;
       const hint = document.getElementById('obVerticalHint');
       const nameInput = document.getElementById('obCoName');
-      if (nameInput) nameInput.placeholder = VERTICAL_NAME_EXAMPLE[key] || nameInput.placeholder;
+      const ph = verticalNamePh(key);
+      if (nameInput && ph) nameInput.placeholder = ph;
       if (hint && p) {
-        const mods = (p.modules || []).length;
-        hint.textContent = `Begriffe, Module und Beispielpreise richten sich nach dieser Branche. Jederzeit in den Einstellungen änderbar.`;
+        hint.textContent = tt('ob.s2.verticalHint', 'Begriffe, Module und Beispielpreise richten sich nach dieser Branche. Jederzeit in den Einstellungen änderbar.');
       }
     }
 
     // If already logged in → skip account creation
     (async () => {
       if (!window.SB) {
-        setMsg('accountMsg', 'Kein Supabase konfiguriert. Du kannst Firma und Preise trotzdem lokal einrichten.', 'ok');
+        setMsg('accountMsg', tt('ob.s1.noSupabase', 'Kein Supabase konfiguriert. Du kannst Firma und Preise trotzdem lokal einrichten.'), 'ok');
         return;
       }
       const session = await window.mosaosSession();
@@ -516,10 +535,48 @@
 
     initVerticalSelect();
 
+    // Startzustand der Schritt-Anzeige in der aktuellen Sprache.
+    document.getElementById('stepLabel').textContent = obStepLabel(1, 4);
+    obApplyCurrency();
+
+    // Sprachwechsel: JS-erzeugte Texte neu setzen (data-i18n erledigt app-i18n.js selbst).
+    document.addEventListener('mosa-lang-changed', () => {
+      const sel = document.getElementById('obVertical');
+      const vertical = (sel && sel.value) || 'reinigung';
+      // Branchen-Optionen umbenennen (Auswahl + Listener bleiben erhalten).
+      if (sel && window.MosaVertical) {
+        const labels = MosaVertical.list();
+        [...sel.options].forEach(o => {
+          const e = labels.find(v => v.key === o.value);
+          if (e) o.textContent = e.label;
+        });
+      }
+      applyVerticalPreview(vertical);
+      // Preisschritt neu aufbauen, aber eingegebene Werte behalten.
+      const saved = {};
+      document.querySelectorAll('#priceGeneric [data-gprice]').forEach(i => { saved[i.getAttribute('data-gprice')] = i.value; });
+      renderPriceStep(vertical);
+      document.querySelectorAll('#priceGeneric [data-gprice]').forEach(i => {
+        const k = i.getAttribute('data-gprice');
+        if (saved[k] != null) i.value = saved[k];
+      });
+      if (obIsDone) { finishOnboarding(); return; }
+      const effectiveN = step1Skipped ? obCurStep - 1 : obCurStep;
+      document.getElementById('stepLabel').textContent = obStepLabel(Math.max(1, effectiveN), step1Skipped ? 3 : 4);
+    });
+
     // ── Step navigation ──────────────────────────────────────────
     const STEPS = [1, 2, 3, 4];
 
+    // Schritt-Anzeige („Schritt 2 von 4") — Platzhalter {n}/{total} aus der Übersetzung.
+    function obStepLabel(n, total) {
+      return tt('ob.step', 'Schritt {n} von {total}')
+        .replace('{n}', n).replace('{total}', total);
+    }
+
     function goStep(n) {
+      obCurStep = n;
+      obIsDone = false;
       // Hide all panels
       document.querySelectorAll('.ob-panel').forEach(p => p.classList.remove('active'));
       const panelId = 'panel' + n;
@@ -533,7 +590,7 @@
       // Progress bars
       const effectiveN = step1Skipped ? n - 1 : n;
       const total = step1Skipped ? 3 : 4;
-      document.getElementById('stepLabel').textContent = `Schritt ${Math.max(1, effectiveN)} von ${total}`;
+      document.getElementById('stepLabel').textContent = obStepLabel(Math.max(1, effectiveN), total);
 
       for (let i = 1; i <= 4; i++) {
         const bar = document.getElementById('bar' + i);
@@ -547,6 +604,7 @@
     }
 
     function showDone() {
+      obIsDone = true;
       document.querySelectorAll('.ob-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('panelDone').classList.add('active');
       // All bars done
@@ -554,7 +612,7 @@
         const bar = document.getElementById('bar' + i);
         if (bar) bar.className = 'ob-bar done';
       }
-      document.getElementById('stepLabel').textContent = 'Einrichtung abgeschlossen';
+      document.getElementById('stepLabel').textContent = tt('ob.stepDone', 'Einrichtung abgeschlossen');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -584,12 +642,12 @@
       }
 
       btn.disabled = true;
-      btn.textContent = 'Konto erstellen …';
+      btn.textContent = tt('ob.s1.creating', 'Konto erstellen …');
 
       const { data, error } = await window.SB.auth.signUp({ email, password: pass });
 
       btn.disabled = false;
-      btn.textContent = 'Weiter →';
+      btn.textContent = tt('ob.next', 'Weiter →');
 
       if (error) {
         setMsg('accountMsg', error.message);
@@ -598,7 +656,7 @@
 
       if (!data.session) {
         // Email confirmation required — still proceed with local setup
-        setMsg('accountMsg', '✓ Bestätigungs-E-Mail gesendet. Bitte bestätige deine Adresse — du kannst das Profil trotzdem jetzt einrichten.', 'ok');
+        setMsg('accountMsg', tt('ob.s1.confirmSent', '✓ Bestätigungs-E-Mail gesendet. Bitte bestätige deine Adresse — du kannst das Profil trotzdem jetzt einrichten.'), 'ok');
         setTimeout(() => goStep(2), 1600);
         return;
       }
@@ -616,7 +674,7 @@
       e.preventDefault();
       clearMsg('companyMsg');
       const name = document.getElementById('obCoName').value.trim();
-      if (!name) { setMsg('companyMsg', 'Firmenname ist erforderlich.'); return; }
+      if (!name) { setMsg('companyMsg', tt('ob.s2.errName', 'Firmenname ist erforderlich.')); return; }
 
       const vertical = (document.getElementById('obVertical') || {}).value || 'reinigung';
       // Branche festlegen: lokal (cc-vertical) + ins Firmenprofil → Sync auf Mobile/andere Geräte.
@@ -643,10 +701,12 @@
       const c = (document.getElementById('obCoCountry') || {}).value || 'CH';
       return c === 'CH' ? 'CHF' : 'EUR';
     }
-    // Alle mit data-cur markierten Preislabels auf die Landeswährung setzen.
     function obApplyCurrency() {
       const cur = obCurrency();
-      document.querySelectorAll('[data-cur]').forEach(l => { l.textContent = l.getAttribute('data-cur').replace('CHF', cur); });
+      document.querySelectorAll('[data-cur]').forEach(l => {
+        const key = l.getAttribute('data-cur');
+        l.textContent = tt(key, OB_CUR_FALLBACK[key] || '{cur}').replace('{cur}', cur);
+      });
     }
     function renderPriceStep(vertical) {
       const isClean = vertical === 'reinigung';
@@ -655,18 +715,22 @@
       const title = document.getElementById('priceTitle');
       if (rein) rein.style.display = isClean ? '' : 'none';
       if (gen)  gen.style.display  = isClean ? 'none' : '';
-      if (title) title.textContent = isClean ? 'Stundenpreise' : 'Preise & Tarife';
+      if (title) title.textContent = isClean
+        ? tt('ob.s3.title', 'Stundenpreise')
+        : tt('ob.s3.titleGeneric', 'Preise & Tarife');
       if (isClean || !window.MosaVertical) { if (gen) gen.innerHTML = ''; obApplyCurrency(); return; }
 
       const cur = obCurrency();
       const svcs = MosaVertical.preset(vertical).services || [];
       gen.innerHTML = svcs.map(s => {
-        const suffix = s.unit === 'h' ? cur + ' / Std.' : cur + ' pauschal';
+        const suffix = (s.unit === 'h'
+          ? tt('ob.perHour', '{cur} / Std.')
+          : tt('ob.flatSuffix', '{cur} pauschal')).replace('{cur}', cur);
         return `
           <div class="ob-group-title">${escapeHtmlOb(s.title)}</div>
           <div style="font-size:12px;color:var(--text-subtle);margin:-4px 0 8px;line-height:1.4;">${escapeHtmlOb(s.desc)}</div>
           <div class="field">
-            <label>${s.unit === 'h' ? 'Stundensatz' : 'Pauschalpreis'} — ${suffix}</label>
+            <label>${escapeHtmlOb(s.unit === 'h' ? tt('ob.hourlyRate', 'Stundensatz') : tt('ob.flatPrice', 'Pauschalpreis'))} — ${escapeHtmlOb(suffix)}</label>
             <input type="number" step="${s.unit === 'h' ? '0.5' : '5'}" min="0"
                    data-gprice="${vertical}_${s.key}_price" value="${s.price}" />
           </div>`;
@@ -766,24 +830,28 @@
         dl.appendChild(dt); dl.appendChild(dd);
       };
       const vertical = company.vertical || 'reinigung';
-      const vLabel = (window.MosaVertical && MosaVertical.PRESETS[vertical]) ? MosaVertical.PRESETS[vertical].label : 'Gebäudereinigung';
-      row('Geschäftsfeld', vLabel);
-      row('Firma', company.name);
-      row('Adresse', [company.addr1, company.addr2].filter(Boolean).join(', '));
-      row('IBAN', company.iban || '(noch nicht eingetragen)');
+      // preset() liefert das Branchenlabel bereits in der aktiven Sprache.
+      const vLabel = (window.MosaVertical && MosaVertical.PRESETS[vertical])
+        ? MosaVertical.preset(vertical).label
+        : tt('ob.sum.defaultVertical', 'Gebäudereinigung');
+      const cur = obCurrency();
+      row(tt('ob.sum.vertical', 'Geschäftsfeld'), vLabel);
+      row(tt('ob.sum.company', 'Firma'), company.name);
+      row(tt('ob.sum.address', 'Adresse'), [company.addr1, company.addr2].filter(Boolean).join(', '));
+      row(tt('ob.sum.iban', 'IBAN'), company.iban || tt('ob.sum.ibanEmpty', '(noch nicht eingetragen)'));
       if (vertical === 'reinigung') {
-        row('Unterhaltsreinigung', prices['unterhalt-rate'] ? `CHF ${prices['unterhalt-rate']}/h` : '—');
-        row('Endreinigung', prices['end-rate'] ? `CHF ${prices['end-rate']}/h` : '—');
+        row(tt('ob.g.unterhalt', 'Unterhaltsreinigung'), prices['unterhalt-rate'] ? `${cur} ${prices['unterhalt-rate']}/h` : '—');
+        row(tt('ob.g.end', 'Endreinigung'), prices['end-rate'] ? `${cur} ${prices['end-rate']}/h` : '—');
       } else if (window.MosaVertical) {
         // Erste zwei Branchen-Leistungen als Beleg, dass Preise gesetzt sind.
         (MosaVertical.preset(vertical).services || []).slice(0, 2).forEach(s => {
           const v = prices[`${vertical}_${s.key}_price`];
-          const suffix = s.unit === 'h' ? '/h' : ' pauschal';
-          row(s.title, (v != null) ? `CHF ${v}${suffix}` : '—');
+          const suffix = s.unit === 'h' ? '/h' : tt('ob.sum.flat', ' pauschal');
+          row(s.title, (v != null) ? `${cur} ${v}${suffix}` : '—');
         });
       }
       if (nonDemo.length > 0) {
-        row('1. Mitarbeiter', `${nonDemo[0].firstname} ${nonDemo[0].lastname}`.trim());
+        row(tt('ob.sum.firstUser', '1. Mitarbeiter'), `${nonDemo[0].firstname} ${nonDemo[0].lastname}`.trim());
       }
 
       showDone();
