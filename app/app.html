@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=2"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=20"></script>
+  <script src="app-i18n.js?v=22"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -259,10 +259,10 @@
         <section class="view active" data-view="dashboard">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Guten Morgen, Brian</h1>
+              <h1 class="page-title" id="dashGreeting">Guten Tag</h1>
               <p class="page-subtitle"><span id="dashHeroEyebrow">Bereit zum Start</span> · <span id="dashHeroSub">Lege deine Mitarbeiter, Kunden und den ersten Auftrag an.</span></p>
             </div>
-            <button class="btn btn-accent" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
+            <button class="btn btn-accent" data-i18n="common.newAuftrag" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
           </div>
           <span id="dashHeroTitle" hidden></span>
 
@@ -1019,7 +1019,7 @@
                 <tr>
                   <th data-i18n="th.date">Datum</th>
                   <th data-term="objektKunde">Objekt / Kunde</th>
-                  <th style="text-align:right;" data-i18n="inv.thAmount">Betrag (CHF inkl.)</th>
+                  <th style="text-align:right;" id="invThAmount" data-i18n="inv.thAmount">Betrag (CHF inkl.)</th>
                   <th data-i18n="th.status">Status</th>
                   <th style="text-align:right;" data-i18n="th.action">Aktion</th>
                 </tr>
@@ -3883,7 +3883,7 @@
       ['renderKunden','renderBaustellen','renderRapporte','renderKoederstellen','renderPestProtocols',
        'renderWerkstattplan','renderReifen','renderFahrzeuge','renderMitarbeiter','renderAufgaben',
        'renderAnrufprotokoll','renderMailView','renderPlanung','renderDayTimeline','renderAbos',
-       'renderZeiten','renderModuleSettings','renderRolesLegend','renderNachkalkulation',
+       'renderZeiten','renderModuleSettings','renderRolesLegend','renderNachkalkulation','renderRechnungen',
        'applyPriceSection','refreshAuthStatus','renderVerticalDisplay'].forEach(fn => { try { typeof window[fn] === 'function' && window[fn](); } catch (e) {} });
     });
 
@@ -8352,7 +8352,21 @@
     }
 
     // ============ Dashboard (Zahlen aus echten Daten) ============
+    // Begrüssung: Tageszeit + echter Vorname des eingeloggten Nutzers (nicht hartkodiert),
+    // in der aktuellen App-Sprache.
+    function renderDashGreeting() {
+      const el = document.getElementById('dashGreeting');
+      if (!el) return;
+      const h = new Date().getHours();
+      const key = h < 11 ? 'dash.greet.morning' : (h < 18 ? 'dash.greet.day' : 'dash.greet.evening');
+      const fallback = h < 11 ? 'Guten Morgen' : (h < 18 ? 'Guten Tag' : 'Guten Abend');
+      let vorname = '';
+      try { if (currentUser) vorname = (currentUser.firstname || '').trim(); } catch (e) {}
+      el.textContent = tt(key, fallback) + (vorname ? ', ' + vorname : '');
+    }
+
     function renderDashboard() {
+      renderDashGreeting();
       renderFirstSteps();
       const aktiv = EMPLOYEES.filter(e => e.status !== 'abwesend').length;
       const total = EMPLOYEES.length;
@@ -11573,6 +11587,9 @@ ${coSig}`;
       const jobs = collectRechnungsJobs(ym);
       const statuses = loadInvoiceStatuses();
       const invL = coLocale(loadCompany());
+      // Währung im Tabellenkopf folgt dem Firmenland (CHF/EUR) — Platzhalter {cur} ersetzen.
+      const thAmt = document.getElementById('invThAmount');
+      if (thAmt) thAmt.textContent = tt('inv.thAmount', 'Betrag ({cur} inkl.)').replace('{cur}', invL.cur);
       const sumOf = arr => arr.reduce((s, j) => s + (Number(j.price||0) * (1 + invL.vat)), 0);
       const fmtChf = n => n.toFixed(2) + ' ' + invL.cur;
 

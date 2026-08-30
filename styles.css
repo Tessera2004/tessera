@@ -283,6 +283,11 @@ body.intro-done .hero-visual { animation: heroVisualIn 0.8s var(--ease-snap) 0.1
 /* ============================================================
    NAV
    ============================================================ */
+/* Anker-Ziele nicht unter der fixierten Navigation verstecken.
+   Klicks im Menü versetzt main.js bereits; das hier greift beim direkten
+   Aufruf einer URL mit Anker (z. B. werkstatt.html#preis) und beim Zurück-Navigieren. */
+section[id] { scroll-margin-top: 90px; }
+
 .nav {
   position: fixed;
   top: 0;
