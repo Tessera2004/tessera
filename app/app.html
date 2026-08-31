@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=7" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -28,7 +28,7 @@
     <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark-svg" title="MosaOS">
+        <div class="brand-mark-svg" id="brandMark" title="MosaOS">
           <!-- Wordmark-Platzhalter — ersetzbar durch echtes Logo von MosaOS -->
           <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
             <!-- MosaOS-Mosaik: 4 Kacheln, vierte mit Schweizerkreuz. Weisse Kacheln mit dezentem Muster. -->
@@ -46,10 +46,11 @@
             <rect x="19.5" y="21.5" width="6" height="2" fill="#fff"/>
             <rect x="21.5" y="19.5" width="2" height="6" fill="#fff"/>
           </svg>
+          <img id="companyLogoImage" class="company-logo-image" alt="Firmenlogo" hidden />
         </div>
         <div>
-          <div class="brand-name">Mosa<span style="color:#E11D2A">OS</span></div>
-          <div class="brand-sub">Aarau</div>
+          <div class="brand-name" id="brandName">Mosa<span style="color:#E11D2A">OS</span></div>
+          <div class="brand-sub" id="brandSub">Aarau</div>
         </div>
       </div>
 
@@ -1088,6 +1089,17 @@
             <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;" data-i18n="set.ibanHint">Hinterlege deine echte IBAN — sonst zeigt die QR-Rechnung die Demo-IBAN.</div>
           </div>
 
+          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="font-weight:700; font-size:15px;">Erscheinungsbild</div>
+            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;">Firmenlogo und Akzentfarbe gelten in deinem Büro, der Mitarbeiter-App und auf neuen Dokumenten.</div>
+            <div class="brand-settings-grid" style="margin-top:16px;">
+              <div class="field"><label>Akzentfarbe</label><div style="display:flex; align-items:center; gap:10px;"><input type="color" id="coBrandColor" value="#E11D2A" style="width:46px; height:38px; padding:3px;" oninput="previewCompanyBranding()" /><code id="coBrandColorValue" style="font-size:12px; color:var(--text-muted);">#E11D2A</code></div></div>
+              <div class="field"><label>Firmenlogo</label><input type="file" id="coLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="onCompanyLogoSelected(this)" /><div style="font-size:11.5px; color:var(--text-subtle); margin-top:5px;">PNG, JPG, WebP oder SVG · max. 750 KB</div></div>
+            </div>
+            <div class="brand-preview" id="brandPreview"><span class="brand-preview-mark">M</span><span id="brandPreviewName">Deine Firma</span></div>
+            <button class="btn btn-accent" style="margin-top:14px;" onclick="saveCompanyBranding()">Erscheinungsbild speichern</button>
+          </div>
+
           <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:6px;">
@@ -1095,6 +1107,18 @@
               <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.modulesDesc">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
             </div>
             <div id="moduleSettings" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-top:14px;"></div>
+          </div>
+
+          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="font-weight:700; font-size:15px;">Eigene Leistungen</div>
+            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;">Fehlt eine Standardleistung? Ergänze sie hier mit Preis und Abrechnungsart. Sie erscheint danach beim Anlegen eines Auftrags.</div>
+            <div class="custom-service-form" style="margin-top:14px;">
+              <input id="customServiceName" type="text" placeholder="z. B. Teppichreinigung" />
+              <input id="customServicePrice" type="number" min="0" step="0.5" placeholder="Preis" />
+              <select id="customServiceUnit"><option value="h">pro Stunde</option><option value="flat">Pauschal</option></select>
+              <button class="btn btn-secondary" onclick="addCustomService()">+ Leistung hinzufügen</button>
+            </div>
+            <div id="customServicesList" class="custom-services-list"></div>
           </div>
 
           <h2 style="font-size:15px; font-weight:600; margin:0 0 4px;" data-i18n="set.pricesPerService">Preise pro Leistung</h2>
@@ -1303,7 +1327,7 @@
                 </div>
               </div>
               <div class="price-card-body" style="text-align: center; padding-top: 20px; padding-bottom: 24px;">
-                <button class="btn btn-secondary" style="width: 100%;" data-i18n="price.addService">+ Service hinzufügen</button>
+                <button class="btn btn-secondary" style="width: 100%;" onclick="document.getElementById('customServiceName')?.focus(); document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth',block:'center'});" data-i18n="price.addService">+ Service hinzufügen</button>
               </div>
             </div>
 
@@ -4122,12 +4146,44 @@
     }
 
     // Preis-Einstellungen: Reinigung = statische Original-Karten; andere Branchen = aus Preset gerendert.
+    const CUSTOM_SERVICES_KEY = 'cc-custom-services-v1';
+    function loadCustomServices() { try { const v = JSON.parse(localStorage.getItem(CUSTOM_SERVICES_KEY)); return Array.isArray(v) ? v : []; } catch { return []; } }
+    function servicesForCurrentVertical() {
+      const vert = window.MosaVertical?.get?.() || 'reinigung';
+      return loadCustomServices().filter(s => s.vertical === vert);
+    }
+    function renderCustomServices() {
+      const list = document.getElementById('customServicesList'); if (!list) return;
+      const svcs = servicesForCurrentVertical();
+      list.innerHTML = svcs.length ? svcs.map(s => `<span class="custom-service-chip"><strong>${escapeHtml(s.title)}</strong><span>${s.unit === 'h' ? 'CHF ' + s.price + ' / h' : 'CHF ' + s.price + ' pauschal'}</span><button title="Entfernen" onclick="removeCustomService('${s.id}')">×</button></span>`).join('') : '<span style="font-size:12px;color:var(--text-subtle);">Noch keine eigene Leistung angelegt.</span>';
+    }
+    function addCustomService() {
+      if (!requirePerm('edit_prices', 'Eigene Leistungen')) return;
+      const title = (document.getElementById('customServiceName')?.value || '').trim();
+      const price = Number(document.getElementById('customServicePrice')?.value);
+      const unit = document.getElementById('customServiceUnit')?.value === 'h' ? 'h' : 'flat';
+      if (!title || !Number.isFinite(price) || price < 0) { toast('Bitte Name und einen gültigen Preis eingeben.', 'error'); return; }
+      const all = loadCustomServices();
+      all.push({ id: 'custom-' + Date.now(), vertical: window.MosaVertical?.get?.() || 'reinigung', title, desc: 'Eigene Leistung', price, unit, isCustom: true });
+      localStorage.setItem(CUSTOM_SERVICES_KEY, JSON.stringify(all));
+      try { window.MosaDB?.push('company_custom_services', all); } catch {}
+      document.getElementById('customServiceName').value = ''; document.getElementById('customServicePrice').value = '';
+      renderCustomServices(); toast('✓ Eigene Leistung hinzugefügt');
+    }
+    function removeCustomService(id) {
+      if (!requirePerm('edit_prices', 'Eigene Leistungen')) return;
+      const all = loadCustomServices().filter(s => s.id !== id);
+      localStorage.setItem(CUSTOM_SERVICES_KEY, JSON.stringify(all));
+      try { window.MosaDB?.push('company_custom_services', all); } catch {}
+      renderCustomServices();
+    }
     function applyPriceSection() {
       const stat = document.getElementById('priceGridReinigung');
       const gen = document.getElementById('priceGridGeneric');
       if (!stat || !gen || !window.MosaVertical) return;
       if (MosaVertical.get() === 'reinigung') { stat.style.display = 'grid'; gen.style.display = 'none'; }
       else { stat.style.display = 'none'; gen.style.display = 'grid'; renderGenericPrices(); }
+      renderCustomServices();
     }
     function renderGenericPrices() {
       const gen = document.getElementById('priceGridGeneric');
@@ -8678,12 +8734,56 @@
     });
 
     // ============ Firma & QR-Rechnung ============
+    function companyInitial(name) { return (name || 'M').trim().slice(0, 1).toUpperCase() || 'M'; }
+    function applyCompanyBranding(company = loadCompany()) {
+      const root = document.documentElement;
+      const color = /^#[0-9a-f]{6}$/i.test(company.brandColor || '') ? company.brandColor : '#E11D2A';
+      root.style.setProperty('--brand-primary', color);
+      root.style.setProperty('--brand-primary-hover', color);
+      root.style.setProperty('--brand-primary-soft', `color-mix(in srgb, ${color} 12%, transparent)`);
+      root.style.setProperty('--brand-primary-glow', `color-mix(in srgb, ${color} 35%, transparent)`);
+      root.style.setProperty('--accent', color);
+      root.style.setProperty('--accent-hover', color);
+      const name = company.name || 'MosaOS';
+      const brandName = document.getElementById('brandName'); if (brandName) brandName.textContent = name;
+      const brandSub = document.getElementById('brandSub'); if (brandSub) brandSub.textContent = company.addr2 || '';
+      const logo = document.getElementById('companyLogoImage');
+      const mark = document.getElementById('brandMark');
+      if (logo) { logo.hidden = !company.logo; logo.src = company.logo || ''; }
+      if (mark) mark.title = name;
+      const previewMark = document.querySelector('.brand-preview-mark'); if (previewMark) previewMark.textContent = companyInitial(name);
+      const previewName = document.getElementById('brandPreviewName'); if (previewName) previewName.textContent = name;
+    }
+    function previewCompanyBranding() {
+      const color = document.getElementById('coBrandColor')?.value || '#E11D2A';
+      const label = document.getElementById('coBrandColorValue'); if (label) label.textContent = color.toUpperCase();
+      applyCompanyBranding({ ...loadCompany(), brandColor: color, name: document.getElementById('coName')?.value || loadCompany().name });
+    }
+    function onCompanyLogoSelected(input) {
+      const file = input?.files?.[0]; if (!file) return;
+      if (!file.type.startsWith('image/') || file.size > 750 * 1024) { toast('Bitte ein Bild bis maximal 750 KB auswählen.', 'error'); input.value = ''; return; }
+      const reader = new FileReader();
+      reader.onload = () => applyCompanyBranding({ ...loadCompany(), logo: reader.result, brandColor: document.getElementById('coBrandColor')?.value || loadCompany().brandColor });
+      reader.readAsDataURL(file);
+    }
+    function saveCompanyBranding() {
+      if (!requirePerm('edit_users', 'Erscheinungsbild')) return;
+      const color = document.getElementById('coBrandColor')?.value || '#E11D2A';
+      const logo = document.getElementById('companyLogoImage')?.src || '';
+      const hasLogo = !document.getElementById('companyLogoImage')?.hidden && logo.startsWith('data:image/');
+      const company = { ...loadCompany(), brandColor: color, logo: hasLogo ? logo : (loadCompany().logo || '') };
+      saveCompany(company); applyCompanyBranding(company);
+      toast('✓ Erscheinungsbild gespeichert');
+    }
     function fillCompanyForm() {
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
       set('coAddr2', c.addr2); set('coMwst', c.mwst); set('coContact', c.contact);
       const cc = document.getElementById('coCountry'); if (cc) cc.value = (c.country || 'CH');
+      const color = document.getElementById('coBrandColor'); if (color) color.value = c.brandColor || '#E11D2A';
+      const colorLabel = document.getElementById('coBrandColorValue'); if (colorLabel) colorLabel.textContent = (c.brandColor || '#E11D2A').toUpperCase();
+      applyCompanyBranding(c);
       onCompanyCountryChange();
     }
     // MWST-/USt-Label + Platzhalter an das gewählte Land anpassen.
@@ -8705,7 +8805,8 @@
     function saveCompanyForm() {
       const g = id => (document.getElementById(id)?.value || '').trim();
       const country = (document.getElementById('coCountry')?.value || 'CH');
-      saveCompany({ name: g('coName'), iban: g('coIban'), addr1: g('coAddr1'), addr2: g('coAddr2'), mwst: g('coMwst'), contact: g('coContact'), country });
+      const company = { ...loadCompany(), name: g('coName'), iban: g('coIban'), addr1: g('coAddr1'), addr2: g('coAddr2'), mwst: g('coMwst'), contact: g('coContact'), country };
+      saveCompany(company); applyCompanyBranding(company);
       toast('✓ Firmen- & Zahlungsangaben gespeichert');
     }
     document.querySelector('.nav-item[data-view="einstellungen"]')?.addEventListener('click', () => {
@@ -9144,7 +9245,10 @@
 
     // ── Branchen-Wizard-Helfer (Nicht-Reinigungs-Branchen) ──
     function isGenericVertical() { return !!(window.MosaVertical && MosaVertical.get() !== 'reinigung'); }
-    function genericServiceDef(svc) { return (window.MosaVertical ? (MosaVertical.preset().services || []) : []).find(s => s.key === svc) || null; }
+    function genericServiceDef(svc) {
+      const standard = window.MosaVertical ? (MosaVertical.preset().services || []) : [];
+      return standard.find(s => s.key === svc) || servicesForCurrentVertical().find(s => s.id === svc) || null;
+    }
     function serviceTitle(svc) { return serviceLabels[svc] || (genericServiceDef(svc)?.title) || svc || ''; }
     function genericServicePrice(svc) {
       const vert = MosaVertical.get();
@@ -9155,10 +9259,11 @@
       return def ? def.price : 0;
     }
     // Service-Karten aus dem Preset rendern (gleiche Klassen wie Reinigung → selectService greift).
-    function renderWizGenericServices() {
+    function renderWizGenericServices(customOnly = false) {
       const grid = document.getElementById('wizGenericGrid');
       if (!grid || !window.MosaVertical) return;
-      const svcs = MosaVertical.preset().services || [];
+      const own = servicesForCurrentVertical().map(s => ({ ...s, key: s.id }));
+      const svcs = customOnly ? own : [...(MosaVertical.preset().services || []), ...own];
       grid.innerHTML = svcs.map(s => `
         <button type="button" class="svc-card" data-svc="${s.key}" onclick="selectService('${s.key}')">
           <div class="svc-icon">
@@ -9172,15 +9277,16 @@
     function setupWizardForVertical() {
       const cleanGrid = document.querySelector('.wizard-page[data-page="1"] .svc-grid:not(#wizGenericGrid)');
       const genGrid = document.getElementById('wizGenericGrid');
+      const custom = servicesForCurrentVertical();
+      wizService = null;
       if (isGenericVertical()) {
         if (cleanGrid) cleanGrid.style.display = 'none';
         if (genGrid) { genGrid.style.display = ''; renderWizGenericServices(); }
       } else {
         if (cleanGrid) cleanGrid.style.display = '';
-        if (genGrid) genGrid.style.display = 'none';
+        if (genGrid) { genGrid.style.display = custom.length ? '' : 'none'; if (custom.length) renderWizGenericServices(true); }
       }
       renderWizExtraFields();
-      wizService = null;
     }
     // Branchenspezifische Zusatzfelder (z. B. Werkstatt-Fahrzeug) im Wizard rendern.
     function renderWizExtraFields() {
@@ -9259,7 +9365,7 @@
       // show service-specific options on step 2
       if (wizCurrent === 2 && wizService) {
         document.querySelectorAll('.svc-options').forEach(o => o.style.display = 'none');
-        if (isGenericVertical()) {
+        if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
           const gp = document.getElementById('wizGenericOpts');
           if (gp) gp.style.display = 'flex';
           setupGenericOpts();
@@ -9407,7 +9513,7 @@
 
     // Überträgt die in Schritt 2 eingegebenen Minuten als Stunden in das wizDuration-Feld
     function _syncWizDuration() {
-      if (isGenericVertical()) return;   // generische Branchen: Dauer manuell in Schritt 3
+      if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) return;   // generische/eigene Leistungen: Dauer manuell in Schritt 3
       if (!wizService || wizService === 'fassade') return;
       const p = calcPriceForService();
       if (!p?.mins) return;
@@ -9421,7 +9527,7 @@
       const out = document.getElementById('wizPriceCalc');
       const hint = document.getElementById('wizPriceHint');
       // Generische Branchen: Stundensatz × Dauer ODER Pauschale × Anzahl.
-      if (isGenericVertical()) {
+      if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
         if (priceOverrideActive) {
           const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
           if (out) out.textContent = 'CHF ' + ov.toFixed(2);
@@ -9589,7 +9695,7 @@
 
     function updatePriceSummary() {
       // Generische Branchen: Summe aus dem generischen Preis (CHF), Reinigungs-Detailzeilen aus.
-      if (isGenericVertical()) {
+      if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
         const price = wizCalcPrice();
         const def = genericServiceDef(wizService);
         const sumDur = document.getElementById('sumDur');
@@ -11835,6 +11941,7 @@ ${coSig}`;
     // Mandanten-ID einmalig beim Startup laden (silent, kein Fehler wenn nicht konfiguriert)
     applyFeatureFlags();
     applyVerticalNavLabels();
+    applyCompanyBranding();
     (async () => {
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
@@ -11854,6 +11961,7 @@ ${coSig}`;
       }
       // Branche aus dem gesyncten Firmenprofil übernehmen (vor dem Neu-Rendern).
       applyVerticalFromCompany();
+      applyCompanyBranding();
       // Login → festes Büro-Profil + Rolle, Umschalter sperren (gewinnt über Demo-Auswahl)
       applyAuthProfile();
       applyFeatureFlags();
