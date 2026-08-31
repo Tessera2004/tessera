@@ -27,6 +27,7 @@
   // gesetzt sein; fehlt ein Schlüssel, greift der deutsche Fallback.
   var DICT = {
     de: {
+      'wiz.crewNeeded': 'Benötigte Mitarbeitende', 'wiz.crewHint': 'MosaOS prüft genau diese Anzahl gegen die übrigen Einsätze des Teams.',
       // Navigations-Abschnitte
       'nav.sec.overview': 'Übersicht', 'nav.sec.jobs': 'Einsätze', 'nav.sec.customers': 'Kunden',
       'nav.sec.finance': 'Finanzen', 'nav.sec.team': 'Team', 'nav.sec.system': 'System',
@@ -78,6 +79,7 @@
       'plan.crewToday': 'Heutige Besetzung · ', 'plan.resetDefault': 'Auf Standard zurück', 'plan.editCrew': 'Crew bearbeiten',
       'plan.teamsLabel': 'Teams · ', 'plan.manageTeamsLink': 'Teams verwalten →', 'plan.optimized': 'Plan optimiert',
       'plan.demoStatus': 'Letzte Berechnung vor 4 Minuten · 2h 14min Fahrzeit gespart · alle Zeitfenster eingehalten', 'plan.showConflicts': 'Konflikte anzeigen (0)',
+      'plan.readyStatus': 'Tagesplanung bereit', 'plan.readyEmpty': 'Lege deinen ersten Einsatz an – dann wird die Tagesplanung hier angezeigt.', 'plan.activeStatus': 'Tagesplanung aktiv', 'plan.activeText': '{count} Einsätze geplant. Routenoptimierung bei Bedarf starten.',
       // Kunden
       'cust.newCustomer': '+ Neuer Kunde', 'cust.searchPh': 'Kunden suchen (Name, Ort, Telefon…)',
       // Büro-Team
@@ -283,6 +285,7 @@
       'ob.sum.flat': ' pauschal'
     },
     fr: {
+      'wiz.crewNeeded': 'Collaborateurs nécessaires', 'wiz.crewHint': 'MosaOS vérifie ce nombre précis par rapport aux autres interventions de l’équipe.',
       'nav.sec.overview': 'Aperçu', 'nav.sec.jobs': 'Interventions', 'nav.sec.customers': 'Clients',
       'nav.sec.finance': 'Finances', 'nav.sec.team': 'Équipe', 'nav.sec.system': 'Système',
       'nav.dashboard': 'Tableau de bord', 'nav.werkstattplan': 'Plan d\'atelier', 'nav.fahrzeuge': 'Véhicules',
@@ -326,6 +329,7 @@
       'plan.crewToday': 'Équipe du jour · ', 'plan.resetDefault': 'Réinitialiser', 'plan.editCrew': 'Modifier l\'équipe',
       'plan.teamsLabel': 'Équipes · ', 'plan.manageTeamsLink': 'Gérer les équipes →', 'plan.optimized': 'Plan optimisé',
       'plan.demoStatus': 'Dernier calcul il y a 4 minutes · 2h 14min de trajet économisées · toutes les fenêtres respectées', 'plan.showConflicts': 'Afficher les conflits (0)',
+      'plan.readyStatus': 'Planning quotidien prêt', 'plan.readyEmpty': 'Créez votre première intervention : le planning quotidien apparaîtra ici.', 'plan.activeStatus': 'Planning quotidien actif', 'plan.activeText': '{count} interventions planifiées. Lancez l’optimisation des tournées si nécessaire.',
       'cust.newCustomer': '+ Nouveau client', 'cust.searchPh': 'Rechercher des clients (nom, lieu, téléphone…)',
       'team.subtitle': 'Qui travaille au bureau ? Qui a quels droits ? Qui a modifié quoi ?', 'team.invite': 'Inviter',
       'team.readonlyBanner': 'Vous êtes connecté en <strong style="margin: 0 4px;">lecture seule</strong> — aucune modification possible. Changez d\'utilisateur en haut à droite.',
@@ -520,6 +524,7 @@
       'ob.sum.flat': ' forfait'
     },
     it: {
+      'wiz.crewNeeded': 'Collaboratori necessari', 'wiz.crewHint': 'MosaOS verifica questo numero esatto rispetto agli altri interventi del team.',
       'nav.sec.overview': 'Panoramica', 'nav.sec.jobs': 'Interventi', 'nav.sec.customers': 'Clienti',
       'nav.sec.finance': 'Finanze', 'nav.sec.team': 'Team', 'nav.sec.system': 'Sistema',
       'nav.dashboard': 'Dashboard', 'nav.werkstattplan': 'Piano officina', 'nav.fahrzeuge': 'Veicoli',
@@ -563,6 +568,7 @@
       'plan.crewToday': 'Squadra di oggi · ', 'plan.resetDefault': 'Ripristina predefinito', 'plan.editCrew': 'Modifica squadra',
       'plan.teamsLabel': 'Team · ', 'plan.manageTeamsLink': 'Gestisci team →', 'plan.optimized': 'Piano ottimizzato',
       'plan.demoStatus': 'Ultimo calcolo 4 minuti fa · 2h 14min di viaggio risparmiati · tutte le finestre rispettate', 'plan.showConflicts': 'Mostra conflitti (0)',
+      'plan.readyStatus': 'Pianificazione giornaliera pronta', 'plan.readyEmpty': 'Crea il primo intervento: qui apparirà la pianificazione della giornata.', 'plan.activeStatus': 'Pianificazione giornaliera attiva', 'plan.activeText': '{count} interventi pianificati. Avvia l’ottimizzazione dei giri se necessario.',
       'cust.newCustomer': '+ Nuovo cliente', 'cust.searchPh': 'Cerca clienti (nome, città, telefono…)',
       'team.subtitle': 'Chi lavora in ufficio? Chi ha quali diritti? Chi ha modificato cosa?', 'team.invite': 'Invita',
       'team.readonlyBanner': 'Sei connesso in <strong style="margin: 0 4px;">sola lettura</strong> — nessuna modifica possibile. Cambia utente in alto a destra.',
@@ -757,6 +763,7 @@
       'ob.sum.flat': ' forfait'
     },
     es: {
+      'wiz.crewNeeded': 'Personal necesario', 'wiz.crewHint': 'MosaOS comprueba este número exacto frente a los demás servicios del equipo.',
       'nav.sec.overview': 'Resumen', 'nav.sec.jobs': 'Servicios', 'nav.sec.customers': 'Clientes',
       'nav.sec.finance': 'Finanzas', 'nav.sec.team': 'Equipo', 'nav.sec.system': 'Sistema',
       'nav.dashboard': 'Panel', 'nav.werkstattplan': 'Plan de taller', 'nav.fahrzeuge': 'Vehículos',
@@ -800,6 +807,7 @@
       'plan.crewToday': 'Cuadrilla de hoy · ', 'plan.resetDefault': 'Restablecer', 'plan.editCrew': 'Editar cuadrilla',
       'plan.teamsLabel': 'Equipos · ', 'plan.manageTeamsLink': 'Gestionar equipos →', 'plan.optimized': 'Plan optimizado',
       'plan.demoStatus': 'Último cálculo hace 4 minutos · 2h 14min de viaje ahorrados · todas las franjas cumplidas', 'plan.showConflicts': 'Mostrar conflictos (0)',
+      'plan.readyStatus': 'Planificación diaria lista', 'plan.readyEmpty': 'Crea tu primer servicio: la planificación diaria aparecerá aquí.', 'plan.activeStatus': 'Planificación diaria activa', 'plan.activeText': '{count} servicios planificados. Inicia la optimización de rutas si la necesitas.',
       'cust.newCustomer': '+ Nuevo cliente', 'cust.searchPh': 'Buscar clientes (nombre, ciudad, teléfono…)',
       'team.subtitle': '¿Quién trabaja en la oficina? ¿Quién tiene qué permisos? ¿Quién cambió qué?', 'team.invite': 'Invitar',
       'team.readonlyBanner': 'Has iniciado sesión como <strong style="margin: 0 4px;">solo lectura</strong> — no se pueden hacer cambios. Cambia de usuario arriba a la derecha.',
@@ -994,6 +1002,7 @@
       'ob.sum.flat': ' a tanto alzado'
     },
     en: {
+      'wiz.crewNeeded': 'Staff required', 'wiz.crewHint': 'MosaOS checks this exact number against the team’s other jobs.',
       'nav.sec.overview': 'Overview', 'nav.sec.jobs': 'Jobs', 'nav.sec.customers': 'Customers',
       'nav.sec.finance': 'Finance', 'nav.sec.team': 'Team', 'nav.sec.system': 'System',
       'nav.dashboard': 'Dashboard', 'nav.werkstattplan': 'Workshop board', 'nav.fahrzeuge': 'Vehicles',
@@ -1037,6 +1046,7 @@
       'plan.crewToday': 'Today\'s crew · ', 'plan.resetDefault': 'Reset to default', 'plan.editCrew': 'Edit crew',
       'plan.teamsLabel': 'Teams · ', 'plan.manageTeamsLink': 'Manage teams →', 'plan.optimized': 'Plan optimised',
       'plan.demoStatus': 'Last calculation 4 minutes ago · 2h 14min travel time saved · all time windows met', 'plan.showConflicts': 'Show conflicts (0)',
+      'plan.readyStatus': 'Daily planning ready', 'plan.readyEmpty': 'Create your first job and the daily plan will appear here.', 'plan.activeStatus': 'Daily planning active', 'plan.activeText': '{count} jobs planned. Run route optimisation when needed.',
       'cust.newCustomer': '+ New customer', 'cust.searchPh': 'Search customers (name, city, phone…)',
       'team.subtitle': 'Who works in the office? Who has which rights? Who changed what?', 'team.invite': 'Invite',
       'team.readonlyBanner': 'You are signed in as <strong style="margin: 0 4px;">read-only</strong> — no changes possible. Switch the user at the top right.',

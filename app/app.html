@@ -102,7 +102,7 @@
           <a class="nav-item" data-view="planung">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Routenplanung
-            <span class="nav-badge">14</span>
+            <span class="nav-badge" id="planungNavBadge" style="display:none;">0</span>
           </a>
           <a class="nav-item" data-view="zeiten">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -111,7 +111,7 @@
           <a class="nav-item" data-view="berichte">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Nachweise & Berichte
-            <span class="nav-badge">3</span>
+            <span class="nav-badge" id="berichteNavBadge" style="display:none;">0</span>
           </a>
         </div>
 
@@ -395,15 +395,15 @@
           </div>
 
           <!-- Status-Banner -->
-          <div class="plan-status-card">
+          <div class="plan-status-card" id="planStatusCard">
             <div class="plan-status-pill">
               <span class="dot" style="background: var(--success);"></span>
-              <span data-i18n="plan.optimized">Plan optimiert</span>
+              <span id="planStatusLabel" data-i18n="plan.readyStatus">Tagesplanung bereit</span>
             </div>
-            <div style="font-size: 13px; color: var(--text-muted);" data-i18n="plan.demoStatus">
-              Letzte Berechnung vor 4 Minuten · 2h 14min Fahrzeit gespart · alle Zeitfenster eingehalten
+            <div style="font-size: 13px; color: var(--text-muted);" id="planStatusText" data-i18n="plan.readyEmpty">
+              Lege deinen ersten Einsatz an – dann wird die Tagesplanung hier angezeigt.
             </div>
-            <button class="btn btn-ghost" onclick="toast('Keine Konflikte heute')" style="margin-left: auto;" data-i18n="plan.showConflicts">Konflikte anzeigen (0)</button>
+            <button class="btn btn-ghost" id="planConflictBtn" onclick="toast('Keine Konflikte heute')" style="margin-left: auto; display:none;" data-i18n="plan.showConflicts">Konflikte anzeigen (0)</button>
           </div>
 
           <!-- Single-Day Timeline -->
@@ -1694,6 +1694,11 @@
               <label data-i18n="wiz.durationH">Dauer (Stunden)</label>
               <input type="number" id="wizDuration" value="1.5" min="0.25" step="0.25" oninput="wizCalcPrice()" />
             </div>
+          </div>
+          <div class="field" id="wizCrewWrap">
+            <label data-i18n="wiz.crewNeeded">Benötigte Mitarbeitende</label>
+            <input type="number" id="wizCrew" value="1" min="1" step="1" inputmode="numeric" />
+            <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.crewHint">MosaOS prüft genau diese Anzahl gegen die übrigen Einsätze des Teams.</div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="field">
@@ -5295,6 +5300,28 @@
       renderDayCrewCard();
       renderTeamStatus();
       renderDayTimeline();
+      renderPlanStatus();
+    }
+
+    // Keine künstlichen "gesparten" Minuten anzeigen: Status folgt ausschliesslich den echten Einsätzen.
+    function renderPlanStatus() {
+      const jobs = getJobsForDate(planCurrentDate);
+      const label = document.getElementById('planStatusLabel');
+      const text = document.getElementById('planStatusText');
+      const conflicts = document.getElementById('planConflictBtn');
+      const optimize = document.getElementById('autoPlanBtn');
+      if (!label || !text || !conflicts) return;
+      if (!jobs.length) {
+        label.textContent = tt('plan.readyStatus', 'Tagesplanung bereit');
+        text.textContent = tt('plan.readyEmpty', 'Lege deinen ersten Einsatz an – dann wird die Tagesplanung hier angezeigt.');
+        conflicts.style.display = 'none';
+        if (optimize) optimize.style.display = 'none';
+        return;
+      }
+      label.textContent = tt('plan.activeStatus', 'Tagesplanung aktiv');
+      text.textContent = tt('plan.activeText', '{count} Einsätze geplant. Routenoptimierung bei Bedarf starten.').replace('{count}', jobs.length);
+      conflicts.style.display = '';
+      if (optimize) optimize.style.display = '';
     }
 
     // ============ Tages-Crew-Karte (oben in Routenplanung) ============
@@ -8647,6 +8674,12 @@
       // IBAN-Beispiel passend zum Land (sonst steht bei DE/AT ein Schweizer Format).
       const ibanEx = { CH: 'CH.. .... .... .... .... .', DE: 'DE.. .... .... .... .... ..', AT: 'AT.. .... .... .... ....' };
       const ib = document.getElementById('coIban'); if (ib) ib.placeholder = ibanEx[cc.value] || ibanEx.CH;
+      // Auch die Preis-Eingaben müssen dieselbe Währung wie die Firma zeigen.
+      document.querySelectorAll('.price-suffix').forEach(el => {
+        const original = el.dataset.originalSuffix || el.textContent.trim();
+        el.dataset.originalSuffix = original;
+        el.textContent = original.replace(/€/g, L.cur);
+      });
     }
     function saveCompanyForm() {
       const g = id => (document.getElementById(id)?.value || '').trim();
@@ -9224,6 +9257,7 @@
         document.getElementById('wizSub').textContent = tt('wiz.subStep3', 'Termin, Adresse und Preis');
         // Step 2 → Step 3: Minuten aus Service-Optionen in Stunden-Feld übernehmen
         _syncWizDuration();
+        if (wizService === 'end') applyHandoverSchedule();
         wizCalcPrice();
         wizCheckAvailability();
       }
@@ -9266,7 +9300,8 @@
       // Startzeit = Abgabe - Dauer - Puffer
       const [h, m] = abgabe.split(':').map(Number);
       const abgabeMins = h * 60 + m;
-      const startMins = abgabeMins - mins - buffer;
+      // Nur planbare Viertelstunden vorschlagen; dabei immer genügend Puffer vor der Abgabe lassen.
+      const startMins = Math.floor((abgabeMins - mins - buffer) / 15) * 15;
 
       const startH = Math.floor(((startMins % 1440) + 1440) % 1440 / 60);
       const startM = ((startMins % 60) + 60) % 60;
@@ -9283,6 +9318,23 @@
       if (startEl) startEl.textContent = startStr;
       if (durEl) durEl.textContent = durStr;
       if (bufEl) bufEl.textContent = buffer + ' Min';
+    }
+
+    // Wohnungsabgaben sind harte Termine: Start, Dauer und Deadline werden in Schritt 3 übernommen.
+    function applyHandoverSchedule() {
+      const handoverWithUs = document.querySelector('[data-abgabe="mit"]')?.classList.contains('on');
+      if (!handoverWithUs) return;
+      recalcStart();
+      const start = document.getElementById('calcStart')?.textContent;
+      const deadline = document.getElementById('abgabeTime')?.value;
+      const durText = document.getElementById('calcDur')?.textContent || '';
+      const match = durText.match(/(\d+)h\s*(\d+)min|^(\d+)\s*min/);
+      let mins = 0;
+      if (match) mins = match[3] ? Number(match[3]) : Number(match[1]) * 60 + Number(match[2]);
+      const duration = Math.max(.25, Math.ceil(mins / 15) * 15 / 60);
+      if (start) document.getElementById('wizStart').value = start;
+      if (deadline) document.getElementById('wizDeadline').value = deadline;
+      if (mins) document.getElementById('wizDuration').value = duration;
     }
 
     // ============ Preis-System ============
@@ -10618,42 +10670,60 @@ ${coSig}`;
 
     // ---- Live-Verfügbarkeit fürs Telefon-Booking ----
     function fmtMinHM(m) { return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
-    // Welche Teams haben an dem Tag im Zeitfenster freie Leute?
-    function availabilityAt(dateKey, startMin, durMin, neededCrew) {
-      neededCrew = neededCrew || 1;
-      const e = startMin + durMin;
+    // Für Einsätze vor Ort rechnen wir mindestens 15 Minuten Übergang zwischen zwei Aufträgen.
+    // Die genaue Fahrzeit kann später aus der echten Routenberechnung ergänzt werden.
+    const PLANNING_TRANSITION_MIN = 15;
+    function freeEmployeesAt(dateKey, startMin, durMin, teamId = '') {
+      const end = startMin + durMin;
       const jobs = getJobsForDate(new Date(dateKey + 'T00:00:00'));
+      // Wichtig: Nicht das Stammteam verwenden. Die Tages-Crew kann Mitarbeitende
+      // für genau diesen Tag in ein anderes Team verschieben.
+      return EMPLOYEES.filter(emp => (!teamId || empDayTeam(emp.id, dateKey) === teamId) && !empIsAbsent(emp.id, dateKey))
+        .filter(emp => !jobs.some(j => {
+          if (!(j.assigned || []).includes(emp.id)) return false;
+          const js = parseHM(j.start) - PLANNING_TRANSITION_MIN;
+          const je = parseHM(j.start) + (j.duration || 0) + PLANNING_TRANSITION_MIN;
+          return js < end && je > startMin;
+        }));
+    }
+    // Welche Teams haben an dem Tag im Zeitfenster genug freie Mitarbeitende?
+    function availabilityAt(dateKey, startMin, durMin, neededCrew) {
+      neededCrew = Math.max(1, neededCrew || 1);
       const out = [];
       PLAN_TEAMS.forEach(t => {
-        const members = EMPLOYEES.filter(emp => emp.teamId === t.id && !empIsAbsent(emp.id, dateKey));
+        const members = teamMembersOnDay(t.id, dateKey);
         if (members.length === 0) return;
-        let freeCount = 0;
-        members.forEach(emp => {
-          const busy = jobs.some(j => {
-            if (!(j.assigned || []).includes(emp.id)) return false;
-            const js = parseHM(j.start), je = js + (j.duration || 0);
-            return js < e && je > startMin;
-          });
-          if (!busy) freeCount++;
-        });
-        out.push({ team: t, total: members.length, freeCount, available: freeCount >= neededCrew });
+        const freeEmployees = freeEmployeesAt(dateKey, startMin, durMin, t.id);
+        out.push({ team: t, total: members.length, freeCount: freeEmployees.length, freeEmployees, available: freeEmployees.length >= neededCrew });
       });
       return out;
     }
-    function nextFreeSlotSameDay(dateKey, startMin, durMin, neededCrew) {
-      for (let t = startMin; t <= 21 * 60 - durMin; t += 15) {
-        if (availabilityAt(dateKey, t, durMin, neededCrew).some(r => r.available)) return t;
+    function nextFreeSlotSameDay(dateKey, startMin, durMin, neededCrew, teamId = '', latestEndMin = null) {
+      const latestStart = Math.min(21 * 60 - durMin, latestEndMin != null ? latestEndMin - durMin : 21 * 60 - durMin);
+      for (let t = startMin; t <= latestStart; t += 15) {
+        let available = availabilityAt(dateKey, t, durMin, neededCrew);
+        if (teamId) available = available.filter(r => r.team.id === teamId);
+        if (available.some(r => r.available)) return t;
       }
       return null;
     }
-    function nextFreeDays(fromDateKey, startMin, durMin, neededCrew, count) {
+    function latestFreeSlotBefore(dateKey, deadlineMin, durMin, neededCrew, teamId = '') {
+      for (let t = deadlineMin - durMin; t >= 6 * 60; t -= 15) {
+        let available = availabilityAt(dateKey, t, durMin, neededCrew);
+        if (teamId) available = available.filter(r => r.team.id === teamId);
+        if (available.some(r => r.available)) return t;
+      }
+      return null;
+    }
+    function nextFreeDays(fromDateKey, startMin, durMin, neededCrew, count, teamId = '') {
       count = count || 3;
       const res = [];
       const d = new Date(fromDateKey + 'T00:00:00');
       d.setDate(d.getDate() + 1);     // erst ab dem Folgetag suchen
       for (let i = 0; i < 28 && res.length < count; i++) {
         const dk = isoDate(d);
-        const free = availabilityAt(dk, startMin, durMin, neededCrew).filter(r => r.available);
+        let free = availabilityAt(dk, startMin, durMin, neededCrew).filter(r => r.available);
+        if (teamId) free = free.filter(r => r.team.id === teamId);
         if (free.length) res.push({ dateKey: dk, teams: free.map(r => r.team.name) });
         d.setDate(d.getDate() + 1);
       }
@@ -10668,6 +10738,9 @@ ${coSig}`;
       const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
       const dur = Math.round(hours * 60);
       const startMin = parseHM(startHHMM);
+      const neededCrew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+      const deadlineHHMM = document.getElementById('wizDeadline')?.value || '';
+      const deadlineMin = deadlineHHMM ? parseHM(deadlineHHMM) : null;
 
       const teamsWithMembers = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
       if (teamsWithMembers.length === 0) {
@@ -10675,30 +10748,36 @@ ${coSig}`;
         return;
       }
       const selTeam = document.getElementById('wizardTeamSelect')?.value || '';
-      let av = availabilityAt(dk, startMin, dur, 1);
+      let av = availabilityAt(dk, startMin, dur, neededCrew);
       if (selTeam) av = av.filter(r => r.team.id === selTeam);
       const freeTeams = av.filter(r => r.available);
       const dayLbl = new Date(dk + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'long', day: '2-digit', month: '2-digit' });
+      const endsBeforeDeadline = deadlineMin == null || startMin + dur <= deadlineMin;
 
-      if (freeTeams.length) {
-        const names = freeTeams.map(r => `${r.team.name} (${r.freeCount} frei)`).join(', ');
-        box.innerHTML = `<div class="wiz-avail-box ok"><div class="wiz-avail-head">✓ ${dayLbl}, ${startHHMM} Uhr — frei</div><div class="wiz-avail-sub">Verfügbar: ${escapeHtml(names)}</div></div>`;
+      if (freeTeams.length && endsBeforeDeadline) {
+        const names = freeTeams.map(r => `${r.team.name}: ${r.freeEmployees.slice(0, neededCrew).map(e => empShort(e)).join(', ')}`).join(' · ');
+        const deadlineNote = deadlineHHMM ? ` · fertig bis ${deadlineHHMM} Uhr` : '';
+        box.innerHTML = `<div class="wiz-avail-box ok"><div class="wiz-avail-head">✓ ${dayLbl}, ${startHHMM} Uhr — frei${deadlineNote}</div><div class="wiz-avail-sub">Verfügbar: ${escapeHtml(names)}</div></div>`;
         return;
       }
       // belegt → Alternativen anbieten
-      const sameDay = nextFreeSlotSameDay(dk, startMin, dur, 1);
-      const days = nextFreeDays(dk, startMin, dur, 1, 3);
+      const sameDay = deadlineMin != null
+        ? latestFreeSlotBefore(dk, deadlineMin, dur, neededCrew, selTeam)
+        : nextFreeSlotSameDay(dk, startMin, dur, neededCrew, selTeam);
+      const days = deadlineMin != null ? [] : nextFreeDays(dk, startMin, dur, neededCrew, 3, selTeam);
       let chips = '';
       if (sameDay != null && sameDay !== startMin) {
-        chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${dk}','${fmtMinHM(sameDay)}')">${dayLbl} ab ${fmtMinHM(sameDay)}</button>`;
+        const label = deadlineMin != null ? `${dayLbl} ${fmtMinHM(sameDay)}–${fmtMinHM(sameDay + dur)} (vor Abgabe)` : `${dayLbl} ab ${fmtMinHM(sameDay)}`;
+        chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${dk}','${fmtMinHM(sameDay)}')">${label}</button>`;
       }
       days.forEach(d => {
         const dl = new Date(d.dateKey + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' });
         chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${d.dateKey}','${startHHMM}')">${dl}, ${startHHMM}</button>`;
       });
-      box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">${dayLbl}, ${startHHMM} Uhr — belegt</div>` +
-        `<div class="wiz-avail-sub">${selTeam ? 'Dieses Team ist' : 'Kein Team ist'} zu dieser Zeit frei. Alternativen:</div>` +
-        `<div class="wiz-slot-chips">${chips || '<span class="wiz-avail-sub">In den nächsten Wochen kein freier Slot zu dieser Uhrzeit.</span>'}</div></div>`;
+      const reason = !endsBeforeDeadline ? `Der Einsatz würde nach dem Abgabetermin um ${deadlineHHMM} Uhr enden.` : `${selTeam ? 'Dieses Team ist' : 'Kein Team ist'} zu dieser Zeit mit ${neededCrew} ${neededCrew === 1 ? 'Person' : 'Personen'} frei.`;
+      box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">${dayLbl}, ${startHHMM} Uhr — nicht möglich</div>` +
+        `<div class="wiz-avail-sub">${reason} ${chips ? 'Passender Vorschlag:' : ''}</div>` +
+        `<div class="wiz-slot-chips">${chips || '<span class="wiz-avail-sub">Kein passender freier Slot gefunden.</span>'}</div></div>`;
     }
     function wizApplySlot(dateKey, startHHMM) {
       const wd = document.getElementById('wizDate'); if (wd) wd.value = dateKey;
@@ -10706,7 +10785,7 @@ ${coSig}`;
       wizCheckAvailability();
     }
     // Eingaben live an den Check koppeln
-    ['wizDate', 'wizStart', 'wizDuration', 'wizardTeamSelect'].forEach(id => {
+    ['wizDate', 'wizStart', 'wizDuration', 'wizDeadline', 'wizCrew', 'wizardTeamSelect'].forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.addEventListener('change', wizCheckAvailability); el.addEventListener('input', wizCheckAvailability); }
     });
@@ -10721,6 +10800,7 @@ ${coSig}`;
       const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
       const duration = Math.round(hours * 60); // Stunden → Minuten
       const team = document.getElementById('wizardTeamSelect')?.value || null;
+      const requestedCrew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
       const note = (document.getElementById('wizNote')?.value || '').trim();
       const deadline = document.getElementById('wizDeadline')?.value || null;
       const extraText = collectWizExtraText();   // branchenspezifische Felder → Büro-Notiz
@@ -10736,10 +10816,42 @@ ${coSig}`;
       const dateKeys = [];
       for (let i = 0; i < count; i++) dateKeys.push(isoDate(nextRepeatDate(baseDate, repeat, i)));
 
-      // Auto-Zuweisung: bei einer Serie ohne Team automatisch ein festes Team wählen
+      // Für Reinigung: pro Kalendertag ein echtes freies Team und die konkret
+      // freien Personen wählen. Tages-Crews können sich täglich ändern, deshalb
+      // darf eine Serie nie ein einziges Team für alle Termine festschreiben.
       let assignTeam = team || null;
       let autoTeamName = null;
-      if (!assignTeam && repeat !== 'none') {
+      let assignedByDate = {};
+      let teamByDate = {};
+      const isCleaning = window.MosaVertical?.get?.() === 'reinigung';
+      if (isCleaning) {
+        const deadlineMins = deadline ? parseHM(deadline) : null;
+        if (deadlineMins != null && parseHM(start) + duration > deadlineMins) {
+          toast(`Der Einsatz endet nach der Abgabe um ${deadline}. Wähle einen früheren Vorschlag.`, 'error');
+          return;
+        }
+        for (const dk of dateKeys) {
+          const options = availabilityAt(dk, parseHM(start), duration, requestedCrew)
+            .filter(r => r.available)
+            // Bei gleich vielen freien Personen den im Assistenten gewählten
+            // Teamwunsch bevorzugen, aber für andere Tage nicht erzwingen.
+            .sort((a, b) => (b.freeCount - a.freeCount)
+              || ((b.team.id === team) ? 1 : 0) - ((a.team.id === team) ? 1 : 0)
+              || a.team.name.localeCompare(b.team.name));
+          const option = options[0];
+          if (!option) {
+            toast(`Die Serie kann nicht angelegt werden: An mindestens einem Termin ist kein Team mit genügend freien Mitarbeitenden verfügbar.`, 'error');
+            return;
+          }
+          teamByDate[dk] = option.team.id;
+          assignedByDate[dk] = option.freeEmployees.slice(0, requestedCrew).map(e => e.id);
+        }
+        assignTeam = teamByDate[dateKey];
+        autoTeamName = (PLAN_TEAMS.find(t => t.id === assignTeam) || {}).name || null;
+      }
+
+      // Auto-Zuweisung für andere Branchen: bei einer Serie ohne Team ein festes Team wählen.
+      if (!isCleaning && !assignTeam && repeat !== 'none') {
         assignTeam = pickBestTeamForSeries(dateKeys, start, duration);
         if (assignTeam) autoTeamName = (PLAN_TEAMS.find(t => t.id === assignTeam) || {}).name || null;
       }
@@ -10752,10 +10864,11 @@ ${coSig}`;
           ort: addr,
           start,
           duration,
-          team: assignTeam || null,
+          team: isCleaning ? (teamByDate[dk] || null) : (assignTeam || null),
           svc: wizService || 'unterhalt',
           price: finalPrice,
-          crew: 1,
+          crew: isCleaning ? requestedCrew : 1,
+          assigned: isCleaning ? assignedByDate[dk] : undefined,
           paymethod: 'rechnung',
           deadline: deadline,
           noteCrew: note,
@@ -10856,7 +10969,9 @@ ${coSig}`;
 
     function getAllMails() {
       const cache = loadMailCache();
-      let all = MOCK_MAILS.slice();
+      // Echtes Produktverhalten: Ohne angebundenes Postfach keine erfundenen Kundennachrichten.
+      // Mock-Mails können nur bewusst für interne Präsentationen eingeschaltet werden.
+      let all = window.MOSAOS_DEMO_MAILS === true ? MOCK_MAILS.slice() : [];
       for (const acc of loadMailAccounts()) {
         if (cache[acc.id]) all = all.concat(cache[acc.id]);
       }
@@ -10919,7 +11034,9 @@ ${coSig}`;
       const unread = allMails.filter(m => !m.isRead).length;
 
       const sub = document.getElementById('mailSubtitle');
-      if (sub) sub.textContent = `${tt('sub.demoAccount','Demo-Konto')}${accounts.length ? ` · ${accounts.length} ${tt('sub.connected','verbunden')}` : ''} · ${allMails.length} ${tt('sub.mails','Mails')} · ${unread} ${tt('sub.unread','ungelesen')}`;
+      if (sub) sub.textContent = accounts.length
+        ? `${accounts.length} ${tt('sub.connected','verbunden')} · ${allMails.length} ${tt('sub.mails','Mails')} · ${unread} ${tt('sub.unread','ungelesen')}`
+        : tt('mail.emptyTitle', 'Kein Postfach verbunden');
 
       // Nav-Badge
       const badge = document.getElementById('mailNavBadge');
@@ -10928,20 +11045,20 @@ ${coSig}`;
       // Account-Leiste
       const bar = document.getElementById('mailAccountBar');
       if (bar) {
-        let pills = `<span class="mail-account-pill"><span class="pdot" style="background:#9ca3af;"></span>Demo-Konto</span>`;
+        let pills = '';
         accounts.forEach(a => {
           const clr = a.provider==='gmail' ? '#ea4335' : a.provider==='outlook' ? '#0078d4' : a.provider==='icloud' ? '#1d9bf0' : '#6366f1';
           pills += `<span class="mail-account-pill"><span class="pdot" style="background:${clr};"></span>${_esc(a.email)} <button onclick="disconnectMailAccount('${a.id}')" style="margin-left:5px;background:none;border:none;color:var(--text-subtle);cursor:pointer;font-size:11px;padding:0;">✕</button></span>`;
         });
         bar.innerHTML = pills + `<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="openModal('mailConnect')">+ Hinzufügen</button>`;
-        bar.style.display = 'flex';
+        bar.style.display = accounts.length ? 'flex' : 'none';
       }
 
       // Leerzustand vs. Inbox
       const empty = document.getElementById('mailEmptyState');
       const inbox = document.getElementById('mailInboxWrap');
-      empty.style.display = 'none';
-      inbox.style.display = '';
+      empty.style.display = accounts.length ? 'none' : '';
+      inbox.style.display = accounts.length ? '' : 'none';
 
       renderMailProviderGrid('mailProviderGridEmpty');
       renderMailProviderGrid('mailProviderGridModal');
@@ -11689,9 +11806,9 @@ ${coSig}`;
 
     // Initial: Badge mit ungelesenen Mock-Mails setzen
     (function initMailBadge() {
-      const u = MOCK_MAILS.filter(m => !m.isRead).length;
+      const u = getAllMails().filter(m => !m.isRead).length;
       const b = document.getElementById('mailNavBadge');
-      if (b && u > 0) { b.textContent = u; b.style.display = ''; }
+      if (b) { b.textContent = u; b.style.display = u > 0 ? '' : 'none'; }
     })();
 
     // Mandanten-ID einmalig beim Startup laden (silent, kein Fehler wenn nicht konfiguriert)
