@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=4" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -262,22 +262,23 @@
               <h1 class="page-title" id="dashGreeting">Guten Tag</h1>
               <p class="page-subtitle"><span id="dashHeroEyebrow">Bereit zum Start</span> · <span id="dashHeroSub">Lege deine Mitarbeiter, Kunden und den ersten Auftrag an.</span></p>
             </div>
-            <button class="btn btn-accent" data-i18n="common.newAuftrag" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
           </div>
           <span id="dashHeroTitle" hidden></span>
+          <div id="dashBranchFocus" class="dash-branch-focus" style="display:none;"></div>
 
           <!-- Geführter Start: nur für neue/leere Konten, schließt sich wenn erledigt/weggeklickt -->
-          <div id="firstSteps" class="card" style="display:none; margin-bottom: var(--space-5); padding:18px 20px; border:1px solid var(--accent); background:var(--accent-soft);">
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+          <div id="firstSteps" class="first-steps" style="display:none;">
+            <div class="first-steps-head">
               <div>
-                <div style="font-weight:700; font-size:15px;" data-i18n="fs.title">Erste Schritte</div>
-                <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;" data-i18n="fs.sub">In 3 Schritten ist dein Cockpit startklar.</div>
+                <div class="first-steps-kicker" data-i18n="fs.title">Erste Schritte</div>
+                <div class="first-steps-sub" data-i18n="fs.sub">In 3 Schritten ist dein Cockpit startklar.</div>
               </div>
-              <button onclick="dismissFirstSteps()" data-i18n-title="fs.dismiss" title="Ausblenden" style="background:none; border:none; color:var(--text-subtle); cursor:pointer; font-size:18px; line-height:1; padding:2px 6px;">×</button>
+              <button class="first-steps-dismiss" onclick="dismissFirstSteps()" data-i18n-title="fs.dismiss" title="Ausblenden">×</button>
             </div>
-            <div id="firstStepsList" style="display:flex; flex-direction:column; gap:8px; margin-top:14px;"></div>
+            <div id="firstStepsList" class="first-steps-list"></div>
           </div>
 
+          <div id="dashDataArea">
           <div class="kpi-grid">
             <div class="kpi">
               <div class="kpi-label" data-i18n="dash.kpiJobsToday">Einsätze heute</div>
@@ -338,6 +339,7 @@
               </div>
 
             </div>
+          </div>
           </div>
         </section>
 
@@ -8366,14 +8368,14 @@
         { done: hasJob, label: tt('fs.stepJob', 'Ersten Auftrag planen'), action: "openModal('newAuftrag')" }
       ];
       list.innerHTML = steps.map(s => `
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border:2px solid ${s.done ? 'var(--success)' : 'var(--border-strong)'};background:${s.done ? 'var(--success)' : 'transparent'};color:#fff;">
+        <div class="first-step ${s.done ? 'is-done' : ''}">
+          <span class="first-step-dot">
             ${s.done ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
           </span>
-          <span style="flex:1; font-size:13.5px; ${s.done ? 'color:var(--text-subtle); text-decoration:line-through;' : 'color:var(--text); font-weight:500;'}">${escapeHtml(s.label)}</span>
+          <span class="first-step-label">${escapeHtml(s.label)}</span>
           ${s.done
-            ? `<span style="font-size:11px; font-weight:700; color:var(--success);">${escapeHtml(tt('fs.done', 'Erledigt'))}</span>`
-            : `<button class="btn btn-accent" style="font-size:12px; padding:5px 12px;" onclick="${s.action}">${escapeHtml(tt('fs.do', 'Los'))}</button>`}
+            ? `<span class="first-step-done">${escapeHtml(tt('fs.done', 'Erledigt'))}</span>`
+            : `<button class="btn btn-primary first-step-action" onclick="${s.action}">${escapeHtml(tt('fs.do', 'Los'))}</button>`}
         </div>`).join('');
       card.style.display = 'block';
     }
@@ -8399,6 +8401,25 @@
       const total = EMPLOYEES.length;
       const kunden = (typeof loadCustomers === 'function') ? loadCustomers().length : 0;
       const reports = loadReports();
+      let hasJob = false;
+      try { hasJob = Object.values(loadPlanJobs()).some(a => Array.isArray(a) && a.length); } catch (e) {}
+      const isNewWorkspace = total === 0 && kunden === 0 && !hasJob;
+      const dataArea = document.getElementById('dashDataArea');
+      if (dataArea) dataArea.style.display = isNewWorkspace ? 'none' : '';
+      const focus = document.getElementById('dashBranchFocus');
+      if (focus) {
+        const vert = window.MosaVertical?.get?.() || 'reinigung';
+        const focusByVertical = {
+          reinigung: ['planung', tt('nav.planung', 'Routenplanung')],
+          werkstatt: ['werkstattplan', tt('nav.werkstattplan', 'Werkstattplan')],
+          schaedling: ['koederstellen', tt('nav.koederstellen', 'Köderstellen')],
+          handwerk: ['baustellen', tt('nav.baustellen', 'Baustellen')],
+          garten: ['baustellen', tt('nav.baustellen', 'Gartenprojekte')]
+        };
+        const [view, label] = focusByVertical[vert] || focusByVertical.reinigung;
+        focus.style.display = isNewWorkspace ? 'none' : 'flex';
+        focus.innerHTML = `<div><div class="dash-branch-kicker">${escapeHtml(tt('dash.focus.kicker', 'HEUTE IM FOKUS'))}</div><div class="dash-branch-title">${escapeHtml(label)}</div><div class="dash-branch-desc">${escapeHtml(tt('dash.focus.desc', 'Direkt zu deinem wichtigsten Arbeitsbereich.'))}</div></div><button class="btn btn-secondary" onclick="navTo('${view}')">${escapeHtml(tt('dash.focus.open', 'Öffnen'))} →</button>`;
+      }
       const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
       set('kpiReiniger', total === 0 ? '0' : (aktiv === total ? String(total) : `${aktiv}/${total}`));
       set('kpiReinigerMeta', total === 0 ? tt('dash.kpiNoneYet','noch keine erfasst') : (total - aktiv > 0 ? `${total - aktiv} ${tt('sub.absent','abwesend')}` : tt('dash.kpiAllActive','alle aktiv')));
@@ -8410,7 +8431,7 @@
       const eyebrow = document.getElementById('dashHeroEyebrow');
       const title = document.getElementById('dashHeroTitle');
       const sub = document.getElementById('dashHeroSub');
-      if (total === 0 && kunden === 0) {
+      if (isNewWorkspace) {
         if (eyebrow) eyebrow.textContent = tt('dash.heroReady','Bereit zum Start');
         if (title) title.textContent = tt('dash.heroWelcomeTitle','Willkommen bei deinem Cockpit.');
         if (sub) sub.textContent = tt('dash.heroOnboard','Lege deine Mitarbeiter, Kunden und den ersten Auftrag an — in wenigen Minuten läuft alles.');

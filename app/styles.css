@@ -80,7 +80,8 @@
 
   --text: #F4F4F5;
   --text-muted: #A1A1AA;
-  --text-subtle: #71717A;
+  /* Hilfstexte bleiben auch auf weniger guten Displays noch lesbar. */
+  --text-subtle: #9A9AA4;
 
   --primary: #F4F4F5;
   --primary-hover: #E4E4E7;
@@ -1257,7 +1258,47 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--space-5);
+  min-width: 0;
 }
+
+/* Geführter Start: bewusst positiv und ruhig, nicht wie eine Warnmeldung. */
+.first-steps {
+  display: block;
+  margin-bottom: var(--space-6);
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--surface), var(--accent-soft));
+  box-shadow: var(--shadow-sm);
+}
+.first-steps-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.first-steps-kicker { font-size:15px; font-weight:700; color:var(--text); }
+.first-steps-sub { font-size:13px; color:var(--text-muted); margin-top:3px; }
+.first-steps-dismiss { color:var(--text-subtle); font-size:20px; line-height:1; padding:2px 5px; border-radius:6px; }
+.first-steps-dismiss:hover { color:var(--text); background:var(--surface-2); }
+.first-steps-list { display:flex; flex-direction:column; gap:8px; margin-top:18px; }
+.first-step { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; background:color-mix(in srgb, var(--surface) 88%, transparent); }
+.first-step-dot { width:22px; height:22px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; border:2px solid var(--border-strong); color:#fff; }
+.first-step.is-done .first-step-dot { background:var(--success); border-color:var(--success); }
+.first-step-label { flex:1; min-width:0; font-size:13.5px; color:var(--text); font-weight:600; }
+.first-step.is-done .first-step-label { color:var(--text-subtle); text-decoration:line-through; font-weight:500; }
+.first-step-done { font-size:11px; font-weight:700; color:var(--success); }
+.first-step-action { font-size:12px; padding:6px 12px; }
+
+/* Jede Branche führt im eingerichteten Konto direkt zum wichtigsten Tagesbereich. */
+.dash-branch-focus {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 var(--space-5);
+  padding: 15px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.dash-branch-kicker { font-size:10.5px; font-weight:700; letter-spacing:.09em; color:var(--accent); }
+.dash-branch-title { margin-top:3px; font-size:15px; font-weight:700; color:var(--text); }
+.dash-branch-desc { margin-top:2px; font-size:12.5px; color:var(--text-muted); }
 
 .card-header {
   display: flex;
@@ -2400,7 +2441,8 @@ tr:hover td { background: var(--bg); }
    Section grids
    ============================================ */
 
-.grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-5); }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-5); }
+.grid-2 > * { min-width: 0; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
 
 /* ============================================
@@ -2913,6 +2955,7 @@ tr:hover td { background: var(--bg); }
     flex-wrap: wrap;
   }
   .page-title { font-size: 22px; }
+  .dash-branch-focus { align-items:flex-start; flex-direction:column; }
 
   /* Status-/Toolbar-Leisten umbrechen statt überlaufen */
   .plan-status-card { flex-wrap: wrap; }
@@ -2941,6 +2984,9 @@ tr:hover td { background: var(--bg); }
   .topbar-actions .skin-toggle,
   .topbar-actions .btn-icon[data-term="feldAnsichtTitel"] { display: none; }
   .topbar-actions [data-lang-select] { height: 30px; padding: 0 4px; font-size: 12px; }
+  .first-steps { padding:16px; }
+  .first-step { padding:8px; gap:8px; }
+  .first-step-label { font-size:13px; }
 }
 
 /* ============================================================
