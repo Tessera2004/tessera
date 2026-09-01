@@ -39,12 +39,18 @@ Deno.serve(async (req) => {
       const duration = Math.max(0, Math.round((checkOut.getTime() - new Date(row.check_in).getTime()) / 60000));
       let photoPath: string | null = null;
       if (body.photoBase64) {
-        const encoded = String(body.photoBase64).replace(/^data:image\/(jpeg|png);base64,/, '');
-        const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
+        const photo = String(body.photoBase64);
+        const match = photo.match(/^data:image\/(jpeg|png);base64,([A-Za-z0-9+/=]+)$/);
+        if (!match) return json({ error: 'INVALID_PHOTO_FORMAT' }, 400);
+        // Base64 ist rund 33 % grösser als das eigentliche Bild. Vor dem
+        // Dekodieren begrenzen, damit keine übergrossen Nutzlasten verarbeitet werden.
+        if (match[1].length > 7 * 1024 * 1024) return json({ error: 'PHOTO_TOO_LARGE' }, 413);
+        const bytes = Uint8Array.from(atob(match[1]), (c) => c.charCodeAt(0));
         if (bytes.byteLength > 5 * 1024 * 1024) return json({ error: 'PHOTO_TOO_LARGE' }, 413);
-        photoPath = `${grant.tenant_id}/${row.id}.jpg`;
+        const extension = match[0].startsWith('data:image/png') ? 'png' : 'jpg';
+        photoPath = `${grant.tenant_id}/${row.id}.${extension}`;
         const { error: uploadError } = await db.storage.from('checkin-photos').upload(photoPath, bytes, {
-          contentType: 'image/jpeg', upsert: false,
+          contentType: extension === 'png' ? 'image/png' : 'image/jpeg', upsert: false,
         });
         if (uploadError) throw uploadError;
       }
@@ -57,6 +63,6 @@ Deno.serve(async (req) => {
     return json({ error: 'INVALID_ACTION' }, 400);
   } catch (error) {
     const code = error instanceof Error ? error.message : 'INTERNAL';
-    return json({ error: code }, ['INVALID_TOKEN', 'INVALID_ACTION'].includes(code) ? 400 : 500);
+    return json({ error: code }, ['INVALID_TOKEN', 'INVALID_ACTION', 'INVALID_PHOTO_FORMAT'].includes(code) ? 400 : 500);
   }
 });
