@@ -244,6 +244,22 @@
         msg(box, /Invalid login/i.test(error.message) ? T('auth.errInvalid', 'E-Mail oder Passwort falsch.') : error.message);
         btn.disabled = false; btn.textContent = T('auth.signIn', 'Anmelden');
       } else {
+        const factors = await sb.auth.mfa.listFactors();
+        const factor = factors.data?.totp?.find(f => f.status === 'verified');
+        if (factor) {
+          const code = prompt(T('auth.mfaPrompt', 'Gib den sechsstelligen Code deiner Authenticator-App ein:'));
+          if (!code) {
+            await sb.auth.signOut();
+            msg(box, T('auth.mfaRequired', 'Zwei-Faktor-Code erforderlich.'));
+            btn.disabled = false; btn.textContent = T('auth.signIn', 'Anmelden'); return;
+          }
+          const verified = await sb.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.trim() });
+          if (verified.error) {
+            await sb.auth.signOut();
+            msg(box, T('auth.mfaInvalid', 'Der Zwei-Faktor-Code ist ungültig.'));
+            btn.disabled = false; btn.textContent = T('auth.signIn', 'Anmelden'); return;
+          }
+        }
         window.location.href = 'app.html';
       }
     });

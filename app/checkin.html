@@ -303,12 +303,14 @@
   let SNAP_BLOB = null;   // captured photo blob
   let elapsedTimer = null;
   let CURRENT_ERROR = null;
+  let CHECKIN_TOKEN = null;
 
   // ── Parse URL param ───────────────────────────────────────────
   function init() {
     const params = new URLSearchParams(window.location.search);
     const raw = params.get('d');
-    if (!raw) { showError('ci.err.noLink', 'Kein gültiger Einsatz-Link. Bitte QR-Code scannen oder vom Büro einen neuen Link anfordern.'); return; }
+    CHECKIN_TOKEN = params.get('t');
+    if (!raw || !CHECKIN_TOKEN) { showError('ci.err.noLink', 'Kein gültiger Einsatz-Link. Bitte QR-Code scannen oder vom Büro einen neuen Link anfordern.'); return; }
 
     try {
       JOB = JSON.parse(decodeURIComponent(escape(atob(raw))));
@@ -320,9 +322,6 @@
     if (JOB.exp && Date.now() / 1000 > JOB.exp) {
       showError('ci.err.expired', 'Dieser QR-Code ist abgelaufen (24h Gültigkeit). Das Büro kann im Job-Editor einen neuen generieren.'); return;
     }
-
-    // Mandanten-ID aus QR-Payload (wird bei timelog-Insert mitgeschickt)
-    TENANT_ID = JOB.tid || null;
 
     // Job-Karte befüllen
     text('ciJobTitle', JOB.jl || JOB.jk || tr('ci.jobFallback', 'Einsatz'));
@@ -342,8 +341,6 @@
       sel.innerHTML = '<option value="__manual__">' + tr('ci.manual', 'Eigener Name unten') + '</option>';
     }
     show('ciEmpField');
-
-    if (!getSb()) show('ciNoSupabase');
 
     show('ciDivider');
     show('btnCheckin');
@@ -366,26 +363,18 @@
     const btn = document.getElementById('btnCheckin');
     btn.disabled = true; btn.textContent = tr('ci.saving', 'Wird gespeichert …');
 
-    const checkIn = new Date().toISOString();
-
-    const sb = getSb();
-    if (sb) {
-      try {
-        const { data, error } = await sb.from('timelog').insert({
-          tenant_id:    TENANT_ID,
-          job_key:      JOB.jk,
-          job_label:    JOB.jl,
-          employee_id:  empId === '__manual__' ? null : empId,
-          employee_name: empName,
-          check_in:     checkIn
-        }).select('id').single();
-        if (error) throw error;
-        SB_ROW_ID = data.id;
-      } catch (e) {
-        toast(tr('ci.err.save', 'Speichern fehlgeschlagen: {error}', { error: e.message }), true);
-        btn.disabled = false; btn.textContent = tr('ci.checkin', 'Einchecken ✓');
-        return;
-      }
+    let checkIn;
+    try {
+      const response = await fetch((window.SUPA_URL || '') + '/functions/v1/checkin', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', apikey: window.SUPA_KEY || '' },
+        body: JSON.stringify({ action: 'start', token: CHECKIN_TOKEN, employeeId: empId, employeeName: empName })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.rowId) throw new Error(result.error || 'Check-in fehlgeschlagen');
+      SB_ROW_ID = result.rowId; checkIn = result.checkIn;
+    } catch (e) {
+      toast(tr('ci.err.save', 'Speichern fehlgeschlagen: {error}', { error: e.message }), true);
+      btn.disabled = false; btn.textContent = tr('ci.checkin', 'Einchecken ✓'); return;
     }
 
     // Lokaler Fallback
@@ -410,7 +399,7 @@
       text('ciElapsed', tr('ci.running', 'Laufzeit: {time}', { time: `${h ? h + 'h ' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }));
     }, 1000);
 
-    toast(sb ? tr('ci.inSaved', '✓ Eingecheckt & gespeichert') : tr('ci.inLocal', '✓ Eingecheckt (lokal)'));
+    toast(tr('ci.inSaved', '✓ Eingecheckt & gespeichert'));
   }
 
   // ── Kamera ───────────────────────────────────────────────────
@@ -462,29 +451,17 @@
     const durationM = Math.round((new Date(checkOut) - new Date(checkIn)) / 60000);
     const rowId = SB_ROW_ID || sessionStorage.getItem('ci_rowId');
 
-    const sb = getSb();
-    let photoUrl = null;
-
-    if (sb && SNAP_BLOB) {
+    if (rowId) {
       try {
-        const prefix = TENANT_ID ? `${TENANT_ID}/` : '';
-        const fileName = `${prefix}${rowId || Date.now()}_${Date.now()}.jpg`;
-        const { data: upData, error: upErr } = await sb.storage.from('checkin-photos').upload(fileName, SNAP_BLOB, { contentType: 'image/jpeg', upsert: false });
-        if (!upErr && upData) {
-          // Bucket ist PRIVAT: nur den Pfad speichern, kein öffentlicher Link.
-          // Anzeige im Büro später via createSignedUrl(path) (zeitlich begrenzter Link).
-          photoUrl = upData.path;
-        }
-      } catch {}
-    }
-
-    if (sb && rowId) {
-      try {
-        await sb.from('timelog').update({
-          check_out: checkOut,
-          duration_m: durationM,
-          photo_url: photoUrl
-        }).eq('id', rowId);
+        const photoBase64 = SNAP_BLOB ? await new Promise((resolve, reject) => {
+          const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(SNAP_BLOB);
+        }) : null;
+        const response = await fetch((window.SUPA_URL || '') + '/functions/v1/checkin', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', apikey: window.SUPA_KEY || '' },
+          body: JSON.stringify({ action: 'finish', token: CHECKIN_TOKEN, rowId, photoBase64 })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Checkout fehlgeschlagen');
       } catch (e) {
         toast(tr('ci.err.checkout', 'Fehler beim Speichern: {error}', { error: e.message }), true);
         btn.disabled = false; btn.textContent = tr('ci.checkout', 'Einsatz beenden');
@@ -501,7 +478,7 @@
     show('ciStatusOut');
     show('ciStatusDone');
 
-    toast(sb ? tr('ci.doneSaved', '✓ Alles gespeichert') : tr('ci.doneLocal', '✓ Checkout lokal erfasst'));
+    toast(tr('ci.doneSaved', '✓ Alles gespeichert'));
     sessionStorage.clear();
   }
 

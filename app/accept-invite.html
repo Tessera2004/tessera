@@ -127,6 +127,7 @@
     // Einladungs-Parameter aus der URL
     const params = new URLSearchParams(location.search);
     const invEmail = (params.get('email') || '').trim().toLowerCase();
+    const invToken = (params.get('token') || '').trim();
     const firma = (params.get('firma') || '').trim();
 
     function refreshInviteI18n() {
@@ -135,7 +136,7 @@
         document.getElementById('inviteTitle').textContent = tr('inv.companyTitle', 'Einladung zu {company}', { company: firma });
         document.getElementById('inviteSub').textContent = tr('inv.companySub', 'Du wurdest zu „{company}“ eingeladen. Erstelle dein Konto, um beizutreten.', { company: firma });
         document.getElementById('visualQuote').textContent = tr('inv.companyQuote', 'Willkommen bei {company}. Gleich loslegen — alles an einem Ort.', { company: firma });
-      } else if (!invEmail) {
+      } else if (!invEmail || !invToken) {
         document.getElementById('inviteSub').innerHTML = tr('inv.invalidLink', 'Kein gültiger Einladungs-Link. <a class="auth-toggle-link" href="login.html" style="color:var(--accent);font-weight:600;">Zur Anmeldung</a>.');
       }
     }
@@ -160,14 +161,17 @@
       const box = document.getElementById('inviteMsg');
       clearMsg(box);
       if (!window.SB) { msg(box, tr('inv.err.connection', 'Verbindung zur Datenbank fehlt (Internet?).')); return; }
-      if (!invEmail) { msg(box, tr('inv.err.noInvite', 'Dieser Link enthält keine Einladung. Bitte den Admin um einen neuen Link.')); return; }
+      if (!invEmail || !invToken) { msg(box, tr('inv.err.noInvite', 'Dieser Link enthält keine gültige Einladung. Bitte den Admin um einen neuen Link.')); return; }
       const sb = clientRemember();
       const password = document.getElementById('invPassword').value;
       btn.disabled = true; btn.textContent = tr('inv.creating', 'Konto wird erstellt …');
       const { data, error } = await sb.auth.signUp({
         email: invEmail,
         password,
-        options: { emailRedirectTo: location.origin + location.pathname.replace(/accept-invite\.html$/, 'login.html') }
+        options: {
+          emailRedirectTo: location.origin + location.pathname.replace(/accept-invite\.html$/, 'login.html'),
+          data: { invite_token: invToken }
+        }
       });
       if (error) {
         if (/already registered|already exists/i.test(error.message)) {

@@ -1340,14 +1340,20 @@
             </div>
           </div>
 
+          <div class="card" style="padding:20px 22px; margin-top:24px;">
+            <div style="font-weight:700; font-size:15px;" data-i18n="set.mfaTitle">Zwei-Faktor-Authentifizierung</div>
+            <div id="mfaStatus" style="font-size:12.5px; color:var(--text-subtle); margin-top:4px;" data-i18n="set.mfaLoading">Status wird geprüft …</div>
+            <button id="mfaEnableBtn" class="btn btn-secondary" style="margin-top:14px;" onclick="enrollMfa()" data-i18n="set.mfaEnable">2FA aktivieren</button>
+            <button id="mfaDisableBtn" class="btn btn-secondary" style="display:none; margin-top:14px; color:var(--danger);" onclick="disableMfa()" data-i18n="set.mfaDisable">2FA deaktivieren</button>
+          </div>
+
           <!-- Gefahrenzone: Konto löschen (DSG – Recht auf Löschung) -->
           <div class="card" style="padding:20px 22px; margin-top:24px; border:1px solid var(--danger);">
             <div style="font-weight:700; font-size:15px; color:var(--danger);" data-i18n="set.deleteAccount">Konto löschen</div>
             <div style="font-size:12.5px; color:var(--text-subtle); margin-top:4px; max-width:640px;" data-i18n="set.deleteAccountDesc">
-              Löscht dein Benutzerkonto endgültig. <strong>Wenn du der einzige Nutzer deiner Firma bist, werden auch alle Firmendaten</strong>
-              (Kunden, Mitarbeiter, Aufträge, Nachweise, Abo) unwiderruflich gelöscht und ein laufendes Abo gekündigt.
-              Bist du nur Teammitglied, wird nur dein Zugang entfernt.
+              Löscht deinen persönlichen Zugang endgültig. Der letzte Administrator kann nicht gelöscht werden, bevor die Firma übertragen oder über den Support geordnet geschlossen wurde. Exportiere wichtige Daten zuerst.
             </div>
+            <button class="btn btn-secondary" style="margin-top:14px; margin-right:8px;" onclick="exportCompanyData()" data-i18n="set.exportDataBtn">Firmendaten exportieren</button>
             <button class="btn btn-secondary" style="margin-top:14px; color:var(--danger); border-color:var(--danger);" onclick="deleteAccount()" data-i18n="set.deleteAccountBtn">Mein Konto löschen</button>
           </div>
         </section>
@@ -2983,7 +2989,7 @@
         <div class="field">
           <label data-i18n="common.role">Rolle</label>
           <div class="opt-row" id="inviteRoleChips"></div>
-          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;"><span data-term="feldMitarbeiterPlural">Reiniger</span><span data-i18n="iu.roleHint"> im Aussendienst (nur Mobile-App): Read-only genügt.</span></div>
+          <div style="font-size: 12px; color: var(--text-subtle); margin-top: 8px;"><span data-term="feldMitarbeiterPlural">Reiniger</span><span data-i18n="iu.roleHint"> im Aussendienst (nur Mobile-App): Rolle Aussendienst wählen.</span></div>
         </div>
         <div id="inviteError" style="display:none; font-size:12.5px; color:var(--danger); margin-top:4px;"></div>
       </div>
@@ -4234,6 +4240,7 @@
       admin:       { label: 'Admin',       color: '#7c3aed', perms: ['edit_offerts','delete_offerts','edit_prices','edit_users','edit_objekte','edit_auftrag'], builtin: true },
       disposition: { label: 'Disposition', color: '#0ea5e9', perms: ['edit_offerts','edit_objekte','edit_auftrag'], builtin: true },
       buchhaltung: { label: 'Buchhaltung', color: '#10b981', perms: ['edit_offerts','edit_prices'], builtin: true },
+      field:        { label: 'Aussendienst', color: '#14b8a6', perms: [], builtin: true },
       readonly:    { label: 'Read-only',   color: '#f59e0b', perms: [], builtin: true }
     };
     const ALL_PERMISSIONS = [
@@ -4267,9 +4274,10 @@
       admin: 'Voller Zugriff — Aufträge, Offerten, Preise, Team verwalten, Löschen.',
       disposition: 'Aufträge anlegen/ändern, Objekte verwalten, Offerten schreiben. Keine Preise, kein Team.',
       buchhaltung: 'Offerten + Preise bearbeiten. Keine Auftragsplanung, kein Team.',
+      field: 'Mobile Einsätze sehen und Rapporte erfassen. Keine Büro- oder Finanzänderungen.',
       readonly: 'Nur Ansicht — kann nichts speichern, ändern oder löschen.'
     };
-    const ROLE_DESC_KEYS = { admin: 'role.adminDesc', disposition: 'role.dispositionDesc', buchhaltung: 'role.buchhaltungDesc', readonly: 'role.readonlyDesc' };
+    const ROLE_DESC_KEYS = { admin: 'role.adminDesc', disposition: 'role.dispositionDesc', buchhaltung: 'role.buchhaltungDesc', field: 'role.fieldDesc', readonly: 'role.readonlyDesc' };
     // Übersetztes Rollen-Label (eingebaute Rollen via i18n, eigene Rollen behalten ihren Namen).
     function roleLabel(key) {
       const def = ROLE_DEFS[key];
@@ -4587,17 +4595,13 @@
       openModal('inviteUser');
     }
     // Baut den Einladungs-Link (zeigt auf accept-invite.html, gleicher Ordner wie app.html)
-    function inviteLink(email) {
+    function inviteLink(email, token) {
       const base = location.origin + location.pathname.replace(/[^/]*$/, 'accept-invite.html');
       const co = (typeof loadCompany === 'function' ? (loadCompany().name || '') : '');
       const q = new URLSearchParams({ email });
       if (co) q.set('firma', co);
+      if (token) q.set('token', token);
       return base + '?' + q.toString();
-    }
-    async function copyInviteLink(email) {
-      const link = inviteLink(email);
-      try { await navigator.clipboard.writeText(link); toast('🔗 Einladungs-Link kopiert'); }
-      catch { prompt('Einladungs-Link (markieren & kopieren):', link); }
     }
     async function sendInvite() {
       const errEl = document.getElementById('inviteError');
@@ -4613,20 +4617,21 @@
       const btn = document.getElementById('inviteSendBtn');
       btn.disabled = true; btn.textContent = 'Erstelle …';
       try {
-        const { error } = await sb.from('invites').insert({
-          tenant_id: tid, email, role: inviteRole,
-          firstname: fn || null, lastname: ln || null,
-          created_by: currentUser ? getUserName(currentUser) : null
+        const token = (await sb.auth.getSession()).data.session?.access_token;
+        const response = await fetch((window.SUPA_URL || '') + '/functions/v1/create-invite', {
+          method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, role: inviteRole, firstname: fn, lastname: ln })
         });
-        if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.token) { errEl.textContent = result.error || 'Einladung konnte nicht erstellt werden.'; errEl.style.display = 'block'; }
         else {
           closeModal('inviteUser');
-          const link = inviteLink(email);
+          const link = inviteLink(email, result.token);
           try {
             await navigator.clipboard.writeText(link);
             toast(tt('toastdyn.inviteCopiedPre','✓ Einladung erstellt — Link kopiert! An ') + email + tt('toastdyn.inviteCopiedPost',' senden.'));
           } catch {
-            toast('✓ Einladung erstellt. Link unten in der Liste kopieren.');
+            prompt('Sicherer Einladungs-Link (nur einmal sichtbar):', link);
           }
           renderInvites();
         }
@@ -4657,7 +4662,6 @@
             <div style="font-size:12px; color:var(--text-subtle);">${escapeHtml(name)}${name ? ' · ' : ''}${roleLbl} · eingeladen ${when}</div>
           </div>
           <div style="display:flex; gap:6px; flex:0 0 auto;">
-            <button class="btn btn-ghost" onclick="copyInviteLink('${escapeHtml(r.email)}')">🔗 Link kopieren</button>
             <button class="btn btn-ghost" style="color:var(--danger);" onclick="revokeInvite('${r.id}')">Zurückziehen</button>
           </div>
         </div>`;
@@ -4718,7 +4722,19 @@
       document.querySelectorAll('#userRoleChips [data-role]').forEach(c => c.classList.toggle('on', c === el));
       document.getElementById('userRoleHint').textContent = roleDescription(role);
     }
-    function saveUser() {
+    async function manageAuthenticatedMember(email, action, role) {
+      if (!email || !window._authEmail) return true;
+      const sb = getSupabase(); const session = sb ? (await sb.auth.getSession()).data.session : null;
+      if (!session) return false;
+      const response = await fetch((window.SUPA_URL || '') + '/functions/v1/manage-member', {
+        method: 'POST', headers: { Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, action, role })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok && result.error !== 'USER_NOT_FOUND') { toast('Rolle konnte serverseitig nicht gespeichert werden: ' + (result.error || response.status)); return false; }
+      return true;
+    }
+    async function saveUser() {
       const fn = document.getElementById('userFirstname').value.trim();
       const ln = document.getElementById('userLastname').value.trim();
       if (!fn || !ln) { toast('Vor- und Nachname angeben'); return; }
@@ -4744,11 +4760,12 @@
         toast('✓ Mitarbeiter hinzugefügt');
       }
       saveUsers(users);
+      await manageAuthenticatedMember(document.getElementById('userEmail').value.trim(), 'updateRole', editingUserRole);
       applyCurrentUserToUI();
       renderTeamGrid();
       closeModal('userEditor');
     }
-    function deleteUser() {
+    async function deleteUser() {
       if (!editingUserId) return;
       const users = loadUsers();
       const u = users.find(x => x.id === editingUserId);
@@ -4757,6 +4774,7 @@
       const adminCount = users.filter(x => x.role === 'admin').length;
       if (u.role === 'admin' && adminCount <= 1) { toast('Letzter Admin kann nicht gelöscht werden'); return; }
       if (!confirm(`Mitarbeiter "${getUserName(u)}" wirklich löschen?`)) return;
+      if (!await manageAuthenticatedMember(u.email, 'remove')) return;
       const next = users.filter(x => x.id !== editingUserId);
       saveUsers(next);
       window.MosaDB?.remove('office_users', editingUserId);
@@ -8810,7 +8828,7 @@
       toast('✓ Firmen- & Zahlungsangaben gespeichert');
     }
     document.querySelector('.nav-item[data-view="einstellungen"]')?.addEventListener('click', () => {
-      setTimeout(() => { fillCompanyForm(); renderModuleSettings(); populateVerticalSelect(); applyPriceSection(); }, 50);
+      setTimeout(() => { fillCompanyForm(); renderModuleSettings(); populateVerticalSelect(); applyPriceSection(); refreshMfaStatus(); }, 50);
     });
 
     // Schweizer QR-Code-Payload (SPC, Version 0200) — kombinierte Adressen (K), Referenztyp NON
@@ -11622,7 +11640,62 @@ ${coSig}`;
       }
     }
 
+    async function refreshMfaStatus() {
+      const sb = getSupabase(); const status = document.getElementById('mfaStatus');
+      if (!sb || !window._authEmail) { if (status) status.textContent = 'Für 2FA bitte anmelden.'; return; }
+      try {
+        const { data, error } = await sb.auth.mfa.listFactors(); if (error) throw error;
+        const active = (data?.totp || []).some(f => f.status === 'verified');
+        status.textContent = active ? '✓ 2FA ist für dieses Konto aktiv.' : '2FA ist noch nicht aktiv. Für Administratoren dringend empfohlen.';
+        document.getElementById('mfaEnableBtn').style.display = active ? 'none' : 'inline-flex';
+        document.getElementById('mfaDisableBtn').style.display = active ? 'inline-flex' : 'none';
+      } catch (error) { status.textContent = '2FA-Status konnte nicht geladen werden.'; }
+    }
+
+    async function enrollMfa() {
+      const sb = getSupabase(); if (!sb) return;
+      try {
+        const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'MosaOS' });
+        if (error) throw error;
+        const factorId = data.id;
+        const overlay = document.createElement('div'); overlay.className = 'modal-backdrop open'; overlay.id = 'mfaSetupModal';
+        overlay.innerHTML = `<div class="modal" style="max-width:420px;"><div class="modal-title">2FA einrichten</div><p style="font-size:13px;color:var(--text-muted);">Scanne den Code mit deiner Authenticator-App und gib danach den sechsstelligen Code ein.</p><img alt="2FA QR-Code" style="display:block;width:210px;height:210px;margin:16px auto;background:white;border-radius:12px;" /><input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" /><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;"><button class="btn btn-secondary" id="mfaCancel">Abbrechen</button><button class="btn btn-accent" id="mfaVerify">Bestätigen</button></div></div>`;
+        overlay.querySelector('img').src = data.totp.qr_code; document.body.appendChild(overlay);
+        overlay.querySelector('#mfaCancel').onclick = async () => { await sb.auth.mfa.unenroll({ factorId }); overlay.remove(); };
+        overlay.querySelector('#mfaVerify').onclick = async () => {
+          const code = overlay.querySelector('#mfaCode').value.trim();
+          const { error: verifyError } = await sb.auth.mfa.challengeAndVerify({ factorId, code });
+          if (verifyError) { alert('Code ungültig. Bitte erneut versuchen.'); return; }
+          overlay.remove(); await refreshMfaStatus(); toast('✓ Zwei-Faktor-Authentifizierung aktiviert');
+        };
+      } catch (error) { alert('2FA konnte nicht aktiviert werden: ' + error.message); }
+    }
+
+    async function disableMfa() {
+      if (!confirm('Zwei-Faktor-Authentifizierung wirklich deaktivieren?')) return;
+      const sb = getSupabase(); if (!sb) return;
+      const { data } = await sb.auth.mfa.listFactors();
+      for (const factor of (data?.totp || []).filter(f => f.status === 'verified')) await sb.auth.mfa.unenroll({ factorId: factor.id });
+      await refreshMfaStatus(); toast('2FA deaktiviert');
+    }
+
     // Konto löschen (DSG – Recht auf Löschung). Ruft die Edge Function delete-account.
+    async function exportCompanyData() {
+      const sb = getSupabase();
+      const session = sb ? (await sb.auth.getSession()).data.session : null;
+      if (!session) { alert('Bitte zuerst anmelden.'); return; }
+      try {
+        const response = await fetch((window.SUPA_URL || '') + '/functions/v1/export-data', {
+          method: 'POST', headers: { Authorization: 'Bearer ' + session.access_token }
+        });
+        if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || 'Export fehlgeschlagen'); }
+        const blob = await response.blob();
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+        link.download = 'mosaos-firmendaten-' + new Date().toISOString().slice(0,10) + '.json'; link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      } catch (error) { alert(error.message); }
+    }
+
     async function deleteAccount() {
       const sb = getSupabase();
       if (!sb || !window._authEmail) { alert('Konto löschen geht nur, wenn du eingeloggt bist.'); return; }
@@ -11637,7 +11710,10 @@ ${coSig}`;
           body: '{}'
         });
         const j = await res.json().catch(() => ({}));
-        if (!res.ok || j.error) { alert('Fehler beim Löschen: ' + (j.error || res.status)); return; }
+        if (!res.ok || j.error) {
+          const message = j.error === 'LAST_ADMIN' ? 'Du bist der letzte Administrator. Exportiere die Firmendaten und übertrage die Administration oder kontaktiere den Support zur geordneten Firmenschliessung.' : (j.error || res.status);
+          alert('Fehler beim Löschen: ' + message); return;
+        }
         try { clearLocalCache(); } catch {}
         try { await sb.auth.signOut(); } catch {}
         alert('Dein Konto wurde gelöscht.');
@@ -11649,28 +11725,41 @@ ${coSig}`;
     // JOB QR-CODE
     // ============================================================
     function buildCheckinPayload(job, dateKey) {
-      const emps = loadUsers().map(u => ({ id: u.id, n: u.firstname + ' ' + u.lastname }));
+      const allowed = new Set(Array.isArray(job.assigned) ? job.assigned : []);
+      const fieldEmployees = (Array.isArray(EMPLOYEES) ? EMPLOYEES : [])
+        .filter(e => e.status !== 'inaktiv' && (!allowed.size || allowed.has(e.id)))
+        .map(e => ({ id: e.id, n: [e.firstName, e.lastName].filter(Boolean).join(' ') }));
+      const emps = fieldEmployees.length ? fieldEmployees : loadUsers().map(u => ({ id: u.id, n: u.firstname + ' ' + u.lastname }));
       return {
         jk:  nkJobKey({ ...job, _dateKey: dateKey }),
         jl:  `${job.objekt || 'Einsatz'}${job.start ? ' · ' + job.start : ''}${job.end ? '–' + job.end : ''}`,
         d:   dateKey,
         emps,
-        tid: window._tenantId || null,    // Mandant für timelog-Isolation
         exp: Math.floor(Date.now() / 1000) + 86400
       };
     }
 
-    function openJobQrModal() {
+    async function openJobQrModal() {
       if (!editingJob) return;
       const jobs = getJobsForDate(new Date(editingJob.dateKey));
       const job = jobs[editingJob.idx];
       if (!job) { toast('Einsatz nicht gefunden', 'error'); return; }
       if (typeof qrcode !== 'function') { toast('QR-Bibliothek lädt noch', 'error'); return; }
 
+      const sb = getSupabase();
+      const session = sb ? (await sb.auth.getSession()).data.session : null;
+      if (!session) { toast('Bitte anmelden, um einen sicheren Check-in-Code zu erstellen.', 'error'); return; }
       const payload = buildCheckinPayload(job, editingJob.dateKey);
+      const grantResponse = await fetch((window.SUPA_URL || '') + '/functions/v1/create-checkin-token', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobKey: payload.jk, jobLabel: payload.jl, jobDate: payload.d, employeeIds: payload.emps.map(e => e.id) })
+      });
+      const grant = await grantResponse.json().catch(() => ({}));
+      if (!grantResponse.ok || !grant.token) { toast('Sicherer Check-in-Code konnte nicht erstellt werden.', 'error'); return; }
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const base = window.location.href.replace(/[^/]*$/, '');
-      const url  = base + 'checkin.html?d=' + b64;
+      const url  = base + 'checkin.html?t=' + encodeURIComponent(grant.token) + '&d=' + b64;
 
       const label = document.getElementById('jobQrLabel');
       if (label) label.textContent = payload.jl;

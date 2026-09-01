@@ -119,6 +119,8 @@
             <span data-i18n="anfrage.consent">Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage verwendet werden. <a href="datenschutz.html">Datenschutz</a></span>
           </label>
 
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-10000px;" />
+
           <button type="submit" class="btn btn-primary btn-lg btn-block">
             <span data-i18n="anfrage.submit">Anfrage absenden</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -242,12 +244,35 @@
       const form = document.getElementById('anfrageForm');
       const success = document.getElementById('formSuccess');
       if (form) {
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
           e.preventDefault();
           if (!form.reportValidity()) return;
-          form.parentElement.hidden = true;
-          if (success) success.hidden = false;
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const button = form.querySelector('button[type="submit"]');
+          const original = button.innerHTML;
+          const cfg = window.MOSAOS_CONFIG || {};
+          button.disabled = true;
+          button.textContent = 'Wird gesendet …';
+          const data = new FormData(form);
+          try {
+            const response = await fetch(cfg.functionsUrl + '/contact-request', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', apikey: cfg.publicApiKey || '' },
+              body: JSON.stringify({
+                firstName: data.get('firstName'), lastName: data.get('lastName'), company: data.get('company'),
+                email: data.get('email'), phone: data.get('phone'),
+                industry: data.get('branche') === 'custom' ? data.get('customBranche') : data.get('branche'),
+                message: data.get('message'), consent: data.get('consent') === 'on', website: data.get('website')
+              })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || 'Senden fehlgeschlagen');
+            form.parentElement.hidden = true;
+            if (success) success.hidden = false;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } catch (error) {
+            alert('Die Anfrage konnte nicht gesendet werden. Bitte schreibe direkt an ' + (cfg.email || 'info@mosaos.ch') + '.');
+            button.disabled = false; button.innerHTML = original;
+          }
         });
       }
     })();

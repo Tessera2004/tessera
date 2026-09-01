@@ -27,6 +27,8 @@ window.MOSAOS_CONFIG = {
   email: 'info.mosaos@gmail.com',
   emailPrivacy: 'info.mosaos@gmail.com',
   phone: '+41 76 526 59 75',
+  functionsUrl: 'https://cmwdgizhyjqnxjvpstat.supabase.co/functions/v1',
+  publicApiKey: 'sb_publishable_Db__T4fLYMl_q89PcJWHvg_Par2FWH3',
 
   // ---------- Social ----------
   social: {

@@ -505,6 +505,22 @@
     try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch { return fallback; }
   }
 
+  const SYNC_QUEUE_KEY = 'mosaos-sync-queue-v1';
+  function setSyncState(state, detail) {
+    window.dispatchEvent(new CustomEvent('mosaos-sync-state', { detail: { state, detail: detail || null } }));
+  }
+  function enqueue(type, data) {
+    const queue = lsGet(SYNC_QUEUE_KEY, []);
+    queue.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(), type, data, attempts: 0, queuedAt: new Date().toISOString() });
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue.slice(-250)));
+    setSyncState('pending', queue.length);
+  }
+  async function dbCall(query) {
+    const result = await query;
+    if (result?.error) throw result.error;
+    return result;
+  }
+
   // Array-Tabelle: Remote-Rows + lokal-nur-vorhandene (per id) zusammenführen,
   // localStorage aktualisieren, die lokalen Neuzugänge nach Supabase pushen.
   async function mergeArray(key, remoteRows, rowToObj, pushType) {
@@ -569,7 +585,7 @@
       await mergeJobs(jobR.data);
 
       // Firmen-Einstellungen: Remote anwenden, fehlende Teile aus lokal hochladen
-      const settP = settR.data?.profile, settPr = settR.data?.prices, settFt = settR.data?.features, settRl = settR.data?.roles;
+      const settP = settR.data?.profile, settPr = settR.data?.prices, settFt = settR.data?.features, settRl = settR.data?.roles, settCs = settR.data?.custom_services;
       if (settP && Object.keys(settP).length) localStorage.setItem('cc-company-v1', JSON.stringify(settP));
       else { const lp = lsGet('cc-company-v1', {}); if (Object.keys(lp).length) await push('company_profile', lp); }
       if (settPr && Object.keys(settPr).length) localStorage.setItem('cc-prices', JSON.stringify(settPr));
@@ -578,6 +594,8 @@
       else { const lp = lsGet('cc-features-v1', {}); if (Object.keys(lp).length) await push('company_features', lp); }
       if (Array.isArray(settRl) && settRl.length) localStorage.setItem('cc-roles-v1', JSON.stringify(settRl));
       else { const lp = lsGet('cc-roles-v1', []); if (Array.isArray(lp) && lp.length) await push('company_roles', lp); }
+      if (Array.isArray(settCs)) localStorage.setItem('cc-custom-services-v1', JSON.stringify(settCs));
+      else { const lp = lsGet('cc-custom-services-v1', []); if (Array.isArray(lp) && lp.length) await push('company_custom_services', lp); }
 
       // Fahrzeuge separat & resilient laden: fehlt die Tabelle (Branche nutzt das Modul nicht),
       // darf das den restlichen Sync NICHT brechen.
@@ -611,84 +629,116 @@
       } catch {}
 
       window._dbReady = true;
+      await flushQueue();
       console.log('[MosaDB] Sync OK —', { ou: ouR.data?.length, emp: empR.data?.length,
         cust: custR.data?.length, jobs: jobR.data?.length, tasks: taskR.data?.length,
         reports: repR.data?.length });
     } catch (err) {
+      window._dbReady = false;
+      setSyncState('error', err.message);
       console.warn('[MosaDB] Sync fehlgeschlagen (offline?):', err.message);
     }
   }
 
   // ── Push (fire & forget) ─────────────────────────────────
 
-  async function push(type, data) {
+  async function push(type, data, fromQueue = false) {
     const sb = getSb();
-    if (!sb) return;
+    if (!sb) { if (!fromQueue) enqueue(type, data); return false; }
     const tid = await getTid();
-    if (!tid) return;
+    if (!tid) { if (!fromQueue) enqueue(type, data); return false; }
+    setSyncState('syncing');
     try {
-      if (type === 'office_users') {
-        await sb.from('office_users').upsert(data.map(u => officeUserToRow(u, tid)), { onConflict: 'id' });
+      if (type === '__delete__') {
+        await dbCall(sb.from(data.table).delete().eq('id', data.id).eq('tenant_id', tid));
+      } else if (type === 'office_users') {
+        await dbCall(sb.from('office_users').upsert(data.map(u => officeUserToRow(u, tid)), { onConflict: 'id' }));
       } else if (type === 'employees') {
-        await sb.from('employees').upsert(data.map(e => employeeToRow(e, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('employees').upsert(data.map(e => employeeToRow(e, tid)), { onConflict: 'id' }));
       } else if (type === 'teams') {
-        await sb.from('teams').upsert(data.map(t => teamToRow(t, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('teams').upsert(data.map(t => teamToRow(t, tid)), { onConflict: 'id' }));
       } else if (type === 'customers') {
-        await sb.from('customers').upsert(data.map(c => customerToRow(c, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('customers').upsert(data.map(c => customerToRow(c, tid)), { onConflict: 'id' }));
       } else if (type === 'plan_jobs') {
         const rows = flattenJobs(data, tid);
-        if (rows.length) await sb.from('plan_jobs').upsert(rows, { onConflict: 'id' });
+        if (rows.length) await dbCall(sb.from('plan_jobs').upsert(rows, { onConflict: 'id' }));
       } else if (type === 'vehicles') {
-        await sb.from('vehicles').upsert(data.map(v => vehicleToRow(v, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('vehicles').upsert(data.map(v => vehicleToRow(v, tid)), { onConflict: 'id' }));
       } else if (type === 'workorders') {
-        await sb.from('work_orders').upsert(data.map(o => workOrderToRow(o, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('work_orders').upsert(data.map(o => workOrderToRow(o, tid)), { onConflict: 'id' }));
       } else if (type === 'tires') {
-        await sb.from('tire_storage').upsert(data.map(t => tireToRow(t, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('tire_storage').upsert(data.map(t => tireToRow(t, tid)), { onConflict: 'id' }));
       } else if (type === 'sites') {
-        await sb.from('construction_sites').upsert(data.map(s => siteToRow(s, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('construction_sites').upsert(data.map(s => siteToRow(s, tid)), { onConflict: 'id' }));
       } else if (type === 'workreports') {
-        await sb.from('work_reports').upsert(data.map(r => workReportToRow(r, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('work_reports').upsert(data.map(r => workReportToRow(r, tid)), { onConflict: 'id' }));
       } else if (type === 'baits') {
-        await sb.from('bait_stations').upsert(data.map(b => baitToRow(b, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('bait_stations').upsert(data.map(b => baitToRow(b, tid)), { onConflict: 'id' }));
       } else if (type === 'pestprotocols') {
-        await sb.from('pest_protocols').upsert(data.map(p => pestProtocolToRow(p, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('pest_protocols').upsert(data.map(p => pestProtocolToRow(p, tid)), { onConflict: 'id' }));
       } else if (type === 'tasks') {
-        await sb.from('tasks').upsert(data.map(t => taskToRow(t, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('tasks').upsert(data.map(t => taskToRow(t, tid)), { onConflict: 'id' }));
       } else if (type === 'reports') {
-        await sb.from('reports').upsert(data.map(r => reportToRow(r, tid)), { onConflict: 'id' });
+        await dbCall(sb.from('reports').upsert(data.map(r => reportToRow(r, tid)), { onConflict: 'id' }));
       } else if (type === 'report_one') {
         // Einzelner Bericht (mobile.html: ein Protokoll, nicht das ganze Array)
-        await sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' });
-      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features' || type === 'company_roles') {
+        await dbCall(sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' }));
+      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features' || type === 'company_roles' || type === 'company_custom_services') {
         // Lese erst die anderen Felder, damit sie nicht überschrieben werden
-        const { data: cur } = await sb.from('company_settings').select('profile,prices,features,roles')
+        const { data: cur } = await sb.from('company_settings').select('profile,prices,features,roles,custom_services')
           .eq('tenant_id', tid).maybeSingle();
         const row = { tenant_id: tid,
           profile:  type === 'company_profile'  ? data : (cur?.profile  || {}),
           prices:   type === 'company_prices'   ? data : (cur?.prices   || {}),
           features: type === 'company_features' ? data : (cur?.features || {}),
           roles:    type === 'company_roles'    ? data : (cur?.roles    || []),
+          custom_services: type === 'company_custom_services' ? data : (cur?.custom_services || []),
           updated_at: new Date().toISOString() };
-        await sb.from('company_settings').upsert(row, { onConflict: 'tenant_id' });
+        await dbCall(sb.from('company_settings').upsert(row, { onConflict: 'tenant_id' }));
+      } else {
+        throw new Error('Unbekannter Sync-Typ: ' + type);
       }
+      setSyncState('synced');
+      return true;
     } catch (err) {
+      if (!fromQueue) enqueue(type, data);
+      setSyncState('error', err.message);
       console.warn('[MosaDB] Push fehlgeschlagen:', type, err.message);
+      return false;
     }
+  }
+
+  async function flushQueue() {
+    const queue = lsGet(SYNC_QUEUE_KEY, []);
+    if (!Array.isArray(queue) || !queue.length) { setSyncState('synced'); return; }
+    const remaining = [];
+    for (const item of queue) {
+      const ok = await push(item.type, item.data, true);
+      if (!ok) remaining.push({ ...item, attempts: (item.attempts || 0) + 1, lastAttemptAt: new Date().toISOString() });
+    }
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(remaining));
+    setSyncState(remaining.length ? 'pending' : 'synced', remaining.length);
   }
 
   // ── Remove ───────────────────────────────────────────────
 
   async function remove(table, id) {
     const sb = getSb();
-    if (!sb) return;
+    if (!sb) { enqueue('__delete__', { table, id }); return false; }
     const tid = await getTid();
-    if (!tid) return;
+    if (!tid) { enqueue('__delete__', { table, id }); return false; }
     try {
-      await sb.from(table).delete().eq('id', id).eq('tenant_id', tid);
+      await dbCall(sb.from(table).delete().eq('id', id).eq('tenant_id', tid));
+      setSyncState('synced');
+      return true;
     } catch (err) {
+      enqueue('__delete__', { table, id });
+      setSyncState('error', err.message);
       console.warn('[MosaDB] Remove fehlgeschlagen:', table, id, err.message);
+      return false;
     }
   }
 
-  window.MosaDB = { init: dbInit, push, remove };
+  window.addEventListener('online', flushQueue);
+  window.MosaDB = { init: dbInit, push, remove, flush: flushQueue };
 })();
