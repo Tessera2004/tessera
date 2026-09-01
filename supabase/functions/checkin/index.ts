@@ -56,6 +56,7 @@ Deno.serve(async (req) => {
     }
     return json({ error: 'INVALID_ACTION' }, 400);
   } catch (error) {
-    return json({ error: error instanceof Error ? error.message : 'INTERNAL' }, 500);
+    const code = error instanceof Error ? error.message : 'INTERNAL';
+    return json({ error: code }, ['INVALID_TOKEN', 'INVALID_ACTION'].includes(code) ? 400 : 500);
   }
 });
