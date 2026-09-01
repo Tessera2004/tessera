@@ -457,7 +457,7 @@
           <div class="ob-summary" id="obSummary">
             <dl id="summaryDl"></dl>
           </div>
-          <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;font-weight:600;" onclick="window.location.href='app.html'" data-i18n="ob.done.open">
+          <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;font-weight:600;" onclick="window.location.href=new URLSearchParams(location.search).get('staging') === '1' ? 'app.html?staging=1' : 'app.html'" data-i18n="ob.done.open">
             App öffnen →
           </button>
           <div style="margin-top:14px;font-size:12px;color:var(--text-subtle);" data-i18n="ob.done.note">

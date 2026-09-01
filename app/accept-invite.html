@@ -189,7 +189,7 @@
         document.getElementById('doneView').hidden = false;
       } else {
         // Direkt drin → in die App
-        window.location.href = 'app.html';
+        window.location.href = new URLSearchParams(location.search).get('staging') === '1' ? 'app.html?staging=1' : 'app.html';
       }
     });
   </script>
