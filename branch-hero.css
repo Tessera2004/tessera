@@ -1,0 +1,13 @@
+/* MosaOS Branchen-Landingpages – echte App-Ansicht im Produkt-Hero */
+.wk-hero { min-height:780px; padding-bottom:96px !important; }
+.wk-hero .hero-inner { max-width:1320px !important; grid-template-columns:minmax(0,.88fr) minmax(540px,1.22fr) !important; gap:54px; }
+.wk-product-stage { position:relative; width:100%; isolation:isolate; }
+.wk-product-stage::before { content:''; position:absolute; z-index:-1; inset:15% -9% -12%; background:radial-gradient(ellipse, rgba(218,41,28,.22), transparent 66%); filter:blur(30px); }
+.wk-product-frame { overflow:hidden; border:1px solid rgba(156,175,236,.48); border-radius:22px; background:#11131a; box-shadow:0 28px 70px rgba(0,0,0,.44); transform:perspective(1800px) rotateY(-4deg) rotateX(1.5deg); transition:transform .35s var(--ease); }
+.wk-product-frame:hover { transform:perspective(1800px) rotateY(0) rotateX(0) translateY(-5px); }
+.wk-product-frame img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; object-position:center top; }
+.wk-product-status { position:absolute; left:-20px; bottom:34px; display:flex; gap:10px; align-items:center; padding:12px 15px; color:var(--text); background:rgba(17,22,41,.92); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow-lg); font-size:13px; font-weight:650; backdrop-filter:blur(14px); }
+.wk-product-status i { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 0 5px rgba(34,197,94,.14); }
+.wk-module-ribbon { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+.wk-module-ribbon span { font-size:12px; font-weight:600; padding:7px 10px; border:1px solid var(--border); background:var(--surface-glass); color:var(--text-soft); border-radius:var(--r-full); }
+@media (max-width:900px) { .wk-hero { min-height:auto; padding-bottom:70px !important; } .wk-hero .hero-inner { grid-template-columns:1fr !important; gap:48px; } .wk-product-stage { max-width:720px; margin:0 auto; } .wk-product-frame { transform:none; } .wk-product-status { left:12px; bottom:-16px; } }
