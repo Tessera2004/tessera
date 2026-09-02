@@ -1693,7 +1693,7 @@
               <span data-i18n="wiz.ownPrice">Eigener Auftragspreis (netto)</span>
               <button type="button" style="background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-weight: 500;" onclick="resetPriceOverride()" data-i18n="wiz.autoBack">Auto zurück</button>
             </label>
-            <input type="number" id="priceOverride" class="price-override-input" data-i18n-ph="wiz.ownPricePh" placeholder="Eigener Preis in €" step="1" oninput="updateOverrideDisplay()" />
+            <input type="number" id="priceOverride" class="price-override-input" data-i18n-ph="wiz.ownPricePh" placeholder="Eigener Preis (netto)" step="1" oninput="updateOverrideDisplay()" />
             <div style="font-size: 11.5px; color: var(--text-subtle); margin-top: 6px;" data-i18n="wiz.ownPriceHint">
               Praktisch wenn deine Offerte einen anderen Pauschalpreis enthält oder du einen Rabatt gewährt hast.
             </div>
@@ -1736,7 +1736,7 @@
             <div class="field">
               <label data-i18n="wiz.priceCalc">Preis (Dauer × Stundensatz)</label>
               <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
-                <strong id="wizPriceCalc" style="font-size:18px; color:var(--brand-primary);">CHF —</strong>
+                <strong id="wizPriceCalc" style="font-size:18px; color:var(--brand-primary);">—</strong>
                 <span id="wizPriceHint" style="font-size:11px; color:var(--text-subtle);"></span>
               </div>
             </div>
@@ -9551,11 +9551,12 @@
       const hoursEl = document.getElementById('wizDuration');
       const out = document.getElementById('wizPriceCalc');
       const hint = document.getElementById('wizPriceHint');
+      const currency = coLocale(loadCompany()).cur;
       // Generische Branchen: Stundensatz × Dauer ODER Pauschale × Anzahl.
       if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
         if (priceOverrideActive) {
           const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
-          if (out) out.textContent = 'CHF ' + ov.toFixed(2);
+          if (out) out.textContent = currency + ' ' + ov.toFixed(2);
           if (hint) hint.textContent = 'eigener Preis';
           return ov;
         }
@@ -9565,13 +9566,13 @@
         if (def && def.unit === 'h') {
           const hours = parseFloat(hoursEl?.value) || 0;
           price = Math.round((hours * base) * 20) / 20;
-          htxt = `${String(hours).replace('.', ',')} Std × CHF ${base}`;
+          htxt = `${String(hours).replace('.', ',')} Std × ${currency} ${base}`;
         } else {
           const qty = parseInt(document.getElementById('wizGenericQty')?.value) || 1;
           price = Math.round((base * qty) * 20) / 20;
-          htxt = qty > 1 ? `${qty} × CHF ${base} pauschal` : `Pauschale CHF ${base}`;
+          htxt = qty > 1 ? `${qty} × ${currency} ${base} pauschal` : `Pauschale ${currency} ${base}`;
         }
-        if (out) out.textContent = 'CHF ' + price.toFixed(2);
+        if (out) out.textContent = currency + ' ' + price.toFixed(2);
         if (hint) hint.textContent = htxt;
         return price;
       }
@@ -9583,16 +9584,16 @@
       const fee = getPrice(svc + '-fee') || 0;
       if (priceOverrideActive) {
         const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
-        if (out) out.textContent = 'CHF ' + ov.toFixed(2);
+        if (out) out.textContent = currency + ' ' + ov.toFixed(2);
         if (hint) hint.textContent = 'eigener Preis';
         return ov;
       }
       const billed = Math.max(hours, minHours);
       const price = Math.round((billed * rate + fee) * 20) / 20; // auf 5 Rappen
-      if (out) out.textContent = 'CHF ' + price.toFixed(2);
+      if (out) out.textContent = currency + ' ' + price.toFixed(2);
       if (hint) {
         const hoursTxt = String(billed).replace('.', ',');
-        hint.textContent = `${hoursTxt} Std × CHF ${rate}` + (fee ? ` + ${fee} Anfahrt` : '') +
+        hint.textContent = `${hoursTxt} Std × ${currency} ${rate}` + (fee ? ` + ${currency} ${fee} Anfahrt` : '') +
           (minHours && hours < minHours ? ` (Min. ${minHours} Std)` : '');
       }
       return price;
@@ -9600,6 +9601,7 @@
 
     function calcPriceForService() {
       if (!wizService) return null;
+      const currency = coLocale(loadCompany()).cur;
 
       let mins = 0;
       let rate = 0;
@@ -9629,11 +9631,11 @@
           total: Math.max(base, minAuftrag) + feeEnd,
           mins: durMins,
           dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
-          rateStr: `${qmPrice.toFixed(2)} €/m² × ${flaeche} m²`,
+          rateStr: `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: feeEnd,
           showFee: feeEnd > 0,
           minApplied: usedMin,
-          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} €` : null,
+          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} ${currency}` : null,
           breakdown: []
         };
       }
@@ -9667,7 +9669,7 @@
           total: Math.max(base, minAuftrag) + feeBau,
           mins: durMins,
           dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
-          rateStr: `${qmPrice.toFixed(2)} €/m² × ${flaeche} m²`,
+          rateStr: `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: feeBau,
           showFee: feeBau > 0,
           minApplied: usedMin,
@@ -9696,7 +9698,7 @@
           fee: 0,
           showFee: false,
           minApplied: usedMin,
-          minStr: usedMin ? `${minAuftrag.toFixed(2)} €` : null
+          minStr: usedMin ? `${minAuftrag.toFixed(2)} ${currency}` : null
         };
       }
 
@@ -9709,7 +9711,7 @@
         total: subtotal,
         mins: mins,
         dur: `${Math.floor(mins/60)}h ${mins%60}min`,
-        rateStr: `${rate.toFixed(2)} €/h × ${billedHours.toFixed(1)} h`,
+        rateStr: `${rate.toFixed(2)} ${currency}/h × ${billedHours.toFixed(1)} h`,
         fee: fee,
         showFee: fee > 0,
         minApplied: minApplied,
@@ -9719,7 +9721,7 @@
     }
 
     function updatePriceSummary() {
-      // Generische Branchen: Summe aus dem generischen Preis (CHF), Reinigungs-Detailzeilen aus.
+      // Generische Branchen: Summe aus dem jeweiligen Firmenland, Reinigungs-Detailzeilen aus.
       if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
         const price = wizCalcPrice();
         const def = genericServiceDef(wizService);
@@ -9732,14 +9734,16 @@
         if (sumRate) sumRate.textContent = document.getElementById('wizPriceHint')?.textContent || '';
         if (sumFeeRow) sumFeeRow.style.display = 'none';
         if (sumMinRow) sumMinRow.style.display = 'none';
+        const currency = coLocale(loadCompany()).cur;
         if (sumTotal) sumTotal.textContent = priceOverrideActive
-          ? `${(parseFloat(document.getElementById('priceOverride').value) || 0).toFixed(2)} CHF (manuell)`
-          : `CHF ${price.toFixed(2)}`;
+          ? `${(parseFloat(document.getElementById('priceOverride').value) || 0).toFixed(2)} ${currency} (manuell)`
+          : `${currency} ${price.toFixed(2)}`;
         return;
       }
       const p = calcPriceForService();
       if (!p) return;
-      const fmt = v => `${v.toFixed(2)} €`;
+      const currency = coLocale(loadCompany()).cur;
+      const fmt = v => `${v.toFixed(2)} ${currency}`;
       document.getElementById('sumDur').textContent = p.dur;
       document.getElementById('sumRate').textContent = p.rateStr;
       document.getElementById('sumFeeRow').style.display = p.showFee ? 'flex' : 'none';
@@ -9839,7 +9843,8 @@
     function buildTemplate(svc, data) {
       const kunde = data.kunde?.trim() || '[Kundenname]';
       const adresse = data.adresse?.trim() || '[Adresse]';
-      const preis = data.preis ? `${parseFloat(data.preis).toFixed(2)} €` : '[Preis]';
+      const currency = coLocale(loadCompany()).cur;
+      const preis = data.preis ? `${parseFloat(data.preis).toFixed(2)} ${currency}` : '[Preis]';
       const datum = formatDateDE(data.datum || todayISO());
       const gueltig = formatDateDE(validUntilISO(30));
       const co = loadCompany();
@@ -9954,10 +9959,10 @@ ${coSig}`
       if (isGenericVertical()) {
         const def = genericServiceDef(svc);
         const title = serviceTitle(svc);
-        const preisCHF = data.preis ? `${parseFloat(data.preis).toFixed(2)} CHF` : '[Preis]';
+        const preisCHF = data.preis ? `${parseFloat(data.preis).toFixed(2)} ${currency}` : '[Preis]';
         const priceLine = (def && def.unit === 'h')
-          ? `Stundensatz: CHF ${genericServicePrice(svc).toFixed(2)} / h`
-          : `Pauschalpreis: CHF ${genericServicePrice(svc).toFixed(2)}`;
+          ? `Stundensatz: ${currency} ${genericServicePrice(svc).toFixed(2)} / h`
+          : `Pauschalpreis: ${currency} ${genericServicePrice(svc).toFixed(2)}`;
         return `Sehr geehrte/r ${kunde},
 
 vielen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen folgendes Angebot für „${title}".
