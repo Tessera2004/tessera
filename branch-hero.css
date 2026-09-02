@@ -29,7 +29,7 @@
 .wk-product-shot { position:relative; }
 .wk-product-stage::before {
   content:''; position:absolute; z-index:-1; inset:6% -9% -18%;
-  background:radial-gradient(ellipse, rgba(218,41,28,.22), transparent 66%);
+  background:radial-gradient(ellipse, rgba(var(--swiss-rgb), .22), transparent 66%);
   filter:blur(30px);
 }
 
@@ -42,7 +42,7 @@
 }
 .wk-shot-label i {
   width:7px; height:7px; flex:none; border-radius:50%;
-  background:var(--swiss); box-shadow:0 0 0 4px rgba(218,41,28,.16);
+  background:var(--swiss); box-shadow:0 0 0 4px rgba(var(--swiss-rgb), .16);
 }
 
 .wk-product-frame {

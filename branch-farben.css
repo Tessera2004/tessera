@@ -1,0 +1,50 @@
+/* MosaOS — Akzentfarbe pro Branche
+   ------------------------------------------------------------------
+   Jede Branchen-Landingpage bekommt einen eigenen Akzent, damit die
+   Seiten unterscheidbar sind. Umgeschaltet werden nur vier Tokens:
+
+     --swiss         gefüllte Flächen und kleine Akzente
+     --swiss-bright  helle Variante (Verlaufs-Überschrift, Links)
+     --swiss-rgb     speist alle rgba()-Schatten und Hintergrundschleier
+     --swiss-on      Schrift auf gefüllter Akzentfläche
+
+   --swiss-on ist bei Gelb, Grün und Hellblau bewusst dunkel: weisse
+   Schrift käme auf diesen Tönen nicht auf die nötigen 4.5:1.
+
+   Die Wortmarke „MosaOS" bleibt überall rot (.brand-os) — sonst sähe
+   das Produkt auf jeder Seite nach einer anderen Marke aus. */
+
+body[data-branch="reinigung"] {          /* Gebäudereinigung — Rot (Grundton) */
+  --swiss: #DA291C;
+  --swiss-bright: #FF4A3D;
+  --swiss-rgb: 218, 41, 28;
+  --swiss-on: #ffffff;
+}
+
+body[data-branch="werkstatt"] {          /* Auto-Werkstatt — Blau */
+  --swiss: #2563EB;
+  --swiss-bright: #6AA0FF;
+  --swiss-rgb: 37, 99, 235;
+  --swiss-on: #ffffff;
+}
+
+body[data-branch="handwerk"] {           /* Handwerk — Gelb */
+  --swiss: #E0A61B;
+  --swiss-bright: #FFC94A;
+  --swiss-rgb: 224, 166, 27;
+  --swiss-on: #1B1405;
+}
+
+body[data-branch="garten"] {             /* Garten- und Landschaftsbau — Grün */
+  --swiss: #1FA155;
+  --swiss-bright: #45D588;
+  --swiss-rgb: 31, 161, 85;
+  --swiss-on: #06180E;
+}
+
+body[data-branch="schaedlingsbekaempfung"] {   /* Schädlingsbekämpfung — Hellblau */
+  --swiss: #23A8D4;
+  --swiss-bright: #5BD0F0;
+  --swiss-rgb: 35, 168, 212;
+  --swiss-on: #04161D;
+}

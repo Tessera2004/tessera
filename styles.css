@@ -9,9 +9,16 @@
   --navy: #1A1F3A;
   --navy-deep: #0A0E1F;
   --navy-soft: #2A3052;
+  /* Akzentfarbe. --swiss-rgb speist alle rgba()-Schatten und Schleier,
+     --swiss-on ist die Schrift auf gefüllter Akzentfläche. Die Branchen-
+     Landingpages überschreiben diese vier Werte (branch-farben.css). */
   --swiss: #DA291C;
   --swiss-bright: #FF4A3D;
-  --swiss-soft: rgba(218, 41, 28, 0.15);
+  --swiss-rgb: 218, 41, 28;
+  --swiss-on: #ffffff;
+  --swiss-soft: rgba(var(--swiss-rgb), 0.15);
+  --brand-red: #DA291C;   /* Wortmarke — bleibt rot, auch wenn die Seite
+                             einen Branchen-Akzent hat (branch-farben.css) */
 
   /* Surfaces (dark) */
   --bg: #07091A;
@@ -35,7 +42,7 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.25);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 40px 80px rgba(0, 0, 0, 0.6), 0 12px 30px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 60px rgba(218, 41, 28, 0.25);
+  --shadow-glow: 0 0 60px rgba(var(--swiss-rgb), 0.25);
 
   /* Radii */
   --r-sm: 8px;
@@ -80,7 +87,7 @@ body::before {
   inset: 0;
   z-index: -10;
   background:
-    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(218, 41, 28, 0.10), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(var(--swiss-rgb), 0.10), transparent 60%),
     radial-gradient(ellipse 70% 50% at 85% 0%, rgba(91, 33, 182, 0.08), transparent 60%),
     radial-gradient(ellipse 60% 60% at 50% 100%, rgba(59, 130, 246, 0.06), transparent 60%),
     var(--bg);
@@ -135,7 +142,7 @@ body.intro-done .intro { pointer-events: none; }
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(218, 41, 28, 0.25), transparent 60%);
+    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(var(--swiss-rgb), 0.25), transparent 60%);
   filter: blur(60px);
   animation: introGlow 2.4s ease-in-out forwards;
   opacity: 0;
@@ -391,13 +398,13 @@ section[id] { scroll-margin-top: 90px; }
 }
 .btn-primary {
   background: var(--swiss);
-  color: white;
-  box-shadow: 0 8px 24px rgba(218, 41, 28, 0.25);
+  color: var(--swiss-on);
+  box-shadow: 0 8px 24px rgba(var(--swiss-rgb), 0.25);
 }
 .btn-primary:hover {
   background: var(--swiss-bright);
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(218, 41, 28, 0.4);
+  box-shadow: 0 12px 32px rgba(var(--swiss-rgb), 0.4);
 }
 .btn-primary:active { transform: translateY(0); }
 .btn-ghost {
@@ -439,7 +446,7 @@ section[id] { scroll-margin-top: 90px; }
   inset: -20%;
   z-index: -2;
   background:
-    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(218, 41, 28, 0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(var(--swiss-rgb), 0.18), transparent 60%),
     radial-gradient(ellipse 50% 60% at 80% 70%, rgba(59, 130, 246, 0.12), transparent 60%),
     radial-gradient(ellipse 70% 40% at 50% 80%, rgba(139, 92, 246, 0.10), transparent 60%);
   animation: meshDrift 20s ease-in-out infinite alternate;
@@ -491,12 +498,12 @@ section[id] { scroll-margin-top: 90px; }
   height: 6px;
   background: var(--swiss);
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(218, 41, 28, 0.25);
+  box-shadow: 0 0 0 4px rgba(var(--swiss-rgb), 0.25);
   animation: pulse 2.4s ease-in-out infinite;
 }
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(218, 41, 28, 0.25); }
-  50%      { box-shadow: 0 0 0 9px rgba(218, 41, 28, 0.05); }
+  0%, 100% { box-shadow: 0 0 0 4px rgba(var(--swiss-rgb), 0.25); }
+  50%      { box-shadow: 0 0 0 9px rgba(var(--swiss-rgb), 0.05); }
 }
 
 h1 {
@@ -542,6 +549,7 @@ h1 {
 }
 .trust-item { display: flex; align-items: center; gap: 6px; }
 .trust-check { color: var(--swiss); font-weight: 700; }
+.brand-os { color: var(--brand-red); }
 
 /* ---------- Hero Visual: Mosaic ---------- */
 .hero-visual {
@@ -598,7 +606,7 @@ h1 {
   position: absolute;
   inset: -60px;
   z-index: -1;
-  background: radial-gradient(circle at center, rgba(218, 41, 28, 0.25), transparent 60%);
+  background: radial-gradient(circle at center, rgba(var(--swiss-rgb), 0.25), transparent 60%);
   filter: blur(50px);
   animation: glowPulse 4s ease-in-out infinite;
 }
@@ -830,7 +838,7 @@ h1 {
 .branche-link-accent:hover { border-bottom-color: var(--swiss-bright); }
 
 .branche-card-custom {
-  background: linear-gradient(135deg, rgba(167,139,250,0.06), rgba(218,41,28,0.06));
+  background: linear-gradient(135deg, rgba(167,139,250,0.06), rgba(var(--swiss-rgb), 0.06));
   border: 1px dashed var(--border-strong);
 }
 
@@ -975,8 +983,8 @@ h1 {
 .branche-tab:hover { color: var(--text); background: var(--surface-glass); }
 .branche-tab.active {
   background: var(--swiss);
-  color: white;
-  box-shadow: 0 4px 12px rgba(218, 41, 28, 0.3);
+  color: var(--swiss-on);
+  box-shadow: 0 4px 12px rgba(var(--swiss-rgb), 0.3);
 }
 .mod-group { display: flex; flex-direction: column; gap: 8px; }
 .mod {
@@ -1038,7 +1046,7 @@ h1 {
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(218,41,28,0.18), transparent 50%);
+  background: radial-gradient(circle, rgba(var(--swiss-rgb), 0.18), transparent 50%);
   animation: meshDrift 12s ease-in-out infinite alternate;
 }
 .summary-eyebrow {
@@ -1125,7 +1133,7 @@ h1 {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse 50% 80% at 20% 30%, rgba(218,41,28,0.35), transparent 60%),
+    radial-gradient(ellipse 50% 80% at 20% 30%, rgba(var(--swiss-rgb), 0.35), transparent 60%),
     radial-gradient(ellipse 50% 60% at 80% 70%, rgba(59,130,246,0.2), transparent 60%);
   animation: meshDrift 15s ease-in-out infinite alternate;
   filter: blur(60px);
@@ -1179,7 +1187,7 @@ h1 {
 .social:hover {
   background: var(--swiss);
   border-color: var(--swiss);
-  color: white;
+  color: var(--swiss-on);
   transform: translateY(-2px);
 }
 .footer-col h5 {
@@ -1232,7 +1240,7 @@ h1 {
 .lang-switch button:hover { color: var(--text); }
 .lang-switch button.active {
   background: var(--swiss);
-  color: white;
+  color: var(--swiss-on);
 }
 
 /* ============================================================
@@ -1339,7 +1347,7 @@ h1 {
   outline: none;
   border-color: var(--swiss);
   background: var(--bg);
-  box-shadow: 0 0 0 4px rgba(218, 41, 28, 0.15);
+  box-shadow: 0 0 0 4px rgba(var(--swiss-rgb), 0.15);
 }
 .form-field select {
   appearance: none;
@@ -1436,7 +1444,7 @@ h1 {
   height: 64px;
   margin: 0 auto 24px;
   background: var(--swiss);
-  color: white;
+  color: var(--swiss-on);
   border-radius: 50%;
   display: flex;
   align-items: center;

@@ -14,7 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="branch-farben.css?v=1" />
   <link rel="stylesheet" href="branch-hero.css?v=7" />
   <style>
     /* Landingpage-eigene Bausteine (nutzen die Design-Tokens der Website) */
@@ -48,7 +49,7 @@
     .wk-mini-footer a:hover { color:var(--text); }
 
     /* Gemeinsames Produktlayout: identisch klar strukturiert wie Werkstatt */
-    .wk-command-center { margin:0 auto; max-width:1180px; padding:76px 42px; border:1px solid var(--border); border-radius:var(--r-xl); background:linear-gradient(135deg, rgba(218,41,28,.10), transparent 34%), var(--surface); box-shadow:var(--shadow-lg); }
+    .wk-command-center { margin:0 auto; max-width:1180px; padding:76px 42px; border:1px solid var(--border); border-radius:var(--r-xl); background:linear-gradient(135deg, rgba(var(--swiss-rgb), .10), transparent 34%), var(--surface); box-shadow:var(--shadow-lg); }
     .wk-command-center .section-head { max-width:760px; margin-bottom:38px; }
     .wk-command-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
     .wk-command-card { min-width:0; padding:24px; border:1px solid var(--border); border-radius:var(--r-lg); background:rgba(8,12,27,.48); }
@@ -67,7 +68,7 @@
     <div class="nav-inner">
       <a href="index.html" class="nav-logo" aria-label="MosaOS Startseite">
         <img src="logo/mosaos-mark.svg" alt="" width="32" height="32" />
-        <span>Mosa<span style="color:var(--swiss)">OS</span></span>
+        <span>Mosa<span class="brand-os">OS</span></span>
       </a>
       <nav class="nav-links" aria-label="Hauptnavigation">
         <a href="#funktionen" data-i18n="br.nav.funktionen">Funktionen</a>
