@@ -104,9 +104,20 @@ window.MOSAOS_CONFIG = {
         bar.id = 'mosaos-cookie';
         bar.setAttribute('role', 'note');
         bar.innerHTML =
-          '<span>Wir verwenden nur technisch notwendige Cookies (Session &amp; Sprache) — kein Tracking, keine Werbung. ' +
-          '<a href="datenschutz.html">Mehr erfahren</a></span>' +
-          '<button type="button" id="mosaos-cookie-ok">Verstanden</button>';
+          '<span><span data-i18n="cookie.text"></span> ' +
+          '<a href="datenschutz.html" data-i18n="cookie.more"></a></span>' +
+          '<button type="button" id="mosaos-cookie-ok" data-i18n="cookie.ok"></button>';
+        // config.js wird vor i18n.js geladen: zunächst füllen und nach jedem
+        // Sprachwechsel erneut übersetzen.
+        const fillTexts = () => {
+          const i18n = window.MOSAOS_I18N;
+          if (!i18n || !i18n.t) return;
+          bar.querySelectorAll('[data-i18n]').forEach((el) => {
+            el.textContent = i18n.t(el.dataset.i18n);
+          });
+        };
+        fillTexts();
+        document.addEventListener('mosa-lang-changed', fillTexts);
         const s = bar.style;
         s.position = 'fixed'; s.left = '16px'; s.right = '16px'; s.bottom = '16px';
         s.maxWidth = '640px'; s.margin = '0 auto'; s.zIndex = '9999';

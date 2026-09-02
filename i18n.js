@@ -58,6 +58,9 @@
       'footer.imprint': 'Impressum',
       'footer.terms': 'AGB',
       'footer.privacy': 'Datenschutz',
+      'cookie.text': 'Wir verwenden nur technisch notwendige Cookies (Session und Sprache) — kein Tracking, keine Werbung.',
+      'cookie.more': 'Mehr erfahren',
+      'cookie.ok': 'Verstanden',
 
       'branche.reinigung': 'Gebäudereinigung',
       'branche.reinigung.desc': 'Routenplanung, Mitarbeiter-Disposition, Kundenstamm mit Anrufprotokoll, Abo-Verträge, Foto-Nachweise, CSV für den Steuerberater.',
@@ -441,6 +444,9 @@
       'footer.imprint': 'Mentions légales',
       'footer.terms': 'CGV',
       'footer.privacy': 'Confidentialité',
+      'cookie.text': 'Nous utilisons uniquement des cookies techniquement nécessaires (session et langue) — pas de suivi, pas de publicité.',
+      'cookie.more': 'En savoir plus',
+      'cookie.ok': 'Compris',
 
       'branche.reinigung': 'Nettoyage de bâtiments',
       'branche.reinigung.desc': 'Planification de tournées, gestion d\'équipes, fichier clients avec journal d\'appels, contrats d\'abonnement, preuves photo, export CSV pour le fiduciaire.',
@@ -824,6 +830,9 @@
       'footer.imprint': 'Impressum',
       'footer.terms': 'Termini',
       'footer.privacy': 'Privacy',
+      'cookie.text': 'Utilizziamo solo cookie tecnicamente necessari (sessione e lingua) — nessun tracciamento, nessuna pubblicità.',
+      'cookie.more': 'Scopri di più',
+      'cookie.ok': 'Ho capito',
 
       'branche.reinigung': 'Pulizie di edifici',
       'branche.reinigung.desc': 'Pianificazione percorsi, gestione team, anagrafica clienti con registro chiamate, contratti in abbonamento, prove fotografiche, esportazione CSV per il fiduciario.',
@@ -1207,6 +1216,9 @@
       'footer.imprint': 'Aviso legal',
       'footer.terms': 'Condiciones',
       'footer.privacy': 'Privacidad',
+      'cookie.text': 'Solo utilizamos cookies técnicamente necesarias (sesión e idioma) — sin rastreo, sin publicidad.',
+      'cookie.more': 'Más información',
+      'cookie.ok': 'Entendido',
 
       'branche.reinigung': 'Limpieza de edificios',
       'branche.reinigung.desc': 'Planificación de rutas, gestión de personal, fichero de clientes con registro de llamadas, contratos de abono, pruebas fotográficas, exportación CSV.',
@@ -1590,6 +1602,9 @@
       'footer.imprint': 'Imprint',
       'footer.terms': 'Terms',
       'footer.privacy': 'Privacy',
+      'cookie.text': 'We only use technically necessary cookies (session and language) — no tracking, no advertising.',
+      'cookie.more': 'Learn more',
+      'cookie.ok': 'Got it',
 
       'branche.reinigung': 'Building cleaning',
       'branche.reinigung.desc': 'Route planning, staff scheduling, customer records with call log, subscription contracts, photo proof, CSV export for your accountant.',

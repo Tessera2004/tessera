@@ -1,2 +1,293 @@
-<!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=branchen.html?branche=handwerk"><title>MosaOS Handwerk</title></head><body><script>location.replace('branchen.html?branche=handwerk');</script><a href="branchen.html?branche=handwerk">Handwerk öffnen</a></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MosaOS ist die Schweizer Software für Handwerksbetriebe: Baustellen-Board, Arbeitsrapporte mit Stunden und Material, Tagesplanung, Offerten und QR-Rechnung. 14 Tage gratis testen." />
+  <meta name="keywords" content="Handwerker Software Schweiz, Software Handwerksbetrieb, Baustellen Software, Arbeitsrapport Handwerk, Regierapport, Offerte Rechnung Handwerk" />
+  <title>Handwerker-Software Schweiz — Baustellen-Board, Arbeitsrapporte &amp; QR-Rechnung | MosaOS</title>
+  <link rel="canonical" href="https://mosaos.pages.dev/handwerk.html" />
+  <link rel="icon" type="image/svg+xml" href="logo/favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Handwerker-Software Schweiz — Baustellen-Board, Arbeitsrapporte &amp; QR-Rechnung | MosaOS" />
+  <meta property="og:description" content="Schweizer Software für Handwerksbetriebe: Baustellen-Board, Arbeitsrapporte mit Stunden und Material, Tagesplanung, Offerten und QR-Rechnung." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=5" />
+  <style>
+    /* Landingpage-eigene Bausteine (nutzen die Design-Tokens der Website) */
+    .wk-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:44px; }
+    .wk-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 24px; transition:border-color .2s var(--ease), transform .2s var(--ease); }
+    .wk-card:hover { border-color:var(--border-strong); transform:translateY(-3px); }
+    .wk-ic { width:46px; height:46px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; color:var(--swiss); background:var(--swiss-soft); margin-bottom:16px; }
+    .wk-card h3 { font-size:17px; margin:0 0 8px; color:var(--text); }
+    .wk-card p { font-size:14px; line-height:1.55; color:var(--text-muted); margin:0; }
+
+    .wk-pain { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:36px; }
+    .wk-pain div { background:var(--bg-soft); border:1px solid var(--border-soft); border-left:3px solid var(--swiss); border-radius:var(--r-md); padding:16px 18px; font-size:14.5px; color:var(--text-soft); line-height:1.5; }
+
+    .wk-flow { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:40px; justify-content:center; }
+    .wk-step { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-full); padding:11px 20px; font-size:14px; font-weight:600; color:var(--text); }
+    .wk-arrow { color:var(--text-subtle); }
+
+    .wk-price { max-width:560px; margin:44px auto 0; background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:36px 32px; text-align:center; box-shadow:var(--shadow-lg); }
+    .wk-price .amt { font-size:46px; font-weight:800; color:var(--text); letter-spacing:-.02em; }
+    .wk-price .amt span { font-size:17px; font-weight:600; color:var(--text-muted); }
+    .wk-price ul { list-style:none; padding:0; margin:22px 0 26px; text-align:left; display:inline-block; }
+    .wk-price li { font-size:14.5px; color:var(--text-soft); padding:6px 0 6px 26px; position:relative; }
+    .wk-price li::before { content:"✓"; position:absolute; left:0; color:var(--swiss); font-weight:700; }
+
+    .wk-cta-band { text-align:center; padding:76px 20px; }
+    .wk-cta-band h2 { font-size:clamp(26px,4vw,38px); margin:0 0 14px; color:var(--text); letter-spacing:-.02em; }
+    .wk-cta-band p { font-size:16px; color:var(--text-muted); margin:0 0 28px; }
+
+    .wk-mini-footer { border-top:1px solid var(--border); padding:26px 20px; text-align:center; font-size:13px; color:var(--text-subtle); }
+    .wk-mini-footer a { color:var(--text-muted); text-decoration:none; margin:0 8px; }
+    .wk-mini-footer a:hover { color:var(--text); }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="MosaOS Startseite">
+        <img src="logo/mosaos-mark.svg" alt="" width="32" height="32" />
+        <span>Mosa<span style="color:var(--swiss)">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#funktionen" data-i18n="br.nav.funktionen">Funktionen</a>
+        <a href="#ablauf" data-i18n="br.nav.ablauf">Ablauf</a>
+        <a href="#preis" data-i18n="br.nav.preis">Preis</a>
+        <a href="index.html#branchen" data-i18n="br.nav.andere">Andere Branchen</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
+        <a href="app/onboarding.html" class="btn btn-primary" data-i18n="br.nav.start">Gratis starten</a>
+        <div class="lang-switch">
+          <button data-lang="de">DE</button>
+          <button data-lang="fr">FR</button>
+          <button data-lang="it">IT</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+      <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top" style="min-height:auto; padding-bottom:40px;">
+    <div class="hero-mesh" aria-hidden="true"></div>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-inner" style="grid-template-columns:1fr; max-width:860px;">
+      <div class="hero-text">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span data-i18n="hw.hero.badge">Für Handwerksbetriebe · Made in Switzerland</span>
+        </div>
+        <h1 data-i18n="hw.hero.title">Vom Kundenauftrag bis zum Rapport. <span class="grad">Ohne Zettelwirtschaft.</span></h1>
+        <p class="hero-sub" data-i18n="hw.hero.sub">Baustellen, Tagesplanung, Material, Arbeitsrapporte, Offerten, Rechnungen und dein Team – verbunden statt doppelt erfasst.</p>
+        <div class="hero-cta">
+          <a href="app/onboarding.html" class="btn btn-primary btn-lg">
+            <span data-i18n="br.hero.cta1">14 Tage gratis starten</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="app/app.html" class="btn btn-ghost btn-lg" data-i18n="br.hero.cta2">Demo ansehen</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust1">Daten in der EU · DSG/DSGVO</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust2">Schweizer QR-Rechnung</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust3">Keine Kreditkarte nötig</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST-STRIP ============ -->
+  <section class="strip">
+    <div class="strip-inner">
+      <span class="strip-label" data-i18n="br.strip.label">Gebaut für Schweizer KMU</span>
+      <div class="strip-items">
+        <div class="strip-item" data-i18n="br.strip.1">🇨🇭 Für die Schweiz</div>
+        <div class="strip-item" data-i18n="br.strip.2">🧾 QR-Rechnung</div>
+        <div class="strip-item" data-i18n="br.strip.3">📱 Mobile-App fürs Team</div>
+        <div class="strip-item" data-i18n="br.strip.4">🔔 Termine &amp; Erinnerungen</div>
+        <div class="strip-item" data-i18n="br.strip.5">⚡ In 30 Min startklar</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ALLES VERKNÜPFT ============ -->
+  <section class="section" id="zentrale">
+    <div class="container">
+      <div class="wk-command-center">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="br.center.eyebrow">Mehr als eine Einsatzplanung</div>
+          <h2 data-i18n="br.center.title">Vom ersten Anruf bis zur bezahlten Rechnung. In einer App.</h2>
+          <p class="section-sub" data-i18n="br.center.sub">MosaOS verbindet Kommunikation, Einsätze, Team und Zahlen.</p>
+        </div>
+        <div class="wk-command-grid">
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.comm.number">01 — KOMMUNIKATION</span>
+            <h3 data-i18n="br.center.comm.title">Kommunikation am Kunden</h3>
+            <p data-i18n="br.center.comm.text">Gmail, Microsoft 365/Outlook und IMAP anbinden.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.comm.tag1">E-Mail-Anbindung</span><span data-i18n="br.center.comm.tag2">Anrufprotokoll</span></div>
+          </article>
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.flow.number">02 — ABLÄUFE</span>
+            <h3 data-i18n="br.center.flow.title">Ein Ablauf statt sieben Tools</h3>
+            <p data-i18n="br.center.flow.text">Aus Anruf, E-Mail oder Termin wird ein Auftrag.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.flow.tag1">Offerten</span><span data-i18n="br.center.flow.tag2">QR-Rechnungen</span></div>
+          </article>
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.team.number">03 — TEAM &amp; ZAHLEN</span>
+            <h3 data-i18n="br.center.team.title">Team weiss, was zu tun ist</h3>
+            <p data-i18n="br.center.team.text">Aufgaben, Termine, Zuteilung und Zeiterfassung.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.team.tag1">Mobile-App</span><span data-i18n="br.center.team.tag2">Nachkalkulation</span></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.problem.eyebrow">Kennst du das?</div>
+        <h2 data-i18n="hw.problem.title">Die Baustelle läuft — der Papierkram nicht.</h2>
+        <p class="section-sub" data-i18n="hw.problem.sub">Material auf Zetteln, Stunden im Kopf, Offerten am Abend. Bei MosaOS wird aus dem Rapport direkt die Rechnung.</p>
+      </div>
+      <div class="wk-pain">
+        <div data-i18n="hw.pain.1">„Wie viele Stunden waren wir auf der Baustelle Müller?" — Zettel im Lieferwagen.</div>
+        <div data-i18n="hw.pain.2">Material vergessen zu verrechnen — die Marge ist weg.</div>
+        <div data-i18n="hw.pain.3">Offerten am Abend am Küchentisch schreiben, weil tagsüber keine Zeit ist.</div>
+        <div data-i18n="hw.pain.4">Der Kunde reklamiert, aber niemand hat Fotos vom Zustand vorher.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FUNKTIONEN ============ -->
+  <section class="section" id="funktionen" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.feat.eyebrow">Funktionen</div>
+        <h2 data-i18n="br.feat.title">Alles, was dein Betrieb wirklich braucht.</h2>
+        <p class="section-sub" data-i18n="br.feat.sub">Kein überladenes System — die Werkzeuge deiner Branche, ruhig gebaut.</p>
+      </div>
+      <div class="wk-grid">
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/></svg></div>
+          <h3 data-i18n="hw.feat.1.title">Baustellen-Board</h3>
+          <p data-i18n="hw.feat.1.text">Anfragen, Aufträge und Fortschritt für das ganze Team.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.4"/><path d="M8.5 6l1.4-2h4.2l1.4 2"/></svg></div>
+          <h3 data-i18n="hw.feat.2.title">Rapporte &amp; Material</h3>
+          <p data-i18n="hw.feat.2.text">Stunden, Material und Fotos direkt auf der Baustelle erfassen.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
+          <h3 data-i18n="hw.feat.3.title">Offerte bis Rechnung</h3>
+          <p data-i18n="hw.feat.3.text">Leistungen aus dem Rapport in Offerte und Rechnung übernehmen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABLAUF ============ -->
+  <section class="section" id="ablauf" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.flow.eyebrow">So läuft ein Auftrag</div>
+        <h2 data-i18n="br.flow.title">Von der Anfrage bis zur bezahlten Rechnung.</h2>
+      </div>
+      <div class="wk-flow">
+        <span class="wk-step" data-i18n="hw.flow.1">Kundenanfrage</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" data-i18n="hw.flow.2">Offerte</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" data-i18n="hw.flow.3">Baustelle &amp; Rapport</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" style="border-color:var(--swiss); color:var(--swiss);" data-i18n="hw.flow.4">Rechnung</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PREIS ============ -->
+  <section class="section" id="preis" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.price.eyebrow">Preis</div>
+        <h2 data-i18n="br.price.title">Ein fairer Preis. Module nach Bedarf.</h2>
+        <p class="section-sub" data-i18n="br.price.sub">Die Werkzeuge deiner Branche sind in der Basis dabei.</p>
+      </div>
+      <div class="wk-price">
+        <div class="amt">CHF 49<span data-i18n="br.price.per"> / Monat</span></div>
+        <ul>
+          <li data-i18n="hw.feat.1.title">Baustellen-Board</li>
+          <li data-i18n="hw.feat.2.title">Rapporte &amp; Material</li>
+          <li data-i18n="hw.feat.3.title">Offerte bis Rechnung</li>
+          <li data-i18n="br.price.li4">Kunden, Team &amp; Termine</li>
+          <li data-i18n="br.price.li5">Mobile-App fürs Team</li>
+        </ul>
+        <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:22px;" data-i18n="br.price.addon">
+          Optional dazubuchbar: QR-Rechnungen, Offerten, Zeiterfassung u. a.
+        </div>
+        <a href="app/onboarding.html" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" data-i18n="br.price.cta">14 Tage gratis testen — ohne Kreditkarte</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA-BAND ============ -->
+  <section class="wk-cta-band">
+    <div class="container">
+      <h2 data-i18n="br.band.title">Bring Ruhe in deinen Betrieb.</h2>
+      <p data-i18n="br.band.text">In 30 Minuten eingerichtet. Keine Vertragsbindung, keine Kreditkarte.</p>
+      <a href="app/onboarding.html" class="btn btn-primary btn-lg">
+        <span data-i18n="br.band.cta">Jetzt gratis starten</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ MINI-FOOTER ============ -->
+  <footer class="wk-mini-footer">
+    <div>
+      <a href="index.html" data-i18n="br.footer.home">Startseite</a>
+      <a href="index.html#branchen" data-i18n="br.nav.andere">Andere Branchen</a>
+      <a href="anfrage.html" data-i18n="footer.contact">Kontakt</a>
+      <a href="impressum.html" data-i18n="footer.imprint">Impressum</a>
+      <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
+    </div>
+    <div style="margin-top:12px;">
+      © <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD für SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MosaOS Handwerker-Software",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Schweizer Software für Handwerksbetriebe: Baustellen-Board, Arbeitsrapporte mit Stunden und Material, Tagesplanung, Offerten und QR-Rechnung.",
+    "offers": { "@type": "Offer", "price": "49", "priceCurrency": "CHF" },
+    "areaServed": "CH"
+  }
+  </script>
+
+  <script src="config.js?v=2"></script>
+  <script src="i18n.js?v=8"></script>
+  <script src="main.js?v=2" defer></script>
+</body>
+</html>
