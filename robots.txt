@@ -1,0 +1,11 @@
+# MosaOS — https://mosaos.pages.dev
+# Die App unter /app/ ist Kundenbereich und gehört nicht in den Index
+# (zusätzlich per X-Robots-Tag in _headers gesperrt).
+
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /product-video.html
+Disallow: /product-video-reel.html
+
+Sitemap: https://mosaos.pages.dev/sitemap.xml
