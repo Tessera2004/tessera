@@ -1,13 +1,108 @@
-/* MosaOS Branchen-Landingpages – echte App-Ansicht im Produkt-Hero */
-.wk-hero { min-height:780px; padding-bottom:96px !important; }
-.wk-hero .hero-inner { max-width:1320px !important; grid-template-columns:minmax(0,.88fr) minmax(540px,1.22fr) !important; gap:54px; }
+/* MosaOS Branchen-Landingpages – echte App-Ansicht im Produkt-Hero
+   ------------------------------------------------------------------
+   Die Bilder sind echte Screenshots aus der App (2880 x 1240, also
+   1440 x 620 bei 2x). Der Ausschnitt endet knapp unter dem Inhalt —
+   dadurch füllt die Ansicht den Rahmen, statt halb leer zu wirken.
+   Neu aufnehmen: marketing/demo-daten-branchen.js +
+   marketing/branchen-screenshots.js (Ablauf steht in den Dateien).
+   Referenz für Aufbau und Wirkung bleibt werkstatt.html. */
+
+.wk-hero { min-height:720px; padding-bottom:88px !important; }
+.wk-hero .hero-inner {
+  max-width:1400px !important;
+  grid-template-columns:minmax(0,.9fr) minmax(580px,1.3fr) !important;
+  gap:52px;
+  align-items:center;
+}
+
+/* Die Branchen-Überschriften enthalten lange deutsche Komposita
+   („Zettelwirtschaft", „Schädlingsbekämpfung"). Ohne Deckel läuft das
+   Wort aus der Textspalte in den Screenshot hinein. */
+.wk-hero .hero-text h1 {
+  font-size:clamp(32px, 4.2vw, 60px);
+  overflow-wrap:break-word;   /* Notbremse; die Schriftgrösse reicht normal aus */
+}
+
 .wk-product-stage { position:relative; width:100%; isolation:isolate; }
-.wk-product-stage::before { content:''; position:absolute; z-index:-1; inset:15% -9% -12%; background:radial-gradient(ellipse, rgba(218,41,28,.22), transparent 66%); filter:blur(30px); }
-.wk-product-frame { overflow:hidden; border:1px solid rgba(156,175,236,.48); border-radius:22px; background:#11131a; box-shadow:0 28px 70px rgba(0,0,0,.44); transform:perspective(1800px) rotateY(-4deg) rotateX(1.5deg); transition:transform .35s var(--ease); }
+/* Rahmen + Status-Plakette bilden eine Einheit — die Bildunterschrift
+   darunter darf nicht überlagert werden. */
+.wk-product-shot { position:relative; }
+.wk-product-stage::before {
+  content:''; position:absolute; z-index:-1; inset:6% -9% -18%;
+  background:radial-gradient(ellipse, rgba(218,41,28,.22), transparent 66%);
+  filter:blur(30px);
+}
+
+/* Zeile über dem Bild: sagt, welche Ansicht der App hier zu sehen ist */
+.wk-shot-label {
+  display:flex; align-items:center; gap:9px;
+  margin:0 0 12px 2px;
+  font-size:12px; font-weight:650; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--text-subtle);
+}
+.wk-shot-label i {
+  width:7px; height:7px; flex:none; border-radius:50%;
+  background:var(--swiss); box-shadow:0 0 0 4px rgba(218,41,28,.16);
+}
+
+.wk-product-frame {
+  overflow:hidden;
+  border:1px solid rgba(156,175,236,.48); border-radius:20px;
+  background:#11131a;
+  box-shadow:0 28px 70px rgba(0,0,0,.44);
+  transform:perspective(1800px) rotateY(-4deg) rotateX(1.5deg);
+  transition:transform .35s var(--ease);
+}
 .wk-product-frame:hover { transform:perspective(1800px) rotateY(0) rotateX(0) translateY(-5px); }
-.wk-product-frame img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; object-position:center top; }
-.wk-product-status { position:absolute; left:-20px; bottom:34px; display:flex; gap:10px; align-items:center; padding:12px 15px; color:var(--text); background:rgba(17,22,41,.92); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow-lg); font-size:13px; font-weight:650; backdrop-filter:blur(14px); }
-.wk-product-status i { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 0 5px rgba(34,197,94,.14); }
+.wk-product-frame img {
+  display:block; width:100%; height:auto;   /* height:auto — sonst gewinnt das
+                                               height-Attribut des <img> */
+  aspect-ratio:2880 / 1240;      /* exakt das Aufnahmeformat — kein Beschnitt */
+  object-fit:cover; object-position:left top;
+}
+
+.wk-product-status {
+  position:absolute; left:-22px; bottom:-18px;   /* hängt an der Ecke,
+     statt Karten im Screenshot zu verdecken */
+  display:flex; gap:10px; align-items:center;
+  padding:12px 15px;
+  color:var(--text); background:rgba(17,22,41,.92);
+  border:1px solid var(--border-strong); border-radius:12px;
+  box-shadow:var(--shadow-lg);
+  font-size:13px; font-weight:650;
+  backdrop-filter:blur(14px);
+}
+.wk-product-status i {
+  width:8px; height:8px; border-radius:50%;
+  background:#22c55e; box-shadow:0 0 0 5px rgba(34,197,94,.14);
+}
+
+/* Bildunterschrift: erklärt den Screenshot, weil die App-Schrift im
+   Hero zwangsläufig klein bleibt. */
+.wk-shot-caption {
+  margin:40px 2px 0;
+  max-width:62ch;
+  font-size:13.5px; line-height:1.6; color:var(--text-muted);
+}
+
 .wk-module-ribbon { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
-.wk-module-ribbon span { font-size:12px; font-weight:600; padding:7px 10px; border:1px solid var(--border); background:var(--surface-glass); color:var(--text-soft); border-radius:var(--r-full); }
-@media (max-width:900px) { .wk-hero { min-height:auto; padding-bottom:70px !important; } .wk-hero .hero-inner { grid-template-columns:1fr !important; gap:48px; } .wk-product-stage { max-width:720px; margin:0 auto; } .wk-product-frame { transform:none; } .wk-product-status { left:12px; bottom:-16px; } }
+.wk-module-ribbon span {
+  font-size:12px; font-weight:600; padding:7px 10px;
+  border:1px solid var(--border); background:var(--surface-glass);
+  color:var(--text-soft); border-radius:var(--r-full);
+}
+
+@media (max-width:1180px) {
+  .wk-hero .hero-inner { grid-template-columns:minmax(0,1fr) minmax(480px,1.15fr) !important; gap:44px; }
+}
+@media (max-width:900px) {
+  .wk-hero { min-height:auto; padding-bottom:70px !important; }
+  .wk-hero .hero-inner { grid-template-columns:1fr !important; gap:44px; }
+  .wk-product-stage { max-width:720px; margin:0 auto; }
+  .wk-product-frame { transform:none; }
+  .wk-product-status { position:static; margin-top:14px; width:fit-content; }
+  /* Auf dem Handy steht der Screenshot (wie auf werkstatt.html) vor der
+     Überschrift. Eine lange Bilderklärung noch davor würde den Einstieg
+     verstellen — und der Ausschnitt ist dort ohnehin nur ein Eindruck. */
+  .wk-shot-caption { display:none; }
+}

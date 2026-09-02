@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=5" />
-  <link rel="stylesheet" href="branch-hero.css?v=1" />
+  <link rel="stylesheet" href="branch-hero.css?v=7" />
   <style>
     /* Landingpage-eigene Bausteine (nutzen die Design-Tokens der Website) */
     .wk-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:44px; }
@@ -116,9 +116,20 @@
           <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust2">Schweizer QR-Rechnung</span></div>
           <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust3">Keine Kreditkarte nötig</span></div>
         </div>
-        <div class="wk-module-ribbon" aria-label="MosaOS Module"><span>E-Mails</span><span>Anrufprotokoll</span><span>Kunden</span><span>Einsatzplanung</span><span>Rapporte</span><span>Offerten</span><span>QR-Rechnungen</span><span>Team &amp; Zeiten</span></div>
+        <div class="wk-module-ribbon" aria-label="MosaOS Module"><span data-i18n="br.mod.mail">E-Mails</span><span data-i18n="br.mod.calls">Anrufprotokoll</span><span data-i18n="br.mod.customers">Kunden</span><span data-i18n="re.mod.planning">Einsatzplanung</span><span data-i18n="br.mod.reports">Rapporte</span><span data-i18n="br.mod.quotes">Offerten</span><span data-i18n="br.mod.invoices">QR-Rechnungen</span><span data-i18n="br.mod.team">Team &amp; Zeiten</span></div>
       </div>
-      <div class="hero-visual" aria-label="MosaOS Routenplanung für Reinigungsfirmen"><div class="wk-product-stage"><div class="wk-product-frame"><img src="assets/branches/reinigung-routenplanung.png" alt="MosaOS Routenplanung mit zwei Teams und drei geplanten Reinigungseinsätzen" width="1600" height="1000" /></div><div class="wk-product-status"><i></i><span>Teams, Zeiten und Objekte verbunden</span></div></div></div>
+      <div class="hero-visual" aria-label="MosaOS Routenplanung für Reinigungsfirmen">
+        <div class="wk-product-stage">
+          <div class="wk-shot-label"><i></i><span data-i18n="re.hero.shotLabel">Ansicht „Routenplanung"</span></div>
+          <div class="wk-product-shot">
+            <div class="wk-product-frame">
+              <img src="assets/branches/reinigung-routenplanung.png" alt="Routenplanung in MosaOS: Wochenleiste, heutige Besetzung mit zwei Teams und vier Mitarbeitenden samt Einsatzzeiten" width="2880" height="1240" loading="eager" decoding="async" />
+            </div>
+            <div class="wk-product-status"><i></i><span data-i18n="re.hero.connected">Teams, Zeiten und Objekte verbunden</span></div>
+          </div>
+          <p class="wk-shot-caption" data-i18n="re.hero.shotCaption">Der Tag zeigt auf einen Blick, welches Team wo im Einsatz ist, wer fährt und wer ab wann wieder frei ist — Grundlage für Routen, Rapporte und Rechnung.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -302,7 +313,7 @@
   </script>
 
   <script src="config.js?v=3"></script>
-  <script src="i18n.js?v=9"></script>
+  <script src="i18n.js?v=10"></script>
   <script src="main.js?v=2" defer></script>
 </body>
 </html>
