@@ -24,14 +24,16 @@ Danach wird nachbearbeitet:
 Deutsch bleibt an der Wurzel und bekommt nur hreflang und das Schema.
 
 Aufruf: python3 scripts/sprachen-bauen.py
-Voraussetzung: Vorschau-Server auf Port 8130.
 """
 import os, re, io, json, html, shutil
 from playwright.sync_api import sync_playwright
 
 WURZEL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASIS  = 'https://mosaos.pages.dev'
-SERVER = 'http://localhost:8130'
+# Ohne Server: die deutschen Quellen nutzen relative Pfade und laufen
+# deshalb auch über file:// . Das macht den Bauschritt unabhängig
+# von einer laufenden Vorschau.
+QUELLE = 'file://' + WURZEL
 
 SPRACHEN = ['de', 'fr', 'it', 'es', 'en']
 LOCALE   = {'de': 'de_CH', 'fr': 'fr_CH', 'it': 'it_CH', 'es': 'es_ES', 'en': 'en_GB'}
@@ -144,6 +146,21 @@ def kopfzeilen_uebersetzen(s, seite, lang, titel, beschr):
     return s
 
 
+# Seiten ohne eigenen Hero teilen sich die Karte der Startseite
+EIGENE_KARTE = {'index.html', 'werkstatt.html', 'handwerk.html', 'garten.html',
+                'reinigung.html', 'schaedlingsbekaempfung.html'}
+
+
+def vorschaubild(s, seite, lang):
+    """og:image je Sprache — sonst zeigt die französische Seite beim
+       Teilen eine deutsche Karte."""
+    schluessel = (seite if seite in EIGENE_KARTE else 'index.html').replace('.html', '')
+    bild = f'{BASIS}/assets/og/{schluessel}-{lang}.jpg'
+    s = re.sub(r'(<meta property="og:image" content=")[^"]*(")', rf'\g<1>{bild}\g<2>', s)
+    s = re.sub(r'(<meta name="twitter:image" content=")[^"]*(")', rf'\g<1>{bild}\g<2>', s)
+    return s
+
+
 def bearbeite(roh, seite, lang, titel=None, beschr=None):
     s = roh
 
@@ -162,6 +179,7 @@ def bearbeite(roh, seite, lang, titel=None, beschr=None):
 
     s = umschalter_zu_links(s, seite, lang)
     s = kopfzeilen_uebersetzen(s, seite, lang, titel, beschr)
+    s = vorschaubild(s, seite, lang)
     s = re.sub(r'<html lang="[a-z-]+"', f'<html lang="{lang}"', s, count=1)
     if lang != 'de':
         # Ohne diese Zeile würde i18n.js beim Laden die Browsersprache
@@ -187,6 +205,7 @@ def deutsch_ergaenzen():
         s = io.open(pfad, encoding='utf-8').read()
         s = re.sub(r'\s*<link rel="alternate" hreflang="[^"]*"[^>]*>', '', s)
         s = re.sub(r'\s*<script type="application/ld\+json">\s*\{\s*"@context": "https://schema.org",\s*"@type": "FAQPage".*?</script>', '', s, flags=re.S)
+        s = vorschaubild(s, datei, 'de')
         kopf = hreflang_block(datei) + faq_schema(s)
         s = s.replace('</head>', kopf + '</head>', 1)
         io.open(pfad, 'w', encoding='utf-8').write(s)
@@ -207,7 +226,7 @@ def main():
                 os.makedirs(ordner)
 
             for datei in SEITEN:
-                seite.goto(f'{SERVER}/{datei}', wait_until='load')
+                seite.goto(f'{QUELLE}/{datei}', wait_until='load')
                 seite.evaluate("document.fonts.ready")
                 seite.wait_for_timeout(250)
                 seite.evaluate(f"window.MOSAOS_I18N.apply('{lang}')")
