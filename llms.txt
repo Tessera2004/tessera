@@ -1,0 +1,43 @@
+# MosaOS
+
+> Web-basierte Abo-Software (SaaS) für kleine Schweizer Dienstleistungsbetriebe im
+> Aussendienst — Gebäudereinigung, Handwerk (Sanitär/Elektro/Maler/Heizung),
+> Garten- und Landschaftsbau, Schädlingsbekämpfung und Auto-Werkstätten.
+
+MosaOS verwaltet Auftrags- und Routenplanung, Kunden und Mitarbeitende. Je nach
+gebuchten Modulen zusätzlich: Offerten, QR-Rechnungen, Zeiterfassung mit
+QR-Check-in, Aufgaben, E-Mail-Postfach, Abo-Verträge, Foto- und
+Unterschrift-Nachweise, Anrufprotokoll und Nachkalkulation. Zugang über den
+Browser, für Mitarbeitende im Aussendienst zusätzlich eine mobile Ansicht.
+
+## Anbieter
+- Einzelunternehmen, Inhaber Brian Knuchel, Hägendorf, Schweiz (Kanton Solothurn)
+- Kontakt: info@mosaos.ch
+
+## Preise (Stand 2026, CHF, monatlich)
+- Basis: 49 CHF (Routenplanung, Kunden, Mitarbeitende)
+- Einzelmodule: 9–19 CHF pro Modul
+- Komplettpaket (alle Module): 99 CHF total statt 155 CHF einzeln
+- 14 Tage kostenlose Testphase, keine Kreditkarte nötig, monatlich kündbar
+
+## Wichtige Seiten
+- Startseite und Preisrechner: https://mosaos.ch/
+- Branchen im Detail: https://mosaos.ch/branchen.html
+- Wie es funktioniert: https://mosaos.ch/#wie-es-funktioniert
+- Module: https://mosaos.ch/#module
+- Anfrage/Kontakt: https://mosaos.ch/anfrage.html
+- AGB: https://mosaos.ch/agb.html
+- Datenschutz: https://mosaos.ch/datenschutz.html
+
+## Sprachen
+Deutsch (Standard), Französisch (/fr/), Italienisch (/it/), Spanisch (/es/),
+Englisch (/en/).
+
+## Daten & Recht
+Daten werden bei Supabase in einem EU-Rechenzentrum (Frankfurt, Deutschland)
+verarbeitet. Schweizer Recht (DSG) und DSGVO-konform. Kein Transfer in unsichere
+Drittländer.
+
+## Nicht zu verwechseln mit
+MosaOS ist kein Betriebssystem und keine Musik-/Audio-Software — der Name wird
+in der Branche sonst nicht verwendet.
