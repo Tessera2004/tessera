@@ -71,15 +71,15 @@
     // Handwerk Basis
     auftraege:   { emoji: '🧱', price: 0 },
     // Add-ons (Preise & Keys gemäss cleancockpit/stripe-config.js)
-    offerten:    { emoji: '📄', price: 25 },
-    rechnungen:  { emoji: '🧾', price: 19 },
-    anruf:       { emoji: '📞', price: 19 },
-    aufgaben:    { emoji: '✅', price: 15 },
-    email:       { emoji: '📧', price: 39 },
-    abos:        { emoji: '🔁', price: 19 },
-    berichte:    { emoji: '📋', price: 19 },
-    stunden:     { emoji: '⏱️', price: 19 },
-    nachkalk:    { emoji: '🧮', price: 19 },
+    offerten:    { emoji: '📄', price: 14 },
+    rechnungen:  { emoji: '🧾', price: 14 },
+    anruf:       { emoji: '📞', price: 9 },
+    aufgaben:    { emoji: '✅', price: 9 },
+    email:       { emoji: '📧', price: 19 },
+    abos:        { emoji: '🔁', price: 9 },
+    berichte:    { emoji: '📋', price: 9 },
+    stunden:     { emoji: '⏱️', price: 14 },
+    nachkalk:    { emoji: '🧮', price: 9 },
   };
 
   // Branchen-Module gemäss cleancockpit/presets.js (Basispreis einheitlich 49 CHF)

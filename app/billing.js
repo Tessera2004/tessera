@@ -30,7 +30,11 @@ window.MosaBilling = (function () {
     try {
       const { data } = await c.from('subscriptions').select('status,modules').maybeSingle();
       const active = !!(data && (data.status === 'active' || data.status === 'trialing'));
-      window._subscription = { active, status: data?.status || 'inactive', modules: (active && data.modules) || [] };
+      let mods = (active && data.modules) || [];
+      // Das Komplettpaket kommt als eine Position zurück und steht für
+      // alle Module — sonst wäre nach dem Kauf nichts freigeschaltet.
+      if (mods.includes('komplett')) mods = cfg().modules.map((m) => m.key).concat('komplett');
+      window._subscription = { active, status: data?.status || 'inactive', modules: mods };
     } catch {
       window._subscription = { active: false, status: 'inactive', modules: [] };
     }
@@ -94,11 +98,36 @@ window.MosaBilling = (function () {
     const statusLabel = sub.active
       ? `<span style="color:var(--success); font-weight:700;">● Abo aktiv</span>`
       : `<span style="color:var(--text-subtle); font-weight:700;">○ kein aktives Abo</span>`;
+    const k = cfg().komplett;
+    const einzeln = cfg().basePriceChf + cfg().modules.reduce((s2, m) => s2 + m.priceChf, 0);
+    const komplettAktiv = mods.includes('komplett');
+    const paket = !k ? '' : `
+      <label style="display:flex; align-items:center; gap:12px; padding:16px 18px; margin-bottom:14px;
+                    border:1px solid ${komplettAktiv ? 'var(--accent)' : 'var(--border-strong)'}; border-radius:12px;
+                    background:${komplettAktiv ? 'var(--accent-soft)' : 'var(--surface-2)'};">
+        <input type="radio" name="sub-paket" class="sub-paket-pick" value="komplett" ${komplettAktiv ? 'checked' : ''}
+               style="width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto;" />
+        <span style="flex:1; min-width:0;">
+          <span style="display:block; font-weight:700; font-size:14.5px;">${esc(k.label)} — CHF ${k.gesamtChf}/Monat</span>
+          <span style="display:block; font-size:12.5px; color:var(--text-subtle);">
+            Alles inklusive. Einzeln gebucht: CHF ${einzeln}/Monat — du sparst CHF ${einzeln - k.gesamtChf}.
+          </span>
+        </span>
+      </label>
+      <label style="display:flex; align-items:center; gap:12px; padding:11px 18px; margin-bottom:12px;
+                    font-size:13px; color:var(--text-muted); cursor:pointer;">
+        <input type="radio" name="sub-paket" class="sub-paket-pick" value="einzeln" ${komplettAktiv ? '' : 'checked'}
+               style="width:16px;height:16px;accent-color:var(--accent);" />
+        <span>Oder einzeln zusammenstellen</span>
+      </label>`;
+
     wrap.innerHTML = `
       <div style="margin-bottom:14px; font-size:13px; color:var(--text-muted);">
         ${statusLabel} · Basis CHF ${cfg().basePriceChf}/Monat <span style="color:var(--text-subtle);">(Routenplanung, Kunden, Mitarbeiter)</span>
       </div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;">${rows}</div>
+      ${paket}
+      <div id="subModulListe" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;
+                  opacity:${komplettAktiv ? '0.4' : '1'}; pointer-events:${komplettAktiv ? 'none' : 'auto'};">${rows}</div>
       <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
         <button type="button" class="btn btn-accent" style="flex:0 0 auto;" onclick="MosaBilling._subscribeSelected()">${sub.active ? 'Abo ändern' : 'Jetzt abonnieren'}</button>
         ${sub.active ? '<button type="button" class="btn btn-ghost" style="flex:0 0 auto;" onclick="MosaBilling.openPortal()">Abo verwalten (Karte / Kündigung)</button>' : ''}
@@ -106,10 +135,22 @@ window.MosaBilling = (function () {
   }
 
   function _subscribeSelected() {
+    const paket = document.querySelector('.sub-paket-pick:checked')?.value;
+    if (paket === 'komplett') { startCheckout(['komplett']); return; }
     const picked = [...document.querySelectorAll('.sub-mod-pick:checked')].map((c) => c.value);
     if (!picked.length) { alert('Mindestens ein Modul wählen (oder nur Basis).'); }
     startCheckout(picked);
   }
+
+  // Modulliste stumm schalten, solange das Komplettpaket gewählt ist
+  document.addEventListener('change', (e) => {
+    if (!e.target.classList || !e.target.classList.contains('sub-paket-pick')) return;
+    const liste = document.getElementById('subModulListe');
+    if (!liste) return;
+    const komplett = e.target.value === 'komplett';
+    liste.style.opacity = komplett ? '0.4' : '1';
+    liste.style.pointerEvents = komplett ? 'none' : 'auto';
+  });
 
   // Nach Rückkehr von Stripe (?billing=success): Abo neu laden (Webhook braucht 1–2 s)
   function handleReturn(onUpdated) {
