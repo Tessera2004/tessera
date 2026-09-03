@@ -16,25 +16,58 @@ Wichtig zum Vorgehen in Stripe:
     gibt es im Live-Konto nicht. Deshalb dieses Skript zweimal laufen
     lassen — einmal mit dem Test-, einmal mit dem Live-Schlüssel.
 
-DEN SCHLÜSSEL GIBST DU SELBST EIN, er steht nirgends in diesem Repo:
+Der Schlüssel steht nirgends im Repo. Das Skript fragt ihn beim Start
+ab (verdeckte Eingabe), oder nimmt STRIPE_SECRET_KEY aus der Umgebung:
 
-    export STRIPE_SECRET_KEY='sk_test_…'          # Sandbox
-    python3 scripts/stripe-produkte.py
+    python3 scripts/stripe-produkte.py --trocken   # nur anzeigen
+    python3 scripts/stripe-produkte.py             # wirklich anlegen
 
-    export STRIPE_SECRET_KEY='sk_live_…'          # echtes Konto
-    python3 scripts/stripe-produkte.py
-
-Mit --trocken wird nur angezeigt, was passieren würde.
+Für das echte Konto denselben Aufruf mit dem sk_live_-Schlüssel.
 """
-import os, sys, re, json, urllib.parse, urllib.request
+import os, sys, re, json, ssl, getpass, urllib.parse, urllib.request
+
+
+def ssl_kontext():
+    """Das Python von python.org bringt keine Wurzelzertifikate mit —
+       ohne diesen Schritt scheitert jeder Aufruf an Stripe mit
+       CERTIFICATE_VERIFY_FAILED. certifi zuerst, sonst der Speicher
+       von macOS."""
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        pass
+    if os.path.exists('/etc/ssl/cert.pem'):
+        return ssl.create_default_context(cafile='/etc/ssl/cert.pem')
+    return ssl.create_default_context()
+
+
+SSL = ssl_kontext()
 
 WURZEL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(WURZEL, 'app', 'stripe-config.js')
 API    = 'https://api.stripe.com/v1'
 WAEHRUNG = 'chf'
 
-SCHLUESSEL = os.environ.get('STRIPE_SECRET_KEY', '').strip()
 TROCKEN = '--trocken' in sys.argv
+
+def schluessel_holen():
+    """Aus der Umgebung — und sonst nachfragen. Die Eingabe ist
+       verdeckt und landet weder im Verlauf der Kommandozeile noch in
+       einer Datei."""
+    k = os.environ.get('STRIPE_SECRET_KEY', '').strip()
+    if k:
+        return k
+    print('Stripe-Geheimschlüssel eingeben (die Eingabe bleibt unsichtbar).')
+    print('Zu finden im Stripe-Dashboard unter API-Schlüssel — beginnt mit sk_test_ oder sk_live_.\n')
+    sys.stdout.flush()          # sonst erscheint die Eingabezeile vor dem Hinweis
+    try:
+        return getpass.getpass('Schlüssel: ').strip()
+    except (EOFError, KeyboardInterrupt):
+        raise SystemExit('\nAbgebrochen.')
+
+
+SCHLUESSEL = ''
 
 
 def preise_lesen():
@@ -58,7 +91,7 @@ def ruf(pfad, daten=None, methode=None):
     anfrage = urllib.request.Request(url, data=koerper, headers=kopf,
                                      method=methode or ('POST' if daten else 'GET'))
     try:
-        with urllib.request.urlopen(anfrage) as a:
+        with urllib.request.urlopen(anfrage, context=SSL) as a:
             return json.loads(a.read().decode())
     except urllib.error.HTTPError as e:
         fehler = json.loads(e.read().decode()).get('error', {})
@@ -111,11 +144,10 @@ def sicherstellen(name, lookup, chf):
 
 
 def main():
+    global SCHLUESSEL
+    SCHLUESSEL = schluessel_holen()
     if not SCHLUESSEL:
-        raise SystemExit(
-            'STRIPE_SECRET_KEY fehlt.\n\n'
-            "  export STRIPE_SECRET_KEY='sk_test_…'   # oder sk_live_… fürs echte Konto\n"
-            '  python3 scripts/stripe-produkte.py\n')
+        raise SystemExit('Kein Schlüssel eingegeben — nichts geändert.')
     if not SCHLUESSEL.startswith('sk_'):
         raise SystemExit('Das sieht nicht nach einem Geheimschlüssel aus (erwartet: sk_test_… oder sk_live_…).')
 
