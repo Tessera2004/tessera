@@ -51,6 +51,14 @@
       'view.nachkalkulation': 'Soll-Ist-Nachkalkulation', 'view.preise': 'Preise & Konditionen',
       // Einstellungen (Settings-View)
       'set.saveChanges': 'Änderungen speichern',
+      /* Steuerpflicht (Kleinunternehmer) */
+      'set.vatLiable': 'Betrieb ist steuerpflichtig',
+      'set.vatLiableHint': 'Ausschalten, wenn du unter der Umsatzgrenze liegst (Schweiz: MWST-Eintragung, Deutschland: Kleinunternehmer nach § 19 UStG, Österreich: § 6 Abs. 1 Z 27 UStG). Dann weisen Rechnungen, Offerten und der Export keine Steuer aus.',
+      'set.vatNote': 'Hinweis auf dem Beleg',
+      'set.vatNoteHint': 'Vorschlag nach Land. Die verbindliche Formulierung sagt dir deine Treuhand — dieses Feld ist frei überschreibbar.',
+      'ob.country.pick': 'Bitte wählen…',
+      'ob.s2.vatLiable': 'Mein Betrieb ist steuerpflichtig',
+      'ob.s2.vatLiableHint': 'Ausschalten, wenn du unter der Umsatzgrenze liegst. Dann weisen deine Rechnungen keine Steuer aus und tragen den gesetzlichen Hinweis.',
       /* Geführte Tour (tour.js) */
       'set.tourStart': 'Tour erneut starten',
       'tour.von': 'von',
@@ -329,6 +337,14 @@
       'common.themeToggle': 'Changer de thème', 'common.skinToggle': 'Vue : Bureau (sombre) ⇄ Standard',
       'view.nachkalkulation': 'Calcul a posteriori (prévu/réel)', 'view.preise': 'Prix & conditions',
       'set.saveChanges': 'Enregistrer les modifications',
+      /* Steuerpflicht (Kleinunternehmer) */
+      'set.vatLiable': 'L\'entreprise est assujettie à la TVA',
+      'set.vatLiableHint': 'À désactiver si vous êtes sous le seuil (Suisse : inscription TVA, Allemagne : petite entreprise § 19 UStG, Autriche : § 6 al. 1 ch. 27 UStG). Les factures, devis et exports n\'indiqueront alors aucune taxe.',
+      'set.vatNote': 'Mention sur le document',
+      'set.vatNoteHint': 'Proposition selon le pays. La formulation qui fait foi vous est indiquée par votre fiduciaire — ce champ est librement modifiable.',
+      'ob.country.pick': 'Veuillez choisir…',
+      'ob.s2.vatLiable': 'Mon entreprise est assujettie à la TVA',
+      'ob.s2.vatLiableHint': 'À désactiver si vous êtes sous le seuil. Vos factures n\'indiqueront alors aucune taxe et porteront la mention légale.',
       /* Geführte Tour (tour.js) */
       'set.tourStart': 'Relancer la visite',
       'tour.von': 'sur',
@@ -592,6 +608,14 @@
       'common.themeToggle': 'Cambia tema', 'common.skinToggle': 'Vista: Ufficio (scuro) ⇄ Standard',
       'view.nachkalkulation': 'Calcolo consuntivo (previsto/effettivo)', 'view.preise': 'Prezzi e condizioni',
       'set.saveChanges': 'Salva modifiche',
+      /* Steuerpflicht (Kleinunternehmer) */
+      'set.vatLiable': 'L\'azienda è soggetta a imposta',
+      'set.vatLiableHint': 'Da disattivare se sei sotto la soglia (Svizzera: iscrizione IVA, Germania: piccola impresa § 19 UStG, Austria: § 6 cpv. 1 n. 27 UStG). Fatture, offerte ed esportazioni non indicheranno alcuna imposta.',
+      'set.vatNote': 'Nota sul documento',
+      'set.vatNoteHint': 'Proposta in base al paese. La formulazione vincolante te la indica il tuo fiduciario — questo campo è liberamente modificabile.',
+      'ob.country.pick': 'Seleziona…',
+      'ob.s2.vatLiable': 'La mia azienda è soggetta a imposta',
+      'ob.s2.vatLiableHint': 'Da disattivare se sei sotto la soglia. Le tue fatture non indicheranno imposta e porteranno la nota di legge.',
       /* Geführte Tour (tour.js) */
       'set.tourStart': 'Riavvia il tour',
       'tour.von': 'di',
@@ -855,6 +879,14 @@
       'common.themeToggle': 'Cambiar tema', 'common.skinToggle': 'Vista: Oficina (oscuro) ⇄ Estándar',
       'view.nachkalkulation': 'Cálculo posterior (previsto/real)', 'view.preise': 'Precios y condiciones',
       'set.saveChanges': 'Guardar cambios',
+      /* Steuerpflicht (Kleinunternehmer) */
+      'set.vatLiable': 'La empresa está sujeta a impuesto',
+      'set.vatLiableHint': 'Desactivar si estás por debajo del umbral (Suiza: registro de IVA, Alemania: pequeña empresa § 19 UStG, Austria: § 6 ap. 1 n.º 27 UStG). Las facturas, presupuestos y exportaciones no mostrarán impuesto.',
+      'set.vatNote': 'Nota en el documento',
+      'set.vatNoteHint': 'Propuesta según el país. La redacción vinculante te la indica tu asesoría — este campo se puede modificar libremente.',
+      'ob.country.pick': 'Selecciona…',
+      'ob.s2.vatLiable': 'Mi empresa está sujeta a impuesto',
+      'ob.s2.vatLiableHint': 'Desactivar si estás por debajo del umbral. Tus facturas no mostrarán impuesto y llevarán la nota legal.',
       /* Geführte Tour (tour.js) */
       'set.tourStart': 'Reiniciar el tour',
       'tour.von': 'de',
@@ -1118,6 +1150,14 @@
       'common.themeToggle': 'Switch theme', 'common.skinToggle': 'View: Office (dark) ⇄ Standard',
       'view.nachkalkulation': 'Target vs. actual costing', 'view.preise': 'Prices & terms',
       'set.saveChanges': 'Save changes',
+      /* Steuerpflicht (Kleinunternehmer) */
+      'set.vatLiable': 'Business is registered for VAT',
+      'set.vatLiableHint': 'Turn off if you are below the threshold (Switzerland: VAT registration, Germany: small business under § 19 UStG, Austria: § 6 (1) no. 27 UStG). Invoices, quotes and exports then show no tax.',
+      'set.vatNote': 'Note on the document',
+      'set.vatNoteHint': 'Suggestion by country. The binding wording comes from your accountant — this field can be overwritten.',
+      'ob.country.pick': 'Please choose…',
+      'ob.s2.vatLiable': 'My business is registered for VAT',
+      'ob.s2.vatLiableHint': 'Turn off if you are below the threshold. Your invoices then show no tax and carry the legal note.',
       /* Geführte Tour (tour.js) */
       'set.tourStart': 'Restart tour',
       'tour.von': 'of',

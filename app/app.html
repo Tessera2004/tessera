@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=2"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=25"></script>
+  <script src="app-i18n.js?v=26"></script>
   <script src="tour.js?v=3" defer></script>
 </head>
 <body>
@@ -1088,6 +1088,23 @@
               </div>
               <div class="field"><label>IBAN</label><input type="text" id="coIban" placeholder="CH.. .... .... .... .... ." /></div>
               <div class="field"><label id="coMwstLabel">MWST-Nr.</label><input type="text" id="coMwst" placeholder="CHE-123.456.789" /></div>
+              <div class="field" style="grid-column:1/-1;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                  <input type="checkbox" id="coMwstPflichtig" checked onchange="onMwstPflichtChange()"
+                         style="width:18px; height:18px; accent-color:var(--accent); cursor:pointer;" />
+                  <span data-i18n="set.vatLiable">Betrieb ist steuerpflichtig</span>
+                </label>
+                <div style="font-size:12.5px; color:var(--text-subtle); margin-top:6px;" data-i18n="set.vatLiableHint">
+                  Ausschalten, wenn du unter der Umsatzgrenze liegst (Schweiz: MWST-Eintragung, Deutschland: Kleinunternehmer nach § 19 UStG, Österreich: § 6 Abs. 1 Z 27 UStG). Dann weisen Rechnungen, Offerten und der Export keine Steuer aus.
+                </div>
+              </div>
+              <div class="field" id="coSteuerHinweisFeld" style="grid-column:1/-1; display:none;">
+                <label data-i18n="set.vatNote">Hinweis auf dem Beleg</label>
+                <input type="text" id="coSteuerHinweis" />
+                <div style="font-size:12.5px; color:var(--text-subtle); margin-top:6px;" data-i18n="set.vatNoteHint">
+                  Vorschlag nach Land. Die verbindliche Formulierung sagt dir deine Treuhand — dieses Feld ist frei überschreibbar.
+                </div>
+              </div>
               <div class="field"><label data-i18n="set.street">Strasse & Nr.</label><input type="text" id="coAddr1" /></div>
               <div class="field"><label data-i18n="set.cityZip">PLZ & Ort</label><input type="text" id="coAddr2" /></div>
               <div class="field" style="grid-column:1/-1;"><label data-i18n="set.emailPhone">E-Mail / Telefon</label><input type="text" id="coContact" /></div>
@@ -6533,8 +6550,30 @@
       DE: { vat: 0.19,  cur: 'EUR', vatLabel: 'USt 19%',   payment: 'sepa', dateLoc: 'de-DE', vatIdLabel: 'USt-IdNr.', vatIdEx: 'DE123456789',     geo: 'de' },
       AT: { vat: 0.20,  cur: 'EUR', vatLabel: 'USt 20%',   payment: 'sepa', dateLoc: 'de-AT', vatIdLabel: 'UID-Nr.',   vatIdEx: 'ATU12345678',     geo: 'at' }
     };
+    // Vorgeschlagener Hinweis, wenn ein Betrieb nicht steuerpflichtig ist.
+    // Frei überschreibbar — die genaue Formulierung ist Sache der
+    // Treuhand, nicht der Software.
+    const STEUER_HINWEIS = {
+      CH: 'Nicht MWST-pflichtig — es wird keine Mehrwertsteuer ausgewiesen.',
+      DE: 'Gemäss § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).',
+      AT: 'Umsatzsteuerbefreit — Kleinunternehmer gemäss § 6 Abs. 1 Z 27 UStG.'
+    };
+
     // Lokalisierung einer Firma (Fallback CH).
-    function coLocale(c) { return LOCALE[(((c && c.country) || 'CH') + '').toUpperCase()] || LOCALE.CH; }
+    // Ist der Betrieb nicht steuerpflichtig, wird der Satz hier auf 0
+    // gesetzt. Dadurch rechnen ALLE Belege automatisch richtig — die
+    // einzelnen PDF-Stellen müssen nur noch die Steuerzeile weglassen.
+    function coLocale(c) {
+      const land = (((c && c.country) || 'CH') + '').toUpperCase();
+      const L = LOCALE[land] || LOCALE.CH;
+      const pflichtig = !(c && c.mwstPflichtig === false);
+      if (pflichtig) return Object.assign({}, L, { mwstPflichtig: true });
+      return Object.assign({}, L, {
+        vat: 0,
+        mwstPflichtig: false,
+        steuerHinweis: (c && c.steuerHinweis) || STEUER_HINWEIS[land] || STEUER_HINWEIS.CH
+      });
+    }
     function chf(n) { return coLocale(loadCompany()).cur + ' ' + (Number(n) || 0).toFixed(2); }
     function woDefaultRate() {
       try { const p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); if (p.werkstatt_reparatur_price != null) return p.werkstatt_reparatur_price; } catch {}
@@ -7789,7 +7828,10 @@
       lines.push(['', '', '', '', '', '', '', '', tt('csv.sumNet', 'SUMME NETTO:'), sumNetto.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
       const csvL = coLocale(loadCompany());
       const mwst = sumNetto * csvL.vat;
-      lines.push(['', '', '', '', '', '', '', '', csvL.vatLabel + ':', mwst.toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
+      // Ohne Steuerpflicht keine Steuerzeile, sondern der Hinweis
+      lines.push(csvL.mwstPflichtig
+        ? ['', '', '', '', '', '', '', '', csvL.vatLabel + ':', mwst.toFixed(2).replace('.', ','), '', ''].map(escape).join(';')
+        : ['', '', '', '', '', '', '', '', csvL.steuerHinweis, '', '', ''].map(escape).join(';'));
       lines.push(['', '', '', '', '', '', '', '', tt('csv.grossTotal', 'BRUTTO TOTAL:'), (sumNetto + mwst).toFixed(2).replace('.', ','), '', ''].map(escape).join(';'));
 
       // BOM für Excel-Kompatibilität (Umlaute)
@@ -8812,17 +8854,39 @@
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
       set('coAddr2', c.addr2); set('coMwst', c.mwst); set('coContact', c.contact);
       const cc = document.getElementById('coCountry'); if (cc) cc.value = (c.country || 'CH');
+      const pf = document.getElementById('coMwstPflichtig');
+      if (pf) pf.checked = (c.mwstPflichtig !== false);
+      const hw = document.getElementById('coSteuerHinweis');
+      if (hw) hw.value = c.steuerHinweis || STEUER_HINWEIS[(c.country || 'CH')] || STEUER_HINWEIS.CH;
+      onMwstPflichtChange();
       const color = document.getElementById('coBrandColor'); if (color) color.value = c.brandColor || '#E11D2A';
       const colorLabel = document.getElementById('coBrandColorValue'); if (colorLabel) colorLabel.textContent = (c.brandColor || '#E11D2A').toUpperCase();
       applyCompanyBranding(c);
       onCompanyCountryChange();
     }
+    // Hinweisfeld nur zeigen, wenn keine Steuerpflicht besteht.
+    function onMwstPflichtChange() {
+      const pf = document.getElementById('coMwstPflichtig');
+      const feld = document.getElementById('coSteuerHinweisFeld');
+      const nr = document.getElementById('coMwst');
+      if (!pf || !feld) return;
+      feld.style.display = pf.checked ? 'none' : '';
+      // Ohne Steuerpflicht gibt es auch keine Steuernummer
+      if (nr) nr.closest('.field').style.opacity = pf.checked ? '1' : '0.45';
+    }
+
     // MWST-/USt-Label + Platzhalter an das gewählte Land anpassen.
     function onCompanyCountryChange() {
       const cc = document.getElementById('coCountry'); if (!cc) return;
       const L = LOCALE[cc.value] || LOCALE.CH;
       const lbl = document.getElementById('coMwstLabel'); if (lbl) lbl.textContent = L.vatIdLabel;
       const mw = document.getElementById('coMwst'); if (mw) mw.placeholder = L.vatIdEx;
+      const hw = document.getElementById('coSteuerHinweis');
+      const c = loadCompany();
+      // Nur ersetzen, solange der Text nicht von Hand geändert wurde
+      if (hw && (!c.steuerHinweis || hw.value === STEUER_HINWEIS[c.country || 'CH'])) {
+        hw.value = STEUER_HINWEIS[cc.value] || STEUER_HINWEIS.CH;
+      }
       // IBAN-Beispiel passend zum Land (sonst steht bei DE/AT ein Schweizer Format).
       const ibanEx = { CH: 'CH.. .... .... .... .... .', DE: 'DE.. .... .... .... .... ..', AT: 'AT.. .... .... .... ....' };
       const ib = document.getElementById('coIban'); if (ib) ib.placeholder = ibanEx[cc.value] || ibanEx.CH;
@@ -8836,7 +8900,11 @@
     function saveCompanyForm() {
       const g = id => (document.getElementById(id)?.value || '').trim();
       const country = (document.getElementById('coCountry')?.value || 'CH');
-      const company = { ...loadCompany(), name: g('coName'), iban: g('coIban'), addr1: g('coAddr1'), addr2: g('coAddr2'), mwst: g('coMwst'), contact: g('coContact'), country };
+      const pflichtig = !!document.getElementById('coMwstPflichtig')?.checked;
+      const company = { ...loadCompany(), name: g('coName'), iban: g('coIban'), addr1: g('coAddr1'), addr2: g('coAddr2'),
+        mwst: g('coMwst'), contact: g('coContact'), country,
+        mwstPflichtig: pflichtig,
+        steuerHinweis: pflichtig ? '' : (g('coSteuerHinweis') || STEUER_HINWEIS[country] || STEUER_HINWEIS.CH) };
       saveCompany(company); applyCompanyBranding(company);
       toast('✓ Firmen- & Zahlungsangaben gespeichert');
     }
@@ -8971,7 +9039,10 @@
       doc.setDrawColor(220); doc.line(W - M - 70, y, W - M, y); y += 6;
       doc.setFontSize(9.5); doc.setTextColor(80);
       doc.text('Netto', W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(netto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
-      doc.setTextColor(80); doc.text(L.vatLabel, W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
+      if (L.mwstPflichtig) {
+        doc.setTextColor(80); doc.text(L.vatLabel, W - M - 40, y, { align: 'right' });
+        doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
+      }
       doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(225, 29, 42);
       doc.text('Total', W - M - 40, y, { align: 'right' }); doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' });
       doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
@@ -8979,6 +9050,8 @@
       doc.text(L.payment === 'qr'
         ? 'Zahlbar innert 30 Tagen mit beiliegendem QR-Einzahlschein.'
         : `Zahlbar innert 30 Tagen auf folgendes Konto: IBAN ${ibanPay}`, M, y + 8);
+      // Ohne Steuerpflicht gehört der gesetzliche Hinweis auf den Beleg
+      if (!L.mwstPflichtig) doc.text(L.steuerHinweis, M, y + 13);
 
       // ---- Zahlteil: CH = Swiss-QR-Einzahlschein, DE/AT = SEPA-Zahlblock ----
       if (L.payment === 'qr') drawQrSlip(doc, c, debtor, brutto, message, qrUrl, W, H);
@@ -10338,10 +10411,17 @@ ${coSig}`;
       doc.text(preis.toFixed(2) + ' ' + L.cur, W - M - 4, y + 7, { align: 'right' });
 
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(80);
-      doc.text(L.vatLabel, M + 4, y + 14);
-      doc.setTextColor(20);
-      doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
+      if (L.mwstPflichtig) {
+        doc.setTextColor(80);
+        doc.text(L.vatLabel, M + 4, y + 14);
+        doc.setTextColor(20);
+        doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
+      } else {
+        doc.setFontSize(8);
+        doc.setTextColor(120);
+        doc.text(L.steuerHinweis, M + 4, y + 14);
+        doc.setFontSize(9.5);
+      }
 
       doc.setDrawColor(225, 29, 42);
       doc.setLineWidth(0.4);
@@ -10533,6 +10613,10 @@ ${coSig}`;
         doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(225, 29, 42);
         doc.text('Total', M + 4, y + 9.5);
         doc.text(netto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 9.5, { align: 'right' });
+        if (!L.mwstPflichtig) {
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120);
+          doc.text(L.steuerHinweis, M + 4, y + boxH + 5);
+        }
       }
       lay.y = y + boxH + 8;
     }
@@ -10625,7 +10709,7 @@ ${coSig}`;
       const sumW = belegPositions(lay, 'Arbeiten', works);
       const sumP = belegPositions(lay, 'Teile / Material', parts);
       belegText(lay, 'Bemerkungen', o.note);
-      belegTotal(lay, sumW + sumP, true);
+      belegTotal(lay, sumW + sumP, coLocale(loadCompany()).mwstPflichtig);
       belegSignature(lay, 'Datum / Unterschrift Kunde');
       doc.save(`Auftrag_${belegNr(o.id)}_${safeName(o.plate || o.owner)}.pdf`);
       toast('✓ Auftrags-PDF heruntergeladen');
