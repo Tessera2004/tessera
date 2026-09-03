@@ -6,7 +6,6 @@
    und Anfrage-Mail eingesetzt. Du musst die HTML-Dateien nicht
    mehr einzeln bearbeiten.
    ============================================================ */
-const MOSAOS_STAGING = new URLSearchParams(window.location.search).get('staging') === '1';
 window.MOSAOS_CONFIG = {
   // ---------- Rechtsform ----------
   // 'einzelunternehmen' oder 'gmbh' — bestimmt was im Impressum angezeigt wird
@@ -28,12 +27,9 @@ window.MOSAOS_CONFIG = {
   email: 'info.mosaos@gmail.com',
   emailPrivacy: 'info.mosaos@gmail.com',
   phone: '+41 76 526 59 75',
-  functionsUrl: MOSAOS_STAGING
-    ? 'https://kxhsroiholjnyisaystr.supabase.co/functions/v1'
-    : 'https://cmwdgizhyjqnxjvpstat.supabase.co/functions/v1',
-  publicApiKey: MOSAOS_STAGING
-    ? 'sb_publishable_eoasP900q_btzYLvvnTUQQ_L839WJH7'
-    : 'sb_publishable_Db__T4fLYMl_q89PcJWHvg_Par2FWH3',
+  // Ein Projekt, keine Umschaltung — siehe app/supabase-client.js
+  functionsUrl: 'https://kxhsroiholjnyisaystr.supabase.co/functions/v1',
+  publicApiKey: 'sb_publishable_eoasP900q_btzYLvvnTUQQ_L839WJH7',
 
   // ---------- Social ----------
   social: {

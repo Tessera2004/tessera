@@ -1,4 +1,4 @@
-project_id = "cmwdgizhyjqnxjvpstat"
+project_id = "kxhsroiholjnyisaystr"
 
 [functions.create-checkin-token]
 verify_jwt = true

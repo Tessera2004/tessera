@@ -4,16 +4,14 @@
    Die echte Absicherung macht die Mandanten-Trennung (RLS)
    in der Datenbank.
    ============================================================ */
-// Staging is opt-in: append ?staging=1 while testing the Safe Copy locally.
-// The public key is intentionally safe for browser use; RLS protects the data.
-const MOSAOS_STAGING = new URLSearchParams(window.location.search).get('staging') === '1';
-window.SUPA_URL = MOSAOS_STAGING
-  ? 'https://kxhsroiholjnyisaystr.supabase.co'
-  : 'https://cmwdgizhyjqnxjvpstat.supabase.co';
-window.SUPA_KEY = MOSAOS_STAGING
-  ? 'sb_publishable_eoasP900q_btzYLvvnTUQQ_L839WJH7'
-  : 'sb_publishable_Db__T4fLYMl_q89PcJWHvg_Par2FWH3';
-window.MOSAOS_STAGING = MOSAOS_STAGING;
+// Es gibt genau EIN Projekt. Vorher schaltete ?staging=1 zwischen zwei
+// Datenbanken um — das hat verschleiert, auf welcher die App gerade
+// läuft, und endete darin, dass die Live-App auf ein pausiertes Projekt
+// zeigte („Failed to fetch"). Der öffentliche Schlüssel darf im Browser
+// stehen; die Absicherung macht die Mandanten-Trennung (RLS).
+window.SUPA_URL = 'https://kxhsroiholjnyisaystr.supabase.co';
+window.SUPA_KEY = 'sb_publishable_eoasP900q_btzYLvvnTUQQ_L839WJH7';
+window.MOSAOS_STAGING = false;
 
 /* „Angemeldet bleiben": Flag entscheidet, wo die Session liegt.
    localStorage  → bleibt über Browser-Neustarts erhalten (Standard)
