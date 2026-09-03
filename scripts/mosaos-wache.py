@@ -167,4 +167,40 @@ aenderung = bool(neue_warnungen or behoben or neue_befunde)
 print(f'\nAENDERUNG_SEIT_LETZTEM_LAUF: {"ja" if aenderung else "nein"}')
 
 zustand_schreiben(jetzt)
+
+# --- Damit die Meldung Brian auch wirklich erreicht ---------------------
+# Die Kontrolle laeuft im Hintergrund. Ohne die beiden folgenden Wege stuende
+# das Ergebnis nur in einer Sitzung, in die man hineinschauen muss — ein
+# Waechter, dessen Meldung niemand findet, ist keiner.
+
+# 1) Logbuch: eine Zeile pro Lauf, zum Nachlesen wann was war.
+try:
+    with open(os.path.expanduser('~/mosaos-kontrolle.log'), 'a', encoding='utf-8') as f:
+        stand = 'PROBLEM' if warnungen else ('auffaellig' if befunde else 'ok')
+        zusatz = ''
+        if neue_warnungen: zusatz = ' | NEU: ' + '; '.join(neue_warnungen)
+        elif behoben:      zusatz = ' | BEHOBEN: ' + '; '.join(behoben)
+        elif neue_befunde: zusatz = ' | NEU: ' + '; '.join(neue_befunde)
+        f.write(f"{datetime.now():%Y-%m-%d %H:%M}  {stand}{zusatz}\n")
+except Exception:
+    pass
+
+# 2) Mitteilung auf dem Mac — nur bei echter Aenderung. Vier stille Hinweise
+#    pro Tag wuerden dazu fuehren, dass auch der fuenfte weggeklickt wird.
+if aenderung:
+    try:
+        import subprocess, shlex
+        if warnungen:
+            titel, text = 'MosaOS: Handlungsbedarf', (neue_warnungen or warnungen)[0]
+        elif behoben:
+            titel, text = 'MosaOS: wieder in Ordnung', behoben[0]
+        else:
+            titel, text = 'MosaOS: neue Beobachtung', neue_befunde[0]
+        text = text[:180]
+        subprocess.run(['osascript', '-e',
+            f'display notification {shlex.quote(text)} with title {shlex.quote(titel)}'],
+            timeout=10, capture_output=True)
+    except Exception:
+        pass
+
 sys.exit(1 if warnungen else 0)
