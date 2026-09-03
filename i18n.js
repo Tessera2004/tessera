@@ -8,6 +8,7 @@
 (function () {
   const DICT = {
     de: {
+      'mix.paket': 'Komplettpaket — alle Module inklusive. Einzeln gebucht: {x}.',
       'nav.branchen': 'Branchen',
       'nav.how': 'Wie es funktioniert',
       'nav.module': 'Module',
@@ -569,6 +570,7 @@
     },
 
     fr: {
+      'mix.paket': 'Forfait complet — tous les modules inclus. Pris séparément : {x}.',
       'nav.branchen': 'Secteurs',
       'nav.how': 'Comment ça marche',
       'nav.module': 'Modules',
@@ -1148,6 +1150,7 @@
     },
 
     it: {
+      'mix.paket': 'Pacchetto completo — tutti i moduli inclusi. Presi singolarmente: {x}.',
       'nav.branchen': 'Settori',
       'nav.how': 'Come funziona',
       'nav.module': 'Moduli',
@@ -1727,6 +1730,7 @@
     },
 
     es: {
+      'mix.paket': 'Paquete completo — todos los módulos incluidos. Por separado: {x}.',
       'nav.branchen': 'Sectores',
       'nav.how': 'Cómo funciona',
       'nav.module': 'Módulos',
@@ -2306,6 +2310,7 @@
     },
 
     en: {
+      'mix.paket': 'All-in package — every module included. Booked separately: {x}.',
       'nav.branchen': 'Industries',
       'nav.how': 'How it works',
       'nav.module': 'Modules',

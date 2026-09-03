@@ -103,11 +103,12 @@
     DE: 'EUR', AT: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', PT: 'EUR', IE: 'EUR', LU: 'EUR', FI: 'EUR',
     GB: 'GBP', US: 'USD',
   };
-  const getCurrency = () => {
-    let region = 'CH';
-    try { region = (window.MOSAOS_I18N && window.MOSAOS_I18N.detectRegion()) || 'CH'; } catch {}
-    return CURRENCY[REGION_CCY[region] || 'CHF'] || CURRENCY.CHF;
-  };
+  // Abgerechnet wird ausschliesslich in Franken — die Preise in Stripe
+  // sind CHF. Vorher rechnete die Seite je nach Region in Euro um: ein
+  // deutscher Besucher sah 15 €, belastet wurden ihm aber Franken. Dazu
+  // ergaben die einzeln gerundeten Beträge nicht die gerundete Summe
+  // (Teile 161, Total 163). Beides ist mit einer festen Währung weg.
+  const getCurrency = () => CURRENCY.CHF;
   // CHF-Betrag in Anzeigewährung umrechnen (auf ganze Zahl gerundet)
   const conv = (chf) => {
     const c = getCurrency();
@@ -125,6 +126,7 @@
 
   const priceEl = document.getElementById('mixerPrice');
   const currEl = document.querySelector('.summary-price .curr');
+  const paketEl = document.getElementById('mixPaketHinweis');
   const activeEl = document.getElementById('mixerActive');
   const contentEl = document.getElementById('mixerContent');
   const tabBtns = document.querySelectorAll('.branche-tab');
@@ -173,8 +175,18 @@
         active.push(cb.dataset.name);
       }
     });
-    animatePrice(lastSumChf == null ? sumChf : lastSumChf, sumChf);
-    lastSumChf = sumChf;
+    // Komplettpaket: sobald die Einzelwahl darüber liegt, ist es das
+    // bessere Angebot — und genau dort gehört der Hinweis hin.
+    const paketChf = 99;
+    const lohnt = sumChf > paketChf;
+    const zeigeChf = lohnt ? paketChf : sumChf;
+    animatePrice(lastSumChf == null ? zeigeChf : lastSumChf, zeigeChf);
+    lastSumChf = zeigeChf;
+    if (paketEl) {
+      paketEl.style.display = lohnt ? '' : 'none';
+      paketEl.textContent = t('mix.paket', 'Komplettpaket — alle Module inklusive. Einzeln gebucht: {x}.')
+        .replace('{x}', fmtMoney(sumChf));
+    }
     if (activeEl) {
       const brancheName = t('branche.' + currentBranche, currentBranche);
       const baseLabel = t('mix.h.base', 'Basis');
