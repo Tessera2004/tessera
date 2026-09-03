@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+  <script>window.MOSAOS_LANG_FIXED = "fr";</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Logiciel suisse pour le paysagisme : projets, planification des tournées, rapports, contrats d&#x27;entretien, devis et facture QR — e-mails et appels restent liés au client. 14 jours gratuits.">
+  <meta name="keywords" content="Gartenbau Software Schweiz, Landschaftsbau Software, GaLaBau Software, Tourenplanung Gartenbau, Unterhaltsvertrag Garten, Rapport Gartenbau">
+  <title>Logiciel paysagisme Suisse — tournées, rapports &amp; facture QR | MosaOS</title>
+  <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=7">
+  <link rel="stylesheet" href="/branch-farben.css?v=1">
+  <link rel="stylesheet" href="/branch-hero.css?v=7">
+  <style>
+    /* Landingpage-eigene Bausteine (nutzen die Design-Tokens der Website) */
+    .wk-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:44px; }
+    .wk-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 24px; transition:border-color .2s var(--ease), transform .2s var(--ease); }
+    .wk-card:hover { border-color:var(--border-strong); transform:translateY(-3px); }
+    .wk-ic { width:46px; height:46px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; color:var(--swiss); background:var(--swiss-soft); margin-bottom:16px; }
+    .wk-card h3 { font-size:17px; margin:0 0 8px; color:var(--text); }
+    .wk-card p { font-size:14px; line-height:1.55; color:var(--text-muted); margin:0; }
+
+    .wk-pain { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:36px; }
+    .wk-pain div { background:var(--bg-soft); border:1px solid var(--border-soft); border-left:3px solid var(--swiss); border-radius:var(--r-md); padding:16px 18px; font-size:14.5px; color:var(--text-soft); line-height:1.5; }
+
+    .wk-flow { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:40px; justify-content:center; }
+    .wk-step { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-full); padding:11px 20px; font-size:14px; font-weight:600; color:var(--text); }
+    .wk-arrow { color:var(--text-subtle); }
+
+    .wk-price { max-width:560px; margin:44px auto 0; background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:36px 32px; text-align:center; box-shadow:var(--shadow-lg); }
+    .wk-price .amt { font-size:46px; font-weight:800; color:var(--text); letter-spacing:-.02em; }
+    .wk-price .amt span { font-size:17px; font-weight:600; color:var(--text-muted); }
+    .wk-price ul { list-style:none; padding:0; margin:22px 0 26px; text-align:left; display:inline-block; }
+    .wk-price li { font-size:14.5px; color:var(--text-soft); padding:6px 0 6px 26px; position:relative; }
+    .wk-price li::before { content:"✓"; position:absolute; left:0; color:var(--swiss); font-weight:700; }
+
+    /* Häufige Fragen — sichtbarer Text, kein Aufklapper: Suchmaschinen
+       und Leser sollen die Antwort ohne Klick sehen. */
+    .wk-faq { max-width:1000px; margin:0 auto; }
+    .wk-faq-liste { display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:18px; margin-top:38px; }
+    .wk-faq-liste article { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 26px 24px; }
+    .wk-faq-liste h3 { font-size:17px; margin:0 0 10px; color:var(--text); line-height:1.35; }
+    .wk-faq-liste p { font-size:14.5px; line-height:1.6; color:var(--text-muted); margin:0; }
+
+    .wk-cta-band { text-align:center; padding:76px 20px; }
+    .wk-cta-band h2 { font-size:clamp(26px,4vw,38px); margin:0 0 14px; color:var(--text); letter-spacing:-.02em; }
+    .wk-cta-band p { font-size:16px; color:var(--text-muted); margin:0 0 28px; }
+
+    .wk-mini-footer { border-top:1px solid var(--border); padding:26px 20px; text-align:center; font-size:13px; color:var(--text-subtle); }
+    .wk-mini-footer a { color:var(--text-muted); text-decoration:none; margin:0 8px; }
+    .wk-mini-footer a:hover { color:var(--text); }
+
+    /* Gemeinsames Produktlayout: identisch klar strukturiert wie Werkstatt */
+    .wk-command-center { margin:0 auto; max-width:1180px; padding:76px 42px; border:1px solid var(--border); border-radius:var(--r-xl); background:linear-gradient(135deg, rgba(var(--swiss-rgb), .10), transparent 34%), var(--surface); box-shadow:var(--shadow-lg); }
+    .wk-command-center .section-head { max-width:760px; margin-bottom:38px; }
+    .wk-command-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+    .wk-command-card { min-width:0; padding:24px; border:1px solid var(--border); border-radius:var(--r-lg); background:rgba(8,12,27,.48); }
+    .wk-command-number { display:block; margin-bottom:18px; font:700 12px/1 Inter,sans-serif; letter-spacing:.12em; color:var(--swiss); }
+    .wk-command-card h3 { margin:0 0 9px; font-size:18px; color:var(--text); }
+    .wk-command-card p { margin:0; color:var(--text-muted); font-size:14px; line-height:1.6; }
+    .wk-command-link { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:25px; color:var(--text-soft); font-size:12px; font-weight:600; }
+    .wk-command-link span { padding:6px 9px; border-radius:999px; background:var(--surface-glass); border:1px solid var(--border); }
+    @media (max-width:760px) { .wk-command-center { padding:48px 20px; } .wk-command-grid { grid-template-columns:1fr; } }
+  </style>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MosaOS">
+  <meta property="og:title" content="Logiciel paysagisme Suisse — tournées, rapports &amp; facture QR | MosaOS">
+  <meta property="og:description" content="Logiciel suisse pour le paysagisme : projets, planification des tournées, rapports, contrats d&#x27;entretien, devis et facture QR — e-mails et appels restent liés au client. 14 jours gratuits.">
+  <meta property="og:image" content="https://mosaos.pages.dev/assets/og/garten.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logiciel paysagisme Suisse — tournées, rapports &amp; facture QR | MosaOS">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Logiciel paysagisme Suisse — tournées, rapports &amp; facture QR | MosaOS">
+  <meta name="twitter:description" content="Logiciel suisse pour le paysagisme : projets, planification des tournées, rapports, contrats d&#x27;entretien, devis et facture QR — e-mails et appels restent liés au client. 14 jours gratuits.">
+  <meta name="twitter:image" content="https://mosaos.pages.dev/assets/og/garten.jpg">
+  <link rel="canonical" href="https://mosaos.pages.dev/fr/garten.html" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.pages.dev/garten.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.pages.dev/fr/garten.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.pages.dev/it/garten.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.pages.dev/es/garten.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.pages.dev/en/garten.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.pages.dev/garten.html" />
+  <meta property="og:locale" content="fr_CH" />
+  <meta property="og:url" content="https://mosaos.pages.dev/fr/garten.html" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Combien coûte MosaOS ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "La base coûte 49 CHF par mois et par entreprise — interventions, clients et équipe inclus. Les autres modules s'ajoutent à partir de 15 CHF, par exemple devis, factures ou boîte e-mail. Résiliable chaque mois, sans frais d'installation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Puis-je essayer MosaOS d'abord ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui. 14 jours gratuits, sans carte de crédit et sans engagement. Vous configurez votre entreprise et travaillez avec de vraies données — si cela ne convient pas, l'accès expire simplement."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Où sont mes données ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sur des serveurs dans l'Union européenne (Irlande). Le traitement suit la loi suisse sur la protection des données et le RGPD. Vous pouvez exporter vos données à tout moment et supprimer votre compte vous-même."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Mes collaborateurs peuvent-ils travailler en déplacement ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui. L'équipe ouvre l'application de terrain dans le navigateur du téléphone — sans installation. Elle y voit les interventions du jour avec adresse et horaire, pointe sur place, prend des photos et clôture avec un rapport."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Puis-je émettre des factures QR suisses ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui. L'intervention terminée devient une facture PDF avec code QR suisse. Vous suivez le statut d'un coup d'œil : ouverte, envoyée, payée."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Combien de temps prend la mise en place ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "En général moins de 30 minutes. Vous choisissez votre secteur, créez l'équipe et les premiers clients, et pouvez planifier immédiatement. Les listes de clients existantes peuvent être importées."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* Sprachumschalter: echte Verweise statt Klick-Umschaltung */
+    .lang-switch .lang-link {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:5px 9px; border-radius:6px; font-size:11px; font-weight:600;
+      color:var(--text-subtle); text-decoration:none; transition:all .2s var(--ease);
+    }
+    .lang-switch .lang-link:hover { color:var(--text); }
+    .lang-switch .lang-link.active { background:var(--swiss); color:var(--swiss-on); }
+  </style>
+</head>
+<body data-branch="garten" class="intro-done lf-einzelunternehmen">
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="/fr/index.html" class="nav-logo" aria-label="MosaOS Startseite">
+        <img src="/logo/mosaos-mark.svg" alt="" width="32" height="32">
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#funktionen" data-i18n="br.nav.funktionen">Fonctions</a>
+        <a href="#ablauf" data-i18n="br.nav.ablauf">Déroulement</a>
+        <a href="#preis" data-i18n="br.nav.preis">Tarif</a>
+        <a href="/fr/index.html#branchen" data-i18n="br.nav.andere">Autres secteurs</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="/app/login.html" class="btn btn-ghost" data-i18n="nav.login">Connexion</a>
+        <a href="/app/onboarding.html" class="btn btn-primary" data-i18n="br.nav.start">Démarrer gratuitement</a>
+        <div class="lang-switch"><a href="/garten.html" hreflang="de" class="lang-link">DE</a><a href="/fr/garten.html" hreflang="fr" class="lang-link active">FR</a><a href="/it/garten.html" hreflang="it" class="lang-link">IT</a><a href="/es/garten.html" hreflang="es" class="lang-link">ES</a><a href="/en/garten.html" hreflang="en" class="lang-link">EN</a></div>
+      </div>
+      <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero wk-hero" id="top">
+    <div class="hero-mesh" aria-hidden="true"></div>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span data-i18n="ga.hero.badge">Pour le paysagisme · Made in Switzerland</span>
+        </div>
+        <h1 data-i18n="ga.hero.title">Vos projets et entretiens. <span class="grad">Sous contrôle.</span></h1>
+        <p class="hero-sub" data-i18n="ga.hero.sub">Projets paysagers, entretien saisonnier, tournées, rapports, matériel, devis, factures et équipe – dans le même système.</p>
+        <div class="hero-cta">
+          <a href="/app/onboarding.html" class="btn btn-primary btn-lg">
+            <span data-i18n="br.hero.cta1">14 jours d’essai gratuit</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+          <a href="/app/app.html" class="btn btn-ghost btn-lg" data-i18n="br.hero.cta2">Voir la démo</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust1">Données dans l’UE · LPD/RGPD</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust2">Facture QR suisse</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust3">Sans carte de crédit</span></div>
+        </div>
+        <div class="wk-module-ribbon" aria-label="MosaOS Module"><span data-i18n="br.mod.mail">E-mails</span><span data-i18n="br.mod.calls">Journal d'appels</span><span data-i18n="br.mod.customers">Clients</span><span data-i18n="ga.mod.tours">Planification des tournées</span><span data-i18n="br.mod.reports">Rapports</span><span data-i18n="br.mod.quotes">Devis</span><span data-i18n="br.mod.invoices">Factures QR</span><span data-i18n="ga.mod.maintenance">Contrats d'entretien</span></div>
+      </div>
+      <div class="hero-visual" aria-label="MosaOS Gartenprojekte für Garten- und Landschaftsbau">
+        <div class="wk-product-stage">
+          <div class="wk-shot-label"><i></i><span data-i18n="ga.hero.shotLabel">Vue « Projets de jardin »</span></div>
+          <div class="wk-product-shot">
+            <div class="wk-product-frame">
+              <img src="/assets/branches/garten-projekte.png" alt="Gartenprojekte-Board in MosaOS: vier Spalten von Angefragt bis Abgeschlossen, je Karte Kunde, Adresse, Gärtner und Auftragswert" width="2880" height="1240" loading="eager" decoding="async">
+            </div>
+            <div class="wk-product-status"><i></i><span data-i18n="ga.hero.connected">Tournées, équipe et entretien reliés</span></div>
+          </div>
+          <p class="wk-shot-caption" data-i18n="ga.hero.shotCaption">Entretien, réaménagement et travaux saisonniers sur un même tableau — avec le client, la parcelle, le jardinier responsable et le montant sur la carte.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST-STRIP ============ -->
+  <section class="strip">
+    <div class="strip-inner">
+      <span class="strip-label" data-i18n="br.strip.label">Conçu pour les PME suisses</span>
+      <div class="strip-items">
+        <div class="strip-item" data-i18n="br.strip.1">🇨🇭 Pour la Suisse</div>
+        <div class="strip-item" data-i18n="br.strip.2">🧾 Facture QR</div>
+        <div class="strip-item" data-i18n="br.strip.3">📱 App mobile pour l’équipe</div>
+        <div class="strip-item" data-i18n="br.strip.4">🔔 Rendez-vous &amp; rappels</div>
+        <div class="strip-item" data-i18n="br.strip.5">⚡ Prêt en 30 min</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ALLES VERKNÜPFT ============ -->
+  <section class="section" id="zentrale">
+    <div class="container">
+      <div class="wk-command-center">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="br.center.eyebrow">Plus qu’une planification</div>
+          <h2 data-i18n="br.center.title">Du premier appel à la facture payée. Dans une seule application.</h2>
+          <p class="section-sub" data-i18n="br.center.sub">MosaOS relie communication, interventions, équipe et chiffres. Les informations restent liées au client et à l’ordre – au lieu de se disperser dans des boîtes mail, des fichiers Excel et des notes.</p>
+        </div>
+        <div class="wk-command-grid">
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.comm.number">01 — COMMUNICATION</span>
+            <h3 data-i18n="br.center.comm.title">La communication avec le client</h3>
+            <p data-i18n="br.center.comm.text">Connectez Gmail, Microsoft 365/Outlook et IMAP. E-mails et journaux d’appels restent liés au client et à l’ordre – aucun rappel ne se perd.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.comm.tag1">Connexion e-mail</span><span data-i18n="br.center.comm.tag2">Journal d’appels</span></div>
+          </article>
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.flow.number">02 — PROCESSUS</span>
+            <h3 data-i18n="br.center.flow.title">Un seul flux au lieu de sept outils</h3>
+            <p data-i18n="br.center.flow.text">Un appel, un e-mail ou un rendez-vous devient un ordre. Ensuite un devis, une facture et un statut de paiement — sans ressaisir les données.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.flow.tag1">Devis</span><span data-i18n="br.center.flow.tag2">Factures QR</span></div>
+          </article>
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.team.number">03 — ÉQUIPE &amp; CHIFFRES</span>
+            <h3 data-i18n="br.center.team.title">L’équipe sait quoi faire</h3>
+            <p data-i18n="br.center.team.text">Tâches, rendez-vous de 15 minutes, affectations, saisie mobile des temps et post-calcul restent directement liés à l’ordre.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.team.tag1">Application mobile</span><span data-i18n="br.center.team.tag2">Post-calcul</span></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.problem.eyebrow">Ça vous parle ?</div>
+        <h2 data-i18n="ga.problem.title">La saison n’attend pas — votre planning, si.</h2>
+        <p class="section-sub" data-i18n="ga.problem.sub">Tournées en tête, contrats d’entretien dans l’agenda, rapports sur papier. MosaOS planifie équipes, machines et sites au même endroit.</p>
+      </div>
+      <div class="wk-pain">
+        <div data-i18n="ga.pain.1">« Qui part aujourd’hui, avec quelle machine et où ? » — une tournée organisée à la voix.</div>
+        <div data-i18n="ga.pain.2">Les contrats d’entretien s’oublient parce qu’ils n’existent que dans l’agenda.</div>
+        <div data-i18n="ga.pain.3">Les heures et le matériel n’arrivent au bureau que des jours plus tard.</div>
+        <div data-i18n="ga.pain.4">En fin de saison, personne ne sait quel projet a vraiment été rentable.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FUNKTIONEN ============ -->
+  <section class="section" id="funktionen" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.feat.eyebrow">Fonctions</div>
+        <h2 data-i18n="br.feat.title">Tout ce dont votre entreprise a vraiment besoin.</h2>
+        <p class="section-sub" data-i18n="br.feat.sub">Pas de système surchargé — les outils de votre métier, conçus avec calme.</p>
+      </div>
+      <div class="wk-grid">
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18M9 4v16"></path></svg></div>
+          <h3 data-i18n="ga.feat.1.title">Projets &amp; tournées</h3>
+          <p data-i18n="ga.feat.1.text">Planifiez équipes, machines et sites selon la journée.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="3.4"></circle><path d="M8.5 6l1.4-2h4.2l1.4 2"></path></svg></div>
+          <h3 data-i18n="ga.feat.2.title">Rapports sur mobile</h3>
+          <p data-i18n="ga.feat.2.text">Saisissez heures, matériel et photos directement chez le client.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"></path><path d="M14 2v6h6M9 13h6M9 17h6"></path></svg></div>
+          <h3 data-i18n="ga.feat.3.title">Contrats d’entretien</h3>
+          <p data-i18n="ga.feat.3.text">Planifiez automatiquement travaux saisonniers et rendez-vous récurrents.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABLAUF ============ -->
+  <section class="section" id="ablauf" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.flow.eyebrow">Le parcours d’un ordre</div>
+        <h2 data-i18n="br.flow.title">De la demande à la facture payée.</h2>
+      </div>
+      <div class="wk-flow">
+        <span class="wk-step" data-i18n="ga.flow.1">Demande client</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" data-i18n="ga.flow.2">Planifier la tournée</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" data-i18n="ga.flow.3">Rapport au jardin</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" style="border-color:var(--swiss); color:var(--swiss);" data-i18n="ga.flow.4">Facture</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PREIS ============ -->
+  <section class="section" id="preis" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.price.eyebrow">Tarif</div>
+        <h2 data-i18n="br.price.title">Un tarif juste. Des modules selon vos besoins.</h2>
+        <p class="section-sub" data-i18n="br.price.sub">Les outils de votre secteur sont inclus dans la base. Ce dont vous avez besoin en plus, vous l’ajoutez — résiliable à tout moment.</p>
+      </div>
+      <div class="wk-price">
+        <div class="amt">CHF 49<span data-i18n="br.price.per"> / mois</span></div>
+        <ul>
+          <li data-i18n="ga.feat.1.title">Projets &amp; tournées</li>
+          <li data-i18n="ga.feat.2.title">Rapports sur mobile</li>
+          <li data-i18n="ga.feat.3.title">Contrats d’entretien</li>
+          <li data-i18n="br.price.li4">Clients, équipe &amp; rendez-vous</li>
+          <li data-i18n="br.price.li5">App mobile pour l’équipe</li>
+        </ul>
+        <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:22px;" data-i18n="br.price.addon">En option : factures QR, devis estimatifs, saisie du temps, etc.</div>
+        <a href="/app/onboarding.html" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" data-i18n="br.price.cta">14 jours d’essai gratuit — sans carte de crédit</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ HÄUFIGE FRAGEN ============ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="wk-faq">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="faq.eyebrow">Questions fréquentes</div>
+          <h2 data-i18n="faq.title">Ce que les entreprises veulent savoir avant de commencer</h2>
+        </div>
+        <div class="wk-faq-liste">
+          <article>
+            <h3 data-i18n="faq.preis.f">Combien coûte MosaOS ?</h3>
+            <p data-i18n="faq.preis.a">La base coûte 49 CHF par mois et par entreprise — interventions, clients et équipe inclus. Les autres modules s'ajoutent à partir de 15 CHF, par exemple devis, factures ou boîte e-mail. Résiliable chaque mois, sans frais d'installation.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.test.f">Puis-je essayer MosaOS d'abord ?</h3>
+            <p data-i18n="faq.test.a">Oui. 14 jours gratuits, sans carte de crédit et sans engagement. Vous configurez votre entreprise et travaillez avec de vraies données — si cela ne convient pas, l'accès expire simplement.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.daten.f">Où sont mes données ?</h3>
+            <p data-i18n="faq.daten.a">Sur des serveurs dans l'Union européenne (Irlande). Le traitement suit la loi suisse sur la protection des données et le RGPD. Vous pouvez exporter vos données à tout moment et supprimer votre compte vous-même.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.mobil.f">Mes collaborateurs peuvent-ils travailler en déplacement ?</h3>
+            <p data-i18n="faq.mobil.a">Oui. L'équipe ouvre l'application de terrain dans le navigateur du téléphone — sans installation. Elle y voit les interventions du jour avec adresse et horaire, pointe sur place, prend des photos et clôture avec un rapport.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.qr.f">Puis-je émettre des factures QR suisses ?</h3>
+            <p data-i18n="faq.qr.a">Oui. L'intervention terminée devient une facture PDF avec code QR suisse. Vous suivez le statut d'un coup d'œil : ouverte, envoyée, payée.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.setup.f">Combien de temps prend la mise en place ?</h3>
+            <p data-i18n="faq.setup.a">En général moins de 30 minutes. Vous choisissez votre secteur, créez l'équipe et les premiers clients, et pouvez planifier immédiatement. Les listes de clients existantes peuvent être importées.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA-BAND ============ -->
+  <section class="wk-cta-band">
+    <div class="container">
+      <h2 data-i18n="br.band.title">Apportez du calme dans votre entreprise.</h2>
+      <p data-i18n="br.band.text">Configuré en 30 minutes. Sans engagement, sans carte de crédit.</p>
+      <a href="/app/onboarding.html" class="btn btn-primary btn-lg">
+        <span data-i18n="br.band.cta">Démarrer gratuitement</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ MINI-FOOTER ============ -->
+  <footer class="wk-mini-footer">
+    <div>
+      <a href="/fr/index.html" data-i18n="br.footer.home">Accueil</a>
+      <a href="/fr/index.html#branchen" data-i18n="br.nav.andere">Autres secteurs</a>
+      <a href="/fr/anfrage.html" data-i18n="footer.contact">Contact</a>
+      <a href="/impressum.html" data-i18n="footer.imprint">Mentions légales</a>
+      <a href="/datenschutz.html" data-i18n="footer.privacy">Confidentialité</a>
+    </div>
+    <div style="margin-top:12px;">
+      © <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD für SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MosaOS Software für Garten- und Landschaftsbau",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Schweizer Software für Garten- und Landschaftsbau: Projekt- und Tourenplanung, Rapporte mit Stunden und Material, Unterhaltsverträge, Offerten und QR-Rechnung.",
+    "offers": {
+      "@type": "Offer",
+      "price": "49",
+      "priceCurrency": "CHF",
+      "url": "https://mosaos.pages.dev/garten.html#preis",
+      "availability": "https://schema.org/InStock"
+    },
+    "areaServed": "CH",
+    "url": "https://mosaos.pages.dev/garten.html",
+    "image": "https://mosaos.pages.dev/assets/og/garten.jpg",
+    "inLanguage": [
+      "de",
+      "fr",
+      "it",
+      "es",
+      "en"
+    ],
+    "provider": {
+      "@type": "Organization",
+      "name": "MosaOS",
+      "url": "https://mosaos.pages.dev/"
+    }
+  }
+  </script>
+
+  <script src="/config.js?v=3"></script>
+  <script src="/i18n.js?v=11"></script>
+  <script src="/main.js?v=2" defer=""></script>
+
+
+</body></html>

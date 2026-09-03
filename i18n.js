@@ -326,6 +326,22 @@
       'wk.hero.moduleTeam': 'Team & Zeiten',
       'wk.hero.moduleMargin': 'Nachkalkulation',
       'wk.hero.connected': 'Alles im selben Ablauf verbunden',
+
+      /* Häufige Fragen — auch Grundlage für das FAQPage-Schema */
+      'faq.eyebrow': 'Häufige Fragen',
+      'faq.title': 'Was Betriebe vor dem Start wissen wollen',
+      'faq.preis.f': 'Was kostet MosaOS?',
+      'faq.preis.a': 'Die Basis kostet 49 CHF pro Monat und Betrieb — darin sind Einsätze, Kunden und Team enthalten. Weitere Module buchst du ab 15 CHF dazu, zum Beispiel Offerten, Rechnungen oder das E-Mail-Postfach. Monatlich kündbar, keine Einrichtungsgebühr.',
+      'faq.test.f': 'Kann ich MosaOS zuerst ausprobieren?',
+      'faq.test.a': 'Ja. 14 Tage gratis, ohne Kreditkarte und ohne Vertragsbindung. Du richtest deinen Betrieb ein und arbeitest mit echten Daten — wenn es nicht passt, läuft der Zugang einfach aus.',
+      'faq.daten.f': 'Wo liegen meine Daten?',
+      'faq.daten.a': 'Auf Servern in der Europäischen Union (Irland). Die Verarbeitung richtet sich nach dem Schweizer Datenschutzgesetz und der DSGVO. Du kannst deine Daten jederzeit exportieren und dein Konto selbst löschen.',
+      'faq.mobil.f': 'Können meine Mitarbeitenden unterwegs damit arbeiten?',
+      'faq.mobil.a': 'Ja. Das Team öffnet die Feld-App im Browser auf dem Handy — ohne Installation. Dort sieht es die Einsätze des Tages mit Adresse und Zeit, checkt am Objekt ein, erfasst Fotos und schliesst den Einsatz mit Rapport ab.',
+      'faq.qr.f': 'Kann ich Schweizer QR-Rechnungen stellen?',
+      'faq.qr.a': 'Ja. Aus dem erledigten Einsatz entsteht die Rechnung als PDF mit Schweizer QR-Code. Den Status siehst du im Überblick: offen, gesendet, bezahlt.',
+      'faq.setup.f': 'Wie lange dauert die Einrichtung?',
+      'faq.setup.a': 'In der Regel unter 30 Minuten. Du wählst deine Branche, legst Team und erste Kunden an und kannst sofort planen. Bestehende Kundenlisten lassen sich importieren.',
       /* Branchen-Hero: Modulleiste, Bildbeschriftung und Bildunterschrift */
       'br.mod.mail': 'E-Mails',
       'br.mod.calls': 'Anrufprotokoll',
@@ -871,6 +887,40 @@
       'wk.hero.moduleTeam': 'Équipe & temps',
       'wk.hero.moduleMargin': 'Post-calcul',
       'wk.hero.connected': 'Tout est relié dans le même flux',
+
+      /* Titel und Beschreibung der Sprachfassungen (scripts/sprachen-bauen.py) */
+      'meta.index.title': 'MosaOS — une app pour interventions, e-mails, devis et factures',
+      'meta.index.desc': 'Logiciel suisse modulaire pour le nettoyage, le garage, l\'artisanat, le paysagisme et la lutte antiparasitaire. Interventions, e-mails, rapports, devis et facture QR dans une seule app. 14 jours gratuits.',
+      'meta.werkstatt.title': 'Logiciel de garage Suisse — planning, dossier véhicule & facture QR | MosaOS',
+      'meta.werkstatt.desc': 'Logiciel suisse pour garages : tableau des ordres, dossier véhicule, hôtel à pneus, devis et facture QR — e-mails et appels restent liés au client et au véhicule. 14 jours gratuits.',
+      'meta.handwerk.title': 'Logiciel artisan Suisse — chantiers, rapports & facture QR | MosaOS',
+      'meta.handwerk.desc': 'Logiciel suisse pour entreprises artisanales : chantiers, rapports de régie, planning du jour, devis et facture QR — e-mails et appels restent liés au client. 14 jours gratuits.',
+      'meta.garten.title': 'Logiciel paysagisme Suisse — tournées, rapports & facture QR | MosaOS',
+      'meta.garten.desc': 'Logiciel suisse pour le paysagisme : projets, planification des tournées, rapports, contrats d\'entretien, devis et facture QR — e-mails et appels restent liés au client. 14 jours gratuits.',
+      'meta.reinigung.title': 'Logiciel de nettoyage Suisse — planification, rapports & facture QR | MosaOS',
+      'meta.reinigung.desc': 'Logiciel suisse pour entreprises de nettoyage : planification du jour et des tournées, rapports, contrats d\'abonnement, devis et facture QR — e-mails et appels restent liés à l\'objet. 14 jours gratuits.',
+      'meta.schaedlingsbekaempfung.title': 'Logiciel antiparasitaire Suisse — postes d\'appâtage, protocoles & facture QR | MosaOS',
+      'meta.schaedlingsbekaempfung.desc': 'Logiciel suisse pour la lutte antiparasitaire : postes d\'appâtage, protocoles, dates de contrôle, devis et facture QR — e-mails et appels restent liés à l\'objet. 14 jours gratuits.',
+      'meta.ueber-uns.title': 'À propos — MosaOS',
+      'meta.ueber-uns.desc': 'MosaOS est un logiciel modulaire suisse pour les entreprises de services : interventions, communication client, équipe et facturation dans une seule app.',
+      'meta.anfrage.title': 'Nous contacter — MosaOS',
+      'meta.anfrage.desc': 'Demande MosaOS — accès anticipé, secteur sur mesure ou conseil. Réponse sous un jour ouvrable.',
+
+      /* Häufige Fragen — auch Grundlage für das FAQPage-Schema */
+      'faq.eyebrow': 'Questions fréquentes',
+      'faq.title': 'Ce que les entreprises veulent savoir avant de commencer',
+      'faq.preis.f': 'Combien coûte MosaOS ?',
+      'faq.preis.a': 'La base coûte 49 CHF par mois et par entreprise — interventions, clients et équipe inclus. Les autres modules s\'ajoutent à partir de 15 CHF, par exemple devis, factures ou boîte e-mail. Résiliable chaque mois, sans frais d\'installation.',
+      'faq.test.f': 'Puis-je essayer MosaOS d\'abord ?',
+      'faq.test.a': 'Oui. 14 jours gratuits, sans carte de crédit et sans engagement. Vous configurez votre entreprise et travaillez avec de vraies données — si cela ne convient pas, l\'accès expire simplement.',
+      'faq.daten.f': 'Où sont mes données ?',
+      'faq.daten.a': 'Sur des serveurs dans l\'Union européenne (Irlande). Le traitement suit la loi suisse sur la protection des données et le RGPD. Vous pouvez exporter vos données à tout moment et supprimer votre compte vous-même.',
+      'faq.mobil.f': 'Mes collaborateurs peuvent-ils travailler en déplacement ?',
+      'faq.mobil.a': 'Oui. L\'équipe ouvre l\'application de terrain dans le navigateur du téléphone — sans installation. Elle y voit les interventions du jour avec adresse et horaire, pointe sur place, prend des photos et clôture avec un rapport.',
+      'faq.qr.f': 'Puis-je émettre des factures QR suisses ?',
+      'faq.qr.a': 'Oui. L\'intervention terminée devient une facture PDF avec code QR suisse. Vous suivez le statut d\'un coup d\'œil : ouverte, envoyée, payée.',
+      'faq.setup.f': 'Combien de temps prend la mise en place ?',
+      'faq.setup.a': 'En général moins de 30 minutes. Vous choisissez votre secteur, créez l\'équipe et les premiers clients, et pouvez planifier immédiatement. Les listes de clients existantes peuvent être importées.',
       /* Hero métier : barre de modules, intitulé et légende de la capture */
       'br.mod.mail': 'E-mails',
       'br.mod.calls': 'Journal d\'appels',
@@ -1416,6 +1466,40 @@
       'wk.hero.moduleTeam': 'Team & tempi',
       'wk.hero.moduleMargin': 'Post-calcolo',
       'wk.hero.connected': 'Tutto è collegato nello stesso flusso',
+
+      /* Titel und Beschreibung der Sprachfassungen (scripts/sprachen-bauen.py) */
+      'meta.index.title': 'MosaOS — un\'app per interventi, e-mail, offerte e fatture',
+      'meta.index.desc': 'Software svizzero modulare per pulizie, officina, artigianato, giardinaggio e disinfestazione. Interventi, e-mail, rapporti, offerte e fattura QR in un\'unica app. 14 giorni gratis.',
+      'meta.werkstatt.title': 'Software per officine Svizzera — piano lavori, scheda veicolo e fattura QR | MosaOS',
+      'meta.werkstatt.desc': 'Software svizzero per officine: bacheca ordini, scheda veicolo, hotel pneumatici, offerte e fattura QR — e-mail e chiamate restano legate a cliente e veicolo. 14 giorni gratis.',
+      'meta.handwerk.title': 'Software per artigiani Svizzera — cantieri, rapporti e fattura QR | MosaOS',
+      'meta.handwerk.desc': 'Software svizzero per imprese artigiane: cantieri, rapporti di lavoro, pianificazione giornaliera, offerte e fattura QR — e-mail e chiamate restano legate al cliente. 14 giorni gratis.',
+      'meta.garten.title': 'Software giardinaggio Svizzera — giri, rapporti e fattura QR | MosaOS',
+      'meta.garten.desc': 'Software svizzero per giardinaggio e paesaggistica: progetti, pianificazione giri, rapporti, contratti di manutenzione, offerte e fattura QR. 14 giorni gratis.',
+      'meta.reinigung.title': 'Software per imprese di pulizia Svizzera — pianificazione, rapporti e fattura QR | MosaOS',
+      'meta.reinigung.desc': 'Software svizzero per imprese di pulizia: pianificazione giornaliera e dei giri, rapporti, contratti in abbonamento, offerte e fattura QR. 14 giorni gratis.',
+      'meta.schaedlingsbekaempfung.title': 'Software disinfestazione Svizzera — postazioni esca, protocolli e fattura QR | MosaOS',
+      'meta.schaedlingsbekaempfung.desc': 'Software svizzero per la disinfestazione: postazioni esca, protocolli, date di controllo, offerte e fattura QR. 14 giorni gratis.',
+      'meta.ueber-uns.title': 'Chi siamo — MosaOS',
+      'meta.ueber-uns.desc': 'MosaOS è un software modulare svizzero per aziende di servizi: interventi, comunicazione con il cliente, team e fatturazione in un\'unica app.',
+      'meta.anfrage.title': 'Contattaci — MosaOS',
+      'meta.anfrage.desc': 'Richiesta MosaOS — accesso anticipato, settore su misura o consulenza. Risposta entro un giorno lavorativo.',
+
+      /* Häufige Fragen — auch Grundlage für das FAQPage-Schema */
+      'faq.eyebrow': 'Domande frequenti',
+      'faq.title': 'Cosa vogliono sapere le aziende prima di iniziare',
+      'faq.preis.f': 'Quanto costa MosaOS?',
+      'faq.preis.a': 'La base costa 49 CHF al mese per azienda — interventi, clienti e team inclusi. Gli altri moduli si aggiungono da 15 CHF, ad esempio offerte, fatture o casella e-mail. Disdetta mensile, nessun costo di attivazione.',
+      'faq.test.f': 'Posso provare MosaOS prima?',
+      'faq.test.a': 'Sì. 14 giorni gratuiti, senza carta di credito e senza vincoli. Configuri la tua azienda e lavori con dati reali — se non va bene, l\'accesso scade semplicemente.',
+      'faq.daten.f': 'Dove sono i miei dati?',
+      'faq.daten.a': 'Su server nell\'Unione europea (Irlanda). Il trattamento segue la legge svizzera sulla protezione dei dati e il GDPR. Puoi esportare i dati in qualsiasi momento ed eliminare tu stesso l\'account.',
+      'faq.mobil.f': 'I miei collaboratori possono lavorare fuori sede?',
+      'faq.mobil.a': 'Sì. Il team apre l\'app da campo nel browser del telefono — senza installazione. Vede gli interventi del giorno con indirizzo e orario, timbra sul posto, aggiunge foto e chiude con il rapporto.',
+      'faq.qr.f': 'Posso emettere fatture QR svizzere?',
+      'faq.qr.a': 'Sì. Dall\'intervento concluso nasce la fattura in PDF con codice QR svizzero. Lo stato è sempre visibile: aperta, inviata, pagata.',
+      'faq.setup.f': 'Quanto dura la configurazione?',
+      'faq.setup.a': 'Di norma meno di 30 minuti. Scegli il settore, crei team e primi clienti e puoi pianificare subito. Gli elenchi clienti esistenti si possono importare.',
       /* Hero di settore: barra moduli, titolo e didascalia dello screenshot */
       'br.mod.mail': 'E-mail',
       'br.mod.calls': 'Registro chiamate',
@@ -1961,6 +2045,40 @@
       'wk.hero.moduleTeam': 'Equipo y horas',
       'wk.hero.moduleMargin': 'Postcálculo',
       'wk.hero.connected': 'Todo conectado en un mismo flujo',
+
+      /* Titel und Beschreibung der Sprachfassungen (scripts/sprachen-bauen.py) */
+      'meta.index.title': 'MosaOS — una app para servicios, correos, presupuestos y facturas',
+      'meta.index.desc': 'Software suizo modular para limpieza, taller, oficios, jardinería y control de plagas. Servicios, correos, partes, presupuestos y factura QR en una sola app. 14 días gratis.',
+      'meta.werkstatt.title': 'Software de taller Suiza — plan de taller, ficha de vehículo y factura QR | MosaOS',
+      'meta.werkstatt.desc': 'Software suizo para talleres: tablero de órdenes, ficha de vehículo, hotel de neumáticos, presupuestos y factura QR — correos y llamadas quedan junto al cliente y al vehículo. 14 días gratis.',
+      'meta.handwerk.title': 'Software para oficios Suiza — obras, partes de trabajo y factura QR | MosaOS',
+      'meta.handwerk.desc': 'Software suizo para empresas de oficios: obras, partes de trabajo, planificación diaria, presupuestos y factura QR — correos y llamadas quedan junto al cliente. 14 días gratis.',
+      'meta.garten.title': 'Software jardinería Suiza — rutas, partes de trabajo y factura QR | MosaOS',
+      'meta.garten.desc': 'Software suizo para jardinería y paisajismo: proyectos, planificación de rutas, partes, contratos de mantenimiento, presupuestos y factura QR. 14 días gratis.',
+      'meta.reinigung.title': 'Software de limpieza Suiza — planificación, partes y factura QR | MosaOS',
+      'meta.reinigung.desc': 'Software suizo para empresas de limpieza: planificación diaria y de rutas, partes de trabajo, contratos de abono, presupuestos y factura QR. 14 días gratis.',
+      'meta.schaedlingsbekaempfung.title': 'Software control de plagas Suiza — puntos de cebo, protocolos y factura QR | MosaOS',
+      'meta.schaedlingsbekaempfung.desc': 'Software suizo para control de plagas: puntos de cebo, protocolos, fechas de control, presupuestos y factura QR. 14 días gratis.',
+      'meta.ueber-uns.title': 'Sobre nosotros — MosaOS',
+      'meta.ueber-uns.desc': 'MosaOS es un software modular suizo para empresas de servicios: servicios, comunicación con el cliente, equipo y facturación en una sola app.',
+      'meta.anfrage.title': 'Contacto — MosaOS',
+      'meta.anfrage.desc': 'Solicitud MosaOS — acceso anticipado, sector a medida o asesoramiento. Respuesta en un día laborable.',
+
+      /* Häufige Fragen — auch Grundlage für das FAQPage-Schema */
+      'faq.eyebrow': 'Preguntas frecuentes',
+      'faq.title': 'Lo que las empresas quieren saber antes de empezar',
+      'faq.preis.f': '¿Cuánto cuesta MosaOS?',
+      'faq.preis.a': 'La base cuesta 49 CHF al mes por empresa — servicios, clientes y equipo incluidos. Los demás módulos se añaden desde 15 CHF, por ejemplo presupuestos, facturas o buzón de correo. Cancelable cada mes, sin cuota de alta.',
+      'faq.test.f': '¿Puedo probar MosaOS primero?',
+      'faq.test.a': 'Sí. 14 días gratis, sin tarjeta de crédito y sin permanencia. Configuras tu empresa y trabajas con datos reales — si no encaja, el acceso simplemente caduca.',
+      'faq.daten.f': '¿Dónde están mis datos?',
+      'faq.daten.a': 'En servidores de la Unión Europea (Irlanda). El tratamiento se rige por la ley suiza de protección de datos y el RGPD. Puedes exportar tus datos en cualquier momento y eliminar tu cuenta tú mismo.',
+      'faq.mobil.f': '¿Pueden mis empleados trabajar sobre el terreno?',
+      'faq.mobil.a': 'Sí. El equipo abre la app de campo en el navegador del móvil — sin instalación. Ve los servicios del día con dirección y hora, ficha en el objeto, añade fotos y cierra con el parte de trabajo.',
+      'faq.qr.f': '¿Puedo emitir facturas QR suizas?',
+      'faq.qr.a': 'Sí. Del servicio terminado sale la factura en PDF con código QR suizo. El estado se ve de un vistazo: abierta, enviada, pagada.',
+      'faq.setup.f': '¿Cuánto tarda la puesta en marcha?',
+      'faq.setup.a': 'Normalmente menos de 30 minutos. Eliges tu sector, creas el equipo y los primeros clientes, y ya puedes planificar. Las listas de clientes existentes se pueden importar.',
       /* Hero por sector: barra de módulos, título y pie de la captura */
       'br.mod.mail': 'Correos',
       'br.mod.calls': 'Registro de llamadas',
@@ -2506,6 +2624,40 @@
       'wk.hero.moduleTeam': 'Team & time',
       'wk.hero.moduleMargin': 'Job costing',
       'wk.hero.connected': 'Everything connected in one workflow',
+
+      /* Titel und Beschreibung der Sprachfassungen (scripts/sprachen-bauen.py) */
+      'meta.index.title': 'MosaOS — one app for jobs, emails, quotes and invoices',
+      'meta.index.desc': 'Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.',
+      'meta.werkstatt.title': 'Workshop software Switzerland — job board, vehicle file & QR invoice | MosaOS',
+      'meta.werkstatt.desc': 'Swiss workshop software: job board, vehicle file, tyre hotel, quotes and QR invoice — emails and calls stay with the customer and the vehicle. 14 days free.',
+      'meta.handwerk.title': 'Trades software Switzerland — job sites, work reports & QR invoice | MosaOS',
+      'meta.handwerk.desc': 'Swiss software for trade businesses: job sites, work reports, daily planning, quotes and QR invoice — emails and calls stay with the customer. 14 days free.',
+      'meta.garten.title': 'Landscaping software Switzerland — routes, reports & QR invoice | MosaOS',
+      'meta.garten.desc': 'Swiss software for landscaping: projects, route planning, work reports, maintenance contracts, quotes and QR invoice. 14 days free.',
+      'meta.reinigung.title': 'Cleaning software Switzerland — planning, reports & QR invoice | MosaOS',
+      'meta.reinigung.desc': 'Swiss software for cleaning companies: day and route planning, work reports, subscription contracts, quotes and QR invoice. 14 days free.',
+      'meta.schaedlingsbekaempfung.title': 'Pest control software Switzerland — bait stations, protocols & QR invoice | MosaOS',
+      'meta.schaedlingsbekaempfung.desc': 'Swiss software for pest control: bait stations, protocols, inspection dates, quotes and QR invoice. 14 days free.',
+      'meta.ueber-uns.title': 'About — MosaOS',
+      'meta.ueber-uns.desc': 'MosaOS is modular Swiss software for service businesses: jobs, customer communication, team and invoicing in one app.',
+      'meta.anfrage.title': 'Get in touch — MosaOS',
+      'meta.anfrage.desc': 'MosaOS enquiry — early access, custom industry or advice. Reply within one working day.',
+
+      /* Häufige Fragen — auch Grundlage für das FAQPage-Schema */
+      'faq.eyebrow': 'Frequently asked',
+      'faq.title': 'What businesses want to know before they start',
+      'faq.preis.f': 'What does MosaOS cost?',
+      'faq.preis.a': 'The base is CHF 49 per month and business — jobs, customers and team included. Further modules start at CHF 15, for example quotes, invoices or the email inbox. Cancellable monthly, no setup fee.',
+      'faq.test.f': 'Can I try MosaOS first?',
+      'faq.test.a': 'Yes. 14 days free, no credit card and no commitment. You set up your business and work with real data — if it does not fit, access simply expires.',
+      'faq.daten.f': 'Where is my data stored?',
+      'faq.daten.a': 'On servers in the European Union (Ireland). Processing follows Swiss data protection law and the GDPR. You can export your data at any time and delete your account yourself.',
+      'faq.mobil.f': 'Can my team work from the field?',
+      'faq.mobil.a': 'Yes. The team opens the field app in the phone browser — no installation. They see the day’s jobs with address and time, check in on site, add photos and close the job with a report.',
+      'faq.qr.f': 'Can I issue Swiss QR invoices?',
+      'faq.qr.a': 'Yes. The completed job becomes a PDF invoice with a Swiss QR code. You see the status at a glance: open, sent, paid.',
+      'faq.setup.f': 'How long does setup take?',
+      'faq.setup.a': 'Usually under 30 minutes. You pick your industry, add your team and first customers, and can start planning right away. Existing customer lists can be imported.',
       /* Industry hero: module bar, screenshot label and caption */
       'br.mod.mail': 'Emails',
       'br.mod.calls': 'Call log',
@@ -2760,6 +2912,12 @@
   }
 
   function detect() {
+    /* Sprachseiten (/fr/, /it/ …) sind bereits übersetzt ausgeliefert.
+       Sie setzen MOSAOS_LANG_FIXED — sonst würde diese Erkennung den
+       fertigen Text sofort wieder auf die Browsersprache umschreiben. */
+    if (window.MOSAOS_LANG_FIXED && SUPPORTED.includes(window.MOSAOS_LANG_FIXED)) {
+      return window.MOSAOS_LANG_FIXED;
+    }
     // 1. Manuelle Wahl
     const saved = localStorage.getItem(LS_KEY);
     if (saved && SUPPORTED.includes(saved)) return saved;

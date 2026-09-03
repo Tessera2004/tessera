@@ -1638,3 +1638,16 @@ h1 {
   .reveal { opacity: 1; transform: none; }
   .intro { animation: introFadeOut 0.01s forwards !important; }
 }
+
+
+/* Sprachumschalter: echte Verweise auf /fr/, /it/ … statt Umschalten im
+   Browser. Nur so kann eine Suchmaschine den Sprachfassungen folgen. */
+.lang-switch .lang-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 5px 9px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--text-subtle); text-decoration: none;
+  transition: all 0.2s var(--ease);
+}
+.lang-switch .lang-link:hover { color: var(--text); }
+.lang-switch .lang-link.active { background: var(--swiss); color: var(--swiss-on); }

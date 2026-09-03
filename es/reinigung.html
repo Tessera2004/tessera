@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <script>window.MOSAOS_LANG_FIXED = "es";</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Software suizo para empresas de limpieza: planificación diaria y de rutas, partes de trabajo, contratos de abono, presupuestos y factura QR. 14 días gratis.">
+  <meta name="keywords" content="Reinigungssoftware Schweiz, Software Reinigungsfirma, Einsatzplanung Reinigung, Arbeitsrapport Reinigung, Putzplan Software, QR-Rechnung Reinigung">
+  <title>Software de limpieza Suiza — planificación, partes y factura QR | MosaOS</title>
+  <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=7">
+  <link rel="stylesheet" href="/branch-farben.css?v=1">
+  <link rel="stylesheet" href="/branch-hero.css?v=7">
+  <style>
+    /* Landingpage-eigene Bausteine (nutzen die Design-Tokens der Website) */
+    .wk-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:44px; }
+    .wk-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 24px; transition:border-color .2s var(--ease), transform .2s var(--ease); }
+    .wk-card:hover { border-color:var(--border-strong); transform:translateY(-3px); }
+    .wk-ic { width:46px; height:46px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; color:var(--swiss); background:var(--swiss-soft); margin-bottom:16px; }
+    .wk-card h3 { font-size:17px; margin:0 0 8px; color:var(--text); }
+    .wk-card p { font-size:14px; line-height:1.55; color:var(--text-muted); margin:0; }
+
+    .wk-pain { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:36px; }
+    .wk-pain div { background:var(--bg-soft); border:1px solid var(--border-soft); border-left:3px solid var(--swiss); border-radius:var(--r-md); padding:16px 18px; font-size:14.5px; color:var(--text-soft); line-height:1.5; }
+
+    .wk-flow { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:40px; justify-content:center; }
+    .wk-step { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-full); padding:11px 20px; font-size:14px; font-weight:600; color:var(--text); }
+    .wk-arrow { color:var(--text-subtle); }
+
+    .wk-price { max-width:560px; margin:44px auto 0; background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:36px 32px; text-align:center; box-shadow:var(--shadow-lg); }
+    .wk-price .amt { font-size:46px; font-weight:800; color:var(--text); letter-spacing:-.02em; }
+    .wk-price .amt span { font-size:17px; font-weight:600; color:var(--text-muted); }
+    .wk-price ul { list-style:none; padding:0; margin:22px 0 26px; text-align:left; display:inline-block; }
+    .wk-price li { font-size:14.5px; color:var(--text-soft); padding:6px 0 6px 26px; position:relative; }
+    .wk-price li::before { content:"✓"; position:absolute; left:0; color:var(--swiss); font-weight:700; }
+
+    /* Häufige Fragen — sichtbarer Text, kein Aufklapper: Suchmaschinen
+       und Leser sollen die Antwort ohne Klick sehen. */
+    .wk-faq { max-width:1000px; margin:0 auto; }
+    .wk-faq-liste { display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:18px; margin-top:38px; }
+    .wk-faq-liste article { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 26px 24px; }
+    .wk-faq-liste h3 { font-size:17px; margin:0 0 10px; color:var(--text); line-height:1.35; }
+    .wk-faq-liste p { font-size:14.5px; line-height:1.6; color:var(--text-muted); margin:0; }
+
+    .wk-cta-band { text-align:center; padding:76px 20px; }
+    .wk-cta-band h2 { font-size:clamp(26px,4vw,38px); margin:0 0 14px; color:var(--text); letter-spacing:-.02em; }
+    .wk-cta-band p { font-size:16px; color:var(--text-muted); margin:0 0 28px; }
+
+    .wk-mini-footer { border-top:1px solid var(--border); padding:26px 20px; text-align:center; font-size:13px; color:var(--text-subtle); }
+    .wk-mini-footer a { color:var(--text-muted); text-decoration:none; margin:0 8px; }
+    .wk-mini-footer a:hover { color:var(--text); }
+
+    /* Gemeinsames Produktlayout: identisch klar strukturiert wie Werkstatt */
+    .wk-command-center { margin:0 auto; max-width:1180px; padding:76px 42px; border:1px solid var(--border); border-radius:var(--r-xl); background:linear-gradient(135deg, rgba(var(--swiss-rgb), .10), transparent 34%), var(--surface); box-shadow:var(--shadow-lg); }
+    .wk-command-center .section-head { max-width:760px; margin-bottom:38px; }
+    .wk-command-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+    .wk-command-card { min-width:0; padding:24px; border:1px solid var(--border); border-radius:var(--r-lg); background:rgba(8,12,27,.48); }
+    .wk-command-number { display:block; margin-bottom:18px; font:700 12px/1 Inter,sans-serif; letter-spacing:.12em; color:var(--swiss); }
+    .wk-command-card h3 { margin:0 0 9px; font-size:18px; color:var(--text); }
+    .wk-command-card p { margin:0; color:var(--text-muted); font-size:14px; line-height:1.6; }
+    .wk-command-link { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:25px; color:var(--text-soft); font-size:12px; font-weight:600; }
+    .wk-command-link span { padding:6px 9px; border-radius:999px; background:var(--surface-glass); border:1px solid var(--border); }
+    @media (max-width:760px) { .wk-command-center { padding:48px 20px; } .wk-command-grid { grid-template-columns:1fr; } }
+  </style>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MosaOS">
+  <meta property="og:title" content="Software de limpieza Suiza — planificación, partes y factura QR | MosaOS">
+  <meta property="og:description" content="Software suizo para empresas de limpieza: planificación diaria y de rutas, partes de trabajo, contratos de abono, presupuestos y factura QR. 14 días gratis.">
+  <meta property="og:image" content="https://mosaos.pages.dev/assets/og/reinigung.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Software de limpieza Suiza — planificación, partes y factura QR | MosaOS">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Software de limpieza Suiza — planificación, partes y factura QR | MosaOS">
+  <meta name="twitter:description" content="Software suizo para empresas de limpieza: planificación diaria y de rutas, partes de trabajo, contratos de abono, presupuestos y factura QR. 14 días gratis.">
+  <meta name="twitter:image" content="https://mosaos.pages.dev/assets/og/reinigung.jpg">
+  <link rel="canonical" href="https://mosaos.pages.dev/es/reinigung.html" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.pages.dev/reinigung.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.pages.dev/fr/reinigung.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.pages.dev/it/reinigung.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.pages.dev/es/reinigung.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.pages.dev/en/reinigung.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.pages.dev/reinigung.html" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:url" content="https://mosaos.pages.dev/es/reinigung.html" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Cuánto cuesta MosaOS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "La base cuesta 49 CHF al mes por empresa — servicios, clientes y equipo incluidos. Los demás módulos se añaden desde 15 CHF, por ejemplo presupuestos, facturas o buzón de correo. Cancelable cada mes, sin cuota de alta."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo probar MosaOS primero?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. 14 días gratis, sin tarjeta de crédito y sin permanencia. Configuras tu empresa y trabajas con datos reales — si no encaja, el acceso simplemente caduca."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Dónde están mis datos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "En servidores de la Unión Europea (Irlanda). El tratamiento se rige por la ley suiza de protección de datos y el RGPD. Puedes exportar tus datos en cualquier momento y eliminar tu cuenta tú mismo."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Pueden mis empleados trabajar sobre el terreno?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. El equipo abre la app de campo en el navegador del móvil — sin instalación. Ve los servicios del día con dirección y hora, ficha en el objeto, añade fotos y cierra con el parte de trabajo."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo emitir facturas QR suizas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. Del servicio terminado sale la factura en PDF con código QR suizo. El estado se ve de un vistazo: abierta, enviada, pagada."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cuánto tarda la puesta en marcha?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Normalmente menos de 30 minutos. Eliges tu sector, creas el equipo y los primeros clientes, y ya puedes planificar. Las listas de clientes existentes se pueden importar."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* Sprachumschalter: echte Verweise statt Klick-Umschaltung */
+    .lang-switch .lang-link {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:5px 9px; border-radius:6px; font-size:11px; font-weight:600;
+      color:var(--text-subtle); text-decoration:none; transition:all .2s var(--ease);
+    }
+    .lang-switch .lang-link:hover { color:var(--text); }
+    .lang-switch .lang-link.active { background:var(--swiss); color:var(--swiss-on); }
+  </style>
+</head>
+<body data-branch="reinigung" class="intro-done lf-einzelunternehmen">
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="/es/index.html" class="nav-logo" aria-label="MosaOS Startseite">
+        <img src="/logo/mosaos-mark.svg" alt="" width="32" height="32">
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#funktionen" data-i18n="br.nav.funktionen">Funciones</a>
+        <a href="#ablauf" data-i18n="br.nav.ablauf">Flujo de trabajo</a>
+        <a href="#preis" data-i18n="br.nav.preis">Precio</a>
+        <a href="/es/index.html#branchen" data-i18n="br.nav.andere">Otros sectores</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="/app/login.html" class="btn btn-ghost" data-i18n="nav.login">Acceder</a>
+        <a href="/app/onboarding.html" class="btn btn-primary" data-i18n="br.nav.start">Empezar gratis</a>
+        <div class="lang-switch"><a href="/reinigung.html" hreflang="de" class="lang-link">DE</a><a href="/fr/reinigung.html" hreflang="fr" class="lang-link">FR</a><a href="/it/reinigung.html" hreflang="it" class="lang-link">IT</a><a href="/es/reinigung.html" hreflang="es" class="lang-link active">ES</a><a href="/en/reinigung.html" hreflang="en" class="lang-link">EN</a></div>
+      </div>
+      <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero wk-hero" id="top">
+    <div class="hero-mesh" aria-hidden="true"></div>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span data-i18n="re.hero.badge">Para empresas de limpieza · Made in Switzerland</span>
+        </div>
+        <h1 data-i18n="re.hero.title">El centro operativo para tu <span class="grad">empresa de limpieza.</span></h1>
+        <p class="hero-sub" data-i18n="re.hero.sub">Servicios, rutas, comunicación con clientes, partes, presupuestos, facturas y equipo: oficina y obra trabajan con la misma información.</p>
+        <div class="hero-cta">
+          <a href="/app/onboarding.html" class="btn btn-primary btn-lg">
+            <span data-i18n="br.hero.cta1">Empezar 14 días gratis</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+          <a href="/app/app.html" class="btn btn-ghost btn-lg" data-i18n="br.hero.cta2">Ver la demo</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust1">Datos en la UE · LPD/RGPD</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust2">Factura QR suiza</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="br.hero.trust3">Sin tarjeta de crédito</span></div>
+        </div>
+        <div class="wk-module-ribbon" aria-label="MosaOS Module"><span data-i18n="br.mod.mail">Correos</span><span data-i18n="br.mod.calls">Registro de llamadas</span><span data-i18n="br.mod.customers">Clientes</span><span data-i18n="re.mod.planning">Planificación de servicios</span><span data-i18n="br.mod.reports">Partes de trabajo</span><span data-i18n="br.mod.quotes">Presupuestos</span><span data-i18n="br.mod.invoices">Facturas QR</span><span data-i18n="br.mod.team">Equipo y horas</span></div>
+      </div>
+      <div class="hero-visual" aria-label="MosaOS Routenplanung für Reinigungsfirmen">
+        <div class="wk-product-stage">
+          <div class="wk-shot-label"><i></i><span data-i18n="re.hero.shotLabel">Vista «Planificación de rutas»</span></div>
+          <div class="wk-product-shot">
+            <div class="wk-product-frame">
+              <img src="/assets/branches/reinigung-routenplanung.png" alt="Routenplanung in MosaOS: Wochenleiste, heutige Besetzung mit zwei Teams und vier Mitarbeitenden samt Einsatzzeiten" width="2880" height="1240" loading="eager" decoding="async">
+            </div>
+            <div class="wk-product-status"><i></i><span data-i18n="re.hero.connected">Equipos, horarios y objetos conectados</span></div>
+          </div>
+          <p class="wk-shot-caption" data-i18n="re.hero.shotCaption">El día muestra de un vistazo qué equipo está dónde, quién conduce y desde qué hora vuelve a estar libre — la base de rutas, partes y facturas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST-STRIP ============ -->
+  <section class="strip">
+    <div class="strip-inner">
+      <span class="strip-label" data-i18n="br.strip.label">Hecho para las pymes suizas</span>
+      <div class="strip-items">
+        <div class="strip-item" data-i18n="br.strip.1">🇨🇭 Para Suiza</div>
+        <div class="strip-item" data-i18n="br.strip.2">🧾 Factura QR</div>
+        <div class="strip-item" data-i18n="br.strip.3">📱 App móvil para el equipo</div>
+        <div class="strip-item" data-i18n="br.strip.4">🔔 Citas y recordatorios</div>
+        <div class="strip-item" data-i18n="br.strip.5">⚡ Listo en 30 min</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ALLES VERKNÜPFT ============ -->
+  <section class="section" id="zentrale">
+    <div class="container">
+      <div class="wk-command-center">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="br.center.eyebrow">Más que una planificación</div>
+          <h2 data-i18n="br.center.title">De la primera llamada a la factura cobrada. En una sola aplicación.</h2>
+          <p class="section-sub" data-i18n="br.center.sub">MosaOS conecta comunicación, servicios, equipo y cifras. La información permanece junto al cliente y al servicio, en vez de dispersarse en buzones, hojas de Excel y notas.</p>
+        </div>
+        <div class="wk-command-grid">
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.comm.number">01 — COMUNICACIÓN</span>
+            <h3 data-i18n="br.center.comm.title">Comunicación con el cliente</h3>
+            <p data-i18n="br.center.comm.text">Conecta Gmail, Microsoft 365/Outlook e IMAP. Los correos y el registro de llamadas siguen ligados al cliente y al servicio: ninguna devolución de llamada se pierde.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.comm.tag1">Conexión de correo</span><span data-i18n="br.center.comm.tag2">Registro de llamadas</span></div>
+          </article>
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.flow.number">02 — PROCESOS</span>
+            <h3 data-i18n="br.center.flow.title">Un flujo en lugar de siete herramientas</h3>
+            <p data-i18n="br.center.flow.text">De una llamada, correo o cita nace una orden. Después presupuesto, factura y estado de pago, sin volver a introducir los datos.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.flow.tag1">Presupuestos</span><span data-i18n="br.center.flow.tag2">Facturas QR</span></div>
+          </article>
+          <article class="wk-command-card">
+            <span class="wk-command-number" data-i18n="br.center.team.number">03 — EQUIPO Y CIFRAS</span>
+            <h3 data-i18n="br.center.team.title">El equipo sabe qué hacer</h3>
+            <p data-i18n="br.center.team.text">Tareas, citas de 15 minutos, asignación, control horario móvil y postcálculo permanecen ligados directamente a la orden.</p>
+            <div class="wk-command-link"><span data-i18n="br.center.team.tag1">Aplicación móvil</span><span data-i18n="br.center.team.tag2">Postcálculo</span></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.problem.eyebrow">¿Te suena?</div>
+        <h2 data-i18n="re.problem.title">El papeleo te quita el tiempo, no la limpieza.</h2>
+        <p class="section-sub" data-i18n="re.problem.sub">Servicios en la cabeza, partes en papel, horas por WhatsApp, facturas el fin de semana. MosaOS lo reúne todo en un solo lugar: tranquilo y claro.</p>
+      </div>
+      <div class="wk-pain">
+        <div data-i18n="re.pain.1">«¿Quién limpia mañana en Bahnhofstrasse?»: planificación en la cabeza y en papelitos.</div>
+        <div data-i18n="re.pain.2">Los partes se pierden, y con ellos la prueba ante el cliente.</div>
+        <div data-i18n="re.pain.3">Las horas llegan por WhatsApp y hay que pasarlas a mano a Excel.</div>
+        <div data-i18n="re.pain.4">A fin de mes se escriben facturas en vez de conseguir nuevos edificios.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FUNKTIONEN ============ -->
+  <section class="section" id="funktionen" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.feat.eyebrow">Funciones</div>
+        <h2 data-i18n="br.feat.title">Todo lo que tu empresa necesita de verdad.</h2>
+        <p class="section-sub" data-i18n="br.feat.sub">Nada de sistemas sobrecargados: las herramientas de tu sector, hechas con calma.</p>
+      </div>
+      <div class="wk-grid">
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18M9 4v16"></path></svg></div>
+          <h3 data-i18n="re.feat.1.title">Planificación de rutas</h3>
+          <p data-i18n="re.feat.1.text">Organiza equipos, ubicaciones y recurrencias.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="3.4"></circle><path d="M8.5 6l1.4-2h4.2l1.4 2"></path></svg></div>
+          <h3 data-i18n="re.feat.2.title">Partes y fotos</h3>
+          <p data-i18n="re.feat.2.text">Pruebas con horas, fotos y firma desde el lugar.</p>
+        </div>
+
+        <div class="wk-card">
+          <div class="wk-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"></path><path d="M14 2v6h6M9 13h6M9 17h6"></path></svg></div>
+          <h3 data-i18n="re.feat.3.title">Contratos y postcálculo</h3>
+          <p data-i18n="re.feat.3.text">Servicios recurrentes, previsto/real y margen controlados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABLAUF ============ -->
+  <section class="section" id="ablauf" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.flow.eyebrow">Así avanza una orden</div>
+        <h2 data-i18n="br.flow.title">De la solicitud a la factura cobrada.</h2>
+      </div>
+      <div class="wk-flow">
+        <span class="wk-step" data-i18n="re.flow.1">Llamada del cliente</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" data-i18n="re.flow.2">Planificar servicio</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" data-i18n="re.flow.3">Parte en el sitio</span>
+        <span class="wk-arrow">→</span>
+        <span class="wk-step" style="border-color:var(--swiss); color:var(--swiss);" data-i18n="re.flow.4">Factura</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PREIS ============ -->
+  <section class="section" id="preis" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="br.price.eyebrow">Precio</div>
+        <h2 data-i18n="br.price.title">Un precio justo. Módulos según lo que necesites.</h2>
+        <p class="section-sub" data-i18n="br.price.sub">Las herramientas de tu sector vienen en la base. Lo que necesites de más lo añades: cancelable en cualquier momento.</p>
+      </div>
+      <div class="wk-price">
+        <div class="amt">CHF 49<span data-i18n="br.price.per"> / mes</span></div>
+        <ul>
+          <li data-i18n="re.feat.1.title">Planificación de rutas</li>
+          <li data-i18n="re.feat.2.title">Partes y fotos</li>
+          <li data-i18n="re.feat.3.title">Contratos y postcálculo</li>
+          <li data-i18n="br.price.li4">Clientes, equipo y citas</li>
+          <li data-i18n="br.price.li5">App móvil para el equipo</li>
+        </ul>
+        <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:22px;" data-i18n="br.price.addon">Opcionales: facturas QR, presupuestos, control de horas y más.</div>
+        <a href="/app/onboarding.html" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" data-i18n="br.price.cta">14 días de prueba gratis, sin tarjeta de crédito</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ HÄUFIGE FRAGEN ============ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="wk-faq">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="faq.eyebrow">Preguntas frecuentes</div>
+          <h2 data-i18n="faq.title">Lo que las empresas quieren saber antes de empezar</h2>
+        </div>
+        <div class="wk-faq-liste">
+          <article>
+            <h3 data-i18n="faq.preis.f">¿Cuánto cuesta MosaOS?</h3>
+            <p data-i18n="faq.preis.a">La base cuesta 49 CHF al mes por empresa — servicios, clientes y equipo incluidos. Los demás módulos se añaden desde 15 CHF, por ejemplo presupuestos, facturas o buzón de correo. Cancelable cada mes, sin cuota de alta.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.test.f">¿Puedo probar MosaOS primero?</h3>
+            <p data-i18n="faq.test.a">Sí. 14 días gratis, sin tarjeta de crédito y sin permanencia. Configuras tu empresa y trabajas con datos reales — si no encaja, el acceso simplemente caduca.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.daten.f">¿Dónde están mis datos?</h3>
+            <p data-i18n="faq.daten.a">En servidores de la Unión Europea (Irlanda). El tratamiento se rige por la ley suiza de protección de datos y el RGPD. Puedes exportar tus datos en cualquier momento y eliminar tu cuenta tú mismo.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.mobil.f">¿Pueden mis empleados trabajar sobre el terreno?</h3>
+            <p data-i18n="faq.mobil.a">Sí. El equipo abre la app de campo en el navegador del móvil — sin instalación. Ve los servicios del día con dirección y hora, ficha en el objeto, añade fotos y cierra con el parte de trabajo.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.qr.f">¿Puedo emitir facturas QR suizas?</h3>
+            <p data-i18n="faq.qr.a">Sí. Del servicio terminado sale la factura en PDF con código QR suizo. El estado se ve de un vistazo: abierta, enviada, pagada.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.setup.f">¿Cuánto tarda la puesta en marcha?</h3>
+            <p data-i18n="faq.setup.a">Normalmente menos de 30 minutos. Eliges tu sector, creas el equipo y los primeros clientes, y ya puedes planificar. Las listas de clientes existentes se pueden importar.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA-BAND ============ -->
+  <section class="wk-cta-band">
+    <div class="container">
+      <h2 data-i18n="br.band.title">Trae calma a tu empresa.</h2>
+      <p data-i18n="br.band.text">Configurado en 30 minutos. Sin permanencia y sin tarjeta de crédito.</p>
+      <a href="/app/onboarding.html" class="btn btn-primary btn-lg">
+        <span data-i18n="br.band.cta">Empieza gratis ahora</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ MINI-FOOTER ============ -->
+  <footer class="wk-mini-footer">
+    <div>
+      <a href="/es/index.html" data-i18n="br.footer.home">Inicio</a>
+      <a href="/es/index.html#branchen" data-i18n="br.nav.andere">Otros sectores</a>
+      <a href="/es/anfrage.html" data-i18n="footer.contact">Contacto</a>
+      <a href="/impressum.html" data-i18n="footer.imprint">Aviso legal</a>
+      <a href="/datenschutz.html" data-i18n="footer.privacy">Privacidad</a>
+    </div>
+    <div style="margin-top:12px;">
+      © <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD für SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MosaOS Reinigungssoftware",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Schweizer Software für Reinigungsfirmen: Einsatz- und Tourenplanung, Arbeitsrapporte mit Fotos und Unterschrift, Unterhaltsverträge, Offerten und QR-Rechnung.",
+    "offers": {
+      "@type": "Offer",
+      "price": "49",
+      "priceCurrency": "CHF",
+      "url": "https://mosaos.pages.dev/reinigung.html#preis",
+      "availability": "https://schema.org/InStock"
+    },
+    "areaServed": "CH",
+    "url": "https://mosaos.pages.dev/reinigung.html",
+    "image": "https://mosaos.pages.dev/assets/og/reinigung.jpg",
+    "inLanguage": [
+      "de",
+      "fr",
+      "it",
+      "es",
+      "en"
+    ],
+    "provider": {
+      "@type": "Organization",
+      "name": "MosaOS",
+      "url": "https://mosaos.pages.dev/"
+    }
+  }
+  </script>
+
+  <script src="/config.js?v=3"></script>
+  <script src="/i18n.js?v=11"></script>
+  <script src="/main.js?v=2" defer=""></script>
+
+
+</body></html>

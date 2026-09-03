@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
   <link rel="stylesheet" href="branch-farben.css?v=1" />
   <link rel="stylesheet" href="branch-hero.css?v=7" />
   <style>
@@ -36,6 +36,14 @@
     .wk-price ul { list-style:none; padding:0; margin:22px 0 26px; text-align:left; display:inline-block; }
     .wk-price li { font-size:14.5px; color:var(--text-soft); padding:6px 0 6px 26px; position:relative; }
     .wk-price li::before { content:"✓"; position:absolute; left:0; color:var(--swiss); font-weight:700; }
+
+    /* Häufige Fragen — sichtbarer Text, kein Aufklapper: Suchmaschinen
+       und Leser sollen die Antwort ohne Klick sehen. */
+    .wk-faq { max-width:1000px; margin:0 auto; }
+    .wk-faq-liste { display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:18px; margin-top:38px; }
+    .wk-faq-liste article { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 26px 24px; }
+    .wk-faq-liste h3 { font-size:17px; margin:0 0 10px; color:var(--text); line-height:1.35; }
+    .wk-faq-liste p { font-size:14.5px; line-height:1.6; color:var(--text-muted); margin:0; }
 
     .wk-cta-band { text-align:center; padding:76px 20px; }
     .wk-cta-band h2 { font-size:clamp(26px,4vw,38px); margin:0 0 14px; color:var(--text); letter-spacing:-.02em; }
@@ -71,6 +79,68 @@
   <meta name="twitter:title" content="Reinigungssoftware für Schweizer Reinigungsfirmen — Einsatzplanung, Rapporte &amp; QR-Rechnung | MosaOS" />
   <meta name="twitter:description" content="Schweizer Reinigungssoftware: Tages- und Routenplanung, Rapporte, Abo-Verträge, Offerten und QR-Rechnung — E-Mails und Anrufe bleiben am Objekt. 14 Tage gratis." />
   <meta name="twitter:image" content="https://mosaos.pages.dev/assets/og/reinigung.jpg" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.pages.dev/reinigung.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.pages.dev/fr/reinigung.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.pages.dev/it/reinigung.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.pages.dev/es/reinigung.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.pages.dev/en/reinigung.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.pages.dev/reinigung.html" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Frage",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antwort"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Frage",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antwort"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Frage",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antwort"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Frage",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antwort"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Frage",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antwort"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Frage",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antwort"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body data-branch="reinigung">
 
@@ -90,13 +160,7 @@
       <div class="nav-actions">
         <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
         <a href="app/onboarding.html" class="btn btn-primary" data-i18n="br.nav.start">Gratis starten</a>
-        <div class="lang-switch">
-          <button data-lang="de">DE</button>
-          <button data-lang="fr">FR</button>
-          <button data-lang="it">IT</button>
-          <button data-lang="es">ES</button>
-          <button data-lang="en">EN</button>
-        </div>
+        <div class="lang-switch"><a href="/reinigung.html" hreflang="de" class="lang-link active">DE</a><a href="/fr/reinigung.html" hreflang="fr" class="lang-link">FR</a><a href="/it/reinigung.html" hreflang="it" class="lang-link">IT</a><a href="/es/reinigung.html" hreflang="es" class="lang-link">ES</a><a href="/en/reinigung.html" hreflang="en" class="lang-link">EN</a></div>
       </div>
       <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
         <span></span><span></span><span></span>
@@ -280,6 +344,45 @@
           Optional dazubuchbar: QR-Rechnungen, Offerten, Zeiterfassung u. a.
         </div>
         <a href="app/onboarding.html" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" data-i18n="br.price.cta">14 Tage gratis testen — ohne Kreditkarte</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ HÄUFIGE FRAGEN ============ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="wk-faq">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="faq.eyebrow">Häufige Fragen</div>
+          <h2 data-i18n="faq.title">Was Betriebe vor dem Start wissen wollen</h2>
+        </div>
+        <div class="wk-faq-liste">
+          <article>
+            <h3 data-i18n="faq.preis.f">Frage</h3>
+            <p data-i18n="faq.preis.a">Antwort</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.test.f">Frage</h3>
+            <p data-i18n="faq.test.a">Antwort</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.daten.f">Frage</h3>
+            <p data-i18n="faq.daten.a">Antwort</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.mobil.f">Frage</h3>
+            <p data-i18n="faq.mobil.a">Antwort</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.qr.f">Frage</h3>
+            <p data-i18n="faq.qr.a">Antwort</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.setup.f">Frage</h3>
+            <p data-i18n="faq.setup.a">Antwort</p>
+          </article>
+        </div>
       </div>
     </div>
   </section>

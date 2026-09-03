@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <script>window.MOSAOS_LANG_FIXED = "en";</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.">
+  <title>MosaOS — one app for jobs, emails, quotes and invoices</title>
+  <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=7">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MosaOS">
+  <meta property="og:title" content="MosaOS — one app for jobs, emails, quotes and invoices">
+  <meta property="og:description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.">
+  <meta property="og:image" content="https://mosaos.pages.dev/assets/og/mosaos.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MosaOS — one app for jobs, emails, quotes and invoices">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MosaOS — one app for jobs, emails, quotes and invoices">
+  <meta name="twitter:description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.">
+  <meta name="twitter:image" content="https://mosaos.pages.dev/assets/og/mosaos.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MosaOS",
+    "url": "https://mosaos.pages.dev/",
+    "logo": "https://mosaos.pages.dev/logo/mosaos-mark.svg",
+    "email": "info.mosaos@gmail.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Hägendorf",
+      "addressCountry": "CH"
+    },
+    "areaServed": "CH"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MosaOS",
+    "url": "https://mosaos.pages.dev/",
+    "inLanguage": [
+      "de",
+      "fr",
+      "it",
+      "es",
+      "en"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MosaOS",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://mosaos.pages.dev/",
+    "image": "https://mosaos.pages.dev/assets/og/mosaos.jpg",
+    "description": "Modulare Schweizer Software für Dienstleistungsbetriebe: Einsatzplanung, E-Mails und Anrufe am Kunden, Rapporte, Offerten und QR-Rechnung in einer App.",
+    "offers": {
+      "@type": "Offer",
+      "price": "49",
+      "priceCurrency": "CHF",
+      "availability": "https://schema.org/InStock"
+    },
+    "areaServed": "CH",
+    "inLanguage": [
+      "de",
+      "fr",
+      "it",
+      "es",
+      "en"
+    ]
+  }
+  </script>
+<style>
+    /* Häufige Fragen — sichtbarer Text, kein Aufklapper: Suchmaschinen
+       und Leser sollen die Antwort ohne Klick sehen. */
+    .wk-faq { max-width:1000px; margin:0 auto; }
+    .wk-faq-liste { display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:18px; margin-top:38px; }
+    .wk-faq-liste article { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:26px 26px 24px; }
+    .wk-faq-liste h3 { font-size:17px; margin:0 0 10px; color:var(--text); line-height:1.35; }
+    .wk-faq-liste p { font-size:14.5px; line-height:1.6; color:var(--text-muted); margin:0; }
+</style>
+  <link rel="canonical" href="https://mosaos.pages.dev/en/" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.pages.dev/" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.pages.dev/fr/" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.pages.dev/it/" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.pages.dev/es/" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.pages.dev/en/" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.pages.dev/" />
+  <meta property="og:locale" content="en_GB" />
+  <meta property="og:url" content="https://mosaos.pages.dev/en/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What does MosaOS cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The base is CHF 49 per month and business — jobs, customers and team included. Further modules start at CHF 15, for example quotes, invoices or the email inbox. Cancellable monthly, no setup fee."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I try MosaOS first?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. 14 days free, no credit card and no commitment. You set up your business and work with real data — if it does not fit, access simply expires."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is my data stored?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On servers in the European Union (Ireland). Processing follows Swiss data protection law and the GDPR. You can export your data at any time and delete your account yourself."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can my team work from the field?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The team opens the field app in the phone browser — no installation. They see the day’s jobs with address and time, check in on site, add photos and close the job with a report."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I issue Swiss QR invoices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The completed job becomes a PDF invoice with a Swiss QR code. You see the status at a glance: open, sent, paid."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does setup take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Usually under 30 minutes. You pick your industry, add your team and first customers, and can start planning right away. Existing customer lists can be imported."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* Sprachumschalter: echte Verweise statt Klick-Umschaltung */
+    .lang-switch .lang-link {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:5px 9px; border-radius:6px; font-size:11px; font-weight:600;
+      color:var(--text-subtle); text-decoration:none; transition:all .2s var(--ease);
+    }
+    .lang-switch .lang-link:hover { color:var(--text); }
+    .lang-switch .lang-link.active { background:var(--swiss); color:var(--swiss-on); }
+  </style>
+</head>
+<body class="intro-active lf-einzelunternehmen">
+
+  <!-- ============ INTRO ============ -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-mosaic">
+      <div class="intro-tile"></div>
+      <div class="intro-tile"></div>
+      <div class="intro-tile"></div>
+      <div class="intro-tile intro-tile-swiss">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="6" y="10" width="12" height="4" fill="white"></rect>
+          <rect x="10" y="6" width="4" height="12" fill="white"></rect>
+        </svg>
+      </div>
+      <div class="intro-wordmark">Mosa<span class="intro-os">OS</span></div>
+    </div>
+  </div>
+
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#top" class="nav-logo" aria-label="MosaOS Startseite">
+        <img src="/logo/mosaos-mark.svg" alt="" width="32" height="32">
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#branchen" data-i18n="nav.branchen">Industries</a>
+        <a href="#funktionen" data-i18n="nav.how">How it works</a>
+        <a href="#module" data-i18n="nav.module">Modules</a>
+        <a href="#preise" data-i18n="nav.preise">Pricing</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="/app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
+        <a href="/app/app.html" class="btn btn-primary" data-i18n="nav.demo">Try the demo</a>
+      </div>
+      <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="hero-mesh" aria-hidden="true"></div>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span data-i18n="hero.badge">Made in Switzerland · GDPR-ready</span>
+        </div>
+        <h1>
+          <span data-i18n="hero.title.line1">One&nbsp;platform.</span><br>
+          <span class="grad" data-i18n="hero.title.line2">Every industry.</span>
+        </h1>
+        <p class="hero-sub" data-i18n="hero.sub">Jobs, emails, calls, work reports, quotes and QR invoices — in one app instead of five programs. Pick the modules your business needs and be running in under 30 minutes.</p>
+        <div class="hero-cta">
+          <a href="/app/app.html" class="btn btn-primary btn-lg">
+            <span data-i18n="hero.cta.primary">Try the demo</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+          <a href="#funktionen" class="btn btn-ghost btn-lg" data-i18n="hero.cta.secondary">How does it work?</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="hero.trust.1">Data hosted in the EU</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="hero.trust.2">No lock-in</span></div>
+          <div class="trust-item"><span class="trust-check">✓</span> <span data-i18n="hero.trust.3">14-day free trial</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mosaic-stage" id="mosaicStage">
+          <div class="mosaic-tile" data-tile="1"></div>
+          <div class="mosaic-tile" data-tile="2"></div>
+          <div class="mosaic-tile" data-tile="3"></div>
+          <div class="mosaic-tile mosaic-tile-swiss" data-tile="4">
+            <svg viewBox="0 0 24 24" width="60%" height="60%" aria-hidden="true">
+              <rect x="6" y="10" width="12" height="4" fill="white"></rect>
+              <rect x="10" y="6" width="4" height="12" fill="white"></rect>
+            </svg>
+          </div>
+          <div class="mosaic-glow"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ============ STRIP ============ -->
+  <section class="strip">
+    <div class="strip-inner">
+      <span class="strip-label" data-i18n="strip.label">Built for Swiss SMBs</span>
+      <div class="strip-items">
+        <div class="strip-item" data-i18n="strip.1">🇪🇺 EU hosting</div>
+        <div class="strip-item" data-i18n="strip.2">🔒 GDPR &amp; Swiss DPA</div>
+        <div class="strip-item" data-i18n="strip.3">⚡ Setup in 30 min</div>
+        <div class="strip-item" data-i18n="strip.4">📱 Mobile + desktop</div>
+        <div class="strip-item" data-i18n="strip.5">💬 Multilingual support</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BRANCHEN ============ -->
+  <section class="section" id="branchen">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="eyebrow" data-i18n="branchen.eyebrow">Industries</div>
+        <h2 data-i18n="branchen.title">Built for your industry.</h2>
+        <p class="section-sub" data-i18n="branchen.sub">Instead of software made for everyone and no one, each MosaOS variant knows the specifics of your trade. Five industries are live, more are coming — or we build yours.</p>
+      </div>
+
+      <div class="branchen-grid">
+
+        <article class="branche-card reveal" data-reveal-delay="0">
+          <div class="branche-glow" style="--glow: #DA291C;"></div>
+          <div class="branche-status status-live"><span class="status-pulse"></span> Live</div>
+          <div class="branche-icon" style="--c: #DA291C;">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M14 8h20l-2 32H16L14 8z"></path><path d="M10 14h28"></path><path d="M20 20v14M28 20v14"></path>
+            </svg>
+          </div>
+          <h3 data-i18n="branche.reinigung">Building cleaning</h3>
+          <p data-i18n="branche.reinigung.desc">Route planning, staff scheduling, customer records with call log, subscription contracts, photo proof, CSV export for your accountant.</p>
+          <ul class="branche-features">
+            <li data-i18n="branche.reinigung.f1">Daily crew planning with drag-and-drop</li>
+            <li data-i18n="branche.reinigung.f2">Call log with callback tracking</li>
+            <li data-i18n="branche.reinigung.f3">Photo proof + QR check-in</li>
+          </ul>
+          <a href="/en/reinigung.html" class="branche-link">
+            <span data-i18n="branche.reinigung.cta">Learn more</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
+
+        <article class="branche-card reveal" data-reveal-delay="80">
+          <div class="branche-glow" style="--glow: #2563EB;"></div>
+          <div class="branche-status status-live"><span class="status-pulse"></span> Live</div>
+          <div class="branche-icon" style="--c: #2563EB;">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M10 34H6V24l4-10h22l6 10h4v10h-4"></path><circle cx="15" cy="34" r="3"></circle><circle cx="33" cy="34" r="3"></circle><path d="M18 34h12"></path>
+            </svg>
+          </div>
+          <h3 data-i18n="branche.werkstatt">Car workshop</h3>
+          <p data-i18n="branche.werkstatt.desc">Workshop board for jobs, vehicle file with service history, tyre hotel, cost estimate and QR invoice — incl. MOT/service reminders.</p>
+          <ul class="branche-features">
+            <li data-i18n="branche.werkstatt.f1">Job board: intake → ready for pickup</li>
+            <li data-i18n="branche.werkstatt.f2">Vehicle file + tyre hotel</li>
+            <li data-i18n="branche.werkstatt.f3">MOT/service reminders</li>
+          </ul>
+          <a href="/en/werkstatt.html" class="branche-link">
+            <span data-i18n="branche.werkstatt.cta">Learn more</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
+
+        <article class="branche-card reveal" data-reveal-delay="160">
+          <div class="branche-glow" style="--glow: #0891B2;"></div>
+          <div class="branche-status status-live"><span class="status-pulse"></span> Live</div>
+          <div class="branche-icon" style="--c: #0891B2;">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M24 6l16 6v10c0 10-7 17-16 20C15 39 8 32 8 22V12l16-6z"></path><path d="M17 23l5 5 9-10"></path>
+            </svg>
+          </div>
+          <h3 data-i18n="branche.schaedling">Pest control</h3>
+          <p data-i18n="branche.schaedling.desc">Bait-station monitoring with due dates, audit-proof HACCP treatment records, job planning and monitoring contracts.</p>
+          <ul class="branche-features">
+            <li data-i18n="branche.schaedling.f1">Bait stations with infestation/due alerts</li>
+            <li data-i18n="branche.schaedling.f2">HACCP records: product, quantity, finding</li>
+            <li data-i18n="branche.schaedling.f3">Monitoring contracts &amp; follow-up</li>
+          </ul>
+          <a href="/en/schaedlingsbekaempfung.html" class="branche-link">
+            <span data-i18n="branche.schaedling.cta">Learn more</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
+
+        <article class="branche-card reveal" data-reveal-delay="0">
+          <div class="branche-glow" style="--glow: #F59E0B;"></div>
+          <div class="branche-status status-live"><span class="status-pulse"></span> Live</div>
+          <div class="branche-icon" style="--c: #F59E0B;">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M30 8l10 10-22 22-10-10L30 8z"></path><path d="M22 16l10 10"></path><path d="M6 42l8-8"></path>
+            </svg>
+          </div>
+          <h3 data-i18n="branche.handwerk">Trades</h3>
+          <p data-i18n="branche.handwerk.desc">Site board, work report with hours and materials (time &amp; material), day planning, quotes and QR invoice — office and site connected.</p>
+          <ul class="branche-features">
+            <li data-i18n="branche.handwerk.f1">Site board: requested → completed</li>
+            <li data-i18n="branche.handwerk.f2">Work report: hours + materials</li>
+            <li data-i18n="branche.handwerk.f3">Quotes and invoicing pipeline</li>
+          </ul>
+          <a href="/en/handwerk.html" class="branche-link">
+            <span data-i18n="branche.handwerk.cta">Learn more</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
+
+        <article class="branche-card reveal" data-reveal-delay="80">
+          <div class="branche-glow" style="--glow: #65A30D;"></div>
+          <div class="branche-status status-live"><span class="status-pulse"></span> Live</div>
+          <div class="branche-icon" style="--c: #65A30D;">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M24 42V20"></path><path d="M24 26c0-8 6-16 16-16 0 8-6 16-16 16z"></path><path d="M24 32c0-7-5-13-13-13 0 7 5 13 13 13z"></path>
+            </svg>
+          </div>
+          <h3 data-i18n="branche.garten">Landscaping / gardening</h3>
+          <p data-i18n="branche.garten.desc">Garden projects on a board, work reports (hours and materials), tour planning and maintenance contracts for seasonal care.</p>
+          <ul class="branche-features">
+            <li data-i18n="branche.garten.f1">Garden-project board</li>
+            <li data-i18n="branche.garten.f2">Reports: hours + materials</li>
+            <li data-i18n="branche.garten.f3">Maintenance contracts (seasonal)</li>
+          </ul>
+          <a href="/en/garten.html" class="branche-link">
+            <span data-i18n="branche.garten.cta">Learn more</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
+
+        <article class="branche-card branche-card-custom reveal" data-reveal-delay="160">
+          <div class="branche-glow" style="--glow: #C4B5FD;"></div>
+          <div class="branche-status status-custom"><span class="status-pulse"></span> Custom</div>
+          <div class="branche-icon" style="--c: #C4B5FD;">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="24" cy="24" r="4"></circle>
+              <path d="M24 4v8M24 36v8M4 24h8M36 24h8M10 10l5 5M33 33l5 5M10 38l5-5M33 15l5-5"></path>
+            </svg>
+          </div>
+          <h3 data-i18n="branche.custom">Your industry missing?</h3>
+          <p data-i18n="branche.custom.desc">Care, events, transport, removals — tell us what you need. For every new request we build a dedicated program.</p>
+          <ul class="branche-features">
+            <li data-i18n="branche.custom.f1">Needs analysis in 15 minutes</li>
+            <li data-i18n="branche.custom.f2">Pilot pricing for first industries</li>
+            <li data-i18n="branche.custom.f3">A dedicated program tailored to you</li>
+          </ul>
+          <a href="/en/anfrage.html" class="branche-link branche-link-accent">
+            <span data-i18n="branche.custom.cta">Send a request</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="section section-dark" id="funktionen">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="eyebrow eyebrow-light" data-i18n="how.eyebrow">How it works</div>
+        <h2 data-i18n="how.title">Ready in three steps.</h2>
+        <p class="section-sub section-sub-light" data-i18n="how.sub">No sales call required. No onboarding workshop. You click through yourself.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step reveal" data-reveal-delay="0">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <h3 data-i18n="step.1.title">Pick your industry</h3>
+            <p data-i18n="step.1.desc">From cleaning to workshop to gardening — pick the variant that matches your business. The platform adapts: terms, workflows, default fields.</p>
+          </div>
+          <div class="step-visual">
+            <div class="floating-chip" style="--d:0">🧹 Reinigung</div>
+            <div class="floating-chip" style="--d:1">🚗 Auto-Werkstatt</div>
+            <div class="floating-chip" style="--d:2">🛡️ Schädlinge</div>
+            <div class="floating-chip" style="--d:3">🔧 Handwerk</div>
+            <div class="floating-chip" style="--d:4">🌳 Garten</div>
+          </div>
+        </div>
+
+        <div class="step step-reverse reveal" data-reveal-delay="80">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <h3 data-i18n="step.2.title">Assemble your modules</h3>
+            <p data-i18n="step.2.desc">Base packs include everything every company needs. On top, you add modules and only pay for what you use.</p>
+          </div>
+          <div class="step-visual">
+            <div class="module-stack">
+              <div class="module-pill active">Routenplanung</div>
+              <div class="module-pill active">Kunden</div>
+              <div class="module-pill active">Mitarbeiter</div>
+              <div class="module-pill">+ Aufgaben</div>
+              <div class="module-pill">+ Anrufprotokoll</div>
+              <div class="module-pill">+ Export</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step reveal" data-reveal-delay="160">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <h3 data-i18n="step.3.title">Invite the team, go</h3>
+            <p data-i18n="step.3.desc">Invite staff by email, assign roles, done. The mobile app for the people in the field is included for free.</p>
+          </div>
+          <div class="step-visual">
+            <div class="avatar-stack">
+              <div class="av" style="background:#DA291C;">AM</div>
+              <div class="av" style="background:#60A5FA;">MC</div>
+              <div class="av" style="background:#34D399;">KW</div>
+              <div class="av" style="background:#FBBF24;">LB</div>
+              <div class="av av-plus">+8</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE-MIXER ============ -->
+  <section class="section" id="module">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="eyebrow" data-i18n="module.eyebrow">Modules</div>
+        <h2 data-i18n="module.title">Assemble your MosaOS.</h2>
+        <p class="section-sub" data-i18n="module.sub">Tick the modules you need. Price updates live.</p>
+      </div>
+
+      <div class="mixer reveal">
+        <div class="mixer-modules">
+
+          <div class="branche-tabs" role="tablist" aria-label="Branche wählen">
+            <button class="branche-tab active" data-branche="reinigung" role="tab" aria-selected="true" data-i18n="mix.tab.reinigung">🧹 Cleaning</button>
+            <button class="branche-tab" data-branche="werkstatt" role="tab" aria-selected="false" data-i18n="mix.tab.werkstatt">🚗 Workshop</button>
+            <button class="branche-tab" data-branche="schaedling" role="tab" aria-selected="false" data-i18n="mix.tab.schaedling">🛡️ Pest control</button>
+            <button class="branche-tab" data-branche="handwerk" role="tab" aria-selected="false" data-i18n="mix.tab.handwerk">🔧 Trades</button>
+            <button class="branche-tab" data-branche="garten" role="tab" aria-selected="false" data-i18n="mix.tab.garten">🌳 Gardening</button>
+          </div>
+
+          <div id="mixerContent">
+      <h4>Base (always included)</h4>
+      <div class="mod-group">
+      <label class="mod mod-locked">
+        <input type="checkbox" checked="" disabled="">
+        <div class="mod-body">
+          <div class="mod-name">🗺️ Route planning</div>
+          <div class="mod-desc">Daily crew, drag-and-drop, auto-optimization</div>
+        </div>
+        <span class="mod-price">included</span>
+      </label>
+      <label class="mod mod-locked">
+        <input type="checkbox" checked="" disabled="">
+        <div class="mod-body">
+          <div class="mod-name">👥 Customers &amp; objects</div>
+          <div class="mod-desc">Records, history, contracts</div>
+        </div>
+        <span class="mod-price">included</span>
+      </label>
+      <label class="mod mod-locked">
+        <input type="checkbox" checked="" disabled="">
+        <div class="mod-body">
+          <div class="mod-name">🧑‍💼 Staff &amp; roles</div>
+          <div class="mod-desc">Permissions, mobile access, time tracking</div>
+        </div>
+        <span class="mod-price">included</span>
+      </label></div>
+      <h4>Add-on modules</h4>
+      <div class="mod-group">
+      <label class="mod">
+        <input type="checkbox" data-price="25" data-name="📄 Quotes">
+        <div class="mod-body">
+          <div class="mod-name">📄 Quotes</div>
+          <div class="mod-desc">Create PDF quotes, send them, convert into jobs</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;25</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="19" data-name="🧾 Invoices">
+        <div class="mod-body">
+          <div class="mod-name">🧾 Invoices</div>
+          <div class="mod-desc">Swiss QR invoice, reminders, payment status</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;19</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="15" data-name="✅ Tasks">
+        <div class="mod-body">
+          <div class="mod-name">✅ Tasks</div>
+          <div class="mod-desc">Tasks for office staff, priority, due date, links</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;15</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="19" data-name="🔁 Subscriptions">
+        <div class="mod-body">
+          <div class="mod-name">🔁 Subscriptions</div>
+          <div class="mod-desc">Manage recurring jobs &amp; contracts</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;19</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="19" data-name="📋 Proofs &amp; reports">
+        <div class="mod-body">
+          <div class="mod-name">📋 Proofs &amp; reports</div>
+          <div class="mod-desc">Photo and work proofs, protocols, PDF export</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;19</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="19" data-name="⏱️ Time tracking">
+        <div class="mod-body">
+          <div class="mod-name">⏱️ Time tracking</div>
+          <div class="mod-desc">Clock in/out on phone, GPS, automatic invoice lines</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;19</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="19" data-name="🧮 Job costing">
+        <div class="mod-body">
+          <div class="mod-name">🧮 Job costing</div>
+          <div class="mod-desc">Planned vs. actual per job — track margins</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;19</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="19" data-name="📞 Call log">
+        <div class="mod-body">
+          <div class="mod-name">📞 Call log</div>
+          <div class="mod-desc">Central call journal, callback tracking, "turn into task"</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;19</span>
+      </label>
+      <label class="mod">
+        <input type="checkbox" data-price="39" data-name="📧 Email inbox">
+        <div class="mod-body">
+          <div class="mod-name">📧 Email inbox</div>
+          <div class="mod-desc">Connect Gmail/iCloud, turn mails into tasks</div>
+        </div>
+        <span class="mod-price">+ CHF&nbsp;39</span>
+      </label></div>
+    </div>
+
+        </div>
+
+        <aside class="mixer-summary">
+          <div class="summary-inner">
+            <div class="summary-eyebrow" data-i18n="mix.summary.label">Your MosaOS</div>
+            <div class="summary-price">
+              <span class="curr">CHF</span>
+              <span class="num" id="mixerPrice">49</span>
+              <span class="per" data-i18n="mix.per">/ month</span>
+            </div>
+            <div class="summary-modules" id="mixerActive"><div class="sum-row">✓ Building cleaning — Base (always included)</div></div>
+            <div class="summary-meta" data-i18n="mix.summary.meta">+ CHF 4 / month per user<br>14 days free · cancel anytime</div>
+            <a href="/anfrage.html?paket=custom" class="btn btn-primary btn-block" data-i18n="mix.summary.cta">Start with this configuration</a>
+            <a href="/app/app.html" class="btn btn-ghost btn-block" data-i18n="mix.summary.demo">Try the demo first</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST ============ -->
+  <section class="section section-soft" id="preise">
+    <div class="container">
+      <div class="trust-grid">
+        <div class="trust-card reveal">
+          <div class="trust-num">🇪🇺</div>
+          <div class="trust-head" data-i18n="trust.1.head">EU hosting</div>
+          <p data-i18n="trust.1.desc">All data in EU data centers (Ireland). GDPR and Swiss DPA compliant, no compromises.</p>
+        </div>
+        <div class="trust-card reveal" data-reveal-delay="80">
+          <div class="trust-num">⚡</div>
+          <div class="trust-head" data-i18n="trust.2.head">Ready in 30 minutes</div>
+          <p data-i18n="trust.2.desc">No onboarding meeting, no workshop. You click through and get going.</p>
+        </div>
+        <div class="trust-card reveal" data-reveal-delay="160">
+          <div class="trust-num">🔓</div>
+          <div class="trust-head" data-i18n="trust.3.head">No lock-in</div>
+          <p data-i18n="trust.3.desc">Monthly cancellation. Your data is yours — CSV export anytime.</p>
+        </div>
+        <div class="trust-card reveal" data-reveal-delay="240">
+          <div class="trust-num">💬</div>
+          <div class="trust-head" data-i18n="trust.4.head">Multilingual support</div>
+          <p data-i18n="trust.4.desc">Mail, chat, optional phone. Response under 4 hours during business hours.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ HÄUFIGE FRAGEN ============ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="wk-faq">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="faq.eyebrow">Frequently asked</div>
+          <h2 data-i18n="faq.title">What businesses want to know before they start</h2>
+        </div>
+        <div class="wk-faq-liste">
+          <article>
+            <h3 data-i18n="faq.preis.f">What does MosaOS cost?</h3>
+            <p data-i18n="faq.preis.a">The base is CHF 49 per month and business — jobs, customers and team included. Further modules start at CHF 15, for example quotes, invoices or the email inbox. Cancellable monthly, no setup fee.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.test.f">Can I try MosaOS first?</h3>
+            <p data-i18n="faq.test.a">Yes. 14 days free, no credit card and no commitment. You set up your business and work with real data — if it does not fit, access simply expires.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.daten.f">Where is my data stored?</h3>
+            <p data-i18n="faq.daten.a">On servers in the European Union (Ireland). Processing follows Swiss data protection law and the GDPR. You can export your data at any time and delete your account yourself.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.mobil.f">Can my team work from the field?</h3>
+            <p data-i18n="faq.mobil.a">Yes. The team opens the field app in the phone browser — no installation. They see the day’s jobs with address and time, check in on site, add photos and close the job with a report.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.qr.f">Can I issue Swiss QR invoices?</h3>
+            <p data-i18n="faq.qr.a">Yes. The completed job becomes a PDF invoice with a Swiss QR code. You see the status at a glance: open, sent, paid.</p>
+          </article>
+          <article>
+            <h3 data-i18n="faq.setup.f">How long does setup take?</h3>
+            <p data-i18n="faq.setup.a">Usually under 30 minutes. You pick your industry, add your team and first customers, and can start planning right away. Existing customer lists can be imported.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="cta">
+    <div class="cta-mesh" aria-hidden="true"></div>
+    <div class="container">
+      <div class="cta-inner reveal">
+        <h2 data-i18n="cta.title">Ready to tidy up your office?</h2>
+        <p data-i18n="cta.sub">14 days free, no credit card. If it's not for you, click "Delete account" and you're done.</p>
+        <div class="cta-actions">
+          <a href="/app/app.html" class="btn btn-primary btn-lg" data-i18n="cta.primary">Try the demo</a>
+          <a href="/en/anfrage.html" class="btn btn-ghost-light btn-lg" data-i18n="cta.secondary">Talk to us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#top" class="nav-logo">
+            <img src="/logo/mosaos-mark.svg" alt="" width="32" height="32">
+            <span>mosaos</span>
+          </a>
+          <p data-i18n="footer.tagline">Modular software for Swiss SMBs. One platform, every industry.</p>
+          <div class="footer-social">
+            <a data-cfg="social.linkedin" aria-label="LinkedIn" class="social" href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0H5a5 5 0 0 0-5 5v14a5 5 0 0 0 5 5h14a5 5 0 0 0 5-5V5a5 5 0 0 0-5-5zM8 19H5V8h3v11zM6.5 6.7a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6zM20 19h-3v-5.6c0-3.4-4-3.1-4 0V19h-3V8h3v1.8c1.4-2.6 7-2.8 7 2.4V19z"></path></svg>
+            </a>
+            <a data-cfg="social.instagram" aria-label="Instagram" class="social" href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.4A4 4 0 1 1 12.6 8 4 4 0 0 1 16 11.4zM17.5 6.5h.01"></path></svg>
+            </a>
+            <a data-cfg="social.twitter" aria-label="X / Twitter" class="social" href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2H21l-6.522 7.453L22 22h-6.844l-4.708-6.157L4.8 22H2l7.027-8.027L2 2h6.914l4.26 5.63L18.244 2zm-1.2 18.4h1.886L6.96 3.6H4.94l12.104 16.8z"></path></svg>
+            </a>
+            <a data-cfg="social.github" aria-label="GitHub" class="social" href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2c-3.34.72-4.04-1.6-4.04-1.6-.54-1.39-1.33-1.76-1.33-1.76-1.1-.74.08-.72.08-.72 1.2.09 1.84 1.24 1.84 1.24 1.07 1.84 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.94 0-1.3.47-2.38 1.24-3.22-.13-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.64 1.66.24 2.88.12 3.18.77.84 1.24 1.92 1.24 3.22 0 4.62-2.8 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.3c0 .32.22.7.83.58A12 12 0 0 0 12 0z"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5 data-i18n="footer.col.product">Product</h5>
+          <a href="#branchen" data-i18n="nav.branchen">Industries</a>
+          <a href="#module" data-i18n="nav.module">Modules</a>
+          <a href="#preise" data-i18n="nav.preise">Pricing</a>
+          <a href="/app/app.html" data-i18n="nav.demo">Try the demo</a>
+        </div>
+
+        <div class="footer-col">
+          <h5 data-i18n="footer.col.company">Company</h5>
+          <a href="/en/ueber-uns.html" data-i18n="footer.about">About us</a>
+          <a href="/en/anfrage.html" data-i18n="footer.contact">Contact</a>
+        </div>
+
+        <div class="footer-col">
+          <h5 data-i18n="footer.col.legal">Legal</h5>
+          <a href="/impressum.html" data-i18n="footer.imprint">Imprint</a>
+          <a href="/agb.html" data-i18n="footer.terms">Terms</a>
+          <a href="/datenschutz.html" data-i18n="footer.privacy">Privacy</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span></span>
+        <div class="lang-switch"><a href="/" hreflang="de" class="lang-link">DE</a><a href="/fr/" hreflang="fr" class="lang-link">FR</a><a href="/it/" hreflang="it" class="lang-link">IT</a><a href="/es/" hreflang="es" class="lang-link">ES</a><a href="/en/" hreflang="en" class="lang-link active">EN</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/config.js?v=3"></script>
+  <script src="/i18n.js?v=11"></script>
+  <script src="/main.js?v=2" defer=""></script>
+
+
+</body></html>

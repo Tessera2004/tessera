@@ -1,1 +1,7 @@
 supabase/.temp/
+
+# Zwischenstände der Video- und Bild-Versuche (liegen in marketing/)
+mosaos-produktfilm.*
+mosaos-productfilm-aufnahme.mov
+product-film.html
+product-film-motion.html
