@@ -29,13 +29,21 @@ Deno.serve(withCors(async (req) => {
     if ((count || 0) >= 5) return json({ error: 'RATE_LIMITED' }, 429);
 
     const { data: vorhanden } = await db.from('newsletter_subscribers')
-      .select('id, confirmed_at').eq('email', email).maybeSingle();
+      .select('id, confirmed_at, unsubscribed_at').eq('email', email).maybeSingle();
 
-    // Ist die Adresse bereits bestaetigt, wird KEINE neue Mail geschickt.
-    // Sonst liesse sich das Formular missbrauchen, um jemanden zuzumuellen.
-    // Nach aussen dieselbe Antwort wie bei einer neuen Anmeldung: Wer hier
-    // fremde Adressen durchprobiert, soll nicht erfahren, wer eingetragen ist.
-    if (vorhanden?.confirmed_at) return json({ ok: true }, 201);
+    // Ist die Adresse bereits bestaetigt UND noch angemeldet, wird KEINE neue
+    // Mail geschickt. Sonst liesse sich das Formular missbrauchen, um jemanden
+    // zuzumuellen. Nach aussen dieselbe Antwort wie bei einer neuen Anmeldung:
+    // Wer hier fremde Adressen durchprobiert, soll nicht erfahren, wer auf der
+    // Liste steht.
+    //
+    // Die Bedingung "und noch angemeldet" fehlte zuerst. Dadurch konnte sich
+    // niemand, der einmal abbestellt hatte, je wieder eintragen — das Formular
+    // meldete Erfolg und tat nichts. Wer zurueckkommen will, muss zurueck
+    // koennen.
+    if (vorhanden?.confirmed_at && !vorhanden?.unsubscribed_at) {
+      return json({ ok: true }, 201);
+    }
 
     const token = randomToken();
     const tokenHash = await sha256(token);
@@ -46,6 +54,11 @@ Deno.serve(withCors(async (req) => {
       token_hash: tokenHash,
       token_expires_at: laeuftAb,
       unsubscribed_at: null,
+      // Bei einer Wiederanmeldung muss auch die alte Bestaetigung fallen.
+      // Sonst meldet newsletter-confirm "schon bestaetigt", der Kontakt wird
+      // nie an Brevo uebergeben, und die Person bleibt aus dem Verteiler
+      // draussen — obwohl sie sich gerade erneut angemeldet hat.
+      confirmed_at: null,
       source: String(body.source || '').trim().slice(0, 100) || null,
       source_ip_hash: ipHash,
     }, { onConflict: 'email' });

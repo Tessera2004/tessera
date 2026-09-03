@@ -79,6 +79,10 @@ export async function brevoKontaktAnlegen(email: string, listenId?: number) {
         // Eine erneute Anmeldung nach einer Abmeldung soll den Kontakt wieder
         // aktivieren, statt mit einem Fehler abzubrechen.
         updateEnabled: true,
+        // Und die Sperre aus einer frueheren Abmeldung muss dabei fallen.
+        // Ohne diese Zeile bliebe ein Rueckkehrer in Brevo blockiert und
+        // bekaeme trotz neuer Einwilligung nie eine Kampagne.
+        emailBlacklisted: false,
       }),
     });
     // 201 = neu angelegt, 204 = vorhandener Kontakt aktualisiert.
