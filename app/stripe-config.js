@@ -17,6 +17,12 @@ window.MOSAOS_STRIPE = {
   // Basis ist immer enthalten und wird separat berechnet.
   basePriceChf: 49,
 
+  // Preis pro aktiv gefuehrtem Mitarbeitenden, zusaetzlich zum Paket.
+  // Die Website verspricht das seit Beginn; abgerechnet wurde es nie.
+  // Eine Zahl an einer Stelle — Website, Checkout und Stripe-Skript
+  // lesen alle hier.
+  seatPriceChf: 4,
+
   // Komplettpaket: wird ZUSÄTZLICH zur Basis gebucht (49 + 50 = 99/Monat)
   // und ersetzt alle Einzelmodule. Einzeln gebucht kosten sie 106 —
   // das Paket ist damit sichtbar günstiger und hebt den Schnitt.

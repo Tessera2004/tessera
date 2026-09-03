@@ -36,7 +36,67 @@ Deno.serve(async (req) => {
     }, { onConflict: 'tenant_id' });
     if (subscriptionError) return new Response('database error', { status: 500 });
   }
+  // Kurz vor jeder Rechnung die Zahl der Mitarbeitenden neu setzen.
+  //
+  // Warum hier und nicht beim Anlegen eines Mitarbeitenden: Stripe schickt
+  // 'invoice.upcoming' etwa eine Stunde vor der Abrechnung. Wer an dem Tag
+  // im Betrieb ist, wird berechnet — nicht der Stand vom Kauftag und nicht
+  // jede Aenderung dazwischen. Das erspart anteilige Zwischenrechnungen bei
+  // jeder Einstellung und jedem Austritt.
+  if (event.type === 'invoice.upcoming') {
+    await sitzeAktualisieren(db, String(event.data?.object?.subscription || ''));
+  }
+
   const { error: eventError } = await db.from('stripe_events').insert({ event_id: event.id, event_type: event.type });
   if (eventError) return new Response('database error', { status: 500 });
   return new Response('ok');
 });
+
+// Setzt die Menge der Sitzposition auf die aktuell aktiven Mitarbeitenden.
+async function sitzeAktualisieren(db: ReturnType<typeof adminClient>, abo: string) {
+  if (!abo) return;
+  try {
+    const preise = JSON.parse(Deno.env.get('STRIPE_PRICE_MAP') || '{}');
+    if (!preise.mitarbeiter) return;
+
+    const { data: eintrag } = await db.from('subscriptions')
+      .select('tenant_id').eq('stripe_subscription_id', abo).maybeSingle();
+    if (!eintrag?.tenant_id) return;
+
+    const { count } = await db.from('employees')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', eintrag.tenant_id).eq('status', 'aktiv');
+    const sitze = count || 0;
+
+    const sub = await stripeRequest(`/subscriptions/${abo}`, undefined, 'GET');
+    const pos = (sub.items?.data || []).find((i: { price?: { id?: string } }) =>
+      i.price?.id === preise.mitarbeiter);
+
+    if (pos) {
+      if (pos.quantity === sitze) return;
+      if (sitze === 0) {
+        // Position ganz entfernen statt auf 0 setzen: Eine Nullzeile auf der
+        // Rechnung wirft beim Kunden Fragen auf, die niemand beantworten muss.
+        await stripeRequest(`/subscription_items/${pos.id}?clear_usage=false`, undefined, 'DELETE');
+        return;
+      }
+      const p = new URLSearchParams({ quantity: String(sitze), proration_behavior: 'none' });
+      await stripeRequest(`/subscription_items/${pos.id}`, p);
+      return;
+    }
+
+    // Es gab beim Kauf noch keine Mitarbeitenden, jetzt schon.
+    if (sitze > 0) {
+      const p = new URLSearchParams({
+        subscription: abo, price: preise.mitarbeiter,
+        quantity: String(sitze), proration_behavior: 'none',
+      });
+      await stripeRequest('/subscription_items', p);
+    }
+  } catch (e) {
+    // Nie den Webhook scheitern lassen: Stripe wuerde ihn wiederholen und die
+    // Rechnung koennte haengen. Lieber eine Rechnung mit altem Stand als eine,
+    // die gar nicht rausgeht.
+    console.error('Sitzmenge nicht aktualisiert:', e);
+  }
+}

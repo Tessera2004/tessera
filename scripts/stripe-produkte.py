@@ -76,11 +76,13 @@ def preise_lesen():
     basis = int(re.search(r'basePriceChf:\s*(\d+)', s).group(1))
     module = [{'key': k, 'label': l, 'chf': int(p)} for k, l, p in
               re.findall(r"\{\s*key:\s*'([^']+)',\s*label:\s*'([^']+)',\s*priceChf:\s*(\d+)", s)]
+    sitz_m = re.search(r'seatPriceChf:\s*(\d+)', s)
+    sitz = int(sitz_m.group(1)) if sitz_m else None
     k = re.search(r"komplett:\s*\{[^}]*label:\s*'([^']+)'[^}]*priceChf:\s*(\d+)", s)
     paket = {'key': 'komplett', 'label': k.group(1), 'chf': int(k.group(2))} if k else None
     # Basis-Eintrag steckt nicht in der Modulliste
     module = [m for m in module if m['key'] != 'komplett']
-    return basis, module, paket
+    return basis, module, paket, sitz
 
 
 def ruf(pfad, daten=None, methode=None):
@@ -164,7 +166,7 @@ def main():
         raise SystemExit('Das sieht nicht nach einem Geheimschlüssel aus (erwartet: sk_test_… oder sk_live_…).')
 
     modus = 'LIVE — echtes Geld' if SCHLUESSEL.startswith('sk_live_') else 'Test/Sandbox'
-    basis, module, paket = preise_lesen()
+    basis, module, paket, sitz = preise_lesen()
     print(f'Konto: {modus}{"  [nur Vorschau]" if TROCKEN else ""}\n')
 
     sicherstellen('MosaOS Basis', 'mosaos_base', basis)
@@ -172,10 +174,15 @@ def main():
         sicherstellen(m['label'], 'mosaos_' + m['key'], m['chf'])
     if paket:
         sicherstellen('MosaOS ' + paket['label'], 'mosaos_komplett', paket['chf'])
+    # Preis je Mitarbeitendem. Wird im Abo mit einer Menge gebucht, alle
+    # anderen Positionen immer mit Menge 1.
+    if sitz:
+        sicherstellen('MosaOS Mitarbeitende', 'mosaos_mitarbeiter', sitz)
 
     gesamt = basis + sum(m['chf'] for m in module)
     print(f'\nEinzeln alles: CHF {gesamt}/Monat'
-          + (f'  ·  Komplett: CHF {basis + paket["chf"]}/Monat' if paket else ''))
+          + (f'  ·  Komplett: CHF {basis + paket["chf"]}/Monat' if paket else '')
+          + (f'  ·  je Mitarbeitendem: CHF {sitz}/Monat' if sitz else ''))
     if TROCKEN:
         print('\nNichts geändert. Ohne --trocken erneut ausführen.')
         return
