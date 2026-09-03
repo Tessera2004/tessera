@@ -7,5 +7,25 @@ Allow: /
 Disallow: /app/
 Disallow: /product-video.html
 Disallow: /product-video-reel.html
+# Entwickler-Vorschau der Logo-Varianten, nicht fuer Besucher gedacht
+Disallow: /logo/preview.html
+
+# Öffentliche Inhalte dürfen auch von KI-Such- und Antwortsystemen gelesen
+# werden. Der Kundenbereich bleibt davon ausgenommen.
+User-agent: GPTBot
+Allow: /
+Disallow: /app/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /app/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /app/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /app/
 
 Sitemap: https://mosaos.ch/sitemap.xml

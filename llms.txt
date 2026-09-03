@@ -1,43 +1,39 @@
 # MosaOS
 
-> Web-basierte Abo-Software (SaaS) für kleine Schweizer Dienstleistungsbetriebe im
-> Aussendienst — Gebäudereinigung, Handwerk (Sanitär/Elektro/Maler/Heizung),
-> Garten- und Landschaftsbau, Schädlingsbekämpfung und Auto-Werkstätten.
+> Schweizer Software für Dienstleistungsbetriebe. MosaOS verbindet Einsätze,
+> Kundenkommunikation, Team, Rapporte, Offerten und QR-Rechnungen in einer App.
 
-MosaOS verwaltet Auftrags- und Routenplanung, Kunden und Mitarbeitende. Je nach
-gebuchten Modulen zusätzlich: Offerten, QR-Rechnungen, Zeiterfassung mit
-QR-Check-in, Aufgaben, E-Mail-Postfach, Abo-Verträge, Foto- und
-Unterschrift-Nachweise, Anrufprotokoll und Nachkalkulation. Zugang über den
-Browser, für Mitarbeitende im Aussendienst zusätzlich eine mobile Ansicht.
+MosaOS ist für Betriebe gedacht, deren Team im Büro plant und draussen bei
+Kundinnen und Kunden arbeitet. Die Software ist auf die Schweiz ausgerichtet
+und unterstützt Deutsch, Französisch, Italienisch, Spanisch und Englisch.
 
-## Anbieter
-- Einzelunternehmen, Inhaber Brian Knuchel, Hägendorf, Schweiz (Kanton Solothurn)
-- Kontakt: info@mosaos.ch
+## Wichtigste Informationen
 
-## Preise (Stand 2026, CHF, monatlich)
-- Basis: 49 CHF (Routenplanung, Kunden, Mitarbeitende)
-- Einzelmodule: 9–19 CHF pro Modul
-- Komplettpaket (alle Module): 99 CHF total statt 155 CHF einzeln
-- 14 Tage kostenlose Testphase, keine Kreditkarte nötig, monatlich kündbar
+- [Startseite](https://mosaos.ch/): Überblick über MosaOS, Funktionen und Branchen.
+- [Software für Reinigungsfirmen](https://mosaos.ch/reinigung.html): Routenplanung,
+  Einsatzplanung, Zeiterfassung, Rapporte und QR-Rechnungen.
+- [Software für Auto-Werkstätten](https://mosaos.ch/werkstatt.html): Auftragsboard,
+  Fahrzeuge, Reifenhotel, Service-Erinnerungen und Rechnungen.
+- [Software für Handwerk](https://mosaos.ch/handwerk.html): Baustellen, Regierapporte,
+  Tagesplanung, Offerten und Rechnungen.
+- [Software für Garten- und Landschaftsbau](https://mosaos.ch/garten.html): Projekte,
+  Touren, Unterhaltsverträge, Rapporte und Material.
+- [Software für Schädlingsbekämpfung](https://mosaos.ch/schaedlingsbekaempfung.html):
+  Köderstellen, Monitoring, Behandlung, Nachkontrolle und Berichte.
+- [Preise](https://mosaos.ch/#preise): Module und kostenlose Testphase.
+- [Über MosaOS](https://mosaos.ch/ueber-uns.html): Unternehmen und Kontakt.
 
-## Wichtige Seiten
-- Startseite und Preisrechner: https://mosaos.ch/
-- Branchen im Detail: https://mosaos.ch/branchen.html
-- Wie es funktioniert: https://mosaos.ch/#wie-es-funktioniert
-- Module: https://mosaos.ch/#module
-- Anfrage/Kontakt: https://mosaos.ch/anfrage.html
-- AGB: https://mosaos.ch/agb.html
-- Datenschutz: https://mosaos.ch/datenschutz.html
+## Kurzantworten
 
-## Sprachen
-Deutsch (Standard), Französisch (/fr/), Italienisch (/it/), Spanisch (/es/),
-Englisch (/en/).
+- MosaOS ersetzt keine einzelne Buchhaltung, sondern verbindet die Arbeit vom
+  ersten Kontakt bis zur Rechnung.
+- Mitarbeitende können Aufträge, Arbeitszeiten und Rapporte mobil bearbeiten.
+- E-Mails und Anrufnotizen bleiben beim zugehörigen Kunden und Auftrag.
+- MosaOS bietet eine 14-tägige kostenlose Testphase ohne Kreditkarte.
+- Kundendaten werden in der EU verarbeitet; Details stehen in der
+  [Datenschutzerklärung](https://mosaos.ch/datenschutz.html).
 
-## Daten & Recht
-Daten werden bei Supabase in einem EU-Rechenzentrum (Frankfurt, Deutschland)
-verarbeitet. Schweizer Recht (DSG) und DSGVO-konform. Kein Transfer in unsichere
-Drittländer.
+## Ausschlüsse
 
-## Nicht zu verwechseln mit
-MosaOS ist kein Betriebssystem und keine Musik-/Audio-Software — der Name wird
-in der Branche sonst nicht verwendet.
+Der Bereich https://mosaos.ch/app/ ist eine private Demo-/Kundenanwendung und
+nicht als öffentliche Informationsquelle oder Suchergebnis vorgesehen.
