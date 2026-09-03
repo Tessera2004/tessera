@@ -110,27 +110,26 @@ Deno.serve(withCors(async (req) => {
     <span style="word-break:break-all;color:#52525b;">${link}</span></p>
   <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#71717a;">Waren Sie das nicht, müssen Sie nichts tun. Ohne Bestätigung erhalten Sie keine Mail von uns, und die Adresse wird gelöscht.</p>
 </td></tr>
-<tr><td style="padding:24px 32px 32px;">
-  <!-- Signatur mit vollstaendiger Anschrift: Eine Werbemail ohne
-       Absenderangaben wirkt wie Spam — und muss sie in der Schweiz
-       nach UWG ohnehin enthalten. -->
-  <div style="border-top:1px solid #e4e4e7;padding-top:20px;font-size:13px;line-height:1.7;color:#52525b;">
-    <div style="font-weight:600;color:#18181b;">Brian Knuchel</div>
-    <div style="color:#71717a;">MosaOS — Software für Dienstleistungsbetriebe</div>
-    <div style="margin-top:10px;color:#71717a;">
-      Sandgrube 21 · 4614 Hägendorf · Schweiz
-    </div>
-    <div style="margin-top:4px;">
-      <a href="tel:+41765265975" style="color:#52525b;text-decoration:none;">+41 76 526 59 75</a>
-      &nbsp;·&nbsp;
-      <a href="mailto:info@mosaos.ch" style="color:#52525b;text-decoration:none;">info@mosaos.ch</a>
-    </div>
-    <div style="margin-top:4px;">
-      <a href="${SEITE}" style="color:#E11D2A;text-decoration:none;font-weight:600;">mosaos.ch</a>
-    </div>
-    <div style="margin-top:16px;font-size:12px;color:#a1a1aa;">
-      <a href="${abmeldeLink}" style="color:#a1a1aa;">Vom Newsletter abmelden</a>
-    </div>
+<tr><td style="padding:28px 32px 32px;">
+  <!-- Signatur: Name, was die Firma macht, und die beiden Wege zu ihr.
+       Keine Postadresse — die steht im Impressum auf der verlinkten Seite,
+       und das UWG verlangt fuer E-Mail nur eine korrekte Absenderangabe
+       samt Abmeldemoeglichkeit. -->
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+         style="border-top:1px solid #e4e4e7;">
+    <tr><td style="padding-top:22px;">
+      <div style="font-size:14px;font-weight:600;color:#18181b;letter-spacing:-0.01em;">Brian Knuchel</div>
+      <div style="font-size:13px;line-height:1.6;color:#71717a;margin-top:2px;">MosaOS — Software für Dienstleistungsbetriebe</div>
+      <div style="font-size:13px;line-height:1.6;margin-top:12px;">
+        <a href="mailto:info@mosaos.ch" style="color:#52525b;text-decoration:none;">info@mosaos.ch</a>
+        <span style="color:#d4d4d8;">&nbsp;&nbsp;·&nbsp;&nbsp;</span>
+        <a href="${SEITE}" style="color:#E11D2A;text-decoration:none;font-weight:600;">mosaos.ch</a>
+      </div>
+    </td></tr>
+  </table>
+  <div style="margin-top:20px;font-size:12px;line-height:1.6;color:#a1a1aa;">
+    Sie erhalten diese Mail, weil Ihre Adresse auf mosaos.ch für den Newsletter eingetragen wurde.
+    <a href="${abmeldeLink}" style="color:#a1a1aa;">Abmelden</a>
   </div>
 </td></tr>
 </table>
