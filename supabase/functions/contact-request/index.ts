@@ -54,7 +54,7 @@ Deno.serve(withCors(async (req) => {
         message,
         '',
         '---',
-        'Vollstaendig in Supabase unter contact_requests.',
+        'Vollständig in Supabase unter contact_requests.',
       ].join('\n'),
     });
     if (!versand.ok) console.error('Anfrage gespeichert, Benachrichtigung nicht verschickt:', versand.grund);
