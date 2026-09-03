@@ -13,6 +13,9 @@ window.MOSAOS_CONFIG = {
 
   // ---------- Geschäft ----------
   brand: 'MosaOS',                  // Produktname / Geschäftsbezeichnung
+  // Vertragspartner in AGB und «Über uns». MUSS zur Rechtsform passen —
+  // fehlte dieser Schlüssel, stand dort faelschlich "MosaOS GmbH".
+  legalName: 'MosaOS (Einzelunternehmen, Inhaber Brian Knuchel)',
   owner: 'Brian Knuchel',            // ← DEIN NAME als Inhaber (Pflicht bei Einzelunternehmen)
   street: 'Sandgrube 21',
   zip: '4614',
