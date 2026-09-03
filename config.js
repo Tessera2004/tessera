@@ -36,11 +36,14 @@ window.MOSAOS_CONFIG = {
   publicApiKey: 'sb_publishable_eoasP900q_btzYLvvnTUQQ_L839WJH7',
 
   // ---------- Social ----------
+  // Nur echte Profile eintragen. Wer hier '#' oder nichts stehen laesst,
+  // dessen Symbol wird ausgeblendet — ein Verweis, der ins Leere fuehrt,
+  // wirkt schlimmer als gar keiner.
   social: {
-    linkedin: '#',
-    instagram: '#',
-    twitter: '#',
-    github: '#',
+    linkedin: 'https://www.linkedin.com/company/mosaos/',
+    instagram: '',
+    twitter: '',
+    github: '',
   },
 
   // ---------- Footer ----------
@@ -58,7 +61,12 @@ window.MOSAOS_CONFIG = {
   function fillCfg(root) {
     (root || document).querySelectorAll('[data-cfg]').forEach((el) => {
       const val = get(el.dataset.cfg);
-      if (val == null || val === '') {
+      // '#' zaehlt als leer: So stand es fuer Instagram, X und GitHub in der
+      // Konfiguration, und die Symbole verlinkten sichtbar ins Nichts.
+      const leer = val == null || val === '' ||
+                   (val === '#' && el.dataset.cfg.startsWith('social.'));
+      if (leer) {
+        if (el.dataset.cfg.startsWith('social.')) { el.style.display = 'none'; return; }
         // Leere Steuer-Felder ausblenden (Container mit data-cfg-hide-if-empty)
         if (el.dataset.cfgHideIfEmpty !== undefined) {
           const container = el.closest('[data-cfg-row]') || el;
@@ -68,6 +76,8 @@ window.MOSAOS_CONFIG = {
       }
       if (el.tagName === 'A' && el.dataset.cfg.startsWith('social.')) {
         el.href = val;
+        el.target = '_blank';
+        el.rel = 'noopener';
       } else if (el.tagName === 'A' && (el.dataset.cfg === 'email' || el.dataset.cfg === 'emailPrivacy')) {
         el.href = 'mailto:' + val;
         el.textContent = val;
