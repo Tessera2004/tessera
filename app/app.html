@@ -1129,7 +1129,7 @@
               <div style="font-weight:700; font-size:15px;" data-i18n="set.modules">Module</div>
               <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.modulesDesc">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
             </div>
-            <div id="moduleSettings" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-top:14px;"></div>
+            <div id="moduleSettings" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap:10px; margin-top:14px;"></div>
           </div>
 
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
@@ -1146,9 +1146,9 @@
 
           <h2 style="font-size:15px; font-weight:600; margin:0 0 4px;" data-i18n="set.pricesPerService">Preise pro Leistung</h2>
           <!-- Datengetriebene Preis-Karten für Nicht-Reinigungs-Branchen (aus dem Preset) -->
-          <div id="priceGridGeneric" style="display:none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
+          <div id="priceGridGeneric" style="display:none; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px;"></div>
           <!-- Reinigungs-Original (unverändert) -->
-          <div id="priceGridReinigung" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+          <div id="priceGridReinigung" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px;">
 
             <div class="price-card" style="--svc-color: var(--svc-unterhalt); --svc-color-soft: var(--svc-unterhalt-soft);">
               <div class="price-card-head">
@@ -1931,7 +1931,7 @@
             <label for="offFile" style="cursor: pointer; color: var(--accent); font-size: 12px; font-weight: 500;" data-i18n="off.addImages">+ Bilder hinzufügen</label>
             <input type="file" id="offFile" accept="image/*" multiple style="display: none;" onchange="handleOffertImages(event)" />
           </label>
-          <div id="offImageGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px;">
+          <div id="offImageGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(110px, 100%), 1fr)); gap: 8px;">
             <!-- gefüllt per JS — wenn leer, zeigt nichts -->
           </div>
           <div id="offNoImages" style="font-size: 12px; color: var(--text-subtle); padding: 12px 14px; background: var(--surface-2); border-radius: 8px; border: 1px dashed var(--border); text-align: center;" data-i18n="off.noImages">
@@ -2841,7 +2841,7 @@
           <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-subtle);margin-bottom:8px;" data-i18n="rap.signature">Unterschrift Kunde</div>
           <img style="max-width:100%;max-height:160px;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px;" />
         </div>
-        <div id="repDetailPhotos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;"></div>
+        <div id="repDetailPhotos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); gap: 10px;"></div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" style="margin-right: auto;" onclick="editReportFromDetail()" data-i18n="common.edit">Bearbeiten</button>
@@ -3240,7 +3240,7 @@
     /* === Team-Ansicht === */
     .roles-legend {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
       gap: 10px;
       margin-bottom: 20px;
     }
@@ -3256,7 +3256,7 @@
 
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
       gap: 14px;
     }
     .team-card {
@@ -3372,7 +3372,7 @@
     .team-status-sub { font-size: 12px; color: var(--text-subtle); margin-top: 2px; }
     .team-status-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
       gap: 10px;
     }
     .team-card-mini {
@@ -3595,7 +3595,7 @@
     /* === Kunden === */
     .kunden-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
       gap: 12px;
     }
     .kunde-card {
@@ -3696,7 +3696,7 @@
     ============================================================ */
     .mail-provider-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(196px, 100%), 1fr));
       gap: 10px;
       margin-top: 6px;
     }

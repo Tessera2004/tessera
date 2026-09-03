@@ -64,7 +64,8 @@
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  overflow-x: clip;   /* dekorative Elemente duerfen die Seite nicht verbreitern */ scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -723,7 +724,7 @@ h1 {
    ============================================================ */
 .branchen-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 20px;
 }
 .branche-card {
@@ -906,7 +907,7 @@ h1 {
   50%      { transform: translateY(-6px); }
 }
 
-.module-stack { display: flex; flex-wrap: wrap; gap: 6px; max-width: 280px; }
+.module-stack { display: flex; flex-wrap: wrap; gap: 6px; max-width: min(280px, 100%); }
 .module-pill {
   padding: 6px 12px;
   border-radius: var(--r-full);
@@ -1099,7 +1100,7 @@ h1 {
    ============================================================ */
 .trust-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 20px;
 }
 .trust-card {
@@ -1528,7 +1529,7 @@ h1 {
 /* ----- Über uns ----- */
 .about-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 20px;
   margin: 48px 0;
 }
@@ -1588,9 +1589,13 @@ h1 {
   .nav-actions .btn-ghost { display: none; }
   .hero-inner { grid-template-columns: 1fr; gap: 48px; }
   .hero-visual { order: -1; }
-  .mosaic-stage { width: 280px; height: 280px; }
+  .mosaic-stage { width: min(280px, 100%); height: min(280px, 80vw); }
   .intro-mosaic { width: min(70vmin, 360px); height: min(70vmin, 360px); }
   .step { grid-template-columns: 60px 1fr; }
+  /* Auf sehr schmalen Geraeten (320px) sprengen 40px Innenabstand plus feste
+     Inhaltsbreiten sonst den Rahmen und die Seite laesst sich seitlich wegschieben. */
+  .step { padding: 28px 20px; gap: 20px; }
+  .step > * { min-width: 0; }
   .step-visual { grid-column: 1 / -1; min-height: 80px; }
   .mixer { grid-template-columns: 1fr; }
   .mixer-summary { position: static; }

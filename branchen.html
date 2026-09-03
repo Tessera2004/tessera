@@ -14,12 +14,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=9" />
   <style>
     .branch-hero { min-height:760px; padding:150px 24px 96px; position:relative; overflow:hidden; background:radial-gradient(circle at 74% 32%, color-mix(in srgb, var(--branch) 24%, transparent), transparent 29%), var(--bg); }
     .branch-hero::before { content:''; position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(rgba(155,173,240,.055) 1px, transparent 1px),linear-gradient(90deg,rgba(155,173,240,.055) 1px, transparent 1px); background-size:52px 52px; mask-image:linear-gradient(to bottom, black, transparent); }
     .branch-wrap { max-width:1240px; margin:0 auto; position:relative; }
-    .branch-hero-grid { display:grid; grid-template-columns:minmax(0,.9fr) minmax(460px,1.1fr); align-items:center; gap:60px; }
+    .branch-hero-grid { display:grid; grid-template-columns:minmax(0,.9fr) minmax(min(460px, 100%),1.1fr); align-items:center; gap:60px; }
     .branch-pill { display:inline-flex; align-items:center; gap:9px; padding:8px 12px; border:1px solid var(--border); border-radius:999px; background:var(--surface-glass); color:var(--text-soft); font-size:13px; font-weight:600; }
     .branch-pill i { width:8px; height:8px; background:var(--branch); box-shadow:0 0 0 5px color-mix(in srgb,var(--branch) 17%, transparent); border-radius:50%; }
     .branch-hero h1 { max-width:680px; margin:21px 0 18px; font-size:clamp(42px,5vw,70px); line-height:1.03; letter-spacing:-.055em; color:var(--text); }
