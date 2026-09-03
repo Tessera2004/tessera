@@ -1,7 +1,7 @@
-import { json, options } from '../_shared/http.ts';
+import { json, options, withCors } from '../_shared/http.ts';
 import { adminClient, authenticatedTenant } from '../_shared/supabase.ts';
 
-Deno.serve(async (req) => {
+Deno.serve(withCors(async (req) => {
   const preflight = options(req); if (preflight) return preflight;
   if (req.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
   try {
@@ -17,4 +17,4 @@ Deno.serve(async (req) => {
     const code = error instanceof Error ? error.message : 'INTERNAL';
     return json({ error: code }, code === 'UNAUTHORIZED' ? 401 : 500);
   }
-});
+}));

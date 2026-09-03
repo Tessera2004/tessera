@@ -1,16 +1,21 @@
-import { json, options } from '../_shared/http.ts';
+import { json, options, withCors } from '../_shared/http.ts';
 import { authenticatedTenant } from '../_shared/supabase.ts';
 import { safeReturnUrl, stripeRequest } from '../_shared/stripe.ts';
 
-Deno.serve(async (req) => {
+Deno.serve(withCors(async (req) => {
   const preflight = options(req); if (preflight) return preflight;
   if (req.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
   try {
     const auth = await authenticatedTenant(req);
     if (auth.role !== 'admin') return json({ error: 'FORBIDDEN' }, 403);
     const body = await req.json();
-    const allowed = ['offerten','rechnungen','anrufprotokoll','aufgaben','email','abos','berichte','zeiten','nachkalkulation'];
-    const modules = [...new Set((Array.isArray(body.modules) ? body.modules : []).filter((m: string) => allowed.includes(m)))];
+    // 'komplett' ist das Paket, das ZUSAETZLICH zur Basis gebucht wird und alle
+    // Einzelmodule ersetzt. Fehlt es hier, wird es stillschweigend weggefiltert und
+    // der Kunde zahlt nur die Basis, ohne ein einziges Modul zu bekommen.
+    const allowed = ['offerten','rechnungen','anrufprotokoll','aufgaben','email','abos','berichte','zeiten','nachkalkulation','komplett'];
+    let modules = [...new Set((Array.isArray(body.modules) ? body.modules : []).filter((m: string) => allowed.includes(m)))];
+    // Paket schlaegt Einzelmodule — sonst zahlt der Kunde beides nebeneinander.
+    if (modules.includes('komplett')) modules = ['komplett'];
     const prices = JSON.parse(Deno.env.get('STRIPE_PRICE_MAP') || '{}');
     if (!prices.base) throw new Error('STRIPE_PRICE_MAP_NOT_CONFIGURED');
     const selectedPrices = [prices.base, ...modules.map((m) => prices[m]).filter(Boolean)];
@@ -28,5 +33,5 @@ Deno.serve(async (req) => {
     const code = error instanceof Error ? error.message : 'INTERNAL';
     return json({ error: code }, code === 'UNAUTHORIZED' ? 401 : 400);
   }
-});
+}));
 

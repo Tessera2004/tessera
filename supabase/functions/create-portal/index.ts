@@ -1,8 +1,8 @@
-import { json, options } from '../_shared/http.ts';
+import { json, options, withCors } from '../_shared/http.ts';
 import { adminClient, authenticatedTenant } from '../_shared/supabase.ts';
 import { safeReturnUrl, stripeRequest } from '../_shared/stripe.ts';
 
-Deno.serve(async (req) => {
+Deno.serve(withCors(async (req) => {
   const preflight = options(req); if (preflight) return preflight;
   try {
     const auth = await authenticatedTenant(req);
@@ -17,5 +17,5 @@ Deno.serve(async (req) => {
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'INTERNAL' }, 400);
   }
-});
+}));
 

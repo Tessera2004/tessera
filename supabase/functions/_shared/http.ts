@@ -1,5 +1,28 @@
+// Erlaubte Herkunft(e). APP_ORIGIN darf mehrere Domains enthalten, mit Komma getrennt,
+// z. B. "https://mosaos.ch,https://www.mosaos.ch,https://mosaos.pages.dev".
+// withCors() unten setzt pro Anfrage die passende davon ein.
+export const ALLOWED_ORIGINS = (Deno.env.get('APP_ORIGIN') || 'https://mosaos.ch')
+  .split(',').map((o) => o.trim()).filter(Boolean);
+
+export function pickOrigin(req: Request) {
+  const o = req.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.includes(o) ? o : ALLOWED_ORIGINS[0];
+}
+
+// Setzt auf jeder Antwort die zur Anfrage passende Allow-Origin. So funktionieren
+// mehrere Domains, ohne dass jede Function ihre Antworten selbst anfassen muss.
+export function withCors(handler: (req: Request) => Response | Promise<Response>) {
+  return async (req: Request) => {
+    const res = await handler(req);
+    const headers = new Headers(res.headers);
+    headers.set('Access-Control-Allow-Origin', pickOrigin(req));
+    headers.set('Vary', 'Origin');
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  };
+}
+
 export const corsHeaders = {
-  'Access-Control-Allow-Origin': Deno.env.get('APP_ORIGIN') || 'https://mosaos.ch',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGINS[0],
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Vary': 'Origin',

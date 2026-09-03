@@ -110,11 +110,17 @@ def preis_mit_key(lookup):
     return (d.get('data') or [None])[0]
 
 
+# Sammelt lookup_key → price_id, damit am Ende das fertige STRIPE_PRICE_MAP
+# ausgegeben werden kann. Ohne dieses Secret bricht create-checkout ab.
+PREIS_IDS = {}
+
+
 def sicherstellen(name, lookup, chf):
     """Produkt + monatlicher Preis. Stimmt der Betrag schon, passiert nichts."""
     rappen = chf * 100
     vorhanden = preis_mit_key(lookup)
     if vorhanden and vorhanden['unit_amount'] == rappen and vorhanden['currency'] == WAEHRUNG:
+        PREIS_IDS[lookup] = vorhanden['id']
         print(f'  = {name:<24} CHF {chf:>3}  (unverändert)')
         return
 
@@ -141,6 +147,7 @@ def sicherstellen(name, lookup, chf):
         'transfer_lookup_key': 'true' if vorhanden else 'false',
         'nickname': f'{name} · monatlich',
     })
+    PREIS_IDS[lookup] = neuer['id']
     ruf(f"/products/{produkt['id']}", {'default_price': neuer['id']})
     if vorhanden:
         ruf(f"/prices/{vorhanden['id']}", {'active': 'false'})
@@ -171,6 +178,18 @@ def main():
           + (f'  ·  Komplett: CHF {basis + paket["chf"]}/Monat' if paket else ''))
     if TROCKEN:
         print('\nNichts geändert. Ohne --trocken erneut ausführen.')
+        return
+
+    # Fertiges Secret ausgeben. Die Edge Function create-checkout liest es als
+    # STRIPE_PRICE_MAP; die Schlüssel heissen dort 'base' und die Modul-Keys.
+    karte = {}
+    for lookup, pid in PREIS_IDS.items():
+        karte[lookup[len('mosaos_'):] if lookup.startswith('mosaos_') else lookup] = pid
+    print('\n' + '=' * 62)
+    print('STRIPE_PRICE_MAP — als Secret in Supabase eintragen')
+    print('  Dashboard → Edge Functions → Secrets → Name: STRIPE_PRICE_MAP')
+    print('=' * 62)
+    print(json.dumps(karte, separators=(',', ':')))
 
 
 if __name__ == '__main__':
