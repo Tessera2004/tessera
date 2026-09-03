@@ -13,6 +13,23 @@ Mit Stripe-Zahlen: STRIPE_READONLY_KEY=rk_live_... python3 scripts/mosaos-wache.
 import os, sys, ssl, json, socket, urllib.request, urllib.error
 from datetime import datetime, timezone
 
+# Die Kontrolle laeuft mehrmals taeglich. Ohne Gedaechtnis wuerde sie jedes Mal
+# dasselbe melden und nach drei Tagen ignoriert. Deshalb wird der letzte Befund
+# gespeichert und beim naechsten Lauf verglichen — gemeldet wird die Aenderung.
+ZUSTAND = os.path.expanduser('~/.mosaos-wache.json')
+
+def zustand_lesen():
+    try:
+        return json.load(open(ZUSTAND, encoding='utf-8'))
+    except Exception:
+        return {}
+
+def zustand_schreiben(d):
+    try:
+        json.dump(d, open(ZUSTAND, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    except Exception:
+        pass
+
 DOMAIN = 'mosaos.ch'
 SUPA = 'https://kxhsroiholjnyisaystr.supabase.co/functions/v1'
 SEITEN = ['/', '/reinigung', '/werkstatt', '/handwerk', '/garten',
@@ -119,12 +136,35 @@ for z in ['LinkedIn: Follower, Kommentare, Nachrichten (blockt automatisierte Ab
 
 # ---------- Fazit ----------
 print()
+vorher = zustand_lesen()
+jetzt = {
+    'warnungen': sorted(warnungen),
+    'befunde': sorted(befunde),
+    'stand': datetime.now().isoformat(timespec='minutes'),
+}
+
+neue_warnungen = [w for w in jetzt['warnungen'] if w not in vorher.get('warnungen', [])]
+behoben = [w for w in vorher.get('warnungen', []) if w not in jetzt['warnungen']]
+neue_befunde = [b for b in jetzt['befunde'] if b not in vorher.get('befunde', [])]
+
 if warnungen:
     print('HANDLUNGSBEDARF:')
-    for w in warnungen: print('  ! ' + w)
-elif befunde:
+    for w in warnungen:
+        print(('  ! NEU: ' if w in neue_warnungen else '  ! (bekannt) ') + w)
+if behoben:
+    print('BEHOBEN seit dem letzten Lauf:')
+    for b in behoben: print('  ✓ ' + b)
+if befunde:
     print('AUFFAELLIG:')
-    for b in befunde: print('  → ' + b)
-else:
-    print('Alles unauffaellig. Nichts zu tun.')
+    for b in befunde:
+        print(('  → NEU: ' if b in neue_befunde else '  → (bekannt) ') + b)
+if not warnungen and not befunde and not behoben:
+    letzter = vorher.get('stand', 'unbekannt')
+    print(f'Alles unauffaellig. Unveraendert seit dem letzten Lauf ({letzter}).')
+
+# Fuer die Meldung: nur bei echter Aenderung lohnt sich ein Hinweis an Brian
+aenderung = bool(neue_warnungen or behoben or neue_befunde)
+print(f'\nAENDERUNG_SEIT_LETZTEM_LAUF: {"ja" if aenderung else "nein"}')
+
+zustand_schreiben(jetzt)
 sys.exit(1 if warnungen else 0)
