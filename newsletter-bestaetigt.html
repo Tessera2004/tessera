@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Newsletter — MosaOS</title>
+  <link rel="icon" type="image/svg+xml" href="logo/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=10" />
+  <style>
+    .nl-wrap { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px 20px; gap: 18px; }
+    .nl-title { font-size: clamp(22px, 4vw, 30px); font-weight: 800; margin: 0; }
+    .nl-desc { max-width: 460px; color: var(--text-muted); line-height: 1.65; margin: 0; }
+  </style>
+</head>
+<body>
+  <main class="nl-wrap">
+    <h1 class="nl-title" id="titel">Einen Moment …</h1>
+    <p class="nl-desc" id="text">Die Bestätigung wird geprüft.</p>
+    <a href="/" class="btn btn-primary">Zur Startseite</a>
+  </main>
+
+  <script src="config.js?v=3"></script>
+  <script>
+    /* Bestaetigt die Anmeldung oder meldet ab — je nach ?action in der Adresse.
+       Der Abmeldelink in jeder Newsletter-Mail zeigt auf ?action=unsubscribe. */
+    (function () {
+      const titel = document.getElementById('titel');
+      const text = document.getElementById('text');
+      const p = new URLSearchParams(location.search);
+      const token = p.get('token');
+      const email = p.get('email');
+      const abmelden = p.get('action') === 'unsubscribe';
+
+      const zeige = (h1, absatz) => { titel.textContent = h1; text.textContent = absatz; };
+
+      if (!token || !email) {
+        zeige('Link unvollständig',
+          'Dieser Link lässt sich nicht zuordnen. Bitte öffnen Sie ihn direkt aus der E-Mail, ohne ihn zu kürzen.');
+        return;
+      }
+
+      const cfg = window.MOSAOS_CONFIG || {};
+      fetch(cfg.functionsUrl + '/newsletter-confirm', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          apikey: cfg.publicApiKey,
+          authorization: 'Bearer ' + cfg.publicApiKey,
+        },
+        body: JSON.stringify({ token, email, action: abmelden ? 'unsubscribe' : 'confirm' }),
+      })
+        .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+        .then(({ ok, d }) => {
+          if (!ok) {
+            if (d.error === 'TOKEN_EXPIRED') {
+              zeige('Der Link ist abgelaufen',
+                'Bestätigungslinks gelten sieben Tage. Tragen Sie sich unten auf der Startseite einfach nochmals ein.');
+            } else {
+              zeige('Link ungültig',
+                'Dieser Link wurde bereits verwendet oder stimmt nicht. Tragen Sie sich bei Bedarf nochmals ein.');
+            }
+            return;
+          }
+          if (d.status === 'unsubscribed') {
+            zeige('Sie sind abgemeldet',
+              'Sie erhalten keine weiteren Newsletter von uns. Ihre Adresse bleibt gespeichert, damit wir sie nicht versehentlich erneut anschreiben.');
+          } else if (d.status === 'already') {
+            zeige('Schon bestätigt', 'Ihre Anmeldung war bereits aktiv. Sie müssen nichts weiter tun.');
+          } else {
+            zeige('Danke, das war’s',
+              'Ihre Anmeldung ist bestätigt. Sie hören ein paar Mal im Jahr von uns — und jede Mail hat einen Abmeldelink.');
+          }
+        })
+        .catch(() => {
+          zeige('Das hat nicht geklappt',
+            'Bitte versuchen Sie es später nochmals oder schreiben Sie an info@mosaos.ch.');
+        });
+    })();
+  </script>
+</body>
+</html>

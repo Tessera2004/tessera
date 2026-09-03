@@ -1,5 +1,6 @@
 import { json, options, sha256, withCors } from '../_shared/http.ts';
 import { adminClient } from '../_shared/supabase.ts';
+import { sendeMail } from '../_shared/mail.ts';
 
 Deno.serve(withCors(async (req) => {
   const preflight = options(req); if (preflight) return preflight;
@@ -29,6 +30,35 @@ Deno.serve(withCors(async (req) => {
       message, consent_at: new Date().toISOString(), source_ip_hash: ipHash,
     });
     if (error) throw error;
+
+    // Bis hierher landete jede Anfrage nur in der Tabelle. Wer nicht taeglich
+    // ins Datenbank-Fenster schaute, erfuhr nie davon — eine Anfrage konnte
+    // wochenlang unbeantwortet liegen. Darum jetzt eine Mail an den Betrieb.
+    // Sie kommt NACH dem Speichern: scheitert der Versand, ist die Anfrage
+    // trotzdem sicher.
+    const empfaenger = Deno.env.get('CONTACT_NOTIFY_TO') || 'info@mosaos.ch';
+    const versand = await sendeMail({
+      an: empfaenger,
+      betreff: `Neue Anfrage: ${company}`,
+      // antwortAn: ein Druck auf Antworten geht direkt an den Interessenten,
+      // nicht an das eigene Postfach zurueck.
+      antwortAn: email,
+      text: [
+        `Firma:    ${company}`,
+        `Name:     ${firstName} ${lastName}`,
+        `E-Mail:   ${email}`,
+        `Telefon:  ${String(body.phone || '').trim() || '—'}`,
+        `Branche:  ${String(body.industry || '').trim() || '—'}`,
+        '',
+        'Nachricht:',
+        message,
+        '',
+        '---',
+        'Vollstaendig in Supabase unter contact_requests.',
+      ].join('\n'),
+    });
+    if (!versand.ok) console.error('Anfrage gespeichert, Benachrichtigung nicht verschickt:', versand.grund);
+
     return json({ ok: true }, 201);
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'INTERNAL' }, 500);

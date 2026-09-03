@@ -3,25 +3,25 @@
   <script>window.MOSAOS_LANG_FIXED = "en";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, work reports, quotes and QR invoices. 14 days free.">
+  <meta name="description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.">
   <title>MosaOS — one app for jobs, emails, quotes and invoices</title>
   <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=9">
+  <link rel="stylesheet" href="/styles.css?v=10">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MosaOS">
-  <meta property="og:title" content="MosaOS — one app for jobs, emails, quotes and invoices">
-  <meta property="og:description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.">
-  <meta property="og:image" content="https://mosaos.ch/assets/og/index-en.jpg">
+  <meta property="og:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen">
+  <meta property="og:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis.">
+  <meta property="og:image" content="https://mosaos.pages.dev/assets/og/index-en.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="MosaOS — one app for jobs, emails, quotes and invoices">
+  <meta property="og:image:alt" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MosaOS — one app for jobs, emails, quotes and invoices">
-  <meta name="twitter:description" content="Modular Swiss software for cleaning, workshops, trades, landscaping and pest control. Jobs, emails, work reports, quotes and QR invoices in one app. 14 days free.">
-  <meta name="twitter:image" content="https://mosaos.ch/assets/og/index-en.jpg">
+  <meta name="twitter:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen">
+  <meta name="twitter:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis.">
+  <meta name="twitter:image" content="https://mosaos.pages.dev/assets/og/index-en.jpg">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -88,15 +88,15 @@
     .wk-faq-liste h3 { font-size:17px; margin:0 0 10px; color:var(--text); line-height:1.35; }
     .wk-faq-liste p { font-size:14.5px; line-height:1.6; color:var(--text-muted); margin:0; }
 </style>
-  <link rel="canonical" href="https://mosaos.ch/en/" />
-  <link rel="alternate" hreflang="de" href="https://mosaos.ch/" />
-  <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/" />
-  <link rel="alternate" hreflang="it" href="https://mosaos.ch/it/" />
-  <link rel="alternate" hreflang="es" href="https://mosaos.ch/es/" />
-  <link rel="alternate" hreflang="en" href="https://mosaos.ch/en/" />
-  <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/" />
+  <link rel="canonical" href="https://mosaos.pages.dev/en/" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.pages.dev/" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.pages.dev/fr/" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.pages.dev/it/" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.pages.dev/es/" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.pages.dev/en/" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.pages.dev/" />
   <meta property="og:locale" content="en_GB" />
-  <meta property="og:url" content="https://mosaos.ch/en/" />
+  <meta property="og:url" content="https://mosaos.pages.dev/en/" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -412,6 +412,7 @@
         </article>
 
       </div>
+
     </div>
   </section>
 
@@ -762,6 +763,22 @@
         </div>
       </div>
 
+      <!-- Newsletter: doppelte Bestaetigung, siehe supabase/functions/newsletter-subscribe -->
+      <div class="footer-news">
+        <div class="footer-news-text">
+          <h5 data-i18n="news.title">What’s new at MosaOS</h5>
+          <p data-i18n="news.sub">New industries, new features, a few lines a month. No sales talk, unsubscribe any time.</p>
+        </div>
+        <form class="footer-news-form" id="newsForm" novalidate="">
+          <label class="sr-only" for="newsEmail" data-i18n="news.label">Email address</label>
+          <input type="email" id="newsEmail" name="email" required="" autocomplete="email" placeholder="name@company.ch" data-i18n-placeholder="news.ph">
+          <!-- Honigtopf gegen Bots: fuer Menschen unsichtbar, darum nie ausgefuellt -->
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp-field">
+          <button type="submit" class="btn btn-primary" data-i18n="news.cta">Sign up</button>
+          <p class="footer-news-note" id="newsNote" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
       <div class="footer-bottom">
         <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span></span>
         <div class="lang-switch"><a href="/" hreflang="de" class="lang-link">DE</a><a href="/fr/" hreflang="fr" class="lang-link">FR</a><a href="/it/" hreflang="it" class="lang-link">IT</a><a href="/es/" hreflang="es" class="lang-link">ES</a><a href="/en/" hreflang="en" class="lang-link active">EN</a></div>
@@ -770,7 +787,8 @@
   </footer>
 
   <script src="/config.js?v=3"></script>
-  <script src="/i18n.js?v=15"></script>
+  <script src="/i18n.js?v=16"></script>
+  <script src="/newsletter.js?v=1"></script>
   <script src="/main.js?v=5" defer=""></script>
 
 

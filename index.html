@@ -10,21 +10,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="MosaOS" />
   <meta property="og:locale" content="de_CH" />
   <meta property="og:url" content="https://mosaos.ch/" />
   <meta property="og:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen" />
   <meta property="og:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis." />
-  <meta property="og:image" content="https://mosaos.ch/assets/og/index-de.jpg" />
+  <meta property="og:image" content="https://mosaos.pages.dev/assets/og/index-de.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen" />
   <meta name="twitter:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis." />
-  <meta name="twitter:image" content="https://mosaos.ch/assets/og/index-de.jpg" />
+  <meta name="twitter:image" content="https://mosaos.pages.dev/assets/og/index-de.jpg" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -91,12 +91,12 @@
     .wk-faq-liste h3 { font-size:17px; margin:0 0 10px; color:var(--text); line-height:1.35; }
     .wk-faq-liste p { font-size:14.5px; line-height:1.6; color:var(--text-muted); margin:0; }
 </style>
-  <link rel="alternate" hreflang="de" href="https://mosaos.ch/" />
-  <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/" />
-  <link rel="alternate" hreflang="it" href="https://mosaos.ch/it/" />
-  <link rel="alternate" hreflang="es" href="https://mosaos.ch/es/" />
-  <link rel="alternate" hreflang="en" href="https://mosaos.ch/en/" />
-  <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.pages.dev/" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.pages.dev/fr/" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.pages.dev/it/" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.pages.dev/es/" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.pages.dev/en/" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.pages.dev/" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -664,6 +664,23 @@
         </div>
       </div>
 
+      <!-- Newsletter: doppelte Bestaetigung, siehe supabase/functions/newsletter-subscribe -->
+      <div class="footer-news">
+        <div class="footer-news-text">
+          <h5 data-i18n="news.title">Was sich bei MosaOS tut</h5>
+          <p data-i18n="news.sub">Neue Branchen, neue Funktionen, ein paar Zeilen im Monat. Kein Verkaufsgerede, jederzeit abbestellbar.</p>
+        </div>
+        <form class="footer-news-form" id="newsForm" novalidate>
+          <label class="sr-only" for="newsEmail" data-i18n="news.label">E-Mail-Adresse</label>
+          <input type="email" id="newsEmail" name="email" required autocomplete="email"
+                 placeholder="name@firma.ch" data-i18n-placeholder="news.ph" />
+          <!-- Honigtopf gegen Bots: fuer Menschen unsichtbar, darum nie ausgefuellt -->
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp-field" />
+          <button type="submit" class="btn btn-primary" data-i18n="news.cta">Eintragen</button>
+          <p class="footer-news-note" id="newsNote" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
       <div class="footer-bottom">
         <span>© <span data-cfg="founded">2026</span> <span data-cfg="brand">MosaOS</span> · <span data-cfg="city">Hägendorf</span>, <span data-cfg="country">Schweiz</span></span>
         <div class="lang-switch"><a href="/" hreflang="de" class="lang-link active">DE</a><a href="/fr/" hreflang="fr" class="lang-link">FR</a><a href="/it/" hreflang="it" class="lang-link">IT</a><a href="/es/" hreflang="es" class="lang-link">ES</a><a href="/en/" hreflang="en" class="lang-link">EN</a></div>
@@ -672,7 +689,8 @@
   </footer>
 
   <script src="config.js?v=3"></script>
-  <script src="i18n.js?v=15"></script>
+  <script src="i18n.js?v=16"></script>
+  <script src="newsletter.js?v=1"></script>
   <script src="main.js?v=5" defer></script>
 </body>
 </html>
