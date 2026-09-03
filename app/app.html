@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -21,7 +21,8 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=2"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=24"></script>
+  <script src="app-i18n.js?v=25"></script>
+  <script src="tour.js?v=3" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -1041,7 +1042,12 @@
               <h1 class="page-title" data-i18n="view.preise">Preise & Konditionen</h1>
               <p class="page-subtitle"><span data-i18n="set.pricesSubA">Stundensätze und Mindestbuchungen pro </span><span data-term="leistungsart">Reinigungsart</span><span data-i18n="set.pricesSubB"> — fließen automatisch in jeden neuen Auftrag.</span></p>
             </div>
-            <button class="btn btn-accent" data-i18n="set.saveChanges" onclick="savePrices()">Änderungen speichern</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <!-- Tour erneut starten: wer sie übersprungen hat, findet sie sonst nie wieder -->
+              <button class="btn btn-secondary" onclick="MosaTour && MosaTour.starten()"
+                      data-i18n="set.tourStart">Tour erneut starten</button>
+              <button class="btn btn-accent" data-i18n="set.saveChanges" onclick="savePrices()">Änderungen speichern</button>
+            </div>
           </div>
 
           <div class="readonly-banner">
