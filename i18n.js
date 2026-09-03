@@ -104,7 +104,6 @@
       'branche.custom.f2': 'Pilot-Konditionen für Erst-Branchen',
       'branche.custom.f3': 'Eigenes Programm, auf dich zugeschnitten',
       'branche.custom.cta': 'Anfrage stellen',
-      'branche.alle': 'Alle Branchen im Überblick',
 
       'step.1.title': 'Branche wählen',
       'step.1.desc': 'Von Reinigung über Werkstatt bis Garten — du wählst die Variante, die zu deinem Geschäft passt. Die Plattform passt sich an: Begriffe, Workflows, Standardfelder.',
@@ -669,7 +668,6 @@
       'branche.custom.f2': 'Tarifs pilotes pour les premiers secteurs',
       'branche.custom.f3': 'Un programme sur mesure pour toi',
       'branche.custom.cta': 'Faire une demande',
-      'branche.alle': 'Tous les secteurs en un coup d\'œil',
 
       'step.1.title': 'Choisir son secteur',
       'step.1.desc': 'Du nettoyage au garage jusqu\'au jardinage — vous choisissez la variante qui correspond à votre métier. La plateforme s\'adapte : termes, flux, champs par défaut.',
@@ -1252,7 +1250,6 @@
       'branche.custom.f2': 'Condizioni pilota per i primi settori',
       'branche.custom.f3': 'Programma su misura per te',
       'branche.custom.cta': 'Invia richiesta',
-      'branche.alle': 'Tutti i settori in sintesi',
 
       'step.1.title': 'Scegli il settore',
       'step.1.desc': 'Dalle pulizie all\'officina fino al giardinaggio — scegli la variante per il tuo lavoro. La piattaforma si adatta: termini, flussi, campi predefiniti.',
@@ -1835,7 +1832,6 @@
       'branche.custom.f2': 'Condiciones piloto para primeros sectores',
       'branche.custom.f3': 'Un programa a tu medida',
       'branche.custom.cta': 'Enviar solicitud',
-      'branche.alle': 'Todos los sectores de un vistazo',
 
       'step.1.title': 'Elige tu sector',
       'step.1.desc': 'De la limpieza al taller hasta la jardinería — eliges la variante para tu negocio. La plataforma se adapta: términos, flujos, campos por defecto.',
@@ -2418,7 +2414,6 @@
       'branche.custom.f2': 'Pilot pricing for first industries',
       'branche.custom.f3': 'A dedicated program tailored to you',
       'branche.custom.cta': 'Send a request',
-      'branche.alle': 'All industries at a glance',
 
       'step.1.title': 'Pick your industry',
       'step.1.desc': 'From cleaning to workshop to gardening — pick the variant that matches your business. The platform adapts: terms, workflows, default fields.',

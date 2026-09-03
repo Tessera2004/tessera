@@ -9,6 +9,11 @@
    ============================================================ */
 window.MosaBilling = (function () {
   const cfg = () => window.MOSAOS_STRIPE;
+  // Sprache erst zur Renderzeit nachschlagen: app-i18n.js wird nach dieser
+  // Datei geladen, und der Kunde kann die Sprache jederzeit umstellen.
+  const t = (k, f) => (window.MosaI18n ? MosaI18n.t(k, f) : f);
+  // Modulname: eigener Schluessel, sonst der Navigationsname, sonst Deutsch
+  const modLabel = (m) => t('mod.' + m.key + '.label', t('nav.' + m.key, m.label));
   function client() {
     try { if (typeof getSupabase === 'function') return getSupabase(); } catch {}
     return window.SB || null;
@@ -59,7 +64,7 @@ window.MosaBilling = (function () {
 
   async function startCheckout(modules) {
     const t = await accessToken();
-    if (!t) { alert('Bitte zuerst einloggen, um zu abonnieren.'); return; }
+    if (!t) { alert(t('billing.loginFirst', 'Bitte zuerst einloggen, um zu abonnieren.')); return; }
     const base = location.href.split('?')[0].split('#')[0];
     try {
       const res = await fetch(cfg().functionsUrl + '/create-checkout', {
@@ -69,13 +74,13 @@ window.MosaBilling = (function () {
       });
       const j = await res.json();
       if (j.url) location.href = j.url;
-      else alert('Stripe-Fehler: ' + (j.error || 'unbekannt'));
-    } catch (e) { alert('Verbindungsfehler: ' + e); }
+      else alert(t('billing.stripeError', 'Stripe-Fehler: ') + (j.error || t('billing.unknown', 'unbekannt')));
+    } catch (e) { alert(t('billing.connError', 'Verbindungsfehler: ') + e); }
   }
 
   async function openPortal() {
     const t = await accessToken();
-    if (!t) { alert('Bitte zuerst einloggen.'); return; }
+    if (!t) { alert(t('billing.loginPlain', 'Bitte zuerst einloggen.')); return; }
     try {
       const res = await fetch(cfg().functionsUrl + '/create-portal', {
         method: 'POST',
@@ -84,8 +89,8 @@ window.MosaBilling = (function () {
       });
       const j = await res.json();
       if (j.url) location.href = j.url;
-      else alert('Stripe-Fehler: ' + (j.error || 'unbekannt'));
-    } catch (e) { alert('Verbindungsfehler: ' + e); }
+      else alert(t('billing.stripeError', 'Stripe-Fehler: ') + (j.error || t('billing.unknown', 'unbekannt')));
+    } catch (e) { alert(t('billing.connError', 'Verbindungsfehler: ') + e); }
   }
 
   // Abo-Verwaltung in den Einstellungen rendern (in #moduleSettings)
@@ -106,17 +111,17 @@ window.MosaBilling = (function () {
       <label style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid ${on ? 'var(--accent)' : 'var(--border)'}; border-radius:10px; background:var(--surface);">
         <input type="checkbox" class="sub-mod-pick" value="${m.key}" ${on ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--accent);flex:0 0 auto;" />
         <span style="flex:1; min-width:0;">
-          <span style="display:block; font-weight:600; font-size:13.5px;">${esc(m.label)}</span>
-          <span style="display:block; font-size:12px; color:var(--text-subtle);">+ CHF ${m.priceChf}/Monat</span>
+          <span style="display:block; font-weight:600; font-size:13.5px;">${esc(modLabel(m))}</span>
+          <span style="display:block; font-size:12px; color:var(--text-subtle);">+ CHF ${m.priceChf}${t('common.perMonth', '/Monat')}</span>
         </span>
-        ${on ? '<span style="font-size:11px; font-weight:700; color:var(--success);flex:0 0 auto;">aktiv</span>' : ''}
+        ${on ? '<span style="font-size:11px; font-weight:700; color:var(--success);flex:0 0 auto;">' + t('billing.moduleOn', 'aktiv') + '</span>' : ''}
       </label>`;
     }).join('');
     const statusLabel = sub.paid
-      ? `<span style="color:var(--success); font-weight:700;">● Abo aktiv</span>`
+      ? `<span style="color:var(--success); font-weight:700;">● ${t('billing.active', 'Abo aktiv')}</span>`
       : sub.trial
-        ? `<span style="color:var(--warning, #e0a800); font-weight:700;">● Testphase — noch ${sub.trialDaysLeft} Tag${sub.trialDaysLeft === 1 ? '' : 'e'}</span>`
-        : `<span style="color:var(--text-subtle); font-weight:700;">○ kein aktives Abo</span>`;
+        ? `<span style="color:var(--warning, #e0a800); font-weight:700;">● ${t('billing.trialLeft', 'Testphase — noch')} ${sub.trialDaysLeft} ${sub.trialDaysLeft === 1 ? t('trial.day', 'Tag gratis.') : t('trial.days', 'Tage gratis.')}</span>`
+        : `<span style="color:var(--text-subtle); font-weight:700;">○ ${t('billing.none', 'kein aktives Abo')}</span>`;
     const k = cfg().komplett;
     const einzeln = cfg().basePriceChf + cfg().modules.reduce((s2, m) => s2 + m.priceChf, 0);
     const komplettAktiv = mods.includes('komplett');
@@ -127,9 +132,9 @@ window.MosaBilling = (function () {
         <input type="radio" name="sub-paket" class="sub-paket-pick" value="komplett" ${komplettAktiv ? 'checked' : ''}
                style="width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto;" />
         <span style="flex:1; min-width:0;">
-          <span style="display:block; font-weight:700; font-size:14.5px;">${esc(k.label)} — CHF ${k.gesamtChf}/Monat</span>
+          <span style="display:block; font-weight:700; font-size:14.5px;">${esc(t('paywall.allModules', k.label))} — CHF ${k.gesamtChf}${t('common.perMonth', '/Monat')}</span>
           <span style="display:block; font-size:12.5px; color:var(--text-subtle);">
-            Alles inklusive. Einzeln gebucht: CHF ${einzeln}/Monat — du sparst CHF ${einzeln - k.gesamtChf}.
+            ${t('billing.allIncl', 'Alles inklusive. Einzeln gebucht:')} CHF ${einzeln}${t('common.perMonth', '/Monat')} — ${t('billing.youSave', 'du sparst')} CHF ${einzeln - k.gesamtChf}.
           </span>
         </span>
       </label>
@@ -137,19 +142,19 @@ window.MosaBilling = (function () {
                     font-size:13px; color:var(--text-muted); cursor:pointer;">
         <input type="radio" name="sub-paket" class="sub-paket-pick" value="einzeln" ${komplettAktiv ? '' : 'checked'}
                style="width:16px;height:16px;accent-color:var(--accent);" />
-        <span>Oder einzeln zusammenstellen</span>
+        <span>${t('billing.orSingle', 'Oder einzeln zusammenstellen')}</span>
       </label>`;
 
     wrap.innerHTML = `
       <div style="margin-bottom:14px; font-size:13px; color:var(--text-muted);">
-        ${statusLabel} · Basis CHF ${cfg().basePriceChf}/Monat <span style="color:var(--text-subtle);">(Routenplanung, Kunden, Mitarbeiter)</span>
+        ${statusLabel} · ${t('billing.base', 'Basis')} CHF ${cfg().basePriceChf}${t('common.perMonth', '/Monat')} <span style="color:var(--text-subtle);">${t('billing.baseIncl', '(Routenplanung, Kunden, Mitarbeiter)')}</span>
       </div>
       ${paket}
       <div id="subModulListe" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;
                   opacity:${komplettAktiv ? '0.4' : '1'}; pointer-events:${komplettAktiv ? 'none' : 'auto'};">${rows}</div>
       <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
-        <button type="button" class="btn btn-accent" style="flex:0 0 auto;" onclick="MosaBilling._subscribeSelected()">${sub.active ? 'Abo ändern' : 'Jetzt abonnieren'}</button>
-        ${sub.active ? '<button type="button" class="btn btn-ghost" style="flex:0 0 auto;" onclick="MosaBilling.openPortal()">Abo verwalten (Karte / Kündigung)</button>' : ''}
+        <button type="button" class="btn btn-accent" style="flex:0 0 auto;" onclick="MosaBilling._subscribeSelected()">${sub.active ? t('billing.change', 'Abo ändern') : t('billing.subscribe', 'Jetzt abonnieren')}</button>
+        ${sub.active ? '<button type="button" class="btn btn-ghost" style="flex:0 0 auto;" onclick="MosaBilling.openPortal()">' + t('billing.manage', 'Abo verwalten (Karte / Kündigung)') + '</button>' : ''}
       </div>`;
   }
 
@@ -157,7 +162,7 @@ window.MosaBilling = (function () {
     const paket = document.querySelector('.sub-paket-pick:checked')?.value;
     if (paket === 'komplett') { startCheckout(['komplett']); return; }
     const picked = [...document.querySelectorAll('.sub-mod-pick:checked')].map((c) => c.value);
-    if (!picked.length) { alert('Mindestens ein Modul wählen (oder nur Basis).'); }
+    if (!picked.length) { alert(t('billing.pickOne', 'Mindestens ein Modul wählen (oder nur Basis).')); }
     startCheckout(picked);
   }
 

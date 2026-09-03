@@ -47,6 +47,14 @@
       'dash.greet.morning': 'Guten Morgen', 'dash.greet.day': 'Guten Tag', 'dash.greet.evening': 'Guten Abend',
       'common.lang': 'Sprache',
       'common.logout': 'Abmelden', 'common.toggleNav': 'Liste ein-/ausklappen',
+      // Abo-Verwaltung (billing.js)
+      'billing.loginFirst': 'Bitte zuerst einloggen, um zu abonnieren.', 'billing.loginPlain': 'Bitte zuerst einloggen.',
+      'billing.stripeError': 'Stripe-Fehler: ', 'billing.connError': 'Verbindungsfehler: ', 'billing.unknown': 'unbekannt',
+      'billing.active': 'Abo aktiv', 'billing.none': 'kein aktives Abo', 'billing.moduleOn': 'aktiv',
+      'billing.trialLeft': 'Testphase — noch', 'billing.base': 'Basis', 'billing.baseIncl': '(Routenplanung, Kunden, Mitarbeiter)',
+      'billing.allIncl': 'Alles inklusive. Einzeln gebucht:', 'billing.youSave': 'du sparst',
+      'sub.orSingle': 'Oder einzeln zusammenstellen', 'sub.change': 'Abo ändern', 'sub.subscribe': 'Jetzt abonnieren',
+      'sub.manage': 'Abo verwalten (Karte / Kündigung)', 'sub.pickOne': 'Mindestens ein Modul wählen (oder nur Basis).',
       // Testphase-Band und Bezahl-Wand
       'trial.left': 'Testphase — noch', 'trial.day': 'Tag gratis.', 'trial.days': 'Tage gratis.',
       'trial.cta': 'Abo wählen', 'paywall.title': 'Testphase abgelaufen',
@@ -339,6 +347,14 @@
       'dash.greet.morning': 'Bonjour', 'dash.greet.day': 'Bonjour', 'dash.greet.evening': 'Bonsoir',
       'common.lang': 'Langue',
       'common.logout': 'Se déconnecter', 'common.toggleNav': 'Replier/déplier la liste',
+      // Gestion de l'abonnement (billing.js)
+      'billing.loginFirst': 'Connecte-toi d\'abord pour t\'abonner.', 'billing.loginPlain': 'Connecte-toi d\'abord.',
+      'billing.stripeError': 'Erreur Stripe : ', 'billing.connError': 'Erreur de connexion : ', 'billing.unknown': 'inconnue',
+      'billing.active': 'Abonnement actif', 'billing.none': 'aucun abonnement actif', 'billing.moduleOn': 'actif',
+      'billing.trialLeft': 'Période d\'essai — encore', 'billing.base': 'Base', 'billing.baseIncl': '(tournées, clients, collaborateurs)',
+      'billing.allIncl': 'Tout compris. Pris séparément :', 'billing.youSave': 'tu économises',
+      'sub.orSingle': 'Ou composer module par module', 'sub.change': 'Modifier l\'abonnement', 'sub.subscribe': 'S\'abonner',
+      'sub.manage': 'Gérer l\'abonnement (carte / résiliation)', 'sub.pickOne': 'Choisis au moins un module (ou la base seule).',
       // Bandeau de période d'essai et mur de paiement
       'trial.left': 'Période d\'essai — encore', 'trial.day': 'jour gratuit.', 'trial.days': 'jours gratuits.',
       'trial.cta': 'Choisir un abonnement', 'paywall.title': 'Période d\'essai terminée',
@@ -615,6 +631,14 @@
       'dash.greet.morning': 'Buongiorno', 'dash.greet.day': 'Buongiorno', 'dash.greet.evening': 'Buonasera',
       'common.lang': 'Lingua',
       'common.logout': 'Esci', 'common.toggleNav': 'Comprimi/espandi elenco',
+      // Gestione abbonamento (billing.js)
+      'billing.loginFirst': 'Accedi prima per abbonarti.', 'billing.loginPlain': 'Accedi prima.',
+      'billing.stripeError': 'Errore Stripe: ', 'billing.connError': 'Errore di connessione: ', 'billing.unknown': 'sconosciuto',
+      'billing.active': 'Abbonamento attivo', 'billing.none': 'nessun abbonamento attivo', 'billing.moduleOn': 'attivo',
+      'billing.trialLeft': 'Periodo di prova — ancora', 'billing.base': 'Base', 'billing.baseIncl': '(giri, clienti, collaboratori)',
+      'billing.allIncl': 'Tutto incluso. Presi singolarmente:', 'billing.youSave': 'risparmi',
+      'sub.orSingle': 'Oppure componi modulo per modulo', 'sub.change': 'Modifica abbonamento', 'sub.subscribe': 'Abbonati ora',
+      'sub.manage': 'Gestisci abbonamento (carta / disdetta)', 'sub.pickOne': 'Scegli almeno un modulo (o solo la base).',
       // Banner del periodo di prova e muro di pagamento
       'trial.left': 'Periodo di prova — ancora', 'trial.day': 'giorno gratis.', 'trial.days': 'giorni gratis.',
       'trial.cta': 'Scegli un abbonamento', 'paywall.title': 'Periodo di prova scaduto',
@@ -891,6 +915,14 @@
       'dash.greet.morning': 'Buenos días', 'dash.greet.day': 'Buenas tardes', 'dash.greet.evening': 'Buenas noches',
       'common.lang': 'Idioma',
       'common.logout': 'Cerrar sesión', 'common.toggleNav': 'Plegar/desplegar lista',
+      // Gestión de la suscripción (billing.js)
+      'billing.loginFirst': 'Inicia sesión primero para suscribirte.', 'billing.loginPlain': 'Inicia sesión primero.',
+      'billing.stripeError': 'Error de Stripe: ', 'billing.connError': 'Error de conexión: ', 'billing.unknown': 'desconocido',
+      'billing.active': 'Suscripción activa', 'billing.none': 'sin suscripción activa', 'billing.moduleOn': 'activo',
+      'billing.trialLeft': 'Periodo de prueba —', 'billing.base': 'Base', 'billing.baseIncl': '(rutas, clientes, empleados)',
+      'billing.allIncl': 'Todo incluido. Por separado:', 'billing.youSave': 'ahorras',
+      'sub.orSingle': 'O componer módulo a módulo', 'sub.change': 'Cambiar suscripción', 'sub.subscribe': 'Suscribirse ahora',
+      'sub.manage': 'Gestionar suscripción (tarjeta / baja)', 'sub.pickOne': 'Elige al menos un módulo (o solo la base).',
       // Banner del periodo de prueba y muro de pago
       'trial.left': 'Periodo de prueba —', 'trial.day': 'día gratis restante.', 'trial.days': 'días gratis restantes.',
       'trial.cta': 'Elegir suscripción', 'paywall.title': 'Periodo de prueba finalizado',
@@ -1167,6 +1199,14 @@
       'dash.greet.morning': 'Good morning', 'dash.greet.day': 'Good afternoon', 'dash.greet.evening': 'Good evening',
       'common.lang': 'Language',
       'common.logout': 'Sign out', 'common.toggleNav': 'Toggle list',
+      // Subscription management (billing.js)
+      'billing.loginFirst': 'Please sign in first to subscribe.', 'billing.loginPlain': 'Please sign in first.',
+      'billing.stripeError': 'Stripe error: ', 'billing.connError': 'Connection error: ', 'billing.unknown': 'unknown',
+      'billing.active': 'Subscription active', 'billing.none': 'no active subscription', 'billing.moduleOn': 'active',
+      'billing.trialLeft': 'Trial —', 'billing.base': 'Base', 'billing.baseIncl': '(routes, customers, employees)',
+      'billing.allIncl': 'Everything included. Booked separately:', 'billing.youSave': 'you save',
+      'sub.orSingle': 'Or pick modules individually', 'sub.change': 'Change plan', 'sub.subscribe': 'Subscribe now',
+      'sub.manage': 'Manage plan (card / cancellation)', 'sub.pickOne': 'Pick at least one module (or base only).',
       // Trial banner and paywall
       'trial.left': 'Trial —', 'trial.day': 'day remaining.', 'trial.days': 'days remaining.',
       'trial.cta': 'Choose a plan', 'paywall.title': 'Trial has ended',
