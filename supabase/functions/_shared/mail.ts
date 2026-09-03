@@ -54,3 +54,56 @@ export async function sendeMail(opts: {
     return { ok: false, grund: e instanceof Error ? e.message : 'unbekannt' };
   }
 }
+
+// Traegt eine bestaetigte Adresse in die Brevo-Kontaktliste ein.
+//
+// Ohne diesen Schritt bleibt die Liste in Brevo leer, egal wie viele sich auf
+// der Website anmelden: Die Anmeldung liegt in Supabase, Brevo kennt sie nicht.
+// Erst hier kommen beide zusammen.
+//
+// Bewusst erst NACH der Bestaetigung: Vorher gibt es keine nachweisbare
+// Einwilligung, und eine unbestaetigte Adresse gehoert in keinen Verteiler.
+export async function brevoKontaktAnlegen(email: string, listenId?: number) {
+  const key = Deno.env.get('BREVO_API_KEY');
+  if (!key) return { ok: false, grund: 'BREVO_API_KEY fehlt' };
+  const liste = listenId ?? Number(Deno.env.get('BREVO_LIST_ID') || 0);
+  if (!liste) return { ok: false, grund: 'BREVO_LIST_ID fehlt' };
+
+  try {
+    const res = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: { 'api-key': key, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        listIds: [liste],
+        // Eine erneute Anmeldung nach einer Abmeldung soll den Kontakt wieder
+        // aktivieren, statt mit einem Fehler abzubrechen.
+        updateEnabled: true,
+      }),
+    });
+    // 201 = neu angelegt, 204 = vorhandener Kontakt aktualisiert.
+    if (res.status === 201 || res.status === 204) return { ok: true };
+    return { ok: false, grund: `Brevo ${res.status}: ${await res.text()}` };
+  } catch (e) {
+    return { ok: false, grund: e instanceof Error ? e.message : 'unbekannt' };
+  }
+}
+
+// Nimmt eine Adresse aus dem Verteiler. Brevo fuehrt sie danach als
+// abgemeldet — sie bleibt gesperrt, damit sie nicht versehentlich ueber
+// einen spaeteren Import wieder angeschrieben wird.
+export async function brevoKontaktAbmelden(email: string) {
+  const key = Deno.env.get('BREVO_API_KEY');
+  if (!key) return { ok: false, grund: 'BREVO_API_KEY fehlt' };
+  try {
+    const res = await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}`, {
+      method: 'PUT',
+      headers: { 'api-key': key, 'content-type': 'application/json' },
+      body: JSON.stringify({ emailBlacklisted: true }),
+    });
+    if (res.status === 204) return { ok: true };
+    return { ok: false, grund: `Brevo ${res.status}: ${await res.text()}` };
+  } catch (e) {
+    return { ok: false, grund: e instanceof Error ? e.message : 'unbekannt' };
+  }
+}

@@ -1,5 +1,6 @@
 import { json, options, sha256, withCors } from '../_shared/http.ts';
 import { adminClient } from '../_shared/supabase.ts';
+import { brevoKontaktAnlegen, brevoKontaktAbmelden } from '../_shared/mail.ts';
 
 // Bestaetigt eine Anmeldung (Klick im Link) oder meldet ab.
 // Erst hier entsteht der Nachweis der Einwilligung — vorher darf an die
@@ -30,6 +31,10 @@ Deno.serve(withCors(async (req) => {
       // heraus will — rechtlich wie menschlich falsch.
       await db.from('newsletter_subscribers')
         .update({ unsubscribed_at: new Date().toISOString() }).eq('id', eintrag.id);
+      // Auch in Brevo austragen, sonst wuerde die naechste Kampagne trotzdem
+      // an diese Adresse gehen.
+      const ab = await brevoKontaktAbmelden(email);
+      if (!ab.ok) console.error('In Supabase abgemeldet, in Brevo nicht:', ab.grund);
       return json({ ok: true, status: 'unsubscribed' });
     }
 
@@ -45,6 +50,12 @@ Deno.serve(withCors(async (req) => {
       token_expires_at: null,
     }).eq('id', eintrag.id);
     if (error) throw error;
+
+    // Jetzt liegt eine nachweisbare Einwilligung vor — erst ab hier gehoert
+    // die Adresse in den Verteiler. Scheitert das, bleibt die Bestaetigung
+    // trotzdem gueltig; der Grund steht im Funktionsprotokoll.
+    const anlegen = await brevoKontaktAnlegen(email);
+    if (!anlegen.ok) console.error('Bestaetigt, aber nicht in Brevo eingetragen:', anlegen.grund);
 
     return json({ ok: true, status: 'confirmed' });
   } catch (error) {
