@@ -127,19 +127,24 @@ def sicherstellen(name, lookup, chf):
     if not produkt:
         produkt = ruf('/products', {'name': name})
 
-    # Der lookup_key darf nur einmal vergeben sein — beim alten Preis lösen
-    if vorhanden:
-        ruf(f"/prices/{vorhanden['id']}", {'lookup_key': '', 'active': 'false'})
-
-    ruf('/prices', {
+    # Reihenfolge ist wichtig: Stripe lässt einen Preis nicht archivieren,
+    # solange er der Standardpreis seines Produkts ist. Also erst den
+    # neuen Preis anlegen — mit transfer_lookup_key wandert der
+    # lookup_key dabei automatisch mit —, dann den neuen zum Standard
+    # machen, und erst danach den alten stilllegen.
+    neuer = ruf('/prices', {
         'product': produkt['id'],
         'unit_amount': rappen,
         'currency': WAEHRUNG,
         'recurring[interval]': 'month',
         'lookup_key': lookup,
-        'transfer_lookup_key': 'false',
+        'transfer_lookup_key': 'true' if vorhanden else 'false',
         'nickname': f'{name} · monatlich',
     })
+    ruf(f"/products/{produkt['id']}", {'default_price': neuer['id']})
+    if vorhanden:
+        ruf(f"/prices/{vorhanden['id']}", {'active': 'false'})
+
     print(f'  ✓ {name:<24} CHF {chf:>3}  ({"aktualisiert" if vorhanden else "neu"})')
 
 
