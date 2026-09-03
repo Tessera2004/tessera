@@ -164,6 +164,7 @@
     requestAnimationFrame(step);
   };
 
+  const PAKET_CHF = 99;
   let lastSumChf = null;
   const recalc = () => {
     const data = BRANCHEN[currentBranche];
@@ -177,8 +178,9 @@
     });
     // Komplettpaket: sobald die Einzelwahl darüber liegt, ist es das
     // bessere Angebot — und genau dort gehört der Hinweis hin.
-    const paketChf = 99;
-    const lohnt = sumChf > paketChf;
+    const paketChf = PAKET_CHF;
+    const gewaehlt = !!document.getElementById('mixPaketBox')?.checked;
+    const lohnt = gewaehlt || sumChf > paketChf;
     const zeigeChf = lohnt ? paketChf : sumChf;
     animatePrice(lastSumChf == null ? zeigeChf : lastSumChf, zeigeChf);
     lastSumChf = zeigeChf;
@@ -235,12 +237,42 @@
       </label>`;
     }).join('');
 
+    // Das Komplettpaket muss von Anfang an sichtbar sein. Vorher tauchte
+    // es erst auf, wenn jemand genug Module angehakt hatte — man konnte
+    // das bessere Angebot also gar nicht finden.
+    const einzelnAlle = data.basePrice + data.addons.reduce((n, id) => n + (MODULES[id].price || 0), 0);
+    const paketHtml = `
+      <label class="mod mod-paket" id="mixPaketWahl">
+        <input type="checkbox" id="mixPaketBox" />
+        <div class="mod-body">
+          <div class="mod-name">${escape(t('mix.paket.name', '⭐ Alle Module — Komplettpaket'))}</div>
+          <div class="mod-desc">${escape(
+            t('mix.paket.desc', 'Jedes Modul deiner Branche inklusive. Einzeln gebucht: {x}.')
+              .replace('{x}', fmtMoney(einzelnAlle)))}</div>
+        </div>
+        <span class="mod-price">${escape(fmtMoney(PAKET_CHF))}</span>
+      </label>`;
+
     contentEl.innerHTML = `
       <h4>${escape(t('mix.h.base', 'Basis (immer enthalten)'))}</h4>
       <div class="mod-group">${baseHtml}</div>
       <h4>${escape(t('mix.h.addons', 'Module on-top'))}</h4>
-      <div class="mod-group">${addonHtml}</div>
+      <div class="mod-group">${paketHtml}${addonHtml}</div>
     `;
+
+    // Paket angehakt → alle Module an und gesperrt, Preis steht fest
+    const paketBox = document.getElementById('mixPaketBox');
+    if (paketBox) {
+      paketBox.addEventListener('change', () => {
+        const an = paketBox.checked;
+        contentEl.querySelectorAll('input[type="checkbox"][data-price]').forEach((cb) => {
+          cb.checked = an || cb.checked;
+          cb.disabled = an;
+          cb.closest('.mod').style.opacity = an ? '0.55' : '1';
+        });
+        recalc();
+      });
+    }
 
     contentEl.querySelectorAll('input[type="checkbox"][data-price]').forEach((cb) => {
       cb.addEventListener('change', recalc);

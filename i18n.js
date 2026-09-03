@@ -8,6 +8,8 @@
 (function () {
   const DICT = {
     de: {
+      'mix.paket.name': '⭐ Alle Module — Komplettpaket',
+      'mix.paket.desc': 'Jedes Modul deiner Branche inklusive. Einzeln gebucht: {x}.',
       'mix.paket': 'Komplettpaket — alle Module inklusive. Einzeln gebucht: {x}.',
       'nav.branchen': 'Branchen',
       'nav.how': 'Wie es funktioniert',
@@ -570,6 +572,8 @@
     },
 
     fr: {
+      'mix.paket.name': '⭐ Tous les modules — forfait complet',
+      'mix.paket.desc': 'Chaque module de votre secteur inclus. Pris séparément : {x}.',
       'mix.paket': 'Forfait complet — tous les modules inclus. Pris séparément : {x}.',
       'nav.branchen': 'Secteurs',
       'nav.how': 'Comment ça marche',
@@ -1150,6 +1154,8 @@
     },
 
     it: {
+      'mix.paket.name': '⭐ Tutti i moduli — pacchetto completo',
+      'mix.paket.desc': 'Ogni modulo del tuo settore incluso. Presi singolarmente: {x}.',
       'mix.paket': 'Pacchetto completo — tutti i moduli inclusi. Presi singolarmente: {x}.',
       'nav.branchen': 'Settori',
       'nav.how': 'Come funziona',
@@ -1730,6 +1736,8 @@
     },
 
     es: {
+      'mix.paket.name': '⭐ Todos los módulos — paquete completo',
+      'mix.paket.desc': 'Cada módulo de tu sector incluido. Por separado: {x}.',
       'mix.paket': 'Paquete completo — todos los módulos incluidos. Por separado: {x}.',
       'nav.branchen': 'Sectores',
       'nav.how': 'Cómo funciona',
@@ -2310,6 +2318,8 @@
     },
 
     en: {
+      'mix.paket.name': '⭐ Every module — all-in package',
+      'mix.paket.desc': 'Every module of your industry included. Booked separately: {x}.',
       'mix.paket': 'All-in package — every module included. Booked separately: {x}.',
       'nav.branchen': 'Industries',
       'nav.how': 'How it works',

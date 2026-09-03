@@ -1651,3 +1651,13 @@ h1 {
 }
 .lang-switch .lang-link:hover { color: var(--text); }
 .lang-switch .lang-link.active { background: var(--swiss); color: var(--swiss-on); }
+
+
+/* Komplettpaket im Modul-Rechner: hebt sich ab, damit es als Angebot
+   erkennbar ist und nicht wie ein weiteres Modul in der Liste steht. */
+.mod.mod-paket {
+  border-color: var(--swiss);
+  background: linear-gradient(135deg, var(--swiss-soft), transparent 60%);
+}
+.mod.mod-paket .mod-name { font-weight: 700; }
+.mod.mod-paket .mod-price { color: var(--swiss-bright); font-weight: 700; }
