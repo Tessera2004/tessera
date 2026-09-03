@@ -140,6 +140,7 @@ Deno.serve(withCors(async (req) => {
       betreff: 'Bitte bestätigen Sie Ihre Anmeldung',
       text: textFassung,
       html: htmlFassung,
+      abmeldeLink,
     });
 
     // Der Versand kann scheitern, die Anmeldung ist trotzdem gespeichert.

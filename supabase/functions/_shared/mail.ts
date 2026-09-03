@@ -15,6 +15,11 @@ export async function sendeMail(opts: {
   text: string;
   html?: string;
   antwortAn?: string;
+  // Adresse zum Abmelden. Setzt die List-Unsubscribe-Kopfzeile, damit
+  // Gmail und Apple Mail ihren eigenen "Abmelden"-Knopf neben dem Absender
+  // anzeigen. Wer den findet, klickt nicht auf "Spam" — und genau das
+  // schuetzt die Zustellbarkeit aller kuenftigen Mails.
+  abmeldeLink?: string;
 }): Promise<{ ok: boolean; grund?: string }> {
   const key = Deno.env.get('BREVO_API_KEY');
   if (!key) return { ok: false, grund: 'BREVO_API_KEY fehlt' };
@@ -33,6 +38,14 @@ export async function sendeMail(opts: {
         textContent: opts.text,
         ...(opts.html ? { htmlContent: opts.html } : {}),
         ...(opts.antwortAn ? { replyTo: { email: opts.antwortAn } } : {}),
+        ...(opts.abmeldeLink ? {
+          // Nur die Adresse, bewusst ohne List-Unsubscribe-Post: Der
+          // One-Click-Zusatz verspricht dem Mailprogramm einen Endpunkt, der
+          // ein POST beantwortet. Unsere Bestaetigungsseite ist eine normale
+          // HTML-Seite — Gmails Abmeldeknopf liefe damit ins Leere, was
+          // schlimmer waere als gar kein Knopf.
+          headers: { 'List-Unsubscribe': `<${opts.abmeldeLink}>` },
+        } : {}),
       }),
     });
     if (!res.ok) return { ok: false, grund: `Brevo ${res.status}: ${await res.text()}` };
