@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=3"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=26"></script>
+  <script src="app-i18n.js?v=27"></script>
   <script src="tour.js?v=3" defer></script>
 </head>
 <body>
@@ -4139,14 +4139,23 @@
         bar.style.cssText = 'position:fixed; left:0; right:0; bottom:0; z-index:900; display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap; padding:9px 16px; font-size:13px; background:var(--surface-2); color:var(--text); border-top:1px solid var(--border);';
         document.body.appendChild(bar);
       }
-      const d = daysLeft === 1 ? '1 Tag' : daysLeft + ' Tage';
-      bar.innerHTML = '<span>Testphase — noch <strong>' + d + '</strong> gratis.</span>' +
-        '<button type="button" id="trialBannerCta" style="padding:6px 14px; border:0; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">Abo waehlen</button>';
+      // Alles nach der Zahl steckt in einem Schluessel, damit die Beugung je
+      // Sprache stimmt (fr: jour gratuit / jours gratuits).
+      const einheit = daysLeft === 1 ? tt('trial.day', 'Tag gratis.') : tt('trial.days', 'Tage gratis.');
+      bar.innerHTML = '<span>' + tt('trial.left', 'Testphase — noch') + ' <strong>' + daysLeft + '</strong> ' + einheit + '</span>' +
+        '<button type="button" id="trialBannerCta" style="padding:6px 14px; border:0; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">' + tt('trial.cta', 'Abo wählen') + '</button>';
       document.getElementById('trialBannerCta').onclick = () => {
         // Navigation laeuft ueber die Seitenleiste — also den Menuepunkt anklicken.
         document.querySelector('.nav-item[data-view="einstellungen"]')?.click();
         setTimeout(() => document.getElementById('moduleSettings')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
       };
+    }
+    // Beschriftung des Abo-Knopfs: Preis kommt aus stripe-config.js (eine Quelle),
+    // Text aus der Sprachdatei. Fest verdrahtet liefe beides auseinander.
+    function paketPreisLabel() {
+      const k = window.MOSAOS_STRIPE?.komplett;
+      const preis = k?.gesamtChf ?? 99;
+      return tt('paywall.allModules', 'Alle Module') + ' — CHF ' + preis + tt('common.perMonth', '/Monat');
     }
     function showPaywall() {
       document.getElementById('trialBanner')?.remove();
@@ -4156,12 +4165,12 @@
       box.style.cssText = 'position:fixed; inset:0; z-index:9000; display:flex; align-items:center; justify-content:center; padding:24px; background:rgba(8,10,16,0.86); backdrop-filter:blur(4px);';
       box.innerHTML =
         '<div style="max-width:440px; width:100%; padding:30px; border-radius:16px; background:var(--surface); border:1px solid var(--border); text-align:center;">' +
-          '<h2 style="margin:0 0 10px; font-size:21px;">Testphase abgelaufen</h2>' +
+          '<h2 style="margin:0 0 10px; font-size:21px;">' + tt('paywall.title', 'Testphase abgelaufen') + '</h2>' +
           '<p style="margin:0 0 22px; font-size:14px; line-height:1.6; color:var(--text-subtle);">' +
-            'Deine 14 Tage sind vorbei. Deine Daten bleiben vollstaendig erhalten — schliesse ein Abo ab, um weiterzuarbeiten.' +
+            tt('paywall.desc', 'Deine 14 Tage sind vorbei. Deine Daten bleiben vollständig erhalten — schliesse ein Abo ab, um weiterzuarbeiten.') +
           '</p>' +
-          '<button type="button" id="paywallSubscribe" style="width:100%; padding:12px; margin-bottom:10px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; font-size:14.5px; cursor:pointer;">Alle Module — CHF 99/Monat</button>' +
-          '<button type="button" id="paywallLogout" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; background:transparent; color:var(--text-subtle); font-size:13px; cursor:pointer;">Abmelden</button>' +
+          '<button type="button" id="paywallSubscribe" style="width:100%; padding:12px; margin-bottom:10px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; font-size:14.5px; cursor:pointer;">' + paketPreisLabel() + '</button>' +
+          '<button type="button" id="paywallLogout" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; background:transparent; color:var(--text-subtle); font-size:13px; cursor:pointer;">' + tt('common.logout', 'Abmelden') + '</button>' +
         '</div>';
       document.body.appendChild(box);
       document.body.style.overflow = 'hidden';
