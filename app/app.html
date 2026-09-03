@@ -4113,6 +4113,60 @@
       const mitTitle = document.querySelector('.view[data-view="mitarbeiter"] .page-title');
       if (mitTitle) mitTitle.textContent = mitLabel;
       if (typeof titles === 'object' && titles) titles.mitarbeiter = mitLabel;
+      applyAccessGate();
+    }
+
+    // ============ ZUGANG / TESTPHASE ============
+    // Nach der 14-taegigen Testphase ist ohne aktives Abo Schluss: die App wird von einer
+    // Bezahl-Wand ueberdeckt. Waehrend der Testphase erscheint nur ein Hinweisband.
+    function applyAccessGate() {
+      const sub = window._subscription;
+      if (sub === undefined) { removeAccessGate(); return; }   // nicht eingeloggt = Demo
+      if (sub.locked) { showPaywall(); return; }
+      removeAccessGate();
+      if (sub.trial) showTrialBanner(sub.trialDaysLeft); else removeTrialBanner();
+    }
+    function removeAccessGate() {
+      document.getElementById('paywallOverlay')?.remove();
+      document.body.style.overflow = '';
+    }
+    function removeTrialBanner() { document.getElementById('trialBanner')?.remove(); }
+    function showTrialBanner(daysLeft) {
+      let bar = document.getElementById('trialBanner');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'trialBanner';
+        bar.style.cssText = 'position:fixed; left:0; right:0; bottom:0; z-index:900; display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap; padding:9px 16px; font-size:13px; background:var(--surface-2); color:var(--text); border-top:1px solid var(--border);';
+        document.body.appendChild(bar);
+      }
+      const d = daysLeft === 1 ? '1 Tag' : daysLeft + ' Tage';
+      bar.innerHTML = '<span>Testphase — noch <strong>' + d + '</strong> gratis.</span>' +
+        '<button type="button" id="trialBannerCta" style="padding:6px 14px; border:0; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">Abo waehlen</button>';
+      document.getElementById('trialBannerCta').onclick = () => {
+        // Navigation laeuft ueber die Seitenleiste — also den Menuepunkt anklicken.
+        document.querySelector('.nav-item[data-view="einstellungen"]')?.click();
+        setTimeout(() => document.getElementById('moduleSettings')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+      };
+    }
+    function showPaywall() {
+      document.getElementById('trialBanner')?.remove();
+      if (document.getElementById('paywallOverlay')) return;
+      const box = document.createElement('div');
+      box.id = 'paywallOverlay';
+      box.style.cssText = 'position:fixed; inset:0; z-index:9000; display:flex; align-items:center; justify-content:center; padding:24px; background:rgba(8,10,16,0.86); backdrop-filter:blur(4px);';
+      box.innerHTML =
+        '<div style="max-width:440px; width:100%; padding:30px; border-radius:16px; background:var(--surface); border:1px solid var(--border); text-align:center;">' +
+          '<h2 style="margin:0 0 10px; font-size:21px;">Testphase abgelaufen</h2>' +
+          '<p style="margin:0 0 22px; font-size:14px; line-height:1.6; color:var(--text-subtle);">' +
+            'Deine 14 Tage sind vorbei. Deine Daten bleiben vollstaendig erhalten — schliesse ein Abo ab, um weiterzuarbeiten.' +
+          '</p>' +
+          '<button type="button" id="paywallSubscribe" style="width:100%; padding:12px; margin-bottom:10px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; font-size:14.5px; cursor:pointer;">Alle Module — CHF 99/Monat</button>' +
+          '<button type="button" id="paywallLogout" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; background:transparent; color:var(--text-subtle); font-size:13px; cursor:pointer;">Abmelden</button>' +
+        '</div>';
+      document.body.appendChild(box);
+      document.body.style.overflow = 'hidden';
+      document.getElementById('paywallSubscribe').onclick = () => window.MosaBilling?.startCheckout(['komplett']);
+      document.getElementById('paywallLogout').onclick = () => { try { getSupabase()?.auth.signOut(); } catch {} location.reload(); };
     }
     const BRANCH_VIEW_TITLES = ['werkstattplan', 'fahrzeuge', 'reifen', 'koederstellen', 'protokolle', 'baustellen', 'rapporte'];
     let VIEW_TITLE_DEFAULTS = null;

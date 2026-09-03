@@ -28,15 +28,32 @@ window.MosaBilling = (function () {
     try { session = (await c.auth.getSession()).data.session; } catch {}
     if (!session) { window._subscription = undefined; return; }
     try {
-      const { data } = await c.from('subscriptions').select('status,modules').maybeSingle();
-      const active = !!(data && (data.status === 'active' || data.status === 'trialing'));
-      let mods = (active && data.modules) || [];
+      const { data } = await c.from('subscriptions').select('status,modules,trial_ends_at').maybeSingle();
+      const paid = !!(data && (data.status === 'active' || data.status === 'trialing'));
+      // Testphase: bis trial_ends_at ist alles offen, danach greift die Bezahl-Wand.
+      const trialEndsAt = data?.trial_ends_at ? new Date(data.trial_ends_at) : null;
+      const trial = !paid && !!trialEndsAt && trialEndsAt.getTime() > Date.now();
+      const allKeys = cfg().modules.map((m) => m.key);
+      let mods = (paid && data.modules) || [];
       // Das Komplettpaket kommt als eine Position zurück und steht für
       // alle Module — sonst wäre nach dem Kauf nichts freigeschaltet.
-      if (mods.includes('komplett')) mods = cfg().modules.map((m) => m.key).concat('komplett');
-      window._subscription = { active, status: data?.status || 'inactive', modules: mods };
+      if (mods.includes('komplett')) mods = allKeys.concat('komplett');
+      // In der Testphase darf der Kunde alles ausprobieren.
+      if (trial) mods = allKeys.slice();
+      window._subscription = {
+        active: paid || trial,
+        paid,
+        trial,
+        trialEndsAt,
+        trialDaysLeft: trialEndsAt ? Math.max(0, Math.ceil((trialEndsAt - Date.now()) / 86400000)) : null,
+        // Zugang gesperrt: nichts bezahlt UND Testphase vorbei (oder gar keine Testphase).
+        locked: !paid && !trial,
+        status: data?.status || 'inactive',
+        modules: mods,
+      };
     } catch {
-      window._subscription = { active: false, status: 'inactive', modules: [] };
+      // Ladefehler darf niemanden aussperren — nur keine Module freischalten.
+      window._subscription = { active: false, paid: false, trial: false, trialEndsAt: null, trialDaysLeft: null, locked: false, status: 'inactive', modules: [] };
     }
   }
 
@@ -95,9 +112,11 @@ window.MosaBilling = (function () {
         ${on ? '<span style="font-size:11px; font-weight:700; color:var(--success);flex:0 0 auto;">aktiv</span>' : ''}
       </label>`;
     }).join('');
-    const statusLabel = sub.active
+    const statusLabel = sub.paid
       ? `<span style="color:var(--success); font-weight:700;">● Abo aktiv</span>`
-      : `<span style="color:var(--text-subtle); font-weight:700;">○ kein aktives Abo</span>`;
+      : sub.trial
+        ? `<span style="color:var(--warning, #e0a800); font-weight:700;">● Testphase — noch ${sub.trialDaysLeft} Tag${sub.trialDaysLeft === 1 ? '' : 'e'}</span>`
+        : `<span style="color:var(--text-subtle); font-weight:700;">○ kein aktives Abo</span>`;
     const k = cfg().komplett;
     const einzeln = cfg().basePriceChf + cfg().modules.reduce((s2, m) => s2 + m.priceChf, 0);
     const komplettAktiv = mods.includes('komplett');
