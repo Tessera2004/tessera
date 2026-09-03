@@ -1,4 +1,4 @@
-# MosaOS — https://mosaos.pages.dev
+# MosaOS — https://mosaos.ch
 # Die App unter /app/ ist Kundenbereich und gehört nicht in den Index
 # (zusätzlich per X-Robots-Tag in _headers gesperrt).
 
@@ -8,4 +8,4 @@ Disallow: /app/
 Disallow: /product-video.html
 Disallow: /product-video-reel.html
 
-Sitemap: https://mosaos.pages.dev/sitemap.xml
+Sitemap: https://mosaos.ch/sitemap.xml

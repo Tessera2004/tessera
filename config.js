@@ -27,8 +27,9 @@ window.MOSAOS_CONFIG = {
   mwst: '',                          // z.B. 'CHE-123.456.789 MWST' — leer = wird nicht angezeigt
 
   // ---------- Kontakt ----------
-  email: 'info.mosaos@gmail.com',
-  emailPrivacy: 'info.mosaos@gmail.com',
+  // info@mosaos.ch leitet per Cloudflare Email Routing an info.mosaos@gmail.com weiter.
+  email: 'info@mosaos.ch',
+  emailPrivacy: 'info@mosaos.ch',
   phone: '+41 76 526 59 75',
   // Ein Projekt, keine Umschaltung — siehe app/supabase-client.js
   functionsUrl: 'https://kxhsroiholjnyisaystr.supabase.co/functions/v1',
