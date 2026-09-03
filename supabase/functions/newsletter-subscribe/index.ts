@@ -51,7 +51,13 @@ Deno.serve(withCors(async (req) => {
     }, { onConflict: 'email' });
     if (error) throw error;
 
-    const link = `${SEITE}/newsletter-bestaetigt.html?token=${token}&email=${encodeURIComponent(email)}`;
+    const basis = `${SEITE}/newsletter-bestaetigt.html?token=${token}&email=${encodeURIComponent(email)}`;
+    const link = basis;
+    // Dasselbe Token dient zum Abmelden. Beim Bestaetigen wird nur die Frist
+    // aufgehoben, nicht das Token — so bleibt der Abmeldelink dauerhaft
+    // gueltig. Ein abgelaufener Abmeldelink haelt jemanden in einer Liste
+    // fest, aus der er heraus will.
+    const abmeldeLink = `${basis}&action=unsubscribe`;
     // Text- UND HTML-Fassung. Manche Programme zeigen nur die eine, manche nur
     // die andere — wer beide mitschickt, sieht nirgends kaputt aus.
     const textFassung = [
@@ -67,6 +73,9 @@ Deno.serve(withCors(async (req) => {
       'Waren Sie das nicht, müssen Sie nichts tun. Ohne Bestätigung erhalten',
       'Sie keine Mail von uns, und die Adresse wird gelöscht.',
       '',
+      'Möchten Sie sich wieder abmelden, genügt dieser Link:',
+      abmeldeLink,
+      '',
       'Freundliche Grüsse',
       'Brian Knuchel, MosaOS',
       'https://mosaos.ch',
@@ -79,9 +88,19 @@ Deno.serve(withCors(async (req) => {
 <html lang="de"><body style="margin:0;padding:24px;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#18181b;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;">
 <tr><td style="padding:32px 32px 8px;">
-  <div style="font-size:18px;font-weight:700;letter-spacing:-0.01em;">MosaOS</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td style="padding-right:12px;vertical-align:middle;">
+      <!-- PNG statt SVG: Gmail und Outlook zeigen SVG nicht an. Doppelte
+           Aufloesung (96px) fuer scharfe Darstellung auf Retina. -->
+      <img src="${SEITE}/logo/mosaos-mark-email.png" width="40" height="40" alt=""
+           style="display:block;border:0;width:40px;height:40px;" />
+    </td>
+    <td style="vertical-align:middle;">
+      <div style="font-size:19px;font-weight:700;letter-spacing:-0.01em;">MosaOS</div>
+    </td>
+  </tr></table>
 </td></tr>
-<tr><td style="padding:8px 32px 0;">
+<tr><td style="padding:16px 32px 0;">
   <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Guten Tag</p>
   <p style="margin:0 0 24px;font-size:15px;line-height:1.6;">Sie haben sich für den MosaOS-Newsletter angemeldet. Bitte bestätigen Sie die Anmeldung:</p>
   <p style="margin:0 0 24px;">
@@ -89,11 +108,30 @@ Deno.serve(withCors(async (req) => {
   </p>
   <p style="margin:0 0 24px;font-size:13px;line-height:1.6;color:#71717a;">Der Link ist sieben Tage gültig. Falls der Knopf nicht funktioniert, kopieren Sie diese Adresse in Ihren Browser:<br>
     <span style="word-break:break-all;color:#52525b;">${link}</span></p>
-  <p style="margin:0 0 24px;font-size:13px;line-height:1.6;color:#71717a;">Waren Sie das nicht, müssen Sie nichts tun. Ohne Bestätigung erhalten Sie keine Mail von uns, und die Adresse wird gelöscht.</p>
+  <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#71717a;">Waren Sie das nicht, müssen Sie nichts tun. Ohne Bestätigung erhalten Sie keine Mail von uns, und die Adresse wird gelöscht.</p>
 </td></tr>
-<tr><td style="padding:0 32px 32px;border-top:1px solid #e4e4e7;">
-  <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#71717a;">Brian Knuchel · MosaOS · Hägendorf, Schweiz<br>
-    <a href="https://mosaos.ch" style="color:#71717a;">mosaos.ch</a></p>
+<tr><td style="padding:24px 32px 32px;">
+  <!-- Signatur mit vollstaendiger Anschrift: Eine Werbemail ohne
+       Absenderangaben wirkt wie Spam — und muss sie in der Schweiz
+       nach UWG ohnehin enthalten. -->
+  <div style="border-top:1px solid #e4e4e7;padding-top:20px;font-size:13px;line-height:1.7;color:#52525b;">
+    <div style="font-weight:600;color:#18181b;">Brian Knuchel</div>
+    <div style="color:#71717a;">MosaOS — Software für Dienstleistungsbetriebe</div>
+    <div style="margin-top:10px;color:#71717a;">
+      Sandgrube 21 · 4614 Hägendorf · Schweiz
+    </div>
+    <div style="margin-top:4px;">
+      <a href="tel:+41765265975" style="color:#52525b;text-decoration:none;">+41 76 526 59 75</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:info@mosaos.ch" style="color:#52525b;text-decoration:none;">info@mosaos.ch</a>
+    </div>
+    <div style="margin-top:4px;">
+      <a href="${SEITE}" style="color:#E11D2A;text-decoration:none;font-weight:600;">mosaos.ch</a>
+    </div>
+    <div style="margin-top:16px;font-size:12px;color:#a1a1aa;">
+      <a href="${abmeldeLink}" style="color:#a1a1aa;">Vom Newsletter abmelden</a>
+    </div>
+  </div>
 </td></tr>
 </table>
 </body></html>`;
