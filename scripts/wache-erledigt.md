@@ -35,3 +35,11 @@ Datum = Tag der Bestaetigung.
   Testmodus. Das Live-System laeuft.
 
 - **Crunchbase-Willkommensmail (20:13)** — reine Registrierungsbestaetigung.
+
+## 2026-09-04
+
+- **Capterra ist nicht angemeldet.** Am 3. September falsch notiert: Angelegt
+  sind LinkedIn, local.ch, Crunchbase und G2. Capterra gehoert zu Gartner
+  Digital Markets und ist ein Konkurrent von G2 — die eine Anmeldung ersetzt
+  die andere nie. Die Sache mit den zusaetzlichen Branchenkategorien betrifft
+  Capterra und ist deshalb noch nicht faellig.
