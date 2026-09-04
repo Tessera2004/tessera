@@ -259,14 +259,18 @@
     const h = document.getElementById('tourHuelle');
     if (h) h.classList.remove('an');
     document.body.classList.remove('tour-laeuft');
-    sichern({ fertig: !!fertig, schritt: fertig ? 0 : i });
+    // 'weggeklickt' merkt sich, dass der Benutzer die Tour aktiv beendet hat.
+    // Ohne das startete sie bei jedem Neuladen erneut — sie galt nur als
+    // erledigt, wenn man sie bis zum letzten Schritt durchklickte. Da sie
+    // ueber allem liegt, wirkte danach die ganze App tot.
+    sichern({ fertig: !!fertig, weggeklickt: true, schritt: fertig ? 0 : i });
   }
 
   /* ---------- Start ----------
      Nur einmal von selbst, und erst wenn die Oberfläche steht. */
   function vielleichtStarten() {
     const z = laden();
-    if (z.fertig) return;
+    if (z.fertig || z.weggeklickt) return;
     if (localStorage.getItem('cc-tour-nie') === '1') return;
     setTimeout(() => { if (!offen) starten(false); }, 900);
   }
