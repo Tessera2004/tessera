@@ -38,10 +38,9 @@ Datum = Tag der Bestaetigung.
 
 ## 2026-09-04
 
-- **Plattformen richtiggestellt.** Angelegt sind LinkedIn, local.ch,
-  Crunchbase und Gartner Digital Markets — Letzteres deckt Capterra, GetApp
-  und Software Advice in einer Anmeldung ab. **G2 ist nicht angelegt.**
-  Ich hatte die Aktivierungsmail von "Gartner Digital Markets" als "G2"
-  gelesen und daraufhin zweimal das Falsche behauptet. Geklaert hat es
-  marketing/plattform-mappe.html.
-  Die Erinnerung an die Branchenkategorien bei Capterra bleibt also gueltig.
+- **Capterra laeuft heute unter G2 Digital Markets.** Gartner Digital Markets
+  wurde umbenannt — belegt durch die Weiterleitung digitalmarkets.gartner.com
+  auf app.g2digitalmarkets.com. Darunter liegen Capterra, GetApp und Software
+  Advice. Angelegt sind damit LinkedIn, local.ch, Crunchbase und dieser eine
+  Zugang. Anbieter-Login: app.g2digitalmarkets.com/login
+  Die Erinnerung an die Branchenkategorien bleibt gueltig.
