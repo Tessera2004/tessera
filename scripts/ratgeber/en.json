@@ -1,0 +1,144 @@
+{
+  "woerter": {
+    "nav_aria": "Main navigation",
+    "nav_branchen": "Industries",
+    "nav_preise": "Pricing",
+    "nav_ratgeber": "Guides",
+    "nav_login": "Log in",
+    "nav_start": "Start free",
+    "eyebrow": "Guide",
+    "stand": "Updated",
+    "weiter": "Read next",
+    "cta_titel": "Job reports that are done before the day is",
+    "cta_text": "MosaOS captures hours, materials and photos right on site — and turns them into the invoice in one step. 14 days free, no credit card.",
+    "cta_knopf": "Try 14 days free",
+    "fuss_claim": "Modular software for Swiss SMEs",
+    "fuss_impressum": "Legal notice",
+    "fuss_agb": "Terms",
+    "fuss_datenschutz": "Privacy",
+    "hub_titel": "Guides for Swiss service businesses | MosaOS",
+    "hub_beschreibung": "Practical articles on working-time records, job reports and going paperless — written for Swiss trades and service businesses.",
+    "hub_keywords": "working time records Switzerland, job report, time sheet trades, digital job reporting, SME software guide",
+    "hub_h1": "Guides",
+    "hub_lead": "What actually eats the day in a Swiss service business — and how others have solved it. No sales talk."
+  },
+  "artikel": [
+    {
+      "datei": "arbeitszeiterfassung-schweiz.html",
+      "titel": "Working time records in Switzerland: the duties explained | MosaOS",
+      "titel_kurz": "Working time records in Switzerland",
+      "h1": "Working time records in Switzerland: what a business actually has to document",
+      "lead": "Almost every Swiss business has to document its employees' working time. Here is what exactly — and which exemptions exist.",
+      "beschreibung": "Who has to record working time in Switzerland, what the record must contain, and when simplified recording or a waiver applies. Explained plainly.",
+      "keywords": "working time records Switzerland, time tracking obligation, Ordinance 1 Labour Act, simplified time recording, document working hours Switzerland",
+      "lesezeit": "5 minute read",
+      "abschnitte": [
+        ["p", "Sooner or later the question comes up in every business: is it enough if people write their hours on a slip of paper? The short answer is no — but the duty is less complicated than its reputation suggests."],
+        ["h2", "Who is affected?"],
+        ["p", "The basis is the Labour Act. It applies to the vast majority of private businesses in Switzerland, so also to the painting firm with three employees, the cleaning company and the car garage. Anyone with staff is, as a rule, required to document their working and rest times."],
+        ["p", "Certain sectors and groups of people are excluded — for example employees in a genuinely senior managerial position. For a typical trades or service business, however, the duty applies without restriction."],
+        ["h2", "What has to be in the record?"],
+        ["p", "This is not about monitoring every minute. What is required is a comprehensible record showing that the rules on working and rest time were observed. In essence:"],
+        ["ul", [
+          "the daily working time actually performed, including compensatory and overtime work",
+          "the position and length of breaks of half an hour or more",
+          "the start and end of night and Sunday work, where it occurs",
+          "the rest period between working days, where it was not observed"
+        ]],
+        ["p", "The records must be available for inspection by the cantonal labour inspectorates and are usually kept for five years."],
+        ["h2", "The two exemptions"],
+        ["p", "Since 2016, Ordinance 1 to the Labour Act has provided for two exceptions that many businesses are unaware of:"],
+        ["h3", "Simplified recording"],
+        ["p", "People who can largely arrange their own working time only have to record the daily working time under certain conditions — no longer the start, the end and every break. This requires a written agreement, usually with the employee representation or collectively within the business."],
+        ["h3", "Waiving the record"],
+        ["p", "A full waiver is possible only for a small group: employees with a very high degree of autonomy over their working time and a gross annual income above a defined threshold. A collective agreement providing for it and an individual written agreement are also required. For most SMEs this route simply does not apply."],
+        ["hinweis", "This text is guidance, not legal advice. The binding rules are in the Labour Act and its Ordinance 1; SECO publishes a commentary on them. If in doubt, a short question to the cantonal labour inspectorate is worth it — the information is free."],
+        ["h2", "Why paper is still the problem"],
+        ["p", "Legally, a paper record is permitted. In practice it fails at three points, and in the same way in every business:"],
+        ["ul", [
+          "The slips arrive too late. By month end half are missing and nobody remembers what happened on the 12th.",
+          "The slips cannot be analysed. The question \"how many hours went into this job?\" costs an evening.",
+          "The slips get lost. Precisely when the inspection turns up or a customer disputes an invoice."
+        ]],
+        ["p", "The real gain from digital recording therefore rarely lies in legal compliance — you can achieve that with paper too. It lies in the hours being attached to the right job the same day, and the invoice coming out of them in minutes instead of hours."],
+        ["h2", "What a business concretely needs"],
+        ["p", "Anyone leaving paper behind should look at three things. Capture has to work on the phone, otherwise it does not happen where the work does. It has to attach hours to a job, otherwise you have time tracking but still no job costing. And the data should sit in Switzerland or the EU, which settles the data protection question before it is asked."]
+      ]
+    },
+    {
+      "datei": "stundenrapport-vorlage.html",
+      "titel": "The job report: what belongs on it (with template) | MosaOS",
+      "titel_kurz": "The job report nobody disputes",
+      "h1": "Job reports and time-and-materials sheets: what to put on them so nobody disputes the bill",
+      "lead": "A report is not a form, it is an argument. These eight details decide whether the invoice goes through or starts a conversation.",
+      "beschreibung": "Which details a job report or time-and-materials sheet must contain to hold up in a dispute — structure, example and the most common mistakes.",
+      "keywords": "job report, time and materials sheet, job report template, trades report form, work report Switzerland, billing time and materials",
+      "lesezeit": "4 minute read",
+      "abschnitte": [
+        ["p", "Reports are usually experienced as paperwork. They are the opposite: they are the reason a time-and-materials invoice gets paid without anyone phoning. A good report answers the customer's questions before they are asked."],
+        ["h2", "The eight details"],
+        ["ul", [
+          "Date and job — unambiguous, with a number, not just \"Müller renovation\"",
+          "Location of the work, if the customer has several properties",
+          "Who worked, by name, not \"2 men\"",
+          "From when to when, plus breaks — not just the total",
+          "What was done, in one sentence a layperson also understands",
+          "Materials used, with quantities",
+          "Travel time and expenses shown separately",
+          "Signature or confirmation from the customer on site"
+        ]],
+        ["h2", "The sentence that makes the difference"],
+        ["p", "Most disputes are not about the hours but about the description. \"Various works, 6.5 hrs\" is an invitation to argue. \"Old coating sanded down, two coats of primer in the first-floor stairwell, 6.5 hrs\" is an answer."],
+        ["p", "The rule of thumb: the report must still make sense in three months, when nobody remembers what it was about — and be readable by someone who was not there."],
+        ["h2", "The signature on site"],
+        ["p", "The customer's signature right after the work is the most effective protection against later arguments. Anyone who only sends an invoice at month end is negotiating about something the customer has long remembered differently. Anyone who gets a signature on site does not negotiate at all."],
+        ["hinweis", "What works in practice: do not ask for \"a signature\", but show the report and say what was done. The confirmation then becomes the natural end of the conversation rather than an extra demand."],
+        ["h2", "Photos beat any description"],
+        ["p", "Two photos — condition before, condition after — end arguments that take a week in words. Especially for work you cannot see afterwards: under the floor, behind the cladding, in the shaft. All that matters is that the photos hang on the job and do not sink into somebody's phone gallery."],
+        ["h2", "The three most common mistakes"],
+        ["ul", [
+          "Filling in the report in the evening or the next day — the hours are then estimated rather than measured",
+          "Adding materials from memory, because the delivery note is in the van",
+          "Counting travel time as working time, which shows up on the invoice and costs trust"
+        ]],
+        ["p", "All three mistakes share a cause: capturing and working happen at different times. That is not a question of discipline but of tooling. What takes thirty seconds on the phone at the site gets done. What needs a slip of paper, a pen and a quiet minute gets postponed."]
+      ]
+    },
+    {
+      "datei": "rapportierung-digitalisieren.html",
+      "titel": "From Excel to digital job reporting: switching without chaos | MosaOS",
+      "titel_kurz": "From Excel and paper to digital job reporting",
+      "h1": "From Excel and paper slips to digital job reporting — without stopping the business",
+      "lead": "The software is rarely the problem. The rollout is what fails. A realistic path over four weeks.",
+      "beschreibung": "How a trades or service business moves from Excel and paper reports to digital capture, without blocking day-to-day work.",
+      "keywords": "digitise job reporting, replace Excel trades, roll out time tracking, introduce SME software, trades software migration",
+      "lesezeit": "5 minute read",
+      "abschnitte": [
+        ["p", "Most businesses do not fail at choosing software. They fail at rolling it out: the licence is running, but half the team still writes on paper, and after three months you have both — the old mess plus an invoice."],
+        ["h2", "Why Excel worked for so long"],
+        ["p", "Excel is not stupid. It is there instantly, costs nothing extra, and any process can be modelled in it. The price only shows up later: the file lives with one person, two people cannot edit it at once, on a phone it is unusable, and nobody notices when a formula has been calculating wrongly for months."],
+        ["p", "The point to switch has arrived when gathering the data takes longer than the work being documented."],
+        ["h2", "A realistic timeline"],
+        ["h3", "Week 1 — hours only, one crew only"],
+        ["p", "Not everything at once. One crew, one function: book hours to the job. Nothing else. Anyone who converts materials, quotes and invoices in the same first week creates resistance that never goes away."],
+        ["h3", "Week 2 — run both in parallel"],
+        ["p", "Keep the paper slips and capture digitally as well. It feels like double work, and it is — but it is the only week in which mistakes surface without a wrong invoice going out."],
+        ["h3", "Week 3 — switch the paper off"],
+        ["p", "Now without exceptions: no more slips accepted. Anyone who accepts them keeps the old system alive. That single decision determines the whole migration."],
+        ["h3", "Week 4 — the invoice out of the data"],
+        ["p", "Only once capture is solid comes the second step: generating the invoice directly from the recorded hours. That is the moment the benefit becomes visible to everyone — and after which nobody wants to go back."],
+        ["hinweis", "The most common mistake is starting with the longest-serving, most sceptical people \"to see whether it works\". Better the other way round: start with those who find it practical anyway. If they use it, the rest follow on their own."],
+        ["h2", "What to think about beforehand"],
+        ["ul", [
+          "Does capture work offline? In a basement or a tunnel there is no signal.",
+          "Can people manage without training? If not, it is too complicated.",
+          "Where does the data sit? Switzerland or the EU saves the later discussion.",
+          "Can you get out again? Exporting your own data should be a given.",
+          "What does it cost per person per month — and what happens when fewer people work in winter?"
+        ]],
+        ["h2", "What the switch realistically delivers"],
+        ["p", "No software turns a disorganised business into an organised one. What it reliably changes is the distance between the work and the invoice. Businesses that used to spend two evenings a month sorting slips find the invoice goes out the day after the job. The money arrives correspondingly earlier — and for a small business that often matters more than any hour saved."]
+      ]
+    }
+  ]
+}

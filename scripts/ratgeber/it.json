@@ -1,0 +1,144 @@
+{
+  "woerter": {
+    "nav_aria": "Navigazione principale",
+    "nav_branchen": "Settori",
+    "nav_preise": "Prezzi",
+    "nav_ratgeber": "Guide",
+    "nav_login": "Accedi",
+    "nav_start": "Prova gratuita",
+    "eyebrow": "Guida",
+    "stand": "Aggiornato il",
+    "weiter": "Da leggere",
+    "cta_titel": "Rapporti già pronti a fine giornata",
+    "cta_text": "MosaOS registra ore, materiale e foto direttamente in cantiere — e ne ricava la fattura con un clic. 14 giorni gratis, senza carta di credito.",
+    "cta_knopf": "Provare 14 giorni gratis",
+    "fuss_claim": "Software modulare per le PMI svizzere",
+    "fuss_impressum": "Note legali",
+    "fuss_agb": "CG",
+    "fuss_datenschutz": "Protezione dei dati",
+    "hub_titel": "Guide per le aziende di servizi svizzere | MosaOS",
+    "hub_beschreibung": "Articoli pratici sulla registrazione dell'orario di lavoro, sui rapporti ore e sulla digitalizzazione dei rapporti — per artigiani e aziende di servizi in Svizzera.",
+    "hub_keywords": "registrazione orario di lavoro Svizzera, rapporto ore, rapporto in economia, digitalizzare rapporti, guida software PMI",
+    "hub_h1": "Guide",
+    "hub_lead": "Che cosa consuma davvero tempo nella quotidianità di un'azienda di servizi svizzera — e come altri l'hanno risolto. Senza discorsi di vendita."
+  },
+  "artikel": [
+    {
+      "datei": "arbeitszeiterfassung-schweiz.html",
+      "titel": "Orario di lavoro in Svizzera: gli obblighi spiegati | MosaOS",
+      "titel_kurz": "La registrazione dell'orario di lavoro in Svizzera",
+      "h1": "Registrazione dell'orario di lavoro in Svizzera: che cosa un'azienda deve davvero documentare",
+      "lead": "Quasi ogni azienda svizzera deve documentare l'orario di lavoro dei propri dipendenti. Ecco che cosa esattamente — e quali agevolazioni esistono.",
+      "beschreibung": "Chi deve registrare l'orario di lavoro in Svizzera, che cosa deve contenere la registrazione e quando valgono la registrazione semplificata o la rinuncia? Spiegato in modo chiaro.",
+      "keywords": "registrazione orario di lavoro Svizzera, obbligo timbratura, OLL 1, registrazione semplificata, documentare orario di lavoro Svizzera",
+      "lesezeit": "5 minuti di lettura",
+      "abschnitte": [
+        ["p", "Prima o poi la domanda arriva in ogni azienda: basta che i collaboratori annotino le ore su un foglietto? La risposta breve è no — ma l'obbligo è meno complicato di quanto la sua fama lasci pensare."],
+        ["h2", "Chi è interessato?"],
+        ["p", "La base è la legge sul lavoro. Vale per la grande maggioranza delle aziende private in Svizzera, quindi anche per l'impresa di pittura con tre dipendenti, per la ditta di pulizie e per l'autofficina. Chi ha personale è di regola tenuto a documentarne gli orari di lavoro e di riposo."],
+        ["p", "Alcuni settori e gruppi di persone sono esclusi — per esempio i dipendenti con una posizione dirigenziale elevata. Per una tipica azienda artigianale o di servizi l'obbligo vale però senza limitazioni."],
+        ["h2", "Che cosa deve contenere la registrazione?"],
+        ["p", "Non si tratta di sorvegliare ogni minuto. Ciò che si richiede è una prova comprensibile che le regole su lavoro e riposo siano state rispettate. In sostanza:"],
+        ["ul", [
+          "la durata del lavoro prestato ogni giorno, incluso il lavoro compensativo e straordinario",
+          "la collocazione e la durata delle pause a partire da mezz'ora",
+          "l'inizio e la fine del lavoro notturno e domenicale, dove ricorre",
+          "il tempo di riposo tra le giornate lavorative, quando non è stato rispettato"
+        ]],
+        ["p", "Le registrazioni devono essere accessibili al controllo degli ispettorati cantonali del lavoro e vengono di norma conservate per cinque anni."],
+        ["h2", "Le due agevolazioni"],
+        ["p", "Dal 2016 l'ordinanza 1 concernente la legge sul lavoro prevede due eccezioni che molte aziende non conoscono:"],
+        ["h3", "Registrazione semplificata"],
+        ["p", "Chi può organizzare in larga misura da sé il proprio orario deve, a determinate condizioni, documentare soltanto la durata giornaliera del lavoro — non più inizio, fine e ogni pausa. Presupposto è un accordo scritto, di norma con la rappresentanza dei lavoratori o a livello collettivo in azienda."],
+        ["h3", "Rinuncia alla registrazione"],
+        ["p", "Una rinuncia completa è possibile solo per un piccolo gruppo: dipendenti con grandissima autonomia nell'organizzazione dell'orario e con un reddito annuo lordo superiore a una soglia stabilita. Servono inoltre un contratto collettivo che lo preveda e un accordo individuale scritto. Per la maggior parte delle PMI questa via semplicemente non è applicabile."],
+        ["hinweis", "Questo testo è un orientamento, non una consulenza legale. Le regole vincolanti si trovano nella legge sul lavoro e nella relativa ordinanza 1; la SECO pubblica un commento in merito. In caso di dubbio conviene una breve domanda all'ispettorato cantonale del lavoro — l'informazione è gratuita."],
+        ["h2", "Perché il foglietto resta comunque il problema"],
+        ["p", "Dal punto di vista giuridico una registrazione su carta è ammessa. Nella pratica fallisce in tre punti, e in ogni azienda allo stesso modo:"],
+        ["ul", [
+          "I fogli arrivano troppo tardi. A fine mese ne manca metà e nessuno ricorda più che cosa sia successo il 12.",
+          "I fogli non sono analizzabili. La domanda «quante ore sono finite in questa commessa?» costa una serata.",
+          "I fogli si perdono. Proprio quando arriva il controllo o un cliente contesta una fattura."
+        ]],
+        ["p", "Il vero guadagno di una registrazione digitale sta quindi di rado nella conformità alla legge — quella si ottiene anche con la carta. Sta nel fatto che le ore risultano collegate alla commessa giusta lo stesso giorno e che la fattura ne nasce in minuti anziché in ore."],
+        ["h2", "Di che cosa ha bisogno concretamente un'azienda"],
+        ["p", "Chi vuole abbandonare la carta dovrebbe badare a tre cose. La registrazione deve funzionare sul telefono, altrimenti non avviene dove si lavora. Deve collegare le ore a una commessa, altrimenti si ha sì una rilevazione del tempo, ma ancora nessun calcolo a posteriori. E i dati dovrebbero trovarsi in Svizzera o nell'UE, il che risparmia la domanda sulla protezione dei dati prima che venga posta."]
+      ]
+    },
+    {
+      "datei": "stundenrapport-vorlage.html",
+      "titel": "Rapporto ore: che cosa deve contenere (modello) | MosaOS",
+      "titel_kurz": "Il rapporto ore che nessuno contesta",
+      "h1": "Rapporto ore e rapporto in economia: che cosa scriverci per evitare contestazioni",
+      "lead": "Un rapporto non è un modulo, è una dimostrazione. Queste otto indicazioni decidono se la fattura passa o innesca una discussione.",
+      "beschreibung": "Quali indicazioni deve contenere un rapporto ore o in economia per reggere in caso di controversia — struttura, esempio ed errori più frequenti.",
+      "keywords": "rapporto ore, rapporto in economia, modello rapporto, modulo rapporto artigiano, rapporto di lavoro Svizzera, fatturare lavori in economia",
+      "lesezeit": "4 minuti di lettura",
+      "abschnitte": [
+        ["p", "I rapporti vengono per lo più vissuti come burocrazia. Sono invece il contrario: sono il motivo per cui una fattura in economia viene pagata senza che nessuno telefoni. Un buon rapporto risponde alle domande del cliente prima che le ponga."],
+        ["h2", "Le otto indicazioni"],
+        ["ul", [
+          "Data e commessa — in modo univoco, con un numero, non solo «ristrutturazione Müller»",
+          "Luogo dell'intervento, se il cliente ha più oggetti",
+          "Chi ha lavorato, per nome, non «2 uomini»",
+          "Da che ora a che ora, pause comprese — non solo il totale",
+          "Che cosa è stato fatto, in una frase comprensibile anche a un profano",
+          "Il materiale consumato, con le quantità",
+          "Tempi di trasferta e spese indicati separatamente",
+          "Firma o conferma del cliente sul posto"
+        ]],
+        ["h2", "La frase che fa la differenza"],
+        ["p", "La maggior parte delle contestazioni non riguarda le ore, ma la descrizione. «Lavori vari, 6.5 h» è un invito alla discussione. «Vecchio rivestimento carteggiato, due mani di fondo nel vano scale al 1° piano, 6.5 h» è una risposta."],
+        ["p", "La regola pratica: il rapporto deve essere comprensibile anche fra tre mesi, quando nessuno ricorda più di che cosa si trattava — e leggibile da qualcuno che non c'era."],
+        ["h2", "La firma sul posto"],
+        ["p", "La firma del cliente subito dopo il lavoro è la protezione più efficace contro le discussioni successive. Chi manda la fattura solo a fine mese negozia su qualcosa che il cliente ricorda da tempo in modo diverso. Chi fa firmare sul posto non negozia affatto."],
+        ["hinweis", "Nella pratica funziona così: non chiedere «una firma», ma mostrare il rapporto e dire che cosa è stato fatto. La conferma diventa allora la conclusione naturale del colloquio, non una richiesta in più."],
+        ["h2", "Le foto battono ogni descrizione"],
+        ["p", "Due foto — stato prima, stato dopo — chiudono discussioni che a parole durano una settimana. Soprattutto per lavori che poi non si vedono più: sotto il pavimento, dietro il rivestimento, nel cavedio. Conta solo che le foto siano collegate alla commessa e non spariscano nella galleria del telefono di qualcuno."],
+        ["h2", "I tre errori più frequenti"],
+        ["ul", [
+          "Compilare il rapporto la sera o il giorno dopo — così le ore sono stimate anziché misurate",
+          "Aggiungere il materiale a memoria, perché la bolla è rimasta in auto",
+          "Conteggiare il tempo di viaggio nell'orario di lavoro, cosa che si nota in fattura e costa fiducia"
+        ]],
+        ["p", "I tre errori hanno in comune il fatto di nascere dallo scarto temporale tra il lavorare e il registrare. Non è una questione di disciplina, ma di strumento: ciò che in cantiere si sbriga in trenta secondi sul telefono viene fatto. Ciò che richiede un foglio, una penna e un minuto di calma viene rimandato."]
+      ]
+    },
+    {
+      "datei": "rapportierung-digitalisieren.html",
+      "titel": "Da Excel al rapporto digitale: il passaggio senza caos | MosaOS",
+      "titel_kurz": "Da Excel e dai foglietti al rapporto digitale",
+      "h1": "Da Excel e dai foglietti al rapporto digitale — senza fermare l'azienda",
+      "lead": "Il software è raramente il problema. È l'introduzione che fallisce. Ecco un percorso realistico in quattro settimane.",
+      "beschreibung": "Come un'azienda artigianale o di servizi passa da Excel e dai rapporti cartacei alla registrazione digitale, senza bloccare l'attività quotidiana.",
+      "keywords": "digitalizzare rapporti, sostituire Excel artigianato, introdurre rilevazione ore, introdurre software PMI, passaggio software artigiani",
+      "lesezeit": "5 minuti di lettura",
+      "abschnitte": [
+        ["p", "La maggior parte delle aziende non fallisce nello scegliere un software. Fallisce nell'introdurlo: la licenza è attiva, ma metà delle persone continua a scrivere su foglietti, e dopo tre mesi si hanno entrambe le cose — il vecchio disordine più una fattura."],
+        ["h2", "Perché Excel ha funzionato così a lungo"],
+        ["p", "Excel non è stupido. È subito disponibile, non costa nulla in più e permette di rappresentare qualsiasi processo. Il prezzo si vede solo dopo: il file sta presso una persona, due non possono modificarlo contemporaneamente, sul telefono è inutilizzabile e nessuno si accorge che una formula calcola male da mesi."],
+        ["p", "Il momento di cambiare è arrivato quando mettere insieme i dati dura più del lavoro documentato."],
+        ["h2", "Un calendario realistico"],
+        ["h3", "Settimana 1 — solo le ore, una sola squadra"],
+        ["p", "Non tutto insieme. Una squadra, una funzione: imputare le ore alla commessa. Nient'altro. Chi nella prima settimana converte contemporaneamente materiale, offerte e fatture genera una resistenza che non se ne va più."],
+        ["h3", "Settimana 2 — far girare i due sistemi in parallelo"],
+        ["p", "Tenere i foglietti e registrare in doppio anche in digitale. Sembra lavoro in più, e lo è — ma è l'unica settimana in cui gli errori si notano senza che parta una fattura sbagliata."],
+        ["h3", "Settimana 3 — spegnere la carta"],
+        ["p", "Ora senza eccezioni: nessun foglietto più accettato. Chi li accetta tiene in vita il vecchio sistema. Questa singola decisione determina l'intero passaggio."],
+        ["h3", "Settimana 4 — la fattura dai dati"],
+        ["p", "Solo quando la registrazione funziona arriva il secondo passo: generare la fattura direttamente dalle ore registrate. È il momento in cui l'utilità diventa visibile a tutti — e dal quale nessuno vuole più tornare indietro."],
+        ["hinweis", "L'errore più frequente è iniziare dai collaboratori più anziani e scettici, «così si vede se funziona». Meglio il contrario: cominciare da chi trova la cosa pratica comunque. Se la usano loro, gli altri seguono da sé."],
+        ["h2", "A che cosa pensare prima"],
+        ["ul", [
+          "La registrazione funziona offline? In cantina e in galleria non c'è rete.",
+          "Le persone se la cavano senza formazione? Se no, è troppo complicato.",
+          "Dove stanno i dati? Svizzera o UE risparmia la discussione successiva.",
+          "Si può uscire? Un export dei propri dati dovrebbe essere ovvio.",
+          "Quanto costa per persona e mese — e che cosa succede se d'inverno lavorano meno persone?"
+        ]],
+        ["h2", "Che cosa porta realisticamente il passaggio"],
+        ["p", "Nessun software trasforma un'azienda disorganizzata in una organizzata. Ciò che cambia in modo affidabile è la distanza tra il lavoro e la fattura. Aziende che prima passavano due serate a fine mese a ordinare foglietti constatano che la fattura parte il giorno dopo l'intervento. Il denaro arriva quindi prima — e per le piccole realtà questo è spesso più importante di ogni ora risparmiata."]
+      ]
+    }
+  ]
+}

@@ -499,4 +499,244 @@
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
+  <url>
+    <loc>https://mosaos.ch/ratgeber/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/fr/ratgeber/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/it/ratgeber/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/es/ratgeber/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/en/ratgeber/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/fr/ratgeber/arbeitszeiterfassung-schweiz.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/it/ratgeber/arbeitszeiterfassung-schweiz.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/es/ratgeber/arbeitszeiterfassung-schweiz.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/en/ratgeber/arbeitszeiterfassung-schweiz.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/arbeitszeiterfassung-schweiz.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/ratgeber/stundenrapport-vorlage.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html"/>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

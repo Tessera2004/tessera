@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Praxisnahe Artikel zu Arbeitszeiterfassung, Stundenrapporten und digitaler Rapportierung — geschrieben für Schweizer Handwerks- und Dienstleistungsbetriebe." />
+  <meta name="keywords" content="Arbeitszeiterfassung Schweiz, Stundenrapport, Regierapport, Rapportierung Handwerk, KMU Software Ratgeber" />
+  <title>Ratgeber für Schweizer Dienstleistungsbetriebe | MosaOS</title>
+  <link rel="canonical" href="https://mosaos.ch/ratgeber/index.html" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/index.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/index.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/index.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/index.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/index.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/index.html" />
+  <link rel="icon" type="image/svg+xml" href="../logo/favicon.svg" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Ratgeber für Schweizer Dienstleistungsbetriebe | MosaOS" />
+  <meta property="og:description" content="Praxisnahe Artikel zu Arbeitszeiterfassung, Stundenrapporten und digitaler Rapportierung — geschrieben für Schweizer Handwerks- und Dienstleistungsbetriebe." />
+  <meta property="og:url" content="https://mosaos.ch/ratgeber/index.html" />
+  <meta property="og:image" content="https://mosaos.ch/assets/og/index-de.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=10" />
+  <style>
+    /* Lesetext: eine schmale Spalte, damit Zeilen nicht ueber den ganzen
+       Bildschirm laufen — alles andere kommt aus styles.css. */
+    .rg-wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    /* Die Uebersicht braucht Platz fuer drei Karten nebeneinander,
+       der Lesetext dagegen eine schmale Spalte. */
+    .rg-wrap.wide { max-width: 1080px; }
+    .rg-head { padding: 120px 0 32px; }
+    .rg-head .eyebrow { color: var(--swiss); font-weight: 600; font-size: 13px;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+    .rg-head h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15;
+      letter-spacing: -.02em; margin: 0 0 18px; color: var(--text); }
+    .rg-lead { font-size: 18px; line-height: 1.65; color: var(--text-muted); margin: 0; }
+    .rg-meta { font-size: 13.5px; color: var(--text-subtle); margin-top: 20px; }
+    .rg-body { padding-bottom: 72px; }
+    .rg-body h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 14px; color: var(--text); }
+    .rg-body h3 { font-size: 18px; margin: 30px 0 10px; color: var(--text); }
+    .rg-body p { font-size: 16px; line-height: 1.72; color: var(--text-soft); margin: 0 0 16px; }
+    .rg-body ul { margin: 0 0 20px; padding-left: 22px; }
+    .rg-body li { font-size: 16px; line-height: 1.7; color: var(--text-soft); margin-bottom: 9px; }
+    .rg-note { background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-left: 3px solid var(--swiss); border-radius: var(--r-md);
+      padding: 18px 20px; margin: 28px 0; font-size: 15px; line-height: 1.65;
+      color: var(--text-soft); }
+    .rg-cta { background: var(--surface); border: 1px solid var(--border-strong);
+      border-radius: var(--r-xl); padding: 32px; margin: 48px 0 0; text-align: center;
+      box-shadow: var(--shadow-lg); }
+    .rg-cta h2 { margin-top: 0; }
+    .rg-more { border-top: 1px solid var(--border-soft); margin-top: 56px; padding-top: 28px; }
+    .rg-more a { display: block; color: var(--text); font-weight: 600;
+      text-decoration: none; padding: 10px 0; font-size: 15.5px; }
+    .rg-more a:hover { color: var(--swiss); }
+    @media (max-width: 860px) {
+      .nav-actions { display: flex; gap: 8px; align-items: center; }
+      .rg-head { padding-top: 96px; }
+    }
+    .rg-cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr));
+      margin: 40px 0 72px; }
+    .rg-card { background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 26px 24px; text-decoration: none; display: block;
+      transition: border-color .2s var(--ease), transform .2s var(--ease); }
+    .rg-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+    .rg-card h2 { font-size: 18px; margin: 0 0 10px; color: var(--text); }
+    .rg-card p { font-size: 14.5px; line-height: 1.55; color: var(--text-muted); margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="../" class="nav-logo" aria-label="MosaOS">
+        <img src="../logo/mosaos-mark.svg" alt="" width="32" height="32" />
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="../#branchen">Branchen</a>
+        <a href="../#preise">Preise</a>
+        <a href="index.html">Ratgeber</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="../app/login.html" class="btn btn-ghost">Login</a>
+        <a href="../app/onboarding.html" class="btn btn-primary">Gratis starten</a>
+        <div class="lang-switch"><a href="/ratgeber/index.html" hreflang="de" class="lang-link active">DE</a><a href="/fr/ratgeber/index.html" hreflang="fr" class="lang-link">FR</a><a href="/it/ratgeber/index.html" hreflang="it" class="lang-link">IT</a><a href="/es/ratgeber/index.html" hreflang="es" class="lang-link">ES</a><a href="/en/ratgeber/index.html" hreflang="en" class="lang-link">EN</a></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="rg-wrap wide rg-head">
+    <div class="eyebrow">Ratgeber</div>
+    <h1>Ratgeber</h1>
+    <p class="rg-lead">Was im Alltag eines Schweizer Dienstleistungsbetriebs wirklich Zeit frisst — und wie andere Betriebe es gelöst haben. Ohne Verkaufsgerede.</p>
+  </div>
+
+  <div class="rg-wrap wide">
+    <div class="rg-cards">
+      <a class="rg-card" href="arbeitszeiterfassung-schweiz.html">
+        <h2>Arbeitszeiterfassung in der Schweiz</h2>
+        <p>Wer muss in der Schweiz Arbeitszeit erfassen, was gehört in die Aufzeichnung, und wann greifen vereinfachte Erfassung oder Verzicht? Verständlich zusammengefasst.</p>
+      </a>
+      <a class="rg-card" href="stundenrapport-vorlage.html">
+        <h2>Der Stundenrapport, der nie reklamiert wird</h2>
+        <p>Welche Angaben ein Stundenrapport oder Regierapport enthalten muss, damit er im Streitfall trägt — mit Aufbau, Beispiel und den häufigsten Fehlern.</p>
+      </a>
+      <a class="rg-card" href="rapportierung-digitalisieren.html">
+        <h2>Von Excel und Zetteln zur digitalen Rapportierung</h2>
+        <p>Wie ein Handwerks- oder Dienstleistungsbetrieb von Excel und Papierrapporten auf digitale Erfassung umstellt, ohne das Tagesgeschäft zu blockieren.</p>
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 MosaOS · Modulare Software für Schweizer KMU</p>
+        <p>
+          <a href="../impressum.html">Impressum</a> ·
+          <a href="../agb.html">AGB</a> ·
+          <a href="../datenschutz.html">Datenschutz</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

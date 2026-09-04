@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Comment une entreprise artisanale ou de services passe d&#x27;Excel et des rapports papier à la saisie numérique, sans bloquer les affaires courantes." />
+  <meta name="keywords" content="numériser les rapports, remplacer Excel artisanat, introduire saisie des heures, introduire un logiciel PME, transition logiciel artisan" />
+  <title>D&#x27;Excel au rapport numérique : la transition sans chaos | MosaOS</title>
+  <link rel="canonical" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="icon" type="image/svg+xml" href="../../logo/favicon.svg" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="D&#x27;Excel au rapport numérique : la transition sans chaos | MosaOS" />
+  <meta property="og:description" content="Comment une entreprise artisanale ou de services passe d&#x27;Excel et des rapports papier à la saisie numérique, sans bloquer les affaires courantes." />
+  <meta property="og:url" content="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html" />
+  <meta property="og:image" content="https://mosaos.ch/assets/og/index-fr.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css?v=10" />
+  <style>
+    /* Lesetext: eine schmale Spalte, damit Zeilen nicht ueber den ganzen
+       Bildschirm laufen — alles andere kommt aus styles.css. */
+    .rg-wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    /* Die Uebersicht braucht Platz fuer drei Karten nebeneinander,
+       der Lesetext dagegen eine schmale Spalte. */
+    .rg-wrap.wide { max-width: 1080px; }
+    .rg-head { padding: 120px 0 32px; }
+    .rg-head .eyebrow { color: var(--swiss); font-weight: 600; font-size: 13px;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+    .rg-head h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15;
+      letter-spacing: -.02em; margin: 0 0 18px; color: var(--text); }
+    .rg-lead { font-size: 18px; line-height: 1.65; color: var(--text-muted); margin: 0; }
+    .rg-meta { font-size: 13.5px; color: var(--text-subtle); margin-top: 20px; }
+    .rg-body { padding-bottom: 72px; }
+    .rg-body h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 14px; color: var(--text); }
+    .rg-body h3 { font-size: 18px; margin: 30px 0 10px; color: var(--text); }
+    .rg-body p { font-size: 16px; line-height: 1.72; color: var(--text-soft); margin: 0 0 16px; }
+    .rg-body ul { margin: 0 0 20px; padding-left: 22px; }
+    .rg-body li { font-size: 16px; line-height: 1.7; color: var(--text-soft); margin-bottom: 9px; }
+    .rg-note { background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-left: 3px solid var(--swiss); border-radius: var(--r-md);
+      padding: 18px 20px; margin: 28px 0; font-size: 15px; line-height: 1.65;
+      color: var(--text-soft); }
+    .rg-cta { background: var(--surface); border: 1px solid var(--border-strong);
+      border-radius: var(--r-xl); padding: 32px; margin: 48px 0 0; text-align: center;
+      box-shadow: var(--shadow-lg); }
+    .rg-cta h2 { margin-top: 0; }
+    .rg-more { border-top: 1px solid var(--border-soft); margin-top: 56px; padding-top: 28px; }
+    .rg-more a { display: block; color: var(--text); font-weight: 600;
+      text-decoration: none; padding: 10px 0; font-size: 15.5px; }
+    .rg-more a:hover { color: var(--swiss); }
+    @media (max-width: 860px) {
+      .nav-actions { display: flex; gap: 8px; align-items: center; }
+      .rg-head { padding-top: 96px; }
+    }
+    .rg-cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr));
+      margin: 40px 0 72px; }
+    .rg-card { background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 26px 24px; text-decoration: none; display: block;
+      transition: border-color .2s var(--ease), transform .2s var(--ease); }
+    .rg-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+    .rg-card h2 { font-size: 18px; margin: 0 0 10px; color: var(--text); }
+    .rg-card p { font-size: 14.5px; line-height: 1.55; color: var(--text-muted); margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="../../fr/" class="nav-logo" aria-label="MosaOS">
+        <img src="../../logo/mosaos-mark.svg" alt="" width="32" height="32" />
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="../../fr/#branchen">Secteurs</a>
+        <a href="../../fr/#preise">Tarifs</a>
+        <a href="index.html">Guides</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="../../app/login.html" class="btn btn-ghost">Connexion</a>
+        <a href="../../app/onboarding.html" class="btn btn-primary">Essai gratuit</a>
+        <div class="lang-switch"><a href="/ratgeber/rapportierung-digitalisieren.html" hreflang="de" class="lang-link">DE</a><a href="/fr/ratgeber/rapportierung-digitalisieren.html" hreflang="fr" class="lang-link active">FR</a><a href="/it/ratgeber/rapportierung-digitalisieren.html" hreflang="it" class="lang-link">IT</a><a href="/es/ratgeber/rapportierung-digitalisieren.html" hreflang="es" class="lang-link">ES</a><a href="/en/ratgeber/rapportierung-digitalisieren.html" hreflang="en" class="lang-link">EN</a></div>
+      </div>
+    </div>
+  </header>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "D'Excel et du papier au rapport numérique — sans paralyser l'entreprise",
+  "description": "Comment une entreprise artisanale ou de services passe d'Excel et des rapports papier à la saisie numérique, sans bloquer les affaires courantes.",
+  "inLanguage": "fr",
+  "datePublished": "2026-09-04",
+  "dateModified": "2026-09-04",
+  "author": {
+    "@type": "Organization",
+    "name": "MosaOS"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MosaOS"
+  },
+  "mainEntityOfPage": "https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html"
+}
+  </script>
+
+  <article>
+    <div class="rg-wrap rg-head">
+      <div class="eyebrow">Guide</div>
+      <h1>D&#x27;Excel et du papier au rapport numérique — sans paralyser l&#x27;entreprise</h1>
+      <p class="rg-lead">Le logiciel est rarement le problème. C&#x27;est l&#x27;introduction qui échoue. Voici un chemin réaliste en quatre semaines.</p>
+      <p class="rg-meta">Mis à jour le 2026-09-04 · 5 minutes de lecture</p>
+    </div>
+
+    <div class="rg-wrap rg-body">
+      <p>La plupart des entreprises n&#x27;échouent pas à choisir un logiciel. Elles échouent à l&#x27;introduire : la licence tourne, mais la moitié des gens continue d&#x27;écrire sur du papier, et après trois mois on a les deux — l&#x27;ancien désordre plus une facture.</p>
+      <h2>Pourquoi Excel a fonctionné si longtemps</h2>
+      <p>Excel n&#x27;est pas stupide. Il est immédiatement disponible, ne coûte rien de plus, et tout processus peut y être représenté. Le prix n&#x27;apparaît que plus tard : le fichier est chez une personne, deux collaborateurs ne peuvent pas le modifier en même temps, sur le téléphone il est inutilisable, et personne ne remarque qu&#x27;une formule calcule faux depuis des mois.</p>
+      <p>Le moment de changer est atteint quand rassembler les données prend plus de temps que le travail documenté.</p>
+      <h2>Un calendrier réaliste</h2>
+      <h3>Semaine 1 — seulement les heures, une seule équipe</h3>
+      <p>Pas tout d&#x27;un coup. Une équipe, une fonction : imputer les heures au mandat. Rien d&#x27;autre. Qui change en même temps le matériel, les offres et les factures dès la première semaine crée une résistance qui ne disparaîtra plus.</p>
+      <h3>Semaine 2 — faire tourner les deux en parallèle</h3>
+      <p>Garder le papier et saisir en double au numérique. Cela ressemble à du travail supplémentaire, et c&#x27;en est — mais c&#x27;est la seule semaine où l&#x27;on repère les erreurs sans qu&#x27;une fausse facture parte.</p>
+      <h3>Semaine 3 — couper le papier</h3>
+      <p>Maintenant, sans exception : plus aucune feuille acceptée. Qui les accepte maintient l&#x27;ancien système en vie. Cette seule décision détermine toute la transition.</p>
+      <h3>Semaine 4 — la facture à partir des données</h3>
+      <p>Ce n&#x27;est qu&#x27;une fois la saisie en place qu&#x27;arrive la deuxième étape : produire la facture directement à partir des heures saisies. C&#x27;est le moment où l&#x27;utilité devient visible pour tout le monde — et à partir duquel plus personne ne veut revenir en arrière.</p>
+      <div class="rg-note">L&#x27;erreur la plus fréquente est de commencer par les collaborateurs les plus anciens et les plus sceptiques, « pour voir si ça marche ». Mieux vaut l&#x27;inverse : commencer par ceux qui trouvent l&#x27;idée pratique de toute façon. S&#x27;ils l&#x27;utilisent, les autres suivent d&#x27;eux-mêmes.</div>
+      <h2>À quoi penser avant</h2>
+      <ul><li>La saisie fonctionne-t-elle hors ligne ? Dans une cave ou un tunnel, il n&#x27;y a pas de réseau.</li><li>Les collaborateurs s&#x27;en sortent-ils sans formation ? Sinon, c&#x27;est trop compliqué.</li><li>Où sont les données ? La Suisse ou l&#x27;UE évite la discussion ultérieure.</li><li>Peut-on repartir ? Un export de ses propres données devrait aller de soi.</li><li>Combien cela coûte-t-il par personne et par mois — et que se passe-t-il si l&#x27;effectif baisse en hiver ?</li></ul>
+      <h2>Ce que la transition apporte réellement</h2>
+      <p>Aucun logiciel ne transforme une entreprise désorganisée en entreprise organisée. Ce qu&#x27;il change de façon fiable, c&#x27;est la distance entre le travail et la facture. Des entreprises qui passaient auparavant deux soirées par mois à trier des feuilles constatent que la facture part le lendemain de l&#x27;intervention. L&#x27;argent arrive donc plus tôt — et pour une petite structure, c&#x27;est souvent plus important que chaque heure économisée.</p>
+
+      <div class="rg-cta">
+        <h2>Des rapports terminés avant la fin de la journée</h2>
+        <p>MosaOS saisit les heures, le matériel et les photos directement sur le chantier — et en fait la facture d&#x27;un seul geste. 14 jours gratuits, sans carte de crédit.</p>
+        <a href="../../app/onboarding.html" class="btn btn-primary btn-lg">Essayer 14 jours gratuitement</a>
+      </div>
+
+      <div class="rg-more">
+        <h3>À lire ensuite</h3>
+      <a href="arbeitszeiterfassung-schweiz.html">→ L&#x27;enregistrement du temps de travail en Suisse</a>
+      <a href="stundenrapport-vorlage.html">→ Le rapport d&#x27;heures qui ne fait jamais l&#x27;objet d&#x27;une réclamation</a>
+      </div>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 MosaOS · Logiciel modulaire pour les PME suisses</p>
+        <p>
+          <a href="../../impressum.html">Mentions légales</a> ·
+          <a href="../../agb.html">CGV</a> ·
+          <a href="../../datenschutz.html">Protection des données</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

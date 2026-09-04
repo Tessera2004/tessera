@@ -1,0 +1,144 @@
+{
+  "woerter": {
+    "nav_aria": "Navigation principale",
+    "nav_branchen": "Secteurs",
+    "nav_preise": "Tarifs",
+    "nav_ratgeber": "Guides",
+    "nav_login": "Connexion",
+    "nav_start": "Essai gratuit",
+    "eyebrow": "Guide",
+    "stand": "Mis à jour le",
+    "weiter": "À lire ensuite",
+    "cta_titel": "Des rapports terminés avant la fin de la journée",
+    "cta_text": "MosaOS saisit les heures, le matériel et les photos directement sur le chantier — et en fait la facture d'un seul geste. 14 jours gratuits, sans carte de crédit.",
+    "cta_knopf": "Essayer 14 jours gratuitement",
+    "fuss_claim": "Logiciel modulaire pour les PME suisses",
+    "fuss_impressum": "Mentions légales",
+    "fuss_agb": "CGV",
+    "fuss_datenschutz": "Protection des données",
+    "hub_titel": "Guides pour les entreprises de services suisses | MosaOS",
+    "hub_beschreibung": "Articles pratiques sur l'enregistrement du temps de travail, les rapports d'heures et la numérisation des rapports — pour les artisans et entreprises de services en Suisse.",
+    "hub_keywords": "enregistrement temps de travail Suisse, rapport d'heures, rapport de régie, numérisation rapports, logiciel PME guide",
+    "hub_h1": "Guides",
+    "hub_lead": "Ce qui coûte réellement du temps au quotidien dans une entreprise de services suisse — et comment d'autres l'ont résolu. Sans discours commercial."
+  },
+  "artikel": [
+    {
+      "datei": "arbeitszeiterfassung-schweiz.html",
+      "titel": "Temps de travail en Suisse : les obligations expliquées | MosaOS",
+      "titel_kurz": "L'enregistrement du temps de travail en Suisse",
+      "h1": "Enregistrement du temps de travail en Suisse : ce qu'une entreprise doit vraiment consigner",
+      "lead": "Presque toutes les entreprises suisses doivent documenter le temps de travail de leurs employés. Voici quoi exactement — et quels allègements existent.",
+      "beschreibung": "Qui doit enregistrer le temps de travail en Suisse, que doit contenir l'enregistrement, et quand s'appliquent l'enregistrement simplifié ou la renonciation ? Résumé clairement.",
+      "keywords": "enregistrement temps de travail Suisse, obligation timbrage, OLT 1, enregistrement simplifié, documenter temps de travail Suisse",
+      "lesezeit": "5 minutes de lecture",
+      "abschnitte": [
+        ["p", "La question finit par se poser dans chaque entreprise : est-ce qu'il suffit que les collaborateurs notent leurs heures sur un bout de papier ? La réponse courte est non — mais l'obligation est moins compliquée que sa réputation le laisse croire."],
+        ["h2", "Qui est concerné ?"],
+        ["p", "La base est la loi sur le travail. Elle s'applique à la grande majorité des entreprises privées en Suisse, donc aussi à l'entreprise de peinture avec trois employés, à la société de nettoyage et au garage. Quiconque a du personnel est en règle générale tenu de documenter ses heures de travail et de repos."],
+        ["p", "Certains domaines et catégories de personnes sont exclus — notamment les employés occupant une position dirigeante élevée. Pour une entreprise artisanale ou de services classique, l'obligation s'applique toutefois sans restriction."],
+        ["h2", "Que doit contenir l'enregistrement ?"],
+        ["p", "Il ne s'agit pas de surveiller chaque minute. Ce qui est exigé, c'est une preuve compréhensible que les règles sur le temps de travail et de repos ont été respectées. L'essentiel :"],
+        ["ul", [
+          "la durée du travail effectuée chaque jour, y compris le travail compensatoire et supplémentaire",
+          "la position et la durée des pauses à partir d'une demi-heure",
+          "le début et la fin du travail de nuit et du dimanche, lorsqu'il a lieu",
+          "le temps de repos entre les journées de travail, lorsqu'il n'a pas été respecté"
+        ]],
+        ["p", "Les enregistrements doivent être accessibles au contrôle des inspections cantonales du travail et sont habituellement conservés cinq ans."],
+        ["h2", "Les deux allègements"],
+        ["p", "Depuis 2016, l'ordonnance 1 relative à la loi sur le travail prévoit deux exceptions que beaucoup d'entreprises ignorent :"],
+        ["h3", "Enregistrement simplifié"],
+        ["p", "Les personnes qui peuvent largement organiser leur temps de travail elles-mêmes ne doivent, sous certaines conditions, plus consigner que la durée quotidienne du travail — et non plus le début, la fin et chaque pause. Cela suppose un accord écrit, généralement conclu avec la représentation des travailleurs ou collectivement dans l'entreprise."],
+        ["h3", "Renonciation à l'enregistrement"],
+        ["p", "Une renonciation complète n'est possible que pour un petit groupe : les employés disposant d'une très grande autonomie dans l'organisation de leur temps et dont le revenu annuel brut dépasse un seuil défini. Il faut en outre une convention collective qui le prévoit ainsi qu'un accord individuel écrit. Pour la plupart des PME, cette voie n'est tout simplement pas applicable."],
+        ["hinweis", "Ce texte est une aide à l'orientation, pas un conseil juridique. Les règles contraignantes figurent dans la loi sur le travail et son ordonnance 1 ; le SECO publie un commentaire à ce sujet. En cas de doute, une question à l'inspection cantonale du travail vaut la peine — le renseignement est gratuit."],
+        ["h2", "Pourquoi le papier reste malgré tout le problème"],
+        ["p", "Juridiquement, un enregistrement sur papier est admis. En pratique, il échoue à trois endroits, et de la même manière dans chaque entreprise :"],
+        ["ul", [
+          "Les feuilles arrivent trop tard. À la fin du mois, la moitié manque et plus personne ne sait ce qui s'est passé le 12.",
+          "Les feuilles ne sont pas exploitables. La question « combien d'heures dans ce mandat ? » coûte une soirée.",
+          "Les feuilles se perdent. Précisément quand le contrôle arrive ou qu'un client conteste une facture."
+        ]],
+        ["p", "Le vrai gain d'un enregistrement numérique n'est donc que rarement la conformité légale — on l'obtient aussi avec du papier. Il tient au fait que les heures se rattachent au bon mandat le jour même et que la facture en découle en quelques minutes au lieu de quelques heures."],
+        ["h2", "Ce dont une entreprise a concrètement besoin"],
+        ["p", "Qui veut abandonner le papier devrait veiller à trois choses. La saisie doit fonctionner sur le téléphone, sinon elle n'a pas lieu là où l'on travaille. Elle doit rattacher les heures à un mandat, sans quoi on a certes un enregistrement du temps, mais toujours pas de calcul a posteriori. Et les données devraient se trouver en Suisse ou dans l'UE, ce qui évite la question de la protection des données avant qu'elle ne soit posée."]
+      ]
+    },
+    {
+      "datei": "stundenrapport-vorlage.html",
+      "titel": "Rapport d'heures : ce qu'il doit contenir (modèle) | MosaOS",
+      "titel_kurz": "Le rapport d'heures qui ne fait jamais l'objet d'une réclamation",
+      "h1": "Rapport d'heures et rapport de régie : ce qu'il faut y mettre pour éviter les réclamations",
+      "lead": "Un rapport n'est pas un formulaire, c'est une démonstration. Ces huit indications décident si la facture passe ou déclenche une discussion.",
+      "beschreibung": "Quelles indications un rapport d'heures ou de régie doit contenir pour tenir en cas de litige — structure, exemple et erreurs les plus fréquentes.",
+      "keywords": "rapport d'heures, rapport de régie, modèle rapport, formulaire rapport artisan, rapport de travail Suisse, facturer la régie",
+      "lesezeit": "4 minutes de lecture",
+      "abschnitte": [
+        ["p", "Les rapports sont le plus souvent vécus comme de la paperasse. Ils sont pourtant l'inverse : ils sont la raison pour laquelle une facture en régie est payée sans que personne ne téléphone. Un bon rapport répond aux questions du client avant qu'il ne les pose."],
+        ["h2", "Les huit indications"],
+        ["ul", [
+          "Date et mandat — sans ambiguïté, avec un numéro, pas seulement « transformation Müller »",
+          "Lieu de l'intervention, si le client a plusieurs objets",
+          "Qui a travaillé, nommément, pas « 2 hommes »",
+          "De quelle heure à quelle heure, pauses comprises — pas seulement le total",
+          "Ce qui a été fait, en une phrase qu'un profane comprend aussi",
+          "Le matériel consommé, avec les quantités",
+          "Temps de déplacement et frais indiqués séparément",
+          "Signature ou confirmation du client sur place"
+        ]],
+        ["h2", "La phrase qui fait la différence"],
+        ["p", "La plupart des réclamations ne portent pas sur les heures, mais sur la description. « Travaux divers, 6,5 h » est une invitation à la discussion. « Ancien revêtement poncé, deux couches d'apprêt dans la cage d'escalier du 1er étage, 6,5 h » est une réponse."],
+        ["p", "La règle : le rapport doit rester compréhensible dans trois mois, quand plus personne ne se souvient du contexte — et lisible par quelqu'un qui n'était pas là."],
+        ["h2", "La signature sur place"],
+        ["p", "La signature du client juste après l'intervention est la protection la plus efficace contre les discussions ultérieures. Qui n'envoie une facture qu'à la fin du mois négocie sur quelque chose que le client se rappelle depuis longtemps autrement. Qui fait signer sur place ne négocie pas du tout."],
+        ["hinweis", "Ce qui fonctionne en pratique : ne pas demander « une signature », mais montrer le rapport et dire ce qui a été fait. La confirmation devient alors la conclusion naturelle de la conversation, et non une exigence supplémentaire."],
+        ["h2", "Les photos valent mieux que les mots"],
+        ["p", "Deux photos — état avant, état après — mettent fin à des discussions qui, avec des mots, durent une semaine. Surtout pour des travaux qu'on ne voit plus ensuite : sous le sol, derrière l'habillage, dans la gaine. Ce qui compte, c'est que les photos soient rattachées au mandat et ne disparaissent pas dans la galerie du téléphone de quelqu'un."],
+        ["h2", "Les trois erreurs les plus fréquentes"],
+        ["ul", [
+          "Remplir le rapport le soir ou le lendemain — les heures sont alors estimées au lieu d'être mesurées",
+          "Compléter le matériel de mémoire, parce que le bulletin de livraison est resté dans la voiture",
+          "Compter le temps de trajet dans le temps de travail, ce qui se remarque sur la facture et coûte de la confiance"
+        ]],
+        ["p", "Ces trois erreurs ont un point commun : elles naissent du décalage entre le moment où l'on travaille et celui où l'on saisit. Ce n'est pas une question de discipline, mais d'outil. Ce qui se règle en trente secondes sur le téléphone au chantier se fait. Ce qui exige une feuille, un stylo et une minute au calme se reporte."]
+      ]
+    },
+    {
+      "datei": "rapportierung-digitalisieren.html",
+      "titel": "D'Excel au rapport numérique : la transition sans chaos | MosaOS",
+      "titel_kurz": "D'Excel et du papier au rapport numérique",
+      "h1": "D'Excel et du papier au rapport numérique — sans paralyser l'entreprise",
+      "lead": "Le logiciel est rarement le problème. C'est l'introduction qui échoue. Voici un chemin réaliste en quatre semaines.",
+      "beschreibung": "Comment une entreprise artisanale ou de services passe d'Excel et des rapports papier à la saisie numérique, sans bloquer les affaires courantes.",
+      "keywords": "numériser les rapports, remplacer Excel artisanat, introduire saisie des heures, introduire un logiciel PME, transition logiciel artisan",
+      "lesezeit": "5 minutes de lecture",
+      "abschnitte": [
+        ["p", "La plupart des entreprises n'échouent pas à choisir un logiciel. Elles échouent à l'introduire : la licence tourne, mais la moitié des gens continue d'écrire sur du papier, et après trois mois on a les deux — l'ancien désordre plus une facture."],
+        ["h2", "Pourquoi Excel a fonctionné si longtemps"],
+        ["p", "Excel n'est pas stupide. Il est immédiatement disponible, ne coûte rien de plus, et tout processus peut y être représenté. Le prix n'apparaît que plus tard : le fichier est chez une personne, deux collaborateurs ne peuvent pas le modifier en même temps, sur le téléphone il est inutilisable, et personne ne remarque qu'une formule calcule faux depuis des mois."],
+        ["p", "Le moment de changer est atteint quand rassembler les données prend plus de temps que le travail documenté."],
+        ["h2", "Un calendrier réaliste"],
+        ["h3", "Semaine 1 — seulement les heures, une seule équipe"],
+        ["p", "Pas tout d'un coup. Une équipe, une fonction : imputer les heures au mandat. Rien d'autre. Qui change en même temps le matériel, les offres et les factures dès la première semaine crée une résistance qui ne disparaîtra plus."],
+        ["h3", "Semaine 2 — faire tourner les deux en parallèle"],
+        ["p", "Garder le papier et saisir en double au numérique. Cela ressemble à du travail supplémentaire, et c'en est — mais c'est la seule semaine où l'on repère les erreurs sans qu'une fausse facture parte."],
+        ["h3", "Semaine 3 — couper le papier"],
+        ["p", "Maintenant, sans exception : plus aucune feuille acceptée. Qui les accepte maintient l'ancien système en vie. Cette seule décision détermine toute la transition."],
+        ["h3", "Semaine 4 — la facture à partir des données"],
+        ["p", "Ce n'est qu'une fois la saisie en place qu'arrive la deuxième étape : produire la facture directement à partir des heures saisies. C'est le moment où l'utilité devient visible pour tout le monde — et à partir duquel plus personne ne veut revenir en arrière."],
+        ["hinweis", "L'erreur la plus fréquente est de commencer par les collaborateurs les plus anciens et les plus sceptiques, « pour voir si ça marche ». Mieux vaut l'inverse : commencer par ceux qui trouvent l'idée pratique de toute façon. S'ils l'utilisent, les autres suivent d'eux-mêmes."],
+        ["h2", "À quoi penser avant"],
+        ["ul", [
+          "La saisie fonctionne-t-elle hors ligne ? Dans une cave ou un tunnel, il n'y a pas de réseau.",
+          "Les collaborateurs s'en sortent-ils sans formation ? Sinon, c'est trop compliqué.",
+          "Où sont les données ? La Suisse ou l'UE évite la discussion ultérieure.",
+          "Peut-on repartir ? Un export de ses propres données devrait aller de soi.",
+          "Combien cela coûte-t-il par personne et par mois — et que se passe-t-il si l'effectif baisse en hiver ?"
+        ]],
+        ["h2", "Ce que la transition apporte réellement"],
+        ["p", "Aucun logiciel ne transforme une entreprise désorganisée en entreprise organisée. Ce qu'il change de façon fiable, c'est la distance entre le travail et la facture. Des entreprises qui passaient auparavant deux soirées par mois à trier des feuilles constatent que la facture part le lendemain de l'intervention. L'argent arrive donc plus tôt — et pour une petite structure, c'est souvent plus important que chaque heure économisée."]
+      ]
+    }
+  ]
+}

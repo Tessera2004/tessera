@@ -1,0 +1,144 @@
+{
+  "woerter": {
+    "nav_aria": "Hauptnavigation",
+    "nav_branchen": "Branchen",
+    "nav_preise": "Preise",
+    "nav_ratgeber": "Ratgeber",
+    "nav_login": "Login",
+    "nav_start": "Gratis starten",
+    "eyebrow": "Ratgeber",
+    "stand": "Stand",
+    "weiter": "Weiterlesen",
+    "cta_titel": "Rapporte, die abends schon fertig sind",
+    "cta_text": "MosaOS erfasst Stunden, Material und Fotos direkt auf der Baustelle — und macht daraus auf Knopfdruck die Rechnung. 14 Tage gratis, ohne Kreditkarte.",
+    "cta_knopf": "14 Tage gratis testen",
+    "fuss_claim": "Modulare Software für Schweizer KMU",
+    "fuss_impressum": "Impressum",
+    "fuss_agb": "AGB",
+    "fuss_datenschutz": "Datenschutz",
+    "hub_titel": "Ratgeber für Schweizer Dienstleistungsbetriebe | MosaOS",
+    "hub_beschreibung": "Praxisnahe Artikel zu Arbeitszeiterfassung, Stundenrapporten und digitaler Rapportierung — geschrieben für Schweizer Handwerks- und Dienstleistungsbetriebe.",
+    "hub_keywords": "Arbeitszeiterfassung Schweiz, Stundenrapport, Regierapport, Rapportierung Handwerk, KMU Software Ratgeber",
+    "hub_h1": "Ratgeber",
+    "hub_lead": "Was im Alltag eines Schweizer Dienstleistungsbetriebs wirklich Zeit frisst — und wie andere Betriebe es gelöst haben. Ohne Verkaufsgerede."
+  },
+  "artikel": [
+    {
+      "datei": "arbeitszeiterfassung-schweiz.html",
+      "titel": "Arbeitszeiterfassung Schweiz: Pflichten einfach erklärt | MosaOS",
+      "titel_kurz": "Arbeitszeiterfassung in der Schweiz",
+      "h1": "Arbeitszeiterfassung in der Schweiz: was Betriebe wirklich festhalten müssen",
+      "lead": "Fast jeder Schweizer Betrieb muss die Arbeitszeit seiner Angestellten dokumentieren. Was genau — und welche Erleichterungen es gibt.",
+      "beschreibung": "Wer muss in der Schweiz Arbeitszeit erfassen, was gehört in die Aufzeichnung, und wann greifen vereinfachte Erfassung oder Verzicht? Verständlich zusammengefasst.",
+      "keywords": "Arbeitszeiterfassung Schweiz, Zeiterfassung Pflicht, ArGV 1, vereinfachte Arbeitszeiterfassung, Arbeitszeit dokumentieren Schweiz",
+      "lesezeit": "5 Minuten Lesezeit",
+      "abschnitte": [
+        ["p", "Die Frage kommt in jedem Betrieb irgendwann: Reicht es, wenn die Leute ihre Stunden auf einen Zettel schreiben? Die kurze Antwort lautet nein — aber die Pflicht ist weniger kompliziert, als ihr Ruf vermuten lässt."],
+        ["h2", "Wer ist überhaupt betroffen?"],
+        ["p", "Grundlage ist das Arbeitsgesetz. Es gilt für die allermeisten privatwirtschaftlichen Betriebe in der Schweiz, also auch für den Malerbetrieb mit drei Angestellten, die Reinigungsfirma und die Autogarage. Wer Angestellte hat, ist in aller Regel verpflichtet, deren Arbeits- und Ruhezeiten zu dokumentieren."],
+        ["p", "Ausgenommen sind einzelne Bereiche und Personengruppen — etwa Angestellte in klar leitender Stellung. Für den typischen Handwerks- oder Dienstleistungsbetrieb gilt die Pflicht jedoch uneingeschränkt."],
+        ["h2", "Was muss in der Aufzeichnung stehen?"],
+        ["p", "Es geht nicht darum, jede Minute zu überwachen. Verlangt ist ein nachvollziehbarer Nachweis, dass die Regeln zu Arbeits- und Ruhezeit eingehalten wurden. Im Kern:"],
+        ["ul", [
+          "die geleistete tägliche Arbeitszeit, inklusive Ausgleichs- und Überzeitarbeit",
+          "die Lage und Länge der Pausen ab einer halben Stunde",
+          "Beginn und Ende von Nacht- und Sonntagsarbeit, wo sie vorkommt",
+          "die Ruhezeit zwischen den Arbeitstagen, soweit sie unterschritten wurde"
+        ]],
+        ["p", "Die Aufzeichnungen müssen der Kontrolle durch die kantonalen Arbeitsinspektorate zugänglich sein und werden üblicherweise fünf Jahre aufbewahrt."],
+        ["h2", "Die beiden Erleichterungen"],
+        ["p", "Seit 2016 kennt die Verordnung 1 zum Arbeitsgesetz zwei Ausnahmen, die viele Betriebe nicht kennen:"],
+        ["h3", "Vereinfachte Erfassung"],
+        ["p", "Wer seine Arbeitszeit weitgehend selbst einteilen kann, muss unter bestimmten Voraussetzungen nur noch die geleistete Tagesarbeitszeit festhalten — nicht mehr Beginn, Ende und jede Pause. Voraussetzung ist eine schriftliche Vereinbarung, meist über die Arbeitnehmervertretung oder kollektiv im Betrieb."],
+        ["h3", "Verzicht auf die Erfassung"],
+        ["p", "Ein vollständiger Verzicht ist nur für eine kleine Gruppe möglich: Angestellte mit sehr grosser Autonomie bei der Arbeitszeit und einem Bruttojahreseinkommen oberhalb einer festgelegten Schwelle. Nötig ist zusätzlich ein Gesamtarbeitsvertrag, der das vorsieht, sowie eine individuelle schriftliche Vereinbarung. Für die meisten KMU ist dieser Weg schlicht nicht anwendbar."],
+        ["hinweis", "Dieser Text ist eine Orientierungshilfe, keine Rechtsberatung. Die verbindlichen Regeln stehen im Arbeitsgesetz und in der Verordnung 1 dazu; das SECO veröffentlicht dazu eine Wegleitung. Bei Unsicherheit lohnt eine kurze Rückfrage beim kantonalen Arbeitsinspektorat — die Auskunft ist kostenlos."],
+        ["h2", "Warum der Zettel trotzdem das Problem ist"],
+        ["p", "Rein rechtlich ist eine Papieraufzeichnung zulässig. Praktisch scheitert sie an drei Stellen, und zwar in jedem Betrieb gleich:"],
+        ["ul", [
+          "Zettel kommen zu spät. Am Monatsende fehlt die Hälfte, und niemand weiss mehr, was am 12. war.",
+          "Zettel sind nicht auswertbar. Die Frage «wie viele Stunden steckten in diesem Auftrag?» kostet einen Abend.",
+          "Zettel gehen verloren. Genau dann, wenn die Kontrolle kommt oder ein Kunde eine Rechnung bestreitet."
+        ]],
+        ["p", "Der eigentliche Gewinn einer digitalen Erfassung liegt deshalb selten in der Gesetzeskonformität — die kriegt man auch mit Papier hin. Er liegt darin, dass die Stunden am selben Tag am richtigen Auftrag hängen und die Rechnung daraus in Minuten entsteht statt in Stunden."],
+        ["h2", "Was ein Betrieb konkret braucht"],
+        ["p", "Wer von Papier weg will, sollte auf drei Dinge achten: Die Erfassung muss auf dem Handy funktionieren, weil sie sonst nicht dort passiert, wo gearbeitet wird. Sie muss die Stunden einem Auftrag zuordnen, sonst hat man zwar eine Zeiterfassung, aber immer noch keine Nachkalkulation. Und die Daten sollten in der Schweiz oder der EU liegen, weil das die Frage nach dem Datenschutz erspart, bevor sie gestellt wird."]
+      ]
+    },
+    {
+      "datei": "stundenrapport-vorlage.html",
+      "titel": "Stundenrapport: was drauf gehört (mit Vorlage) | MosaOS",
+      "titel_kurz": "Der Stundenrapport, der nie reklamiert wird",
+      "h1": "Stundenrapport und Regierapport: was drauf gehört, damit niemand reklamiert",
+      "lead": "Ein Rapport ist kein Formular, sondern eine Beweisführung. Diese acht Angaben entscheiden, ob die Rechnung durchgeht oder eine Diskussion auslöst.",
+      "beschreibung": "Welche Angaben ein Stundenrapport oder Regierapport enthalten muss, damit er im Streitfall trägt — mit Aufbau, Beispiel und den häufigsten Fehlern.",
+      "keywords": "Stundenrapport, Regierapport, Rapport Vorlage, Rapportformular Handwerk, Arbeitsrapport Schweiz, Regiearbeit abrechnen",
+      "lesezeit": "4 Minuten Lesezeit",
+      "abschnitte": [
+        ["p", "Rapporte werden meistens als Bürokratie erlebt. Dabei sind sie das Gegenteil: Sie sind der Grund, warum eine Regierechnung bezahlt wird, ohne dass jemand anruft. Ein guter Rapport beantwortet die Fragen des Kunden, bevor er sie stellt."],
+        ["h2", "Die acht Angaben"],
+        ["ul", [
+          "Datum und Auftrag — eindeutig, mit Nummer, nicht nur «Umbau Müller»",
+          "Ort der Arbeit, wenn der Kunde mehrere Objekte hat",
+          "Wer gearbeitet hat, namentlich, nicht «2 Mann»",
+          "Von wann bis wann, plus Pausen — nicht nur die Summe",
+          "Was gemacht wurde, in einem Satz, den auch ein Laie versteht",
+          "Verbrauchtes Material mit Menge",
+          "Fahrzeiten und Spesen getrennt ausgewiesen",
+          "Unterschrift oder Bestätigung des Kunden vor Ort"
+        ]],
+        ["h2", "Der Satz, der den Unterschied macht"],
+        ["p", "Die meisten Reklamationen entstehen nicht an den Stunden, sondern an der Beschreibung. «Diverse Arbeiten, 6.5 Std.» ist eine Einladung zur Diskussion. «Altbeschichtung abgeschliffen, zwei Grundierungen im Treppenhaus 1. OG, 6.5 Std.» ist eine Antwort."],
+        ["p", "Die Faustregel: Der Rapport muss auch in drei Monaten noch verständlich sein, wenn niemand mehr weiss, worum es ging — und wenn ihn jemand liest, der nicht dabei war."],
+        ["h2", "Die Unterschrift vor Ort"],
+        ["p", "Die Unterschrift des Kunden direkt nach der Arbeit ist der wirksamste Schutz gegen spätere Diskussionen. Wer erst am Monatsende eine Rechnung schickt, verhandelt über etwas, das der Kunde längst anders erinnert. Wer vor Ort unterschreiben lässt, verhandelt gar nicht."],
+        ["hinweis", "Praktisch bewährt: Nicht nach dem Wort «Unterschrift» fragen, sondern den Rapport zeigen und sagen, was gemacht wurde. Die Bestätigung ist dann der natürliche Abschluss des Gesprächs, nicht eine zusätzliche Forderung."],
+        ["h2", "Fotos schlagen jede Beschreibung"],
+        ["p", "Zwei Fotos — Zustand vorher, Zustand nachher — beenden Diskussionen, die mit Worten eine Woche dauern. Besonders bei Arbeiten, die man hinterher nicht mehr sieht: unter dem Boden, hinter der Verkleidung, im Schacht. Wichtig ist nur, dass die Fotos am Auftrag hängen und nicht in der Handygalerie von jemandem versinken."],
+        ["h2", "Die drei häufigsten Fehler"],
+        ["ul", [
+          "Rapport erst am Abend oder am nächsten Tag ausfüllen — dann stimmen die Zeiten geschätzt statt gemessen",
+          "Material nachträglich aus dem Kopf ergänzen, weil der Lieferschein im Auto liegt",
+          "Fahrzeit in die Arbeitszeit einrechnen, was bei der Rechnung auffällt und Vertrauen kostet"
+        ]],
+        ["p", "Allen drei Fehlern ist gemeinsam, dass sie entstehen, weil das Erfassen und das Arbeiten zeitlich auseinanderfallen. Das ist keine Frage der Disziplin, sondern des Werkzeugs: Was auf der Baustelle in dreissig Sekunden auf dem Handy erledigt ist, wird gemacht. Was einen Zettel, einen Kugelschreiber und eine ruhige Minute braucht, wird verschoben."]
+      ]
+    },
+    {
+      "datei": "rapportierung-digitalisieren.html",
+      "titel": "Von Excel zur digitalen Rapportierung: Umstieg ohne Chaos | MosaOS",
+      "titel_kurz": "Von Excel und Zetteln zur digitalen Rapportierung",
+      "h1": "Von Excel und Zetteln zur digitalen Rapportierung — ohne dass der Betrieb stillsteht",
+      "lead": "Die Software ist selten das Problem. Der Umstieg scheitert an der Einführung. Ein realistischer Weg in vier Wochen.",
+      "beschreibung": "Wie ein Handwerks- oder Dienstleistungsbetrieb von Excel und Papierrapporten auf digitale Erfassung umstellt, ohne das Tagesgeschäft zu blockieren.",
+      "keywords": "Rapportierung digitalisieren, Excel ablösen Handwerk, digitale Stundenerfassung einführen, Software einführen KMU, Handwerkersoftware Umstieg",
+      "lesezeit": "5 Minuten Lesezeit",
+      "abschnitte": [
+        ["p", "Die meisten Betriebe scheitern nicht daran, eine Software auszuwählen. Sie scheitern daran, sie einzuführen: Die Lizenz läuft, aber die Hälfte der Leute schreibt weiter auf Zettel, und nach drei Monaten hat man beides — das alte Chaos plus eine Rechnung."],
+        ["h2", "Warum Excel so lange funktioniert hat"],
+        ["p", "Excel ist nicht dumm. Es ist sofort da, kostet nichts extra, und jeder Ablauf lässt sich abbilden. Der Preis zeigt sich erst später: Die Datei liegt bei einer Person, zwei Leute können sie nicht gleichzeitig ändern, auf dem Handy ist sie unbrauchbar, und niemand merkt, wenn eine Formel seit Monaten falsch rechnet."],
+        ["p", "Der Punkt zum Wechseln ist erreicht, wenn das Zusammensuchen der Daten länger dauert als die Arbeit, die dokumentiert wird."],
+        ["h2", "Ein realistischer Fahrplan"],
+        ["h3", "Woche 1 — nur Stunden, nur ein Team"],
+        ["p", "Nicht alles auf einmal. Ein Team, eine Funktion: Stunden auf den Auftrag buchen. Nichts anderes. Wer in Woche eins Material, Offerten und Rechnungen gleichzeitig umstellt, erzeugt Widerstand, der nie mehr weggeht."],
+        ["h3", "Woche 2 — parallel laufen lassen"],
+        ["p", "Zettel weiterlaufen lassen und digital doppelt erfassen. Das fühlt sich nach Mehrarbeit an und ist es auch — aber es ist die einzige Woche, in der man Fehler bemerkt, ohne dass eine Rechnung falsch rausgeht."],
+        ["h3", "Woche 3 — Papier abschalten"],
+        ["p", "Jetzt konsequent: keine Zettel mehr annehmen. Wer sie akzeptiert, hält das alte System am Leben. Diese eine Entscheidung entscheidet über den ganzen Umstieg."],
+        ["h3", "Woche 4 — Rechnung aus den Daten"],
+        ["p", "Erst wenn die Erfassung sitzt, den zweiten Schritt: aus den erfassten Stunden direkt die Rechnung erzeugen. Das ist der Moment, in dem der Nutzen für alle sichtbar wird — und ab dem niemand mehr zurückwill."],
+        ["hinweis", "Der häufigste Fehler ist der Start mit den ältesten und skeptischsten Mitarbeitenden, «damit man weiss, ob es funktioniert». Besser umgekehrt: mit denen anfangen, die es ohnehin praktisch finden. Wenn die es benutzen, kommt der Rest von selbst nach."],
+        ["h2", "Woran man vorher denken sollte"],
+        ["ul", [
+          "Funktioniert die Erfassung offline? Im Keller und im Tunnel gibt es kein Netz.",
+          "Kommen die Leute ohne Schulung damit klar? Wenn nicht, ist es zu kompliziert.",
+          "Wo liegen die Daten? Schweiz oder EU erspart die spätere Diskussion.",
+          "Kommt man wieder raus? Ein Export der eigenen Daten sollte selbstverständlich sein.",
+          "Was kostet es pro Person und Monat — und was passiert, wenn im Winter weniger Leute arbeiten?"
+        ]],
+        ["h2", "Was der Umstieg realistisch bringt"],
+        ["p", "Keine Software macht aus einem unorganisierten Betrieb einen organisierten. Was sie verlässlich ändert, ist der Abstand zwischen Arbeit und Rechnung. Betriebe, die vorher am Monatsende zwei Abende mit Zettelsortieren verbracht haben, stellen fest, dass die Rechnung am Tag nach dem Auftrag rausgeht. Das Geld kommt entsprechend früher — und das ist bei kleinen Betrieben oft wichtiger als jede eingesparte Stunde."]
+      ]
+    }
+  ]
+}

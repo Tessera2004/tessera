@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Qué datos debe contener un parte de horas o de trabajo para sostenerse en caso de disputa — estructura, ejemplo y errores más frecuentes." />
+  <meta name="keywords" content="parte de horas, parte de trabajo, modelo de parte, formulario parte artesano, parte de obra Suiza, facturar trabajos por administración" />
+  <title>Parte de horas: qué debe incluir (con modelo) | MosaOS</title>
+  <link rel="canonical" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html" />
+  <link rel="icon" type="image/svg+xml" href="../../logo/favicon.svg" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Parte de horas: qué debe incluir (con modelo) | MosaOS" />
+  <meta property="og:description" content="Qué datos debe contener un parte de horas o de trabajo para sostenerse en caso de disputa — estructura, ejemplo y errores más frecuentes." />
+  <meta property="og:url" content="https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html" />
+  <meta property="og:image" content="https://mosaos.ch/assets/og/index-es.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css?v=10" />
+  <style>
+    /* Lesetext: eine schmale Spalte, damit Zeilen nicht ueber den ganzen
+       Bildschirm laufen — alles andere kommt aus styles.css. */
+    .rg-wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    /* Die Uebersicht braucht Platz fuer drei Karten nebeneinander,
+       der Lesetext dagegen eine schmale Spalte. */
+    .rg-wrap.wide { max-width: 1080px; }
+    .rg-head { padding: 120px 0 32px; }
+    .rg-head .eyebrow { color: var(--swiss); font-weight: 600; font-size: 13px;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+    .rg-head h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15;
+      letter-spacing: -.02em; margin: 0 0 18px; color: var(--text); }
+    .rg-lead { font-size: 18px; line-height: 1.65; color: var(--text-muted); margin: 0; }
+    .rg-meta { font-size: 13.5px; color: var(--text-subtle); margin-top: 20px; }
+    .rg-body { padding-bottom: 72px; }
+    .rg-body h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 14px; color: var(--text); }
+    .rg-body h3 { font-size: 18px; margin: 30px 0 10px; color: var(--text); }
+    .rg-body p { font-size: 16px; line-height: 1.72; color: var(--text-soft); margin: 0 0 16px; }
+    .rg-body ul { margin: 0 0 20px; padding-left: 22px; }
+    .rg-body li { font-size: 16px; line-height: 1.7; color: var(--text-soft); margin-bottom: 9px; }
+    .rg-note { background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-left: 3px solid var(--swiss); border-radius: var(--r-md);
+      padding: 18px 20px; margin: 28px 0; font-size: 15px; line-height: 1.65;
+      color: var(--text-soft); }
+    .rg-cta { background: var(--surface); border: 1px solid var(--border-strong);
+      border-radius: var(--r-xl); padding: 32px; margin: 48px 0 0; text-align: center;
+      box-shadow: var(--shadow-lg); }
+    .rg-cta h2 { margin-top: 0; }
+    .rg-more { border-top: 1px solid var(--border-soft); margin-top: 56px; padding-top: 28px; }
+    .rg-more a { display: block; color: var(--text); font-weight: 600;
+      text-decoration: none; padding: 10px 0; font-size: 15.5px; }
+    .rg-more a:hover { color: var(--swiss); }
+    @media (max-width: 860px) {
+      .nav-actions { display: flex; gap: 8px; align-items: center; }
+      .rg-head { padding-top: 96px; }
+    }
+    .rg-cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr));
+      margin: 40px 0 72px; }
+    .rg-card { background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 26px 24px; text-decoration: none; display: block;
+      transition: border-color .2s var(--ease), transform .2s var(--ease); }
+    .rg-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+    .rg-card h2 { font-size: 18px; margin: 0 0 10px; color: var(--text); }
+    .rg-card p { font-size: 14.5px; line-height: 1.55; color: var(--text-muted); margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="../../es/" class="nav-logo" aria-label="MosaOS">
+        <img src="../../logo/mosaos-mark.svg" alt="" width="32" height="32" />
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="../../es/#branchen">Sectores</a>
+        <a href="../../es/#preise">Precios</a>
+        <a href="index.html">Guías</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="../../app/login.html" class="btn btn-ghost">Acceder</a>
+        <a href="../../app/onboarding.html" class="btn btn-primary">Prueba gratuita</a>
+        <div class="lang-switch"><a href="/ratgeber/stundenrapport-vorlage.html" hreflang="de" class="lang-link">DE</a><a href="/fr/ratgeber/stundenrapport-vorlage.html" hreflang="fr" class="lang-link">FR</a><a href="/it/ratgeber/stundenrapport-vorlage.html" hreflang="it" class="lang-link">IT</a><a href="/es/ratgeber/stundenrapport-vorlage.html" hreflang="es" class="lang-link active">ES</a><a href="/en/ratgeber/stundenrapport-vorlage.html" hreflang="en" class="lang-link">EN</a></div>
+      </div>
+    </div>
+  </header>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Parte de horas y parte de trabajo: qué poner para que nadie reclame",
+  "description": "Qué datos debe contener un parte de horas o de trabajo para sostenerse en caso de disputa — estructura, ejemplo y errores más frecuentes.",
+  "inLanguage": "es",
+  "datePublished": "2026-09-04",
+  "dateModified": "2026-09-04",
+  "author": {
+    "@type": "Organization",
+    "name": "MosaOS"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MosaOS"
+  },
+  "mainEntityOfPage": "https://mosaos.ch/es/ratgeber/stundenrapport-vorlage.html"
+}
+  </script>
+
+  <article>
+    <div class="rg-wrap rg-head">
+      <div class="eyebrow">Guía</div>
+      <h1>Parte de horas y parte de trabajo: qué poner para que nadie reclame</h1>
+      <p class="rg-lead">Un parte no es un formulario, es una demostración. Estos ocho datos deciden si la factura pasa o abre una discusión.</p>
+      <p class="rg-meta">Actualizado el 2026-09-04 · 4 minutos de lectura</p>
+    </div>
+
+    <div class="rg-wrap rg-body">
+      <p>Los partes suelen vivirse como burocracia. Son justo lo contrario: son la razón por la que una factura por administración se paga sin que nadie llame. Un buen parte responde a las preguntas del cliente antes de que las haga.</p>
+      <h2>Los ocho datos</h2>
+      <ul><li>Fecha y encargo — inequívocos, con número, no solo «reforma Müller»</li><li>Lugar del trabajo, si el cliente tiene varios inmuebles</li><li>Quién ha trabajado, por su nombre, no «2 operarios»</li><li>De qué hora a qué hora, con las pausas — no solo la suma</li><li>Qué se ha hecho, en una frase que también entienda un profano</li><li>El material consumido, con cantidades</li><li>Tiempos de desplazamiento y dietas indicados por separado</li><li>Firma o confirmación del cliente in situ</li></ul>
+      <h2>La frase que marca la diferencia</h2>
+      <p>La mayoría de las reclamaciones no van sobre las horas, sino sobre la descripción. «Trabajos varios, 6,5 h» es una invitación a discutir. «Lijado del revestimiento antiguo, dos manos de imprimación en la caja de escalera de la 1.ª planta, 6,5 h» es una respuesta.</p>
+      <p>La regla: el parte debe seguir siendo comprensible dentro de tres meses, cuando nadie recuerde de qué iba — y legible para alguien que no estuvo allí.</p>
+      <h2>La firma in situ</h2>
+      <p>La firma del cliente justo después del trabajo es la protección más eficaz contra discusiones posteriores. Quien solo manda la factura a fin de mes negocia sobre algo que el cliente hace tiempo que recuerda de otra manera. Quien hace firmar in situ no negocia en absoluto.</p>
+      <div class="rg-note">Lo que funciona en la práctica: no pedir «una firma», sino enseñar el parte y contar qué se ha hecho. La confirmación se convierte así en el cierre natural de la conversación, no en una exigencia añadida.</div>
+      <h2>Las fotos superan cualquier descripción</h2>
+      <p>Dos fotos — estado antes, estado después — cierran discusiones que con palabras duran una semana. Sobre todo en trabajos que luego ya no se ven: bajo el suelo, detrás del revestimiento, en el patinillo. Lo único importante es que las fotos queden colgadas del encargo y no se hundan en la galería del móvil de alguien.</p>
+      <h2>Los tres errores más frecuentes</h2>
+      <ul><li>Rellenar el parte por la tarde o al día siguiente — las horas quedan estimadas en lugar de medidas</li><li>Añadir el material de memoria, porque el albarán se quedó en la furgoneta</li><li>Contar el tiempo de viaje como tiempo de trabajo, algo que se nota en la factura y cuesta confianza</li></ul>
+      <p>Los tres errores tienen algo en común: nacen de que trabajar y registrar ocurren en momentos distintos. No es una cuestión de disciplina, sino de herramienta: lo que en la obra se despacha en treinta segundos con el móvil se hace. Lo que exige un papel, un bolígrafo y un minuto de calma se aplaza.</p>
+
+      <div class="rg-cta">
+        <h2>Partes terminados antes de acabar el día</h2>
+        <p>MosaOS registra horas, material y fotos directamente en la obra — y genera la factura con un clic. 14 días gratis, sin tarjeta de crédito.</p>
+        <a href="../../app/onboarding.html" class="btn btn-primary btn-lg">Probar 14 días gratis</a>
+      </div>
+
+      <div class="rg-more">
+        <h3>Seguir leyendo</h3>
+      <a href="arbeitszeiterfassung-schweiz.html">→ El registro de jornada en Suiza</a>
+      <a href="rapportierung-digitalisieren.html">→ De Excel y el papel al parte digital</a>
+      </div>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 MosaOS · Software modular para pymes suizas</p>
+        <p>
+          <a href="../../impressum.html">Aviso legal</a> ·
+          <a href="../../agb.html">Condiciones</a> ·
+          <a href="../../datenschutz.html">Protección de datos</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

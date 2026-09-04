@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Cómo una empresa artesanal o de servicios pasa de Excel y los partes en papel al registro digital, sin bloquear el día a día." />
+  <meta name="keywords" content="digitalizar partes de trabajo, sustituir Excel obra, implantar control horario, implantar software pyme, cambio de software artesanos" />
+  <title>De Excel al parte digital: el cambio sin caos | MosaOS</title>
+  <link rel="canonical" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="it" href="https://mosaos.ch/it/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="es" href="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="en" href="https://mosaos.ch/en/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/rapportierung-digitalisieren.html" />
+  <link rel="icon" type="image/svg+xml" href="../../logo/favicon.svg" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="De Excel al parte digital: el cambio sin caos | MosaOS" />
+  <meta property="og:description" content="Cómo una empresa artesanal o de servicios pasa de Excel y los partes en papel al registro digital, sin bloquear el día a día." />
+  <meta property="og:url" content="https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html" />
+  <meta property="og:image" content="https://mosaos.ch/assets/og/index-es.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css?v=10" />
+  <style>
+    /* Lesetext: eine schmale Spalte, damit Zeilen nicht ueber den ganzen
+       Bildschirm laufen — alles andere kommt aus styles.css. */
+    .rg-wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    /* Die Uebersicht braucht Platz fuer drei Karten nebeneinander,
+       der Lesetext dagegen eine schmale Spalte. */
+    .rg-wrap.wide { max-width: 1080px; }
+    .rg-head { padding: 120px 0 32px; }
+    .rg-head .eyebrow { color: var(--swiss); font-weight: 600; font-size: 13px;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+    .rg-head h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15;
+      letter-spacing: -.02em; margin: 0 0 18px; color: var(--text); }
+    .rg-lead { font-size: 18px; line-height: 1.65; color: var(--text-muted); margin: 0; }
+    .rg-meta { font-size: 13.5px; color: var(--text-subtle); margin-top: 20px; }
+    .rg-body { padding-bottom: 72px; }
+    .rg-body h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 14px; color: var(--text); }
+    .rg-body h3 { font-size: 18px; margin: 30px 0 10px; color: var(--text); }
+    .rg-body p { font-size: 16px; line-height: 1.72; color: var(--text-soft); margin: 0 0 16px; }
+    .rg-body ul { margin: 0 0 20px; padding-left: 22px; }
+    .rg-body li { font-size: 16px; line-height: 1.7; color: var(--text-soft); margin-bottom: 9px; }
+    .rg-note { background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-left: 3px solid var(--swiss); border-radius: var(--r-md);
+      padding: 18px 20px; margin: 28px 0; font-size: 15px; line-height: 1.65;
+      color: var(--text-soft); }
+    .rg-cta { background: var(--surface); border: 1px solid var(--border-strong);
+      border-radius: var(--r-xl); padding: 32px; margin: 48px 0 0; text-align: center;
+      box-shadow: var(--shadow-lg); }
+    .rg-cta h2 { margin-top: 0; }
+    .rg-more { border-top: 1px solid var(--border-soft); margin-top: 56px; padding-top: 28px; }
+    .rg-more a { display: block; color: var(--text); font-weight: 600;
+      text-decoration: none; padding: 10px 0; font-size: 15.5px; }
+    .rg-more a:hover { color: var(--swiss); }
+    @media (max-width: 860px) {
+      .nav-actions { display: flex; gap: 8px; align-items: center; }
+      .rg-head { padding-top: 96px; }
+    }
+    .rg-cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr));
+      margin: 40px 0 72px; }
+    .rg-card { background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 26px 24px; text-decoration: none; display: block;
+      transition: border-color .2s var(--ease), transform .2s var(--ease); }
+    .rg-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+    .rg-card h2 { font-size: 18px; margin: 0 0 10px; color: var(--text); }
+    .rg-card p { font-size: 14.5px; line-height: 1.55; color: var(--text-muted); margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav" id="nav" style="opacity:1; transform:none;">
+    <div class="nav-inner">
+      <a href="../../es/" class="nav-logo" aria-label="MosaOS">
+        <img src="../../logo/mosaos-mark.svg" alt="" width="32" height="32" />
+        <span>Mosa<span class="brand-os">OS</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="../../es/#branchen">Sectores</a>
+        <a href="../../es/#preise">Precios</a>
+        <a href="index.html">Guías</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="../../app/login.html" class="btn btn-ghost">Acceder</a>
+        <a href="../../app/onboarding.html" class="btn btn-primary">Prueba gratuita</a>
+        <div class="lang-switch"><a href="/ratgeber/rapportierung-digitalisieren.html" hreflang="de" class="lang-link">DE</a><a href="/fr/ratgeber/rapportierung-digitalisieren.html" hreflang="fr" class="lang-link">FR</a><a href="/it/ratgeber/rapportierung-digitalisieren.html" hreflang="it" class="lang-link">IT</a><a href="/es/ratgeber/rapportierung-digitalisieren.html" hreflang="es" class="lang-link active">ES</a><a href="/en/ratgeber/rapportierung-digitalisieren.html" hreflang="en" class="lang-link">EN</a></div>
+      </div>
+    </div>
+  </header>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "De Excel y el papel al parte digital — sin que la empresa se pare",
+  "description": "Cómo una empresa artesanal o de servicios pasa de Excel y los partes en papel al registro digital, sin bloquear el día a día.",
+  "inLanguage": "es",
+  "datePublished": "2026-09-04",
+  "dateModified": "2026-09-04",
+  "author": {
+    "@type": "Organization",
+    "name": "MosaOS"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MosaOS"
+  },
+  "mainEntityOfPage": "https://mosaos.ch/es/ratgeber/rapportierung-digitalisieren.html"
+}
+  </script>
+
+  <article>
+    <div class="rg-wrap rg-head">
+      <div class="eyebrow">Guía</div>
+      <h1>De Excel y el papel al parte digital — sin que la empresa se pare</h1>
+      <p class="rg-lead">El software rara vez es el problema. Lo que falla es la implantación. Un camino realista en cuatro semanas.</p>
+      <p class="rg-meta">Actualizado el 2026-09-04 · 5 minutos de lectura</p>
+    </div>
+
+    <div class="rg-wrap rg-body">
+      <p>La mayoría de las empresas no fracasa al elegir un software. Fracasa al implantarlo: la licencia corre, pero la mitad de la gente sigue escribiendo en papel, y a los tres meses se tienen las dos cosas — el desorden de antes más una factura.</p>
+      <h2>Por qué Excel ha funcionado tanto tiempo</h2>
+      <p>Excel no es tonto. Está disponible al instante, no cuesta nada más y permite representar cualquier proceso. El precio aparece después: el archivo está en manos de una persona, dos no pueden modificarlo a la vez, en el móvil es inservible y nadie se da cuenta de que una fórmula lleva meses calculando mal.</p>
+      <p>El momento de cambiar llega cuando reunir los datos tarda más que el trabajo que se documenta.</p>
+      <h2>Un calendario realista</h2>
+      <h3>Semana 1 — solo las horas, un solo equipo</h3>
+      <p>No todo a la vez. Un equipo, una función: imputar horas al encargo. Nada más. Quien en la primera semana cambia a la vez material, presupuestos y facturas genera una resistencia que ya no desaparece.</p>
+      <h3>Semana 2 — dejar correr ambos en paralelo</h3>
+      <p>Mantener el papel y registrar además en digital. Parece trabajo doble, y lo es — pero es la única semana en la que se detectan errores sin que salga una factura equivocada.</p>
+      <h3>Semana 3 — apagar el papel</h3>
+      <p>Ahora sin excepciones: no se acepta ni un papel más. Quien los acepta mantiene vivo el sistema antiguo. Esa única decisión determina todo el cambio.</p>
+      <h3>Semana 4 — la factura a partir de los datos</h3>
+      <p>Solo cuando el registro funciona llega el segundo paso: generar la factura directamente a partir de las horas registradas. Es el momento en que la utilidad se hace visible para todos — y a partir del cual ya nadie quiere volver atrás.</p>
+      <div class="rg-note">El error más frecuente es empezar por los empleados más veteranos y escépticos, «para ver si funciona». Mejor al revés: empezar por quienes ya lo encuentran práctico. Si ellos lo usan, el resto va detrás solo.</div>
+      <h2>En qué pensar antes</h2>
+      <ul><li>¿Funciona el registro sin conexión? En un sótano o en un túnel no hay cobertura.</li><li>¿Se maneja la gente sin formación? Si no, es demasiado complicado.</li><li>¿Dónde están los datos? Suiza o la UE ahorra la discusión posterior.</li><li>¿Se puede salir? Poder exportar los propios datos debería darse por hecho.</li><li>¿Cuánto cuesta por persona y mes — y qué pasa si en invierno trabaja menos gente?</li></ul>
+      <h2>Qué aporta el cambio de forma realista</h2>
+      <p>Ningún software convierte una empresa desorganizada en una organizada. Lo que cambia de forma fiable es la distancia entre el trabajo y la factura. Empresas que antes dedicaban dos tardes a fin de mes a ordenar papeles comprueban que la factura sale al día siguiente del encargo. El dinero llega, por tanto, antes — y en una empresa pequeña eso suele importar más que cualquier hora ahorrada.</p>
+
+      <div class="rg-cta">
+        <h2>Partes terminados antes de acabar el día</h2>
+        <p>MosaOS registra horas, material y fotos directamente en la obra — y genera la factura con un clic. 14 días gratis, sin tarjeta de crédito.</p>
+        <a href="../../app/onboarding.html" class="btn btn-primary btn-lg">Probar 14 días gratis</a>
+      </div>
+
+      <div class="rg-more">
+        <h3>Seguir leyendo</h3>
+      <a href="arbeitszeiterfassung-schweiz.html">→ El registro de jornada en Suiza</a>
+      <a href="stundenrapport-vorlage.html">→ El parte de horas que nadie reclama</a>
+      </div>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 MosaOS · Software modular para pymes suizas</p>
+        <p>
+          <a href="../../impressum.html">Aviso legal</a> ·
+          <a href="../../agb.html">Condiciones</a> ·
+          <a href="../../datenschutz.html">Protección de datos</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

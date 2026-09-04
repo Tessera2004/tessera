@@ -1,0 +1,144 @@
+{
+  "woerter": {
+    "nav_aria": "Navegación principal",
+    "nav_branchen": "Sectores",
+    "nav_preise": "Precios",
+    "nav_ratgeber": "Guías",
+    "nav_login": "Acceder",
+    "nav_start": "Prueba gratuita",
+    "eyebrow": "Guía",
+    "stand": "Actualizado el",
+    "weiter": "Seguir leyendo",
+    "cta_titel": "Partes terminados antes de acabar el día",
+    "cta_text": "MosaOS registra horas, material y fotos directamente en la obra — y genera la factura con un clic. 14 días gratis, sin tarjeta de crédito.",
+    "cta_knopf": "Probar 14 días gratis",
+    "fuss_claim": "Software modular para pymes suizas",
+    "fuss_impressum": "Aviso legal",
+    "fuss_agb": "Condiciones",
+    "fuss_datenschutz": "Protección de datos",
+    "hub_titel": "Guías para empresas de servicios suizas | MosaOS",
+    "hub_beschreibung": "Artículos prácticos sobre registro de jornada, partes de horas y digitalización de partes de trabajo — para empresas artesanales y de servicios en Suiza.",
+    "hub_keywords": "registro de jornada Suiza, parte de horas, parte de trabajo, digitalizar partes, guía software pyme",
+    "hub_h1": "Guías",
+    "hub_lead": "Lo que realmente consume tiempo en el día a día de una empresa de servicios suiza — y cómo lo han resuelto otros. Sin discurso comercial."
+  },
+  "artikel": [
+    {
+      "datei": "arbeitszeiterfassung-schweiz.html",
+      "titel": "Registro de jornada en Suiza: las obligaciones explicadas | MosaOS",
+      "titel_kurz": "El registro de jornada en Suiza",
+      "h1": "Registro de jornada en Suiza: qué debe documentar realmente una empresa",
+      "lead": "Casi todas las empresas suizas deben documentar la jornada de sus empleados. Esto es qué exactamente — y qué facilidades existen.",
+      "beschreibung": "Quién debe registrar la jornada en Suiza, qué debe contener el registro y cuándo se aplican el registro simplificado o la renuncia. Explicado con claridad.",
+      "keywords": "registro de jornada Suiza, obligación de fichar, OLT 1, registro simplificado, documentar jornada Suiza",
+      "lesezeit": "5 minutos de lectura",
+      "abschnitte": [
+        ["p", "Tarde o temprano la pregunta aparece en toda empresa: ¿basta con que la gente apunte sus horas en un papel? La respuesta corta es no — pero la obligación es menos complicada de lo que sugiere su fama."],
+        ["h2", "¿A quién afecta?"],
+        ["p", "La base es la ley del trabajo. Se aplica a la gran mayoría de las empresas privadas en Suiza, también a la empresa de pintura con tres empleados, a la de limpieza y al taller de coches. Quien tiene personal está, por regla general, obligado a documentar sus tiempos de trabajo y de descanso."],
+        ["p", "Quedan excluidos algunos ámbitos y grupos de personas — por ejemplo los empleados con una posición directiva elevada. Para una empresa artesanal o de servicios típica, sin embargo, la obligación rige sin restricciones."],
+        ["h2", "¿Qué debe contener el registro?"],
+        ["p", "No se trata de vigilar cada minuto. Lo que se exige es una prueba comprensible de que se han respetado las reglas sobre tiempo de trabajo y descanso. En lo esencial:"],
+        ["ul", [
+          "la jornada diaria efectivamente realizada, incluido el trabajo compensatorio y las horas extraordinarias",
+          "la ubicación y la duración de las pausas a partir de media hora",
+          "el inicio y el fin del trabajo nocturno y dominical, cuando se dé",
+          "el tiempo de descanso entre jornadas, cuando no se haya respetado"
+        ]],
+        ["p", "Los registros deben estar accesibles para el control de las inspecciones cantonales de trabajo y se conservan habitualmente cinco años."],
+        ["h2", "Las dos facilidades"],
+        ["p", "Desde 2016, la ordenanza 1 de la ley del trabajo prevé dos excepciones que muchas empresas desconocen:"],
+        ["h3", "Registro simplificado"],
+        ["p", "Quien puede organizar en gran medida su propio horario solo debe, bajo ciertas condiciones, consignar la duración diaria del trabajo — ya no el inicio, el fin y cada pausa. Se requiere un acuerdo escrito, normalmente con la representación de los trabajadores o de forma colectiva en la empresa."],
+        ["h3", "Renuncia al registro"],
+        ["p", "Una renuncia completa solo es posible para un grupo reducido: empleados con muchísima autonomía en la organización de su tiempo y con un ingreso bruto anual por encima de un umbral fijado. Hace falta además un convenio colectivo que lo prevea y un acuerdo individual por escrito. Para la mayoría de las pymes esta vía sencillamente no es aplicable."],
+        ["hinweis", "Este texto es una orientación, no un asesoramiento jurídico. Las reglas vinculantes están en la ley del trabajo y en su ordenanza 1; la SECO publica un comentario al respecto. En caso de duda, merece la pena una consulta breve a la inspección cantonal de trabajo — la información es gratuita."],
+        ["h2", "Por qué el papel sigue siendo el problema"],
+        ["p", "Jurídicamente, un registro en papel es admisible. En la práctica falla en tres puntos, y en todas las empresas igual:"],
+        ["ul", [
+          "Los papeles llegan tarde. A fin de mes falta la mitad y ya nadie sabe qué pasó el día 12.",
+          "Los papeles no se pueden analizar. La pregunta «¿cuántas horas hubo en este encargo?» cuesta una tarde.",
+          "Los papeles se pierden. Justo cuando llega la inspección o un cliente discute una factura."
+        ]],
+        ["p", "La verdadera ganancia de un registro digital rara vez está, por tanto, en el cumplimiento legal — eso se consigue también con papel. Está en que las horas quedan colgadas del encargo correcto el mismo día y en que la factura sale de ahí en minutos en lugar de horas."],
+        ["h2", "Qué necesita una empresa en concreto"],
+        ["p", "Quien quiera dejar el papel debería fijarse en tres cosas. El registro tiene que funcionar en el móvil, o no ocurrirá donde se trabaja. Tiene que asignar las horas a un encargo, o se tendrá un control horario pero seguirá sin haber cálculo posterior. Y los datos deberían estar en Suiza o en la UE, lo que ahorra la pregunta sobre protección de datos antes de que se formule."]
+      ]
+    },
+    {
+      "datei": "stundenrapport-vorlage.html",
+      "titel": "Parte de horas: qué debe incluir (con modelo) | MosaOS",
+      "titel_kurz": "El parte de horas que nadie reclama",
+      "h1": "Parte de horas y parte de trabajo: qué poner para que nadie reclame",
+      "lead": "Un parte no es un formulario, es una demostración. Estos ocho datos deciden si la factura pasa o abre una discusión.",
+      "beschreibung": "Qué datos debe contener un parte de horas o de trabajo para sostenerse en caso de disputa — estructura, ejemplo y errores más frecuentes.",
+      "keywords": "parte de horas, parte de trabajo, modelo de parte, formulario parte artesano, parte de obra Suiza, facturar trabajos por administración",
+      "lesezeit": "4 minutos de lectura",
+      "abschnitte": [
+        ["p", "Los partes suelen vivirse como burocracia. Son justo lo contrario: son la razón por la que una factura por administración se paga sin que nadie llame. Un buen parte responde a las preguntas del cliente antes de que las haga."],
+        ["h2", "Los ocho datos"],
+        ["ul", [
+          "Fecha y encargo — inequívocos, con número, no solo «reforma Müller»",
+          "Lugar del trabajo, si el cliente tiene varios inmuebles",
+          "Quién ha trabajado, por su nombre, no «2 operarios»",
+          "De qué hora a qué hora, con las pausas — no solo la suma",
+          "Qué se ha hecho, en una frase que también entienda un profano",
+          "El material consumido, con cantidades",
+          "Tiempos de desplazamiento y dietas indicados por separado",
+          "Firma o confirmación del cliente in situ"
+        ]],
+        ["h2", "La frase que marca la diferencia"],
+        ["p", "La mayoría de las reclamaciones no van sobre las horas, sino sobre la descripción. «Trabajos varios, 6,5 h» es una invitación a discutir. «Lijado del revestimiento antiguo, dos manos de imprimación en la caja de escalera de la 1.ª planta, 6,5 h» es una respuesta."],
+        ["p", "La regla: el parte debe seguir siendo comprensible dentro de tres meses, cuando nadie recuerde de qué iba — y legible para alguien que no estuvo allí."],
+        ["h2", "La firma in situ"],
+        ["p", "La firma del cliente justo después del trabajo es la protección más eficaz contra discusiones posteriores. Quien solo manda la factura a fin de mes negocia sobre algo que el cliente hace tiempo que recuerda de otra manera. Quien hace firmar in situ no negocia en absoluto."],
+        ["hinweis", "Lo que funciona en la práctica: no pedir «una firma», sino enseñar el parte y contar qué se ha hecho. La confirmación se convierte así en el cierre natural de la conversación, no en una exigencia añadida."],
+        ["h2", "Las fotos superan cualquier descripción"],
+        ["p", "Dos fotos — estado antes, estado después — cierran discusiones que con palabras duran una semana. Sobre todo en trabajos que luego ya no se ven: bajo el suelo, detrás del revestimiento, en el patinillo. Lo único importante es que las fotos queden colgadas del encargo y no se hundan en la galería del móvil de alguien."],
+        ["h2", "Los tres errores más frecuentes"],
+        ["ul", [
+          "Rellenar el parte por la tarde o al día siguiente — las horas quedan estimadas en lugar de medidas",
+          "Añadir el material de memoria, porque el albarán se quedó en la furgoneta",
+          "Contar el tiempo de viaje como tiempo de trabajo, algo que se nota en la factura y cuesta confianza"
+        ]],
+        ["p", "Los tres errores tienen algo en común: nacen de que trabajar y registrar ocurren en momentos distintos. No es una cuestión de disciplina, sino de herramienta: lo que en la obra se despacha en treinta segundos con el móvil se hace. Lo que exige un papel, un bolígrafo y un minuto de calma se aplaza."]
+      ]
+    },
+    {
+      "datei": "rapportierung-digitalisieren.html",
+      "titel": "De Excel al parte digital: el cambio sin caos | MosaOS",
+      "titel_kurz": "De Excel y el papel al parte digital",
+      "h1": "De Excel y el papel al parte digital — sin que la empresa se pare",
+      "lead": "El software rara vez es el problema. Lo que falla es la implantación. Un camino realista en cuatro semanas.",
+      "beschreibung": "Cómo una empresa artesanal o de servicios pasa de Excel y los partes en papel al registro digital, sin bloquear el día a día.",
+      "keywords": "digitalizar partes de trabajo, sustituir Excel obra, implantar control horario, implantar software pyme, cambio de software artesanos",
+      "lesezeit": "5 minutos de lectura",
+      "abschnitte": [
+        ["p", "La mayoría de las empresas no fracasa al elegir un software. Fracasa al implantarlo: la licencia corre, pero la mitad de la gente sigue escribiendo en papel, y a los tres meses se tienen las dos cosas — el desorden de antes más una factura."],
+        ["h2", "Por qué Excel ha funcionado tanto tiempo"],
+        ["p", "Excel no es tonto. Está disponible al instante, no cuesta nada más y permite representar cualquier proceso. El precio aparece después: el archivo está en manos de una persona, dos no pueden modificarlo a la vez, en el móvil es inservible y nadie se da cuenta de que una fórmula lleva meses calculando mal."],
+        ["p", "El momento de cambiar llega cuando reunir los datos tarda más que el trabajo que se documenta."],
+        ["h2", "Un calendario realista"],
+        ["h3", "Semana 1 — solo las horas, un solo equipo"],
+        ["p", "No todo a la vez. Un equipo, una función: imputar horas al encargo. Nada más. Quien en la primera semana cambia a la vez material, presupuestos y facturas genera una resistencia que ya no desaparece."],
+        ["h3", "Semana 2 — dejar correr ambos en paralelo"],
+        ["p", "Mantener el papel y registrar además en digital. Parece trabajo doble, y lo es — pero es la única semana en la que se detectan errores sin que salga una factura equivocada."],
+        ["h3", "Semana 3 — apagar el papel"],
+        ["p", "Ahora sin excepciones: no se acepta ni un papel más. Quien los acepta mantiene vivo el sistema antiguo. Esa única decisión determina todo el cambio."],
+        ["h3", "Semana 4 — la factura a partir de los datos"],
+        ["p", "Solo cuando el registro funciona llega el segundo paso: generar la factura directamente a partir de las horas registradas. Es el momento en que la utilidad se hace visible para todos — y a partir del cual ya nadie quiere volver atrás."],
+        ["hinweis", "El error más frecuente es empezar por los empleados más veteranos y escépticos, «para ver si funciona». Mejor al revés: empezar por quienes ya lo encuentran práctico. Si ellos lo usan, el resto va detrás solo."],
+        ["h2", "En qué pensar antes"],
+        ["ul", [
+          "¿Funciona el registro sin conexión? En un sótano o en un túnel no hay cobertura.",
+          "¿Se maneja la gente sin formación? Si no, es demasiado complicado.",
+          "¿Dónde están los datos? Suiza o la UE ahorra la discusión posterior.",
+          "¿Se puede salir? Poder exportar los propios datos debería darse por hecho.",
+          "¿Cuánto cuesta por persona y mes — y qué pasa si en invierno trabaja menos gente?"
+        ]],
+        ["h2", "Qué aporta el cambio de forma realista"],
+        ["p", "Ningún software convierte una empresa desorganizada en una organizada. Lo que cambia de forma fiable es la distancia entre el trabajo y la factura. Empresas que antes dedicaban dos tardes a fin de mes a ordenar papeles comprueban que la factura sale al día siguiente del encargo. El dinero llega, por tanto, antes — y en una empresa pequeña eso suele importar más que cualquier hora ahorrada."]
+      ]
+    }
+  ]
+}
