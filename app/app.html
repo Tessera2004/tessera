@@ -22,7 +22,7 @@
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
   <script src="app-i18n.js?v=29"></script>
-  <script src="tour.js?v=3" defer></script>
+  <script src="tour.js?v=4" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -11150,7 +11150,14 @@ ${coSig}`;
               || a.team.name.localeCompare(b.team.name));
           const option = options[0];
           if (!option) {
-            toast(`Die Serie kann nicht angelegt werden: An mindestens einem Termin ist kein Team mit genügend freien Mitarbeitenden verfügbar.`, 'error');
+            // Die Meldung nennt den Tag und sagt, was zu tun ist. Vorher stand
+            // hier immer "Die Serie", auch bei einem einzelnen Termin — und es
+            // blieb offen, woran es lag.
+            const tag = new Date(dk + 'T00:00:00').toLocaleDateString('de-CH',
+              { weekday: 'long', day: '2-digit', month: '2-digit' });
+            const wieViele = requestedCrew === 1 ? 'eine Person' : `${requestedCrew} Personen`;
+            toast(`Am ${tag} ist kein Team mit ${wieViele} frei. `
+                + `Wähle einen anderen Tag, eine andere Zeit oder weniger Personen.`, 'error');
             return;
           }
           teamByDate[dk] = option.team.id;

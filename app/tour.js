@@ -137,6 +137,10 @@
     document.body.appendChild(h);
 
     document.getElementById('tourWeg').addEventListener('click', () => beenden(false));
+    // Klick auf die abgedunkelte Flaeche beendet die Tour. Ohne das wirkt die
+    // ganze App tot: Die Huelle liegt ueber allem, jeder Klick daneben geht
+    // ins Leere, und der Benutzer haelt die Knoepfe fuer kaputt.
+    h.addEventListener('click', (e) => { if (e.target === h) beenden(false); });
     document.getElementById('tourZurueck').addEventListener('click', () => gehe(i - 1));
     document.getElementById('tourWeiter').addEventListener('click', () => gehe(i + 1));
     document.addEventListener('keydown', tastatur);
