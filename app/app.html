@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=31"></script>
+  <script src="app-i18n.js?v=32"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -4281,36 +4281,105 @@
     // Die selbst angelegten Leistungen auch unten bei "Preise pro Leistung"
     // zeigen — mit aenderbarem Preis. Vorher standen sie nur als Merkzettel
     // oben, und die Karte unten blieb leer.
+    // Jede eigene Leistung bekommt eine eigene Karte mit denselben
+    // Einstellungen wie die Standardleistungen: Abrechnungsart, Preis,
+    // Mindestbuchung und Anfahrtspauschale.
     function renderCustomServiceCards() {
-      const ziel = document.getElementById('customServiceCards');
-      if (!ziel) return;
-      const svcs = servicesForCurrentVertical();
+      const grid = document.getElementById('priceGridReinigung');
+      const platzhalter = document.getElementById('customServiceCards');
+      if (!grid || !platzhalter) return;
       const waehrung = (typeof coLocale === 'function' && typeof loadCompany === 'function')
         ? coLocale(loadCompany()).cur : 'CHF';
-      if (!svcs.length) {
-        ziel.innerHTML = `<div style="text-align:center; padding:14px 0 18px;">
-          <button class="btn btn-secondary" style="width:100%;"
-            onclick="document.getElementById('customServiceName')?.focus();
-                     document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth', block:'center'});">
-            + ${tt('price.custom.add', 'Service hinzufügen')}
-          </button></div>`;
-        return;
-      }
-      ziel.innerHTML = svcs.map(sv => `
-        <div class="price-row">
-          <label title="${escapeHtml(sv.title)}">${escapeHtml(sv.title)}</label>
-          <div class="price-input-wrap">
-            <input type="number" class="price-input" value="${sv.price}" step="0.5" min="0"
-              onchange="setCustomServicePrice('${sv.id}', this.value)" />
-            <span class="price-suffix">${waehrung} ${sv.unit === 'h' ? '/ h' : ''}</span>
+
+      // Karten aus dem vorigen Durchlauf entfernen
+      grid.querySelectorAll('[data-customcard]').forEach(k => k.remove());
+
+      const svcs = servicesForCurrentVertical();
+      const platzhalterKarte = platzhalter.closest('.price-card');
+      svcs.forEach(sv => {
+        const einheit = sv.unit === 'h' ? 'h' : (sv.unit === 'qm' ? 'qm' : 'flat');
+        const karte = document.createElement('div');
+        karte.className = 'price-card';
+        karte.dataset.customcard = sv.id;
+        karte.style = '--svc-color: var(--text-muted); --svc-color-soft: var(--surface-2);';
+        karte.innerHTML = `
+          <div class="price-card-head">
+            <div class="price-card-icon" style="background: var(--surface-2); color: var(--text-muted);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div class="price-card-title">${escapeHtml(sv.title)}</div>
+              <div class="price-card-sub">${tt('price.custom.t', 'Eigene Leistung')}</div>
+            </div>
+            <button class="btn btn-ghost" title="${tt('common.delete','Löschen')}"
+              style="color: var(--danger); padding: 4px 8px;"
+              onclick="removeCustomService('${sv.id}')">×</button>
           </div>
-        </div>`).join('')
-        + `<div style="text-align:center; margin-top:12px;">
-             <button class="btn btn-secondary" style="width:100%;"
-               onclick="document.getElementById('customServiceName')?.focus();
-                        document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth', block:'center'});">
-               + ${tt('price.custom.add', 'Service hinzufügen')}
-             </button></div>`;
+          <div class="price-card-body">
+            <div class="price-row">
+              <label>${tt('price.row.mode', 'Abrechnung nach')}</label>
+              <div class="opt-row">
+                <button type="button" class="opt-chip ${einheit==='h'?'on':''}"
+                  onclick="setCustomServiceField('${sv.id}','unit','h')">${tt('price.mode.hour','pro Stunde')}</button>
+                <button type="button" class="opt-chip ${einheit==='qm'?'on':''}"
+                  onclick="setCustomServiceField('${sv.id}','unit','qm')">${tt('price.mode.sqm','pro m²')}</button>
+                <button type="button" class="opt-chip ${einheit==='flat'?'on':''}"
+                  onclick="setCustomServiceField('${sv.id}','unit','flat')">${tt('price.mode.flat','Pauschale')}</button>
+              </div>
+            </div>
+            <div class="price-row">
+              <label>${einheit==='h' ? tt('price.row.hourly','Stundensatz')
+                     : einheit==='qm' ? tt('price.row.perSqm','Preis pro m²')
+                     : tt('price.row.flat','Pauschalpreis')}</label>
+              <div class="price-input-wrap">
+                <input type="number" class="price-input" value="${sv.price}" step="0.5" min="0"
+                  onchange="setCustomServiceField('${sv.id}','price', this.value)" />
+                <span class="price-suffix">${waehrung}${einheit==='h' ? ' / h' : einheit==='qm' ? ' / m²' : ''}</span>
+              </div>
+            </div>
+            <div class="price-row">
+              <label>${einheit==='h' ? tt('price.row.minHours','Mindestbuchung')
+                                     : tt('price.row.minOrder','Mindestauftrag')}</label>
+              <div class="price-input-wrap">
+                <input type="number" class="price-input" value="${sv.minQty || 0}" step="0.5" min="0"
+                  onchange="setCustomServiceField('${sv.id}','minQty', this.value)" />
+                <span class="price-suffix">${einheit==='h' ? 'h' : waehrung}</span>
+              </div>
+            </div>
+            <div class="price-row">
+              <label>${tt('price.row.fee','Anfahrt pauschal')}</label>
+              <div class="price-input-wrap">
+                <input type="number" class="price-input" value="${sv.fee || 0}" step="1" min="0"
+                  onchange="setCustomServiceField('${sv.id}','fee', this.value)" />
+                <span class="price-suffix">${waehrung}</span>
+              </div>
+            </div>
+          </div>`;
+        grid.insertBefore(karte, platzhalterKarte);
+      });
+
+      platzhalter.innerHTML = `<div style="text-align:center; padding:14px 0 18px;">
+        <button class="btn btn-secondary" style="width:100%;"
+          onclick="document.getElementById('customServiceName')?.focus();
+                   document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth', block:'center'});">
+          + ${tt('price.custom.add', 'Service hinzufügen')}
+        </button></div>`;
+    }
+
+    function setCustomServiceField(id, feld, wert) {
+      const alle = loadCustomServices();
+      const e = alle.find(x => x.id === id);
+      if (!e) return;
+      if (feld === 'unit') { e.unit = wert; }
+      else {
+        const z = Number(wert);
+        if (!Number.isFinite(z) || z < 0) return;
+        e[feld] = z;
+      }
+      localStorage.setItem(CUSTOM_SERVICES_KEY, JSON.stringify(alle));
+      try { window.MosaDB?.push('company_custom_services', alle); } catch {}
+      renderCustomServices();
+      toast('Gespeichert');
     }
 
     function setCustomServicePrice(id, wert) {
@@ -9964,15 +10033,32 @@
         }
         const def = genericServiceDef(wizService);
         const base = genericServicePrice(wizService);
+        const mindest = Number(def?.minQty) || 0;
+        const anfahrt = Number(def?.fee) || 0;
         let price, htxt;
         if (def && def.unit === 'h') {
-          const hours = parseFloat(hoursEl?.value) || 0;
+          const roh = parseFloat(hoursEl?.value) || 0;
+          const hours = Math.max(roh, mindest);      // Mindestbuchung
           price = Math.round((hours * base) * 20) / 20;
-          htxt = `${String(hours).replace('.', ',')} Std × ${currency} ${base}`;
+          htxt = `${String(hours).replace('.', ',')} Std × ${currency} ${base}`
+               + (hours > roh ? ` (Mindestbuchung)` : '');
+        } else if (def && def.unit === 'qm') {
+          const qm = parseInt(document.getElementById('wizGenericQty')?.value) || 1;
+          price = Math.round((base * qm) * 20) / 20;
+          htxt = `${qm} m² × ${currency} ${base}`;
         } else {
           const qty = parseInt(document.getElementById('wizGenericQty')?.value) || 1;
           price = Math.round((base * qty) * 20) / 20;
           htxt = qty > 1 ? `${qty} × ${currency} ${base} pauschal` : `Pauschale ${currency} ${base}`;
+        }
+        // Mindestauftrag bei m² und Pauschale, danach die Anfahrt
+        if (def && def.unit !== 'h' && mindest > 0 && price < mindest) {
+          price = mindest;
+          htxt += ` · Mindestauftrag ${currency} ${mindest}`;
+        }
+        if (anfahrt > 0) {
+          price = Math.round((price + anfahrt) * 20) / 20;
+          htxt += ` + ${currency} ${anfahrt} Anfahrt`;
         }
         if (out) out.textContent = currency + ' ' + price.toFixed(2);
         if (hint) hint.textContent = htxt;
