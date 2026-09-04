@@ -3148,7 +3148,9 @@ html[data-skin="calm"] .nav-badge {
 
   --text: #ECEAE6;
   --text-muted: #9A958C;
-  --text-subtle: #6E6960;
+  /* Vorher #6E6960 — das ergab auf dem dunklen Grund nur 3.2:1 und war auf
+     vielen Bildschirmen kaum zu lesen. Jetzt rund 5:1. */
+  --text-subtle: #8F8A82;
 
   --primary: #ECEAE6;
   --primary-hover: #D8D5CF;

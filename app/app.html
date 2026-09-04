@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=9" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=29"></script>
+  <script src="app-i18n.js?v=30"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -789,6 +789,7 @@
               <button class="btn btn-secondary" data-f="dringend" onclick="setTaskFilter('dringend')" data-i18n="task.fUrgent">Dringend</button>
               <button class="btn btn-secondary" data-f="normal" onclick="setTaskFilter('normal')" data-i18n="task.fNormal">Normal</button>
               <button class="btn btn-secondary" data-f="erledigt" onclick="setTaskFilter('erledigt')" data-i18n="common.doneCheck">✓ Erledigt</button>
+              <button class="btn btn-secondary" id="taskNurMeine" onclick="toggleNurMeine()" data-i18n="task.onlyMine">Nur meine</button>
             </div>
             <select id="taskAssigneeFilter" onchange="renderAufgaben()" style="padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 13px; background: var(--surface); color: var(--text);">
               <option value="" data-i18n="task.allPersons">Alle Personen</option>
@@ -7426,6 +7427,14 @@
     function saveTasks(arr) { localStorage.setItem(TASKS_KEY, JSON.stringify(arr)); window.MosaDB?.push('tasks', arr); }
     let TASKS = loadTasks();
 
+    let nurMeineAufgaben = false;
+    function toggleNurMeine() {
+      nurMeineAufgaben = !nurMeineAufgaben;
+      const b = document.getElementById('taskNurMeine');
+      if (b) b.classList.toggle('is-active', nurMeineAufgaben);
+      renderAufgaben();
+    }
+
     function taskAssigneeLabel(uid) {
       const u = loadUsers().find(x => x.id === uid);
       return u ? `${u.firstname} ${u.lastname}` : '— niemand —';
@@ -7473,6 +7482,9 @@
       else filtered = filtered.filter(t => !t.done);
 
       if (assFilter) filtered = filtered.filter(t => t.assignee === assFilter);
+      // "Nur meine" hat Vorrang vor der Personenauswahl: Wer den Knopf drueckt,
+      // will seine eigenen Aufgaben sehen, egal was im Auswahlfeld steht.
+      if (nurMeineAufgaben && currentUser) filtered = filtered.filter(t => t.assignee === currentUser.id);
       if (q) {
         filtered = filtered.filter(t =>
           (t.title || '').toLowerCase().includes(q) ||
