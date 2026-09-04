@@ -3375,9 +3375,14 @@ html[data-skin="buero"] .timeline-hour { background: var(--surface-2); }
 #tourHuelle {
   position: fixed; inset: 0; z-index: 9000;
   opacity: 0; visibility: hidden;
+  /* Entscheidend: Solange die Tour nicht laeuft, faengt sie keine Klicks ab.
+     Ohne das lag die Tour-Karte unsichtbar ueber den ersten Wochentagen —
+     Montag bis Mittwoch reagierten nie, Donnerstag bis Sonntag schon.
+     Unsichtbar heisst nicht unklickbar; das muss man getrennt abschalten. */
+  pointer-events: none;
   transition: opacity 0.25s ease, visibility 0.25s ease;
 }
-#tourHuelle.an { opacity: 1; visibility: visible; }
+#tourHuelle.an { opacity: 1; visibility: visible; pointer-events: auto; }
 #tourLoch {
   position: fixed; border-radius: 12px;
   box-shadow: 0 0 0 9999px rgba(4, 7, 16, 0.74);
