@@ -6034,12 +6034,22 @@
       if (!c) return;
       if (!confirm(`Kunde "${customerDisplayName(c)}" wirklich löschen? Telefon-Historie geht verloren.`)) return;
       const next = list.filter(x => x.id !== editingCustomerId);
+      const geloeschteId = editingCustomerId;
       saveCustomers(next);
-      window.MosaDB?.remove('customers', editingCustomerId);
       closeModal('customerEditor');
       editingCustomerId = null;
       renderKunden();
-      toast('Kunde gelöscht');
+      // Auf die Datenbank warten: Schlaegt das Loeschen dort fehl (etwa weil
+      // die Rolle kein Schreibrecht hat), war der Kunde nach dem naechsten
+      // Laden wieder da — und die Meldung hatte "geloescht" behauptet.
+      const db = window.MosaDB;
+      if (!db) { toast('Kunde gelöscht'); return; }
+      db.remove('customers', geloeschteId).then(ok => {
+        toast(ok ? 'Kunde gelöscht'
+                 : 'Kunde lokal entfernt, aber nicht in der Datenbank. '
+                 + 'Er kann beim nächsten Laden zurückkommen.',
+              ok ? 'success' : 'error');
+      });
     }
 
     // ============ HANDWERK: Baustellen (Board) + Rapporte (Regie) ============
