@@ -13,7 +13,10 @@ Geprueft wird:
   3. Stimmen Betrag, Waehrung und monatliche Wiederholung?
   4. Fehlt ein Modul, das die App anbietet?
   5. Zeigt ein aktiver Webhook auf die richtige Adresse,
-     mit den vier Ereignissen, die der Code braucht?
+     mit den fuenf Ereignissen, die der Code braucht?
+     ('invoice.upcoming' gehoert dazu: ohne dieses Ereignis wird die
+      Zahl der Mitarbeitenden nie nachgefuehrt und die CHF 4 pro Kopf
+      bleiben fuer immer auf dem Stand vom Kauftag.)
 
 Aufruf:
     python3 scripts/stripe-pruefen.py
@@ -40,7 +43,8 @@ API = 'https://api.stripe.com/v1'
 WAEHRUNG = 'chf'
 WEBHOOK_ZIEL = 'functions/v1/stripe-webhook'
 NOETIGE_EVENTS = {'checkout.session.completed', 'customer.subscription.created',
-                  'customer.subscription.updated', 'customer.subscription.deleted'}
+                  'customer.subscription.updated', 'customer.subscription.deleted',
+                  'invoice.upcoming'}
 SCHLUESSEL = ''
 
 def ruf(pfad):

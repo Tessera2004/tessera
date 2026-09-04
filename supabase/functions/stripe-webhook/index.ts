@@ -44,7 +44,14 @@ Deno.serve(async (req) => {
   // jede Aenderung dazwischen. Das erspart anteilige Zwischenrechnungen bei
   // jeder Einstellung und jedem Austritt.
   if (event.type === 'invoice.upcoming') {
-    await sitzeAktualisieren(db, String(event.data?.object?.subscription || ''));
+    // Die Abo-Nummer steht je nach API-Version an zwei Stellen: frueher direkt
+    // als 'subscription', seit 2025 unter 'parent'. Beide lesen, sonst faellt
+    // die Nachfuehrung still aus, sobald Stripe das Konto hochzieht.
+    const rechnung = event.data?.object || {};
+    const abo = rechnung.subscription
+      || rechnung.parent?.subscription_details?.subscription
+      || '';
+    await sitzeAktualisieren(db, String(abo));
   }
 
   const { error: eventError } = await db.from('stripe_events').insert({ event_id: event.id, event_type: event.type });
