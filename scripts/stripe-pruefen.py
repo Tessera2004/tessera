@@ -12,7 +12,10 @@ Geprueft wird:
      (Das ist der haeufigste Fehler: Sandbox-IDs mit Live-Schluessel.)
   3. Stimmen Betrag, Waehrung und monatliche Wiederholung?
   4. Fehlt ein Modul, das die App anbietet?
-  5. Zeigt ein aktiver Webhook auf die richtige Adresse,
+  5. Ist das Konto ueberhaupt aktiviert — kann es Zahlungen annehmen
+     und auszahlen? (Preise und Webhooks nuetzen nichts, solange Stripe
+     die Angaben zum Unternehmen nicht geprueft hat.)
+  6. Zeigt ein aktiver Webhook auf die richtige Adresse,
      mit den fuenf Ereignissen, die der Code braucht?
      ('invoice.upcoming' gehoert dazu: ohne dieses Ereignis wird die
       Zahl der Mitarbeitenden nie nachgefuehrt und die CHF 4 pro Kopf
@@ -124,6 +127,33 @@ def main():
     unbekannt = [k for k in karte if k not in erwartet]
     if unbekannt:
         print('  ! Zusätzlich in der Karte, von der App nicht genutzt: ' + ', '.join(unbekannt))
+
+    # Ein Konto kann Preise und Webhooks haben und trotzdem kein Geld annehmen:
+    # Solange Stripe die Angaben zum Unternehmen nicht geprueft hat, steht
+    # charges_enabled auf false. Der Checkout scheitert dann beim Kunden.
+    print('\nKonto-Aktivierung')
+    konto = ruf('/account')
+    if konto:
+        annehmen = konto.get('charges_enabled')
+        auszahlen = konto.get('payouts_enabled')
+        print(f'  {"✓" if annehmen else "✗"} Zahlungen annehmen: '
+              + ('ja' if annehmen else 'NEIN — der Checkout scheitert beim Kunden'))
+        print(f'  {"✓" if auszahlen else "✗"} Auszahlungen: '
+              + ('ja' if auszahlen else 'NEIN — Geld kommt nicht auf dein Konto'))
+        if not annehmen: fehler += 1
+        if not auszahlen: fehler += 1
+        offen = (konto.get('requirements') or {})
+        faellig = (offen.get('currently_due') or []) + (offen.get('past_due') or [])
+        if faellig:
+            print('  ✗ Stripe fehlen noch diese Angaben:')
+            for x in faellig[:12]:
+                print('      ' + x)
+            if len(faellig) > 12: print(f'      … und {len(faellig)-12} weitere')
+            fehler += 1
+        frist = offen.get('current_deadline')
+        if frist:
+            import datetime
+            print('  ! Frist: ' + datetime.datetime.fromtimestamp(frist).strftime('%d.%m.%Y'))
 
     print('\nWebhook')
     endpunkte = ruf('/webhook_endpoints?limit=100')
