@@ -1382,8 +1382,9 @@
                   <div class="price-card-sub" data-i18n="price.custom.s">Spezialreinigung, Sonderauftrag, …</div>
                 </div>
               </div>
-              <div class="price-card-body" style="text-align: center; padding-top: 20px; padding-bottom: 24px;">
-                <button class="btn btn-secondary" style="width: 100%;" onclick="document.getElementById('customServiceName')?.focus(); document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth',block:'center'});" data-i18n="price.addService">+ Service hinzufügen</button>
+              <div class="price-card-body" id="customServiceCards" style="padding-top: 14px; padding-bottom: 18px;">
+                <!-- Die selbst angelegten Leistungen erscheinen hier, damit sie
+                     neben den Standardleistungen sichtbar und aenderbar sind. -->
               </div>
             </div>
 
@@ -4277,7 +4278,56 @@
       const vert = window.MosaVertical?.get?.() || 'reinigung';
       return loadCustomServices().filter(s => s.vertical === vert);
     }
+    // Die selbst angelegten Leistungen auch unten bei "Preise pro Leistung"
+    // zeigen — mit aenderbarem Preis. Vorher standen sie nur als Merkzettel
+    // oben, und die Karte unten blieb leer.
+    function renderCustomServiceCards() {
+      const ziel = document.getElementById('customServiceCards');
+      if (!ziel) return;
+      const svcs = servicesForCurrentVertical();
+      const waehrung = (typeof coLocale === 'function' && typeof loadCompany === 'function')
+        ? coLocale(loadCompany()).cur : 'CHF';
+      if (!svcs.length) {
+        ziel.innerHTML = `<div style="text-align:center; padding:14px 0 18px;">
+          <button class="btn btn-secondary" style="width:100%;"
+            onclick="document.getElementById('customServiceName')?.focus();
+                     document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth', block:'center'});">
+            + ${tt('price.custom.add', 'Service hinzufügen')}
+          </button></div>`;
+        return;
+      }
+      ziel.innerHTML = svcs.map(sv => `
+        <div class="price-row">
+          <label title="${escapeHtml(sv.title)}">${escapeHtml(sv.title)}</label>
+          <div class="price-input-wrap">
+            <input type="number" class="price-input" value="${sv.price}" step="0.5" min="0"
+              onchange="setCustomServicePrice('${sv.id}', this.value)" />
+            <span class="price-suffix">${waehrung} ${sv.unit === 'h' ? '/ h' : ''}</span>
+          </div>
+        </div>`).join('')
+        + `<div style="text-align:center; margin-top:12px;">
+             <button class="btn btn-secondary" style="width:100%;"
+               onclick="document.getElementById('customServiceName')?.focus();
+                        document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth', block:'center'});">
+               + ${tt('price.custom.add', 'Service hinzufügen')}
+             </button></div>`;
+    }
+
+    function setCustomServicePrice(id, wert) {
+      const preis = Number(wert);
+      if (!Number.isFinite(preis) || preis < 0) return;
+      const alle = loadCustomServices();
+      const eintrag = alle.find(x => x.id === id);
+      if (!eintrag) return;
+      eintrag.price = preis;
+      localStorage.setItem(CUSTOM_SERVICES_KEY, JSON.stringify(alle));
+      try { window.MosaDB?.push('company_custom_services', alle); } catch {}
+      renderCustomServices();
+      toast('Preis gespeichert');
+    }
+
     function renderCustomServices() {
+      renderCustomServiceCards();
       const list = document.getElementById('customServicesList'); if (!list) return;
       const svcs = servicesForCurrentVertical();
       list.innerHTML = svcs.length ? svcs.map(s => `<span class="custom-service-chip"><strong>${escapeHtml(s.title)}</strong><span>${s.unit === 'h' ? 'CHF ' + s.price + ' / h' : 'CHF ' + s.price + ' pauschal'}</span><button title="Entfernen" onclick="removeCustomService('${s.id}')">×</button></span>`).join('') : '<span style="font-size:12px;color:var(--text-subtle);">Noch keine eigene Leistung angelegt.</span>';
