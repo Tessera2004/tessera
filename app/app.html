@@ -17,7 +17,7 @@
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
   <script src="mail-config.js"></script>
-  <script src="db-sync.js"></script>
+  <script src="db-sync.js?v=2"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
@@ -4599,6 +4599,9 @@
             u.id = frisch;
           });
           localStorage.setItem('cc-users', JSON.stringify(liste));
+          // Die Warteschlange enthaelt noch Eintraege mit den alten IDs. Die
+          // koennen nie durchgehen und wuerden bei jedem Laden erneut scheitern.
+          try { window.MosaDB?.leeren?.(); } catch {}
         }
         return liste;
       } catch { return standardBenutzer(); }

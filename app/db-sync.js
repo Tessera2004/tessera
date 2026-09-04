@@ -708,16 +708,39 @@
     }
   }
 
+  // Nach so vielen vergeblichen Versuchen wird ein Eintrag verworfen. Ohne
+  // Grenze blieb er ewig liegen und scheiterte bei jedem Laden neu — etwa
+  // wenn er Daten enthielt, die die Datenbank grundsaetzlich ablehnt. Das
+  // erzeugte endlose Fehlermeldungen, die mit dem aktuellen Zustand der App
+  // nichts mehr zu tun hatten.
+  const MAX_VERSUCHE = 5;
+
   async function flushQueue() {
     const queue = lsGet(SYNC_QUEUE_KEY, []);
     if (!Array.isArray(queue) || !queue.length) { setSyncState('synced'); return; }
     const remaining = [];
+    let aufgegeben = 0;
     for (const item of queue) {
+      const versuche = item.attempts || 0;
+      if (versuche >= MAX_VERSUCHE) { aufgegeben++; continue; }
       const ok = await push(item.type, item.data, true);
-      if (!ok) remaining.push({ ...item, attempts: (item.attempts || 0) + 1, lastAttemptAt: new Date().toISOString() });
+      if (!ok) remaining.push({ ...item, attempts: versuche + 1, lastAttemptAt: new Date().toISOString() });
     }
     localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(remaining));
+    if (aufgegeben) {
+      console.warn('[MosaDB] ' + aufgegeben + ' Aenderung(en) nach ' + MAX_VERSUCHE
+        + ' Versuchen verworfen. Sie liessen sich nicht speichern.');
+    }
     setSyncState(remaining.length ? 'pending' : 'synced', remaining.length);
+  }
+
+  // Die Warteschlange von Hand leeren — fuer den Fall, dass alte Eintraege
+  // Daten enthalten, die es so nicht mehr gibt.
+  function warteschlangeLeeren() {
+    const anzahl = (lsGet(SYNC_QUEUE_KEY, []) || []).length;
+    localStorage.setItem(SYNC_QUEUE_KEY, '[]');
+    setSyncState('synced');
+    return anzahl;
   }
 
   // ── Remove ───────────────────────────────────────────────
@@ -740,5 +763,5 @@
   }
 
   window.addEventListener('online', flushQueue);
-  window.MosaDB = { init: dbInit, push, remove, flush: flushQueue };
+  window.MosaDB = { init: dbInit, push, remove, flush: flushQueue, leeren: warteschlangeLeeren };
 })();
