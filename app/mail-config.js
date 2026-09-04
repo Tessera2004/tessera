@@ -9,7 +9,7 @@
    1. https://console.cloud.google.com/
    2. APIs & Services → Credentials → + CREATE → OAuth 2.0 Client ID
    3. Typ: Webanwendung
-   4. Authorized JavaScript origins: https://<deine-domain>.netlify.app
+   4. Authorized JavaScript origins: https://mosaos.ch
    5. clientId unten eintragen (Format: xxxx.apps.googleusercontent.com)
    6. Gmail API aktivieren (APIs & Services → Library → Gmail API → Enable)
 
@@ -18,7 +18,7 @@
    1. https://portal.azure.com/
    2. Azure Active Directory → App registrations → New registration
    3. Name: MosaOS Mail, Supported account types: Multitenant (oder Single)
-   4. Redirect URI: Single-page application (SPA) → https://<deine-domain>.netlify.app
+   4. Redirect URI: Single-page application (SPA) → https://mosaos.ch
    5. API permissions: Microsoft Graph → Mail.Read, offline_access (Delegated)
    6. Application (Client) ID unten eintragen
 

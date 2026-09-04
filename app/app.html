@@ -4673,13 +4673,46 @@
         `<button type="button" class="opt-chip ${key === inviteRole ? 'on' : ''}" data-invrole="${key}" onclick="selectInviteRole(this,'${key}')">${escapeHtml(roleLabel(key))}</button>`
       ).join('');
     }
-    function openInviteModal() {
+    function openInviteModal(vorbelegt) {
       if (!requirePerm('edit_users', 'das Team verwalten')) return;
       ['inviteFirstname', 'inviteLastname', 'inviteEmail'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
       document.getElementById('inviteError').style.display = 'none';
       inviteRole = 'readonly';
+      // Aus der Mitarbeiterliste heraus wird mit Name, Mail und Rolle "field"
+      // vorbelegt: Mitarbeitende brauchen einen Zugang fuer die Feld-App,
+      // sonst sehen sie ihre Einsaetze auf dem Handy nicht.
+      if (vorbelegt) {
+        const f = document.getElementById('inviteFirstname');
+        const l = document.getElementById('inviteLastname');
+        const m = document.getElementById('inviteEmail');
+        if (f) f.value = vorbelegt.firstname || '';
+        if (l) l.value = vorbelegt.lastname || '';
+        if (m) m.value = vorbelegt.email || '';
+        if (vorbelegt.role) inviteRole = vorbelegt.role;
+      }
       renderInviteRoleChips();
       openModal('inviteUser');
+    }
+
+    // Zugang fuer einen Mitarbeitenden aus der Mitarbeiterliste
+    function inviteEmployee(id) {
+      // Mitarbeitende stehen in EMPLOYEES; empById kennt den Zugriff bereits.
+      const e = (typeof empById === 'function') ? empById(id)
+              : (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES.find(x => x.id === id) : null);
+      if (!e) return;
+      const mail = (e.email || '').trim();
+      if (!mail) {
+        toast('Für diese Person ist keine E-Mail hinterlegt. '
+            + 'Trage sie beim Mitarbeitenden ein, dann kannst du den Zugang verschicken.', 'error');
+        return;
+      }
+      // Die Felder heissen firstName/lastName (grosses N), nicht firstname.
+      const teile = (e.name || '').trim().split(/\s+/);
+      openInviteModal({
+        firstname: e.firstName || e.firstname || teile[0] || '',
+        lastname:  e.lastName  || e.lastname  || teile.slice(1).join(' ') || '',
+        email: mail, role: 'field'
+      });
     }
     // Baut den Einladungs-Link (zeigt auf accept-invite.html, gleicher Ordner wie app.html)
     function inviteLink(email, token) {
@@ -8034,6 +8067,12 @@
             ${statusBadge}
           </div>
           ${driveLine}
+          ${hasPerm('edit_users') ? `<button class="btn btn-secondary" style="margin-top:10px; width:100%;"
+             onclick="event.stopPropagation(); inviteEmployee('${e.id}')"
+             title="${e.email ? 'Zugang zur Feld-App verschicken' : 'Zuerst eine E-Mail hinterlegen'}">
+             ${e.email ? tt('team.inviteField', 'Zugang zur App senden')
+                       : tt('team.needMail', 'E-Mail fehlt')}
+           </button>` : ''}
         </div>`;
       }).join('');
     }
