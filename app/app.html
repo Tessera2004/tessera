@@ -4476,20 +4476,50 @@
       closeModal('roleEditor');
       toast('Rolle gelöscht');
     }
-    const DEFAULT_USERS = [
-      { id: 'u1', firstname: 'Brian',  lastname: 'Knuchel',  email: 'brian@firma.ch',  role: 'admin'       },
-      { id: 'u2', firstname: 'Sandra', lastname: 'Meier',    email: 'sandra@firma.ch', role: 'disposition' },
-      { id: 'u3', firstname: 'Markus', lastname: 'Lehmann',  email: 'markus@firma.ch', role: 'buchhaltung' },
-      { id: 'u4', firstname: 'Lara',   lastname: 'Fischer',  email: 'lara@firma.ch',   role: 'readonly'    }
-    ];
+    // Feste IDs wie 'u1' waren ein Fehler: office_users.id ist ueber ALLE
+    // Betriebe hinweg eindeutig. Legte Betrieb A ein u1 an, konnte Betrieb B
+    // nie speichern — der Upsert traf eine fremde Zeile und die
+    // Sicherheitsregel lehnte ab ("new row violates row-level security
+    // policy"). Sichtbar war davon nichts ausser einer Konsolenmeldung.
+    // Jede Anlage bekommt jetzt eine eigene Kennung.
+    function neueId(praefix) {
+      const zufall = (crypto?.randomUUID) ? crypto.randomUUID().slice(0, 8)
+                   : Math.random().toString(36).slice(2, 10);
+      return praefix + Date.now().toString(36) + zufall;
+    }
+
+    function standardBenutzer() {
+      return [
+        { id: neueId('u'), firstname: 'Brian',  lastname: 'Knuchel',  email: 'brian@firma.ch',  role: 'admin'       },
+        { id: neueId('u'), firstname: 'Sandra', lastname: 'Meier',    email: 'sandra@firma.ch', role: 'disposition' },
+        { id: neueId('u'), firstname: 'Markus', lastname: 'Lehmann',  email: 'markus@firma.ch', role: 'buchhaltung' },
+        { id: neueId('u'), firstname: 'Lara',   lastname: 'Fischer',  email: 'lara@firma.ch',   role: 'readonly'    }
+      ];
+    }
 
     function loadUsers() {
       const raw = localStorage.getItem('cc-users');
       if (!raw) {
-        localStorage.setItem('cc-users', JSON.stringify(DEFAULT_USERS));
-        return DEFAULT_USERS.slice();
+        const neu = standardBenutzer();
+        localStorage.setItem('cc-users', JSON.stringify(neu));
+        return neu.slice();
       }
-      try { return JSON.parse(raw); } catch { return DEFAULT_USERS.slice(); }
+      try {
+        const liste = JSON.parse(raw);
+        // Altlast: wer noch u1..u4 hat, bekommt eigene Kennungen. Sonst
+        // kollidiert er weiter mit den Zeilen eines anderen Betriebs.
+        const alt = liste.filter(u => /^u[1-9]$/.test(u.id));
+        if (alt.length) {
+          const merker = localStorage.getItem('cc-currentUser');
+          alt.forEach(u => {
+            const frisch = neueId('u');
+            if (merker === u.id) localStorage.setItem('cc-currentUser', frisch);
+            u.id = frisch;
+          });
+          localStorage.setItem('cc-users', JSON.stringify(liste));
+        }
+        return liste;
+      } catch { return standardBenutzer(); }
     }
     function saveUsers(users) { localStorage.setItem('cc-users', JSON.stringify(users)); window.MosaDB?.push('office_users', users); }
     function getUserInitials(u) {
