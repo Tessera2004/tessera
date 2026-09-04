@@ -1744,7 +1744,7 @@
             </div>
             <div class="field">
               <label data-i18n="wiz.startTime">Startzeit</label>
-              <input type="time" id="wizStart" value="08:00" step="900" />
+              <input type="time" id="wizStart" value="08:00" step="900" oninput="_wizStartBeruehrt = true;" />
             </div>
             <div class="field">
               <label data-i18n="wiz.durationH">Dauer (Stunden)</label>
@@ -9613,6 +9613,7 @@
         // Step 2 → Step 3: Minuten aus Service-Optionen in Stunden-Feld übernehmen
         _syncWizDuration();
         if (wizService === 'end') applyHandoverSchedule();
+        _wizStartVorbelegen();
         wizCalcPrice();
         wizCheckAvailability();
       }
@@ -9740,6 +9741,31 @@
     let priceOverrideActive = false;
 
     // Überträgt die in Schritt 2 eingegebenen Minuten als Stunden in das wizDuration-Feld
+    // Startzeit vorbelegen: Steht die Voreinstellung noch (08:00) und ist zu
+    // dieser Zeit kein Team frei — etwa weil an dem Tag schon ein Einsatz
+    // liegt —, wird gleich der naechste freie Zeitpunkt eingesetzt. Vorher
+    // stand dort stur 08:00, und man bekam nur die Meldung "nicht moeglich".
+    // Eine vom Benutzer selbst gewaehlte Zeit bleibt unangetastet.
+    let _wizStartBeruehrt = false;
+    function _wizStartVorbelegen() {
+      if (_wizStartBeruehrt) return;
+      const ws = document.getElementById('wizStart');
+      if (!ws || ws.value !== '08:00') return;
+      const dv = document.getElementById('wizDate')?.value;
+      const dk = dv || isoDate(planCurrentDate);
+      const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
+      const dur = Math.round(hours * 60);
+      const crew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+      const team = document.getElementById('wizardTeamSelect')?.value || '';
+      const jetzt = parseHM('08:00');
+      // Ist 08:00 schon frei, bleibt alles wie es ist.
+      let frei = availabilityAt(dk, jetzt, dur, crew);
+      if (team) frei = frei.filter(r => r.team.id === team);
+      if (frei.some(r => r.available)) return;
+      const slot = nextFreeSlotSameDay(dk, jetzt, dur, crew, team);
+      if (slot != null) ws.value = fmtMinHM(slot);
+    }
+
     function _syncWizDuration() {
       if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) return;   // generische/eigene Leistungen: Dauer manuell in Schritt 3
       if (!wizService || wizService === 'fassade') return;
