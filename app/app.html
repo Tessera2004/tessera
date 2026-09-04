@@ -7468,6 +7468,27 @@
       renderAufgaben();
     }
 
+    // Die Synchronisierung meldet Fehler ueber ein Ereignis — bisher hoerte
+    // niemand zu. Wer keine Konsole offen hatte, merkte nicht, dass nichts
+    // gespeichert wurde (etwa weil eine Datenbankregel das Schreiben ablehnt).
+    (() => {
+      let zuletztGemeldet = 0;
+      window.addEventListener('mosaos-sync-state', (e) => {
+        const { state, detail } = e.detail || {};
+        if (state !== 'error') return;
+        // Hoechstens alle 30 Sekunden melden, sonst ueberdeckt es alles.
+        if (Date.now() - zuletztGemeldet < 30000) return;
+        zuletztGemeldet = Date.now();
+        const text = String(detail || '');
+        const rechte = /row-level security|permission denied|violates/i.test(text);
+        toast(rechte
+          ? 'Änderungen werden nicht gespeichert: Die Datenbank lehnt das Schreiben ab. '
+            + 'Deine Rolle hat dort keine Schreibrechte — siehe scripts/rolle-pruefen.sql.'
+          : 'Änderungen konnten nicht gespeichert werden: ' + text.slice(0, 90),
+          'error');
+      });
+    })();
+
     function taskAssigneeLabel(uid) {
       const u = loadUsers().find(x => x.id === uid);
       return u ? `${u.firstname} ${u.lastname}` : '— niemand —';
