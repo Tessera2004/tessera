@@ -1523,11 +1523,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
                 <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
-                <input type="number" value="120" />
+                <input type="number" oninput="wizCalcPrice()" value="120" />
               </div>
               <div class="field">
                 <label data-i18n="wiz.estDurMin">Geschätzte Dauer (min)</label>
-                <input type="number" value="90" />
+                <input type="number" oninput="wizCalcPrice()" value="90" />
               </div>
             </div>
           </div>
@@ -1552,11 +1552,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
                 <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
-                <input type="number" id="endFlaeche" value="65" onchange="recalcStart()" />
+                <input type="number" oninput="wizCalcPrice()" id="endFlaeche" value="65" onchange="recalcStart()" />
               </div>
               <div class="field">
                 <label data-i18n="wiz.rooms">Zimmeranzahl</label>
-                <input type="number" id="endRaeume" value="2" onchange="recalcStart()" />
+                <input type="number" oninput="wizCalcPrice()" id="endRaeume" value="2" onchange="recalcStart()" />
               </div>
             </div>
 
@@ -1612,11 +1612,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="field">
                 <label data-i18n="wiz.windowCount">Anzahl Fenster</label>
-                <input type="number" value="24" />
+                <input type="number" oninput="wizCalcPrice()" value="24" />
               </div>
               <div class="field">
                 <label data-i18n="wiz.estDurMin">Geschätzte Dauer (min)</label>
-                <input type="number" value="120" />
+                <input type="number" oninput="wizCalcPrice()" value="120" />
               </div>
             </div>
           </div>
@@ -9813,7 +9813,11 @@
       let breakdown = [];
 
       if (wizService === 'unterhalt') {
-        mins = parseInt(document.querySelector('.svc-options[data-svc-opts="unterhalt"] input[type="number"]:nth-of-type(2)')?.value || 90);
+        // :nth-of-type(2) traf nie etwas — jedes Feld sitzt in einem eigenen
+        // Container, ist dort also das erste seiner Art. Die eingegebene Dauer
+        // wurde deshalb ignoriert und immer mit 90 Minuten gerechnet.
+        const uInputs = document.querySelectorAll('.svc-options[data-svc-opts="unterhalt"] input[type="number"]');
+        mins = parseInt(uInputs[1]?.value || 90);
         rate = getPrice('unterhalt-rate');
         minHours = getPrice('unterhalt-min');
         fee = getPrice('unterhalt-fee');
