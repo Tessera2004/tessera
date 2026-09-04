@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=30"></script>
+  <script src="app-i18n.js?v=31"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1198,10 +1198,26 @@
               </div>
               <div class="price-card-body">
                 <div class="price-row">
+                  <label data-i18n="price.row.mode">Abrechnung nach</label>
+                  <div class="opt-row" data-pricemode="end">
+                    <button type="button" class="opt-chip on" data-mode="qm"
+                      onclick="setPriceMode('end','qm')" data-i18n="price.mode.sqm">pro m²</button>
+                    <button type="button" class="opt-chip" data-mode="std"
+                      onclick="setPriceMode('end','std')" data-i18n="price.mode.hour">pro Stunde</button>
+                  </div>
+                </div>
+                <div class="price-row" data-modeonly="end:qm">
                   <label data-i18n="price.row.perSqm">Preis pro m²</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="end-qm" value="3.2" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
+                  </div>
+                </div>
+                <div class="price-row" data-modeonly="end:std" style="display:none">
+                  <label data-i18n="price.row.hourly">Stundensatz</label>
+                  <div class="price-input-wrap">
+                    <input type="number" class="price-input" data-price="end-rate" value="45" step="1" oninput="onPriceChange()" />
+                    <span class="price-suffix">CHF / h</span>
                   </div>
                 </div>
                 <div class="price-row">
@@ -1275,10 +1291,26 @@
               </div>
               <div class="price-card-body">
                 <div class="price-row">
+                  <label data-i18n="price.row.mode">Abrechnung nach</label>
+                  <div class="opt-row" data-pricemode="bau">
+                    <button type="button" class="opt-chip on" data-mode="qm"
+                      onclick="setPriceMode('bau','qm')" data-i18n="price.mode.sqm">pro m²</button>
+                    <button type="button" class="opt-chip" data-mode="std"
+                      onclick="setPriceMode('bau','std')" data-i18n="price.mode.hour">pro Stunde</button>
+                  </div>
+                </div>
+                <div class="price-row" data-modeonly="bau:qm">
                   <label data-i18n="price.row.perSqm">Preis pro m²</label>
                   <div class="price-input-wrap">
                     <input type="number" class="price-input" data-price="bau-qm" value="2.8" step="0.1" oninput="onPriceChange()" />
                     <span class="price-suffix">€ / m²</span>
+                  </div>
+                </div>
+                <div class="price-row" data-modeonly="bau:std" style="display:none">
+                  <label data-i18n="price.row.hourly">Stundensatz</label>
+                  <div class="price-input-wrap">
+                    <input type="number" class="price-input" data-price="bau-rate" value="55" step="1" oninput="onPriceChange()" />
+                    <span class="price-suffix">CHF / h</span>
                   </div>
                 </div>
                 <div class="price-row">
@@ -9768,9 +9800,46 @@
       });
     }
 
+    document.addEventListener('DOMContentLoaded', () => { try { renderPriceModes(); } catch {} });
+
     function getPrice(key) {
       const el = document.querySelector(`[data-price="${key}"]`);
       return el ? parseFloat(el.value) || 0 : (defaultPrices[key] || 0);
+    }
+
+    // Abrechnungsart je Leistung: 'qm' oder 'std'. Wird neben den Preisen
+    // gespeichert, damit ein Betrieb selbst entscheidet, ob er nach Flaeche
+    // oder nach Zeit rechnet.
+    function getPriceMode(dienst) {
+      try {
+        const d = JSON.parse(localStorage.getItem('cc-price-modes') || '{}');
+        return d[dienst] || 'qm';
+      } catch { return 'qm'; }
+    }
+
+    function setPriceMode(dienst, modus) {
+      let d = {}; try { d = JSON.parse(localStorage.getItem('cc-price-modes') || '{}'); } catch {}
+      d[dienst] = modus;
+      localStorage.setItem('cc-price-modes', JSON.stringify(d));
+      renderPriceModes();
+      if (typeof toast === 'function') {
+        toast(modus === 'std' ? 'Wird jetzt nach Stunden abgerechnet.'
+                              : 'Wird jetzt nach Fläche abgerechnet.');
+      }
+    }
+
+    // Zeigt je Leistung die passenden Felder und markiert den aktiven Knopf.
+    function renderPriceModes() {
+      document.querySelectorAll('[data-pricemode]').forEach(row => {
+        const dienst = row.dataset.pricemode;
+        const modus = getPriceMode(dienst);
+        row.querySelectorAll('.opt-chip').forEach(c =>
+          c.classList.toggle('on', c.dataset.mode === modus));
+      });
+      document.querySelectorAll('[data-modeonly]').forEach(el => {
+        const [dienst, modus] = el.dataset.modeonly.split(':');
+        el.style.display = (getPriceMode(dienst) === modus) ? '' : 'none';
+      });
     }
 
     function onPriceChange() {
@@ -9908,14 +9977,20 @@
         document.querySelectorAll('.add-task.on').forEach(t => addMins += parseInt(t.dataset.time || 0));
         const feeEnd = getPrice('end-fee');
         const minAuftrag = getPrice('end-min');
-        const base = flaeche * qmPrice;
-        const usedMin = base < minAuftrag;
         const durMins = Math.round(flaeche * 1.8 + raeume * 15 + addMins);
+        // Der Betrieb entscheidet in den Einstellungen, ob nach Flaeche oder
+        // nach Zeit abgerechnet wird. Die Dauer bleibt in beiden Faellen gleich.
+        const nachStunden = getPriceMode('end') === 'std';
+        const stundensatz = getPrice('end-rate');
+        const base = nachStunden ? (durMins / 60) * stundensatz : flaeche * qmPrice;
+        const usedMin = base < minAuftrag;
         return {
           total: Math.max(base, minAuftrag) + feeEnd,
           mins: durMins,
           dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
-          rateStr: `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
+          rateStr: nachStunden
+            ? `${(durMins/60).toFixed(2).replace('.', ',')} Std × ${currency} ${stundensatz}`
+            : `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: feeEnd,
           showFee: feeEnd > 0,
           minApplied: usedMin,
@@ -9946,14 +10021,18 @@
         const qmPrice = getPrice('bau-qm');
         const feeBau = getPrice('bau-fee');
         const minAuftrag = getPrice('bau-min');
-        const base = flaeche * qmPrice;
-        const usedMin = base < minAuftrag;
+        const nachStundenBau = getPriceMode('bau') === 'std';
+        const satzBau = getPrice('bau-rate');
         const durMins = Math.round(flaeche * 1.2 / Math.max(cleaners, 1));
+        const base = nachStundenBau ? (durMins / 60) * satzBau : flaeche * qmPrice;
+        const usedMin = base < minAuftrag;
         return {
           total: Math.max(base, minAuftrag) + feeBau,
           mins: durMins,
           dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
-          rateStr: `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
+          rateStr: nachStundenBau
+            ? `${(durMins/60).toFixed(2).replace('.', ',')} Std × ${currency} ${satzBau}`
+            : `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: feeBau,
           showFee: feeBau > 0,
           minApplied: usedMin,
