@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=39"></script>
+  <script src="app-i18n.js?v=40"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1136,6 +1136,41 @@
             <button class="btn btn-accent" style="margin-top:14px;" onclick="saveCompanyBranding()">Erscheinungsbild speichern</button>
           </div>
 
+          <!-- B7/B8: eigene Texte fuer Offerten und Rechnungen -->
+          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="font-weight:700; font-size:15px;" data-i18n="tpl.title">Eigene Vorlagen</div>
+            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;" data-i18n="tpl.sub">
+              Deine eigenen Texte für Offerten und Rechnungen. Leer lassen heisst: Standardtext.
+            </div>
+            <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;">
+              <span data-i18n="tpl.placeholders">Platzhalter:</span>
+              <code>{kunde}</code> <code>{adresse}</code> <code>{preis}</code>
+              <code>{datum}</code> <code>{gueltig}</code> <code>{firma}</code> <code>{leistung}</code>
+            </div>
+
+            <div class="field" style="margin-top:14px;">
+              <label data-i18n="tpl.offerIntro">Offerte — Einleitung</label>
+              <textarea id="tplOfferteEinleitung" rows="3" data-i18n-ph="tpl.offerIntroPh"
+                placeholder="vielen Dank für Ihre Anfrage zu {leistung} an {adresse}."></textarea>
+            </div>
+            <div class="field">
+              <label data-i18n="tpl.offerOutro">Offerte — Schluss</label>
+              <textarea id="tplOfferteSchluss" rows="3" data-i18n-ph="tpl.offerOutroPh"
+                placeholder="Mit freundlichen Grüssen&#10;{firma}"></textarea>
+            </div>
+            <div class="field">
+              <label data-i18n="tpl.invoiceText">Rechnung — Text über der Position</label>
+              <textarea id="tplRechnungText" rows="2" data-i18n-ph="tpl.invoiceTextPh"
+                placeholder="Für die ausgeführten Arbeiten erlauben wir uns zu berechnen:"></textarea>
+            </div>
+            <div class="field">
+              <label data-i18n="tpl.invoiceTerms">Rechnung — Zahlungsbedingungen</label>
+              <textarea id="tplRechnungBedingungen" rows="2" data-i18n-ph="tpl.invoiceTermsPh"
+                placeholder="Zahlbar innert 30 Tagen ohne Abzug."></textarea>
+            </div>
+            <button class="btn btn-accent" onclick="vorlagenSpeichern()" data-i18n="tpl.save">Vorlagen speichern</button>
+          </div>
+
           <div class="card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
               <div>
@@ -1958,9 +1993,14 @@
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="field">
+          <div class="field" style="position: relative;">
             <label data-i18n="wiz.customer">Kunde</label>
-            <input type="text" id="offKunde" placeholder="z. B. Familie Schmidt" oninput="renderOffertTemplate()" />
+            <input type="text" id="offKunde" autocomplete="off" data-i18n-ph="wiz.customerPh"
+              placeholder="Name oder bestehenden Kunden wählen…"
+              oninput="offKundeSuchen(this.value); renderOffertTemplate();"
+              onfocus="offKundeSuchen(this.value)"
+              onblur="setTimeout(offKundeListeZu, 180)" />
+            <div id="offKundenListe" class="wiz-kundenliste" style="display:none;"></div>
           </div>
           <div class="field">
             <label data-i18n="th.date">Datum</label>
@@ -1975,7 +2015,25 @@
           </div>
           <div class="field">
             <label data-i18n="off.totalPrice">Gesamtpreis (€)</label>
-            <input type="number" id="offPreis" placeholder="0" step="1" oninput="renderOffertTemplate()" />
+            <input type="number" id="offPreis" placeholder="0" step="1" oninput="offPreisBeruehrt = true; renderOffertTemplate();" />
+          </div>
+        </div>
+
+        <!-- B7: Menge, damit der Preis aus der Preisliste kommen kann -->
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+          <div class="field">
+            <label id="offMengeLabel" data-i18n="off.qty">Menge</label>
+            <input type="number" id="offMenge" value="1" min="0" step="0.5"
+              oninput="offPreisAusPreisliste()" />
+          </div>
+          <div class="field">
+            <label data-i18n="off.priceSource">Preis</label>
+            <div style="display:flex; align-items:center; gap:10px; min-height:38px;">
+              <button type="button" class="btn btn-secondary" style="font-size:12px; padding:7px 12px;"
+                onclick="offPreisBeruehrt = false; offPreisAusPreisliste(true);"
+                data-i18n="off.fromPriceList">Aus Preisliste übernehmen</button>
+              <span id="offPreisHinweis" style="font-size:11.5px; color:var(--text-subtle);"></span>
+            </div>
           </div>
         </div>
 
@@ -8272,6 +8330,28 @@
       }
     })();
 
+    function vorlagenFormularFuellen() {
+      const v = ladeVorlagen();
+      const setz = (id, w) => { const e = document.getElementById(id); if (e) e.value = w || ''; };
+      setz('tplOfferteEinleitung', v.offerteEinleitung);
+      setz('tplOfferteSchluss', v.offerteSchluss);
+      setz('tplRechnungText', v.rechnungText);
+      setz('tplRechnungBedingungen', v.rechnungBedingungen);
+    }
+
+    function vorlagenSpeichern() {
+      if (!requirePerm('edit_offerts', 'Vorlagen')) return;
+      const hol = (id) => (document.getElementById(id)?.value || '').trim();
+      speichereVorlagen({
+        offerteEinleitung: hol('tplOfferteEinleitung'),
+        offerteSchluss: hol('tplOfferteSchluss'),
+        rechnungText: hol('tplRechnungText'),
+        rechnungBedingungen: hol('tplRechnungBedingungen')
+      });
+      protokolliere('geaendert', 'company_templates', tt('tpl.title', 'Eigene Vorlagen'));
+      toast(tt('tpl.saved', '✓ Vorlagen gespeichert'));
+    }
+
     function renderHistorie() {
       const el = document.getElementById('historieListe');
       if (!el) return;
@@ -9519,6 +9599,7 @@
     function fillCompanyForm() {
       markiereGrund();
       renderHistorie();
+      vorlagenFormularFuellen();
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
@@ -9666,15 +9747,17 @@
       const M = 20;
       let y = M;
 
-      // Header Firma
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(225, 29, 42);
-      doc.text(c.name || 'Firma', M, y);
+      // Header Firma — mit eigenem Logo und eigener Markenfarbe
+      const mf = hexZuRgb(c.brandColor) || [225, 29, 42];
+      const tx = pdfLogo(doc, c, M, y);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(mf[0], mf[1], mf[2]);
+      doc.text(c.name || 'Firma', tx, y);
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(120);
       doc.text(`${c.addr1 || ''}, ${c.addr2 || ''}`, W - M, y - 2, { align: 'right' });
       if (c.contact) doc.text(c.contact, W - M, y + 2, { align: 'right' });
       if (c.mwst) doc.text(L.vatIdLabel + ' ' + c.mwst, W - M, y + 6, { align: 'right' });
       y += 14;
-      doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
+      doc.setDrawColor(mf[0], mf[1], mf[2]); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
 
       // Titel + Empfänger
       doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20);
@@ -9689,6 +9772,16 @@
       if (debtor.addr1) { doc.text(debtor.addr1, M, y); y += 5; }
       if (debtor.addr2) { doc.text(debtor.addr2, M, y); y += 5; }
       y += 6;
+
+      // B8 — eigener Text ueber der Position
+      const eigenerText = ladeVorlagen().rechnungText;
+      if (eigenerText) {
+        doc.setFontSize(9.5); doc.setTextColor(80);
+        const zeilen = doc.splitTextToSize(platzhalterFuellen(eigenerText, { kunde: debtor.name }), W - 2 * M);
+        doc.text(zeilen, M, y);
+        y += zeilen.length * 5 + 4;
+        doc.setTextColor(20);
+      }
 
       // Positionstabelle
       const hours = (job.duration || 0) / 60;
@@ -9713,13 +9806,17 @@
         doc.setTextColor(80); doc.text(L.vatLabel, W - M - 40, y, { align: 'right' });
         doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
       }
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(225, 29, 42);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(mf[0], mf[1], mf[2]);
       doc.text('Total', W - M - 40, y, { align: 'right' }); doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' });
       doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
       const ibanPay = (c.iban || '').replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
-      doc.text(L.payment === 'qr'
-        ? 'Zahlbar innert 30 Tagen mit beiliegendem QR-Einzahlschein.'
-        : `Zahlbar innert 30 Tagen auf folgendes Konto: IBAN ${ibanPay}`, M, y + 8);
+      // B8 — eigene Zahlungsbedingungen, sonst der Standardsatz
+      const eigeneBed = ladeVorlagen().rechnungBedingungen;
+      doc.text(eigeneBed
+        ? doc.splitTextToSize(platzhalterFuellen(eigeneBed, {}), W - 2 * M)
+        : (L.payment === 'qr'
+            ? 'Zahlbar innert 30 Tagen mit beiliegendem QR-Einzahlschein.'
+            : `Zahlbar innert 30 Tagen auf folgendes Konto: IBAN ${ibanPay}`), M, y + 8);
       // Ohne Steuerpflicht gehört der gesetzliche Hinweis auf den Beleg
       if (!L.mwstPflichtig) doc.text(L.steuerHinweis, M, y + 13);
 
@@ -10768,6 +10865,104 @@
       fassade: 'Fassadenreinigung'
     };
 
+    // B7 — Kunde waehlen statt tippen, und den Preis aus der Preisliste holen.
+    let offKundeId = null;
+    let offPreisBeruehrt = false;   // von Hand geaenderte Preise nie ueberschreiben
+
+    function offKundeListeZu() {
+      const l = document.getElementById('offKundenListe');
+      if (l) l.style.display = 'none';
+    }
+
+    function offKundeSuchen(text) {
+      const liste = document.getElementById('offKundenListe');
+      if (!liste) return;
+      const q = (text || '').toLowerCase().trim();
+      const treffer = loadCustomers().filter(c =>
+        !q || customerDisplayName(c).toLowerCase().includes(q)
+           || (c.address || '').toLowerCase().includes(q)
+      ).slice(0, 8);
+      if (!treffer.length) { offKundeListeZu(); return; }
+      liste.innerHTML = treffer.map(c => `<button type="button" onclick="offKundeWaehlen('${c.id}')">
+        ${escapeHtml(customerDisplayName(c))}${c.address ? `<small>${escapeHtml(c.address)}</small>` : ''}
+      </button>`).join('');
+      liste.style.display = 'block';
+    }
+
+    function offKundeWaehlen(id) {
+      const c = loadCustomers().find(x => x.id === id);
+      if (!c) return;
+      offKundeId = c.id;
+      const k = document.getElementById('offKunde'); if (k) k.value = customerDisplayName(c);
+      const a = document.getElementById('offAdresse');
+      if (a && !a.value.trim() && c.address) a.value = c.address;
+      offKundeListeZu();
+      offPreisAusPreisliste();
+      renderOffertTemplate();
+    }
+
+    // Preis aus derselben Preisliste, die auch der Auftrag-Assistent nutzt
+    function offPreisAusPreisliste(erzwingen = false) {
+      const feld = document.getElementById('offPreis');
+      const hinweis = document.getElementById('offPreisHinweis');
+      const label = document.getElementById('offMengeLabel');
+      if (!feld) return;
+      const def = genericServiceDef(currentOffertService);
+      const waehrung = coLocale(loadCompany()).cur;
+      if (!def) {
+        if (hinweis) hinweis.textContent = tt('off.noPrice', 'Für diese Leistung ist kein Preis hinterlegt.');
+        if (label) label.textContent = tt('off.qty', 'Menge');
+        return;
+      }
+      const einheit = def.unit === 'h' ? 'h' : (def.unit === 'qm' ? 'qm' : 'flat');
+      if (label) label.textContent = einheit === 'h' ? tt('off.hours', 'Stunden')
+                                   : einheit === 'qm' ? tt('off.sqm', 'Fläche in m²')
+                                   : tt('off.qty', 'Menge');
+      const grund = Number(def.price) || 0;
+      const mindest = Number(def.minQty) || 0;
+      const anfahrt = Number(def.fee) || 0;
+      let menge = parseFloat(document.getElementById('offMenge')?.value) || 1;
+      let preis, text;
+      if (einheit === 'h') {
+        const echte = Math.max(menge, mindest);
+        preis = echte * grund;
+        text = `${echte} × ${waehrung} ${grund}` + (echte > menge ? ` (${tt('price.row.minHours','Mindestbuchung')})` : '');
+      } else if (einheit === 'qm') {
+        preis = menge * grund;
+        text = `${menge} m² × ${waehrung} ${grund}`;
+      } else {
+        preis = menge * grund;
+        text = menge > 1 ? `${menge} × ${waehrung} ${grund}` : `${waehrung} ${grund}`;
+      }
+      if (einheit !== 'h' && mindest > 0 && preis < mindest) {
+        preis = mindest;
+        text += ` · ${tt('price.row.minOrder','Mindestauftrag')} ${waehrung} ${mindest}`;
+      }
+      if (anfahrt > 0) { preis += anfahrt; text += ` + ${waehrung} ${anfahrt} ${tt('price.row.fee','Anfahrt')}`; }
+      preis = Math.round(preis * 20) / 20;
+      if (hinweis) hinweis.textContent = text;
+      // Einen von Hand gesetzten Preis nur auf ausdruecklichen Wunsch ersetzen
+      if (!offPreisBeruehrt || erzwingen) {
+        feld.value = preis;
+        offPreisBeruehrt = false;
+        renderOffertTemplate();
+      }
+    }
+
+    // Logo oben links ins PDF, gibt die x-Position fuer den Text zurueck
+    function pdfLogo(doc, co, x, y) {
+      if (!co.logo || !/^data:image\/(png|jpe?g)/i.test(co.logo)) return x;
+      try {
+        doc.addImage(co.logo, /jpe?g/i.test(co.logo) ? 'JPEG' : 'PNG', x, y - 4, 22, 22, undefined, 'FAST');
+        return x + 27;
+      } catch { return x; }   // unlesbares Bild: dann eben ohne
+    }
+
+    function hexZuRgb(hex) {
+      if (!/^#[0-9a-f]{6}$/i.test(hex || '')) return null;
+      return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    }
+
     function formatDateDE(iso) {
       if (!iso) return '';
       const [y, m, d] = iso.split('-');
@@ -10923,7 +11118,61 @@ Mit freundlichen Grüßen
 ${coSig}`;
       }
 
-      return templates[svc] || templates.unterhalt;
+      // B7/B8 — eigene Vorlagen: eine hinterlegte Einleitung ersetzt den
+      // Standardanfang, ein hinterlegter Schluss den Standardschluss.
+      return eigeneVorlageAnwenden(templates[svc] || templates.unterhalt, data);
+    }
+
+    // ============ Eigene Text-Vorlagen (Offerte und Rechnung) ============
+    const VORLAGEN_KEY = 'cc-vorlagen-v1';
+
+    function ladeVorlagen() {
+      try { return JSON.parse(localStorage.getItem(VORLAGEN_KEY)) || {}; } catch { return {}; }
+    }
+
+    function speichereVorlagen(v) {
+      localStorage.setItem(VORLAGEN_KEY, JSON.stringify(v));
+      window.MosaDB?.push('company_templates', v);
+    }
+
+    // Platzhalter, die in einer eigenen Vorlage stehen duerfen
+    function platzhalterFuellen(text, data) {
+      const co = loadCompany();
+      const ersetzungen = {
+        '{kunde}': data?.kunde || '',
+        '{adresse}': data?.adresse || '',
+        '{preis}': data?.preis ? `${parseFloat(data.preis).toFixed(2)} ${coLocale(co).cur}` : '',
+        '{datum}': formatDateDE(data?.datum || todayISO()),
+        '{gueltig}': formatDateDE(validUntilISO(30)),
+        '{firma}': co.name || '',
+        '{leistung}': serviceTitle(currentOffertService) || ''
+      };
+      return Object.entries(ersetzungen)
+        .reduce((t, [k, v]) => t.split(k).join(v), String(text || ''));
+    }
+
+    function eigeneVorlageAnwenden(standard, data) {
+      const v = ladeVorlagen();
+      if (!v.offerteEinleitung && !v.offerteSchluss) return standard;
+      let text = String(standard);
+      if (v.offerteEinleitung) {
+        // Der erste Absatz nach der Anrede ist die Einleitung — ganz ersetzen,
+        // nicht nur die erste Zeile davon.
+        const zeilen = text.split('\n');
+        const anrede = zeilen[0];
+        let i = 1;
+        while (i < zeilen.length && !zeilen[i].trim()) i++;   // Leerzeilen ueberspringen
+        while (i < zeilen.length && zeilen[i].trim()) i++;    // den Absatz selbst
+        text = anrede + '\n\n' + platzhalterFuellen(v.offerteEinleitung, data)
+             + '\n' + zeilen.slice(i).join('\n');
+      }
+      if (v.offerteSchluss) {
+        // Ab 'Mit freundlichen Grüßen' den eigenen Schluss setzen
+        const i = text.lastIndexOf('Mit freundlichen');
+        if (i > 0) text = text.slice(0, i) + platzhalterFuellen(v.offerteSchluss, data);
+        else text += '\n\n' + platzhalterFuellen(v.offerteSchluss, data);
+      }
+      return text;
     }
 
     function renderOffertTemplate() {
@@ -10955,6 +11204,7 @@ ${coSig}`;
       pill.textContent = svcShortLabels[svc] || serviceTitle(svc);
       // Text neu generieren (wenn nicht manuell bearbeitet)
       document.getElementById('offText').dataset.manuallyEdited = 'false';
+      offPreisAusPreisliste();   // andere Leistung, anderer Preis
       renderOffertTemplate();
     }
 
@@ -10976,6 +11226,9 @@ ${coSig}`;
     let currentOffertOriginal = null; // Snapshot zum Vergleich (Änderungs-Erkennung)
 
     function openOffertEditor(id = null) {
+      offKundeId = null;
+      offPreisBeruehrt = !!id;   // bestehende Offerte: gespeicherten Preis behalten
+      offKundeListeZu();
       currentOffert = id;
       currentOffertImages = [];
       currentOffertHistory = [];
@@ -11180,14 +11433,17 @@ ${coSig}`;
       // === Header: Firma ===
       const co = loadCompany();
       const L = coLocale(co);
+      // B7 — das eigene Logo statt nur des Namens in Markenrot
+      const markenFarbe = hexZuRgb(co.brandColor) || [225, 29, 42];
+      const textX = pdfLogo(doc, co, M, y);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
-      doc.setTextColor(225, 29, 42); // brand red
-      doc.text(co.name || 'Firma', M, y);
+      doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+      doc.text(co.name || 'Firma', textX, y);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(120);
-      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), M, y + 5);
+      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), textX, y + 5);
       // Rechts: Kontakt
       doc.setFontSize(8.5);
       doc.text(`${co.addr1 || ''}, ${co.addr2 || ''}`, W - M, y, { align: 'right' });
@@ -11196,7 +11452,7 @@ ${coSig}`;
       y += 18;
 
       // Trennlinie
-      doc.setDrawColor(225, 29, 42);
+      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
       doc.setLineWidth(0.6);
       doc.line(M, y, W - M, y);
       y += 10;
@@ -11288,13 +11544,13 @@ ${coSig}`;
         doc.setFontSize(9.5);
       }
 
-      doc.setDrawColor(225, 29, 42);
+      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
       doc.setLineWidth(0.4);
       doc.line(M + 4, y + 18, W - M - 4, y + 18);
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11.5);
-      doc.setTextColor(225, 29, 42);
+      doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
       doc.text('Gesamt brutto', M + 4, y + 25);
       doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
       y += 38;
@@ -11367,16 +11623,18 @@ ${coSig}`;
       const H = doc.internal.pageSize.getHeight();
       const M = 20; let y = M;
       const co = loadCompany();
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(225, 29, 42);
-      doc.text(co.name || 'Firma', M, y);
+      const mf = hexZuRgb(co.brandColor) || [225, 29, 42];
+      const tx = pdfLogo(doc, co, M, y);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(mf[0], mf[1], mf[2]);
+      doc.text(co.name || 'Firma', tx, y);
       doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
-      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), M, y + 5);
+      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), tx, y + 5);
       doc.setFontSize(8.5);
       if (co.contact) doc.text(co.contact, W - M, y, { align: 'right' });
       const L = coLocale(co);
       if (co.mwst) doc.text(L.vatIdLabel + ' ' + co.mwst, W - M, y + 4, { align: 'right' });
       y += 18;
-      doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
+      doc.setDrawColor(mf[0], mf[1], mf[2]); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20);
       doc.text(title, M, y);
       doc.setFontSize(9.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
@@ -11455,6 +11713,7 @@ ${coSig}`;
     }
     // Summen-Box (netto / MWST 8.1% / brutto). withMwst=false → nur Total.
     function belegTotal(lay, netto, withMwst) {
+      const bmf = hexZuRgb(loadCompany().brandColor) || [225, 29, 42];
       const { doc, W, M } = lay;
       const L = lay.L || LOCALE.CH;
       let y = lay.y;
@@ -11470,12 +11729,12 @@ ${coSig}`;
         doc.setFont('helvetica', 'normal'); doc.setTextColor(80);
         doc.text(L.vatLabel, M + 4, y + 14);
         doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
-        doc.setDrawColor(225, 29, 42); doc.setLineWidth(0.4); doc.line(M + 4, y + 18, W - M - 4, y + 18);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(225, 29, 42);
+        doc.setDrawColor(bmf[0], bmf[1], bmf[2]); doc.setLineWidth(0.4); doc.line(M + 4, y + 18, W - M - 4, y + 18);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(bmf[0], bmf[1], bmf[2]);
         doc.text('Gesamt brutto', M + 4, y + 25);
         doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
       } else {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(225, 29, 42);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(bmf[0], bmf[1], bmf[2]);
         doc.text('Total', M + 4, y + 9.5);
         doc.text(netto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 9.5, { align: 'right' });
         if (!L.mwstPflichtig) {
