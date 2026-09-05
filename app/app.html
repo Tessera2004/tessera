@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=34"></script>
+  <script src="app-i18n.js?v=35"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -5267,6 +5267,13 @@
       all[dateKey].push(job);
       savePlanJobsAll(all);
     }
+    // Alle Einsaetze flach mit ihrem Datum — loadPlanJobs() liefert eine
+    // Karte nach Datum, keine Liste.
+    function allePlanJobs() {
+      const all = loadPlanJobs();
+      return Object.entries(all).flatMap(([datum, arr]) =>
+        (Array.isArray(arr) ? arr : []).map(j => ({ ...j, date: j.date || datum })));
+    }
     function updatePlanJob(dateKey, jobId, patch) {
       const all = loadPlanJobs();
       const arr = all[dateKey] || [];
@@ -8955,14 +8962,49 @@
       // Aktivitäts-Feed
       const actEl = document.getElementById('dashActivity');
       if (actEl) {
-        const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+        // B4 — jede Art bekommt ihr eigenes Symbol, nicht ueberall der Haken
+        const S = (d) => `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">${d}</svg>`;
+        const SYMBOLE = {
+          erledigt:  S('<polyline points="20 6 9 17 4 12"/>'),
+          vergeben:  S('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>'),
+          abnahme:   S('<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'),
+          auftrag:   S('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
+          anruf:     S('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>'),
+          offerte:   S('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>')
+        };
+        const FARBEN = {
+          erledigt: 'var(--success)', vergeben: 'var(--accent)', abnahme: 'var(--success)',
+          auftrag: 'var(--brand-primary)', anruf: 'var(--warning, #D97706)', offerte: 'var(--text-muted)'
+        };
+        const merke = (art, ts, text, meta) => events.push({
+          ts, text, meta: meta || '', icon: SYMBOLE[art], col: FARBEN[art]
+        });
+
         const events = [];
         reports.forEach(r => {
-          if (r.isProtocol) events.push({ ts: r.date + (r.time ? 'T' + r.time : ''), icon: CHECK_SVG, text: `Abnahme: ${r.objekt || 'Einsatz'}`, meta: r.signed ? 'Unterschrift erhalten' : (r.note || ''), col: 'var(--success)' });
+          if (r.isProtocol) merke('abnahme', r.date + (r.time ? 'T' + r.time : ''),
+            `${tt('act.handover','Abnahme')}: ${r.objekt || tt('act.job','Einsatz')}`,
+            r.signed ? tt('act.signed','Unterschrift erhalten') : (r.note || ''));
         });
-        TASKS.filter(t => t.done && t.completedAt).forEach(t => {
-          events.push({ ts: t.completedAt, icon: CHECK_SVG, text: t.title, meta: taskAssigneeLabel(t.assignee), col: 'var(--accent)' });
+        TASKS.forEach(t => {
+          if (t.done && t.completedAt) {
+            merke('erledigt', t.completedAt, t.title, taskAssigneeLabel(t.assignee));
+          } else if (t.assignee && t.createdAt) {
+            merke('vergeben', t.createdAt,
+              `${tt('act.assigned','Aufgabe vergeben')}: ${t.title}`, taskAssigneeLabel(t.assignee));
+          }
         });
+        // Angelegte Auftraege und protokollierte Anrufe gehoeren auch in den Verlauf
+        try {
+          allePlanJobs().forEach(t => {
+            if (t.createdAt) merke('auftrag', t.createdAt,
+              `${tt('act.newJob','Auftrag angelegt')}: ${t.objekt || t.ort || ''}`, t.date || '');
+          });
+          loadCustomers().forEach(c => (c.calls || []).forEach(a => {
+            if (a.at) merke('anruf', a.at,
+              `${tt('act.call','Anruf')}: ${customerDisplayName(c)}`, a.summary || a.topic || '');
+          }));
+        } catch {}
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
         const top = events.slice(0, 8);
         actEl.innerHTML = top.length
@@ -10155,9 +10197,10 @@
       const box = document.getElementById('wizCustomerInfo');
       if (!box) return;
       const name = customerDisplayName(c).toLowerCase();
-      const frueher = (typeof TERMINE !== 'undefined' ? TERMINE : [])
-        .filter(t => (t.customer || t.kunde || '').toLowerCase() === name
-                  || (c.address && (t.address || '') === c.address))
+      const frueher = allePlanJobs()
+        .filter(t => t.customerId === c.id
+                  || (t.customer || '').toLowerCase() === name
+                  || (c.address && (t.ort || '') === c.address))
         .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
       const teile = [];
       if (frueher.length) {
@@ -11733,6 +11776,7 @@ ${coSig}`;
           id: 'j' + Date.now() + '-' + i,
           objekt,
           ort: addr,
+          createdAt: new Date().toISOString().slice(0, 16),   // fuer den Verlauf
           customerId: wizKundeId || undefined,   // B1: Verknuepfung zur Kundenakte
           customer: (document.getElementById('wizCustomer')?.value || '').trim() || undefined,
           start,
