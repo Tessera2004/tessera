@@ -10130,6 +10130,38 @@
       box.style.display = 'block';
     }
 
+    // B10 — alles auf den Viertelstundentakt.
+    // step= bindet nur die Pfeiltasten; getippte Werte muessen gerundet werden.
+    function auf15Runden(el) {
+      if (!el) return;
+      const vorher = el.value;
+      if (el.type === 'time') {
+        const [h, m] = (el.value || '').split(':').map(Number);
+        if (!Number.isFinite(h) || !Number.isFinite(m)) return;
+        let ges = Math.round((h * 60 + m) / 15) * 15;
+        ges = Math.min(ges, 23 * 60 + 45);
+        el.value = String(Math.floor(ges / 60)).padStart(2, '0') + ':' + String(ges % 60).padStart(2, '0');
+      } else {
+        const z = parseFloat(el.value);
+        if (!Number.isFinite(z)) return;
+        const g = Math.round(z * 4) / 4;
+        el.value = String(Math.max(g, parseFloat(el.min) || 0));
+      }
+      // Nur melden, wenn wirklich gerundet wurde — sonst ruft uns
+      // unser eigenes change-Event endlos wieder auf.
+      if (el.value !== vorher) el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // Auch fuer Felder, die erst spaeter im DOM entstehen (Rapport, Arbeitsschein)
+    document.addEventListener('change', (e) => {
+      const el = e.target;
+      if (!(el instanceof HTMLInputElement)) return;
+      const gilt = el.type === 'time'
+        || el.classList.contains('rw-hours') || el.classList.contains('wo-w-hours')
+        || el.id === 'wizDuration';
+      if (gilt) auf15Runden(el);
+    }, true);
+
     function wizCalcPrice() {
       const hoursEl = document.getElementById('wizDuration');
       const out = document.getElementById('wizPriceCalc');
