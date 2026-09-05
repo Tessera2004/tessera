@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=32"></script>
+  <script src="app-i18n.js?v=33"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1764,9 +1764,14 @@
             <label data-i18n="wiz.address">Adresse</label>
             <input type="text" id="wizAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" />
           </div>
-          <div class="field">
+          <div class="field" style="position: relative;">
             <label data-i18n="wiz.customer">Kunde</label>
-            <input type="text" data-i18n-ph="wiz.customerPh" placeholder="Name oder bestehenden Kunden wählen…" />
+            <input type="text" id="wizCustomer" autocomplete="off"
+              data-i18n-ph="wiz.customerPh" placeholder="Name oder bestehenden Kunden wählen…"
+              oninput="wizKundeSuchen(this.value)" onfocus="wizKundeSuchen(this.value)"
+              onblur="setTimeout(wizKundeListeZu, 180)" />
+            <div id="wizCustomerList" class="wiz-kundenliste" style="display:none;"></div>
+            <div id="wizCustomerInfo" style="display:none; font-size:12px; color:var(--text-subtle); margin-top:6px;"></div>
           </div>
           <!-- Branchenspezifische Felder (z. B. Werkstatt-Fahrzeug, Schädling-Nachkontrolle) -->
           <div id="wizExtraFields"></div>
@@ -3897,6 +3902,20 @@
       padding: 10px 16px; border-top: 1px solid var(--border);
       background: var(--bg);
     }
+  .wiz-kundenliste {
+    position: absolute; left: 0; right: 0; top: 100%; z-index: 40;
+    background: var(--surface); border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+    max-height: 240px; overflow-y: auto; margin-top: 4px;
+  }
+  .wiz-kundenliste button {
+    display: block; width: 100%; text-align: left; padding: 9px 12px;
+    background: none; border: none; cursor: pointer; font-size: 13.5px; color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  .wiz-kundenliste button:last-child { border-bottom: none; }
+  .wiz-kundenliste button:hover, .wiz-kundenliste button:focus { background: var(--surface-2); }
+  .wiz-kundenliste small { display: block; color: var(--text-subtle); font-size: 11.5px; margin-top: 1px; }
   </style>
 
   <script>
@@ -8525,6 +8544,7 @@
       if (id === 'newAuftrag') {
         populateWizardTeams();
         setupWizardForVertical();
+        wizKundeZuruecksetzen();
         const wd = document.getElementById('wizDate');
         if (wd && !wd.value) wd.value = isoDate(planCurrentDate);
       }
@@ -10044,6 +10064,72 @@
     }
 
     // Preis im Wizard-Schritt 3: Dauer (Stunden) × Stundensatz (+ Anfahrtspauschale)
+    // B1 — bestehenden Kunden waehlen statt neu tippen.
+    // Uebernimmt Adresse und Standardleistung und zeigt den Verlauf.
+    let wizKundeId = null;
+
+    function wizKundeListeZu() {
+      const l = document.getElementById('wizCustomerList');
+      if (l) l.style.display = 'none';
+    }
+
+    function wizKundeSuchen(text) {
+      const liste = document.getElementById('wizCustomerList');
+      if (!liste) return;
+      const q = (text || '').toLowerCase().trim();
+      const treffer = loadCustomers().filter(c =>
+        !q || customerDisplayName(c).toLowerCase().includes(q)
+           || (c.address || '').toLowerCase().includes(q)
+           || (c.phone || '').toLowerCase().includes(q)
+      ).slice(0, 8);
+      if (!treffer.length) { wizKundeListeZu(); return; }
+      liste.innerHTML = treffer.map(c => {
+        const zeile = [c.address, c.phone].filter(Boolean).join(' · ');
+        return `<button type="button" onclick="wizKundeWaehlen('${c.id}')">
+          ${escapeHtml(customerDisplayName(c))}${zeile ? `<small>${escapeHtml(zeile)}</small>` : ''}
+        </button>`;
+      }).join('');
+      liste.style.display = 'block';
+    }
+
+    function wizKundeWaehlen(id) {
+      const c = loadCustomers().find(x => x.id === id);
+      if (!c) return;
+      wizKundeId = c.id;
+      const feld = document.getElementById('wizCustomer');
+      if (feld) feld.value = customerDisplayName(c);
+      // Adresse nur fuellen, wenn der Nutzer noch nichts eigenes eingetippt hat
+      const adr = document.getElementById('wizAddress');
+      if (adr && !adr.value.trim() && c.address) adr.value = c.address;
+      const name = document.getElementById('termName');
+      if (name && !name.value.trim()) name.value = customerDisplayName(c);
+      wizKundeListeZu();
+      wizKundeVerlauf(c);
+      if (typeof wizCalcPrice === 'function') wizCalcPrice();
+    }
+
+    // Was dieser Kunde bisher hatte — damit man nicht in der Kundenakte nachsehen muss
+    function wizKundeVerlauf(c) {
+      const box = document.getElementById('wizCustomerInfo');
+      if (!box) return;
+      const name = customerDisplayName(c).toLowerCase();
+      const frueher = (typeof TERMINE !== 'undefined' ? TERMINE : [])
+        .filter(t => (t.customer || t.kunde || '').toLowerCase() === name
+                  || (c.address && (t.address || '') === c.address))
+        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+      const teile = [];
+      if (frueher.length) {
+        const letzter = frueher[0];
+        teile.push(`${frueher.length} ${frueher.length === 1
+          ? tt('wiz.custOneOrder', 'früherer Auftrag') : tt('wiz.custOrders', 'frühere Aufträge')}`
+          + (letzter.date ? ` · ${tt('wiz.custLast', 'zuletzt')} ${letzter.date}` : ''));
+      }
+      if (c.paymethod) teile.push(tt('wiz.custPay', 'Zahlung') + ': ' + c.paymethod);
+      if (c.notes) teile.push(escapeHtml(c.notes));
+      box.innerHTML = teile.join(' · ') || tt('wiz.custNew', 'Noch keine Aufträge für diesen Kunden.');
+      box.style.display = 'block';
+    }
+
     function wizCalcPrice() {
       const hoursEl = document.getElementById('wizDuration');
       const out = document.getElementById('wizPriceCalc');
@@ -11486,6 +11572,14 @@ ${coSig}`;
       if (el) { el.addEventListener('change', wizCheckAvailability); el.addEventListener('input', wizCheckAvailability); }
     });
 
+    // Beim Oeffnen eines neuen Auftrags die Kundenwahl leeren
+    function wizKundeZuruecksetzen() {
+      wizKundeId = null;
+      const f = document.getElementById('wizCustomer'); if (f) f.value = '';
+      const i = document.getElementById('wizCustomerInfo'); if (i) { i.style.display = 'none'; i.innerHTML = ''; }
+      wizKundeListeZu();
+    }
+
     function submitAuftrag() {
       const name = (document.getElementById('termName')?.value || '').trim();
       const addr = (document.getElementById('wizAddress')?.value || '').trim();
@@ -11565,6 +11659,8 @@ ${coSig}`;
           id: 'j' + Date.now() + '-' + i,
           objekt,
           ort: addr,
+          customerId: wizKundeId || undefined,   // B1: Verknuepfung zur Kundenakte
+          customer: (document.getElementById('wizCustomer')?.value || '').trim() || undefined,
           start,
           duration,
           team: isCleaning ? (teamByDate[dk] || null) : (assignTeam || null),
