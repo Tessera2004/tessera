@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=35"></script>
+  <script src="app-i18n.js?v=36"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -2538,6 +2538,17 @@
             <input type="checkbox" id="callRueckruf" />
             <span data-i18n="call.callbackNeeded">Rückruf nötig (taucht in der Topbar als Erinnerung auf)</span>
           </label>
+        </div>
+
+        <div class="field">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500;">
+            <input type="checkbox" id="callAlsAufgabe" onchange="document.getElementById('callAufgabeWer').parentElement.style.display = this.checked ? '' : 'none'" />
+            <span data-i18n="call.makeTask">Aufgabe daraus erstellen</span>
+          </label>
+          <div class="field" style="display:none; margin-top:8px;">
+            <label data-i18n="call.taskFor">Aufgabe für</label>
+            <select id="callAufgabeWer"></select>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -7618,7 +7629,7 @@
       loadLooseCalls().forEach(call => {
         out.push({ ...call, _customer: null, _origin: 'loose' });
       });
-      out.sort((a, b) => b.ts.localeCompare(a.ts));
+      out.sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')));
       return out;
     }
 
@@ -7638,6 +7649,14 @@
       document.getElementById('callAngenommenVon').value = getCurrentUserName ? getCurrentUserName() : '';
       document.getElementById('callText').value = '';
       document.getElementById('callRueckruf').checked = false;
+      const alsAufgabe = document.getElementById('callAlsAufgabe');
+      if (alsAufgabe) {
+        alsAufgabe.checked = false;
+        const wer = document.getElementById('callAufgabeWer');
+        wer.parentElement.style.display = 'none';
+        wer.innerHTML = `<option value="">${tt('task.nobody','— niemand —')}</option>`
+          + loadUsers().map(u => `<option value="${u.id}">${escapeHtml(u.firstname + ' ' + u.lastname)}</option>`).join('');
+      }
       onCallCustomerChange();
       openModal('callEntry');
     }
@@ -7683,6 +7702,26 @@
         loose.push({ ...entry, id: 'lc' + Date.now(), externalContact: werNummer || '' });
         saveLooseCalls(loose);
       }
+      // B9 — aus dem Anruf direkt eine Aufgabe machen
+      if (document.getElementById('callAlsAufgabe')?.checked) {
+        const kunde = customerId ? loadCustomers().find(x => x.id === customerId) : null;
+        const wem = document.getElementById('callAufgabeWer')?.value || null;
+        TASKS.push({
+          id: 'tk' + Date.now(),
+          title: (verlangteNach ? `${tt('call.callbackFor','Rückruf an')} ${wer} (${verlangteNach})` : `${tt('call.callbackFor','Rückruf an')} ${wer}`),
+          note: text,
+          assignee: wem || null,
+          prio: isRueckruf ? 'hoch' : 'normal',
+          done: false,
+          created: new Date().toISOString(),
+          contactPhone: werNummer || kunde?.phone || null,
+          linkLabel: kunde ? customerDisplayName(kunde) : (wer || ''),
+          linkType: 'anruf'
+        });
+        saveTasks(TASKS);
+        toast(tt('call.taskCreated', '✓ Aufgabe aus Anruf erstellt'));
+      }
+
       closeModal('callEntry');
       renderKunden();
       renderAnrufprotokoll();
@@ -8989,8 +9028,8 @@
         TASKS.forEach(t => {
           if (t.done && t.completedAt) {
             merke('erledigt', t.completedAt, t.title, taskAssigneeLabel(t.assignee));
-          } else if (t.assignee && t.createdAt) {
-            merke('vergeben', t.createdAt,
+          } else if (t.assignee && (t.created || t.createdAt)) {
+            merke('vergeben', t.created || t.createdAt,
               `${tt('act.assigned','Aufgabe vergeben')}: ${t.title}`, taskAssigneeLabel(t.assignee));
           }
         });
@@ -9001,8 +9040,8 @@
               `${tt('act.newJob','Auftrag angelegt')}: ${t.objekt || t.ort || ''}`, t.date || '');
           });
           loadCustomers().forEach(c => (c.calls || []).forEach(a => {
-            if (a.at) merke('anruf', a.at,
-              `${tt('act.call','Anruf')}: ${customerDisplayName(c)}`, a.summary || a.topic || '');
+            if (a.ts) merke('anruf', a.ts,
+              `${tt('act.call','Anruf')}: ${customerDisplayName(c)}`, a.text || a.verlangteNach || '');
           }));
         } catch {}
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
