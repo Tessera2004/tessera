@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=40"></script>
+  <script src="app-i18n.js?v=41"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1134,6 +1134,37 @@
 
             <div class="brand-preview" id="brandPreview"><span class="brand-preview-mark">M</span><span id="brandPreviewName">Deine Firma</span></div>
             <button class="btn btn-accent" style="margin-top:14px;" onclick="saveCompanyBranding()">Erscheinungsbild speichern</button>
+          </div>
+
+          <!-- C1/C2: Zeitberechnung und Startpunkt der Routen -->
+          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="font-weight:700; font-size:15px;" data-i18n="calc.title">Zeitberechnung und Routenstart</div>
+            <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;" data-i18n="calc.sub">
+              Woraus der Assistent die Dauer eines Einsatzes schätzt — und wo eure Teams morgens losfahren.
+            </div>
+            <div class="brand-settings-grid" style="margin-top:16px;">
+              <div class="field">
+                <label data-i18n="calc.perSqm">Minuten pro m²</label>
+                <input type="number" id="calcProQm" oninput="zeitfaktorenBeispiel()" step="0.1" min="0" />
+              </div>
+              <div class="field">
+                <label data-i18n="calc.perRoom">Minuten pro Zimmer</label>
+                <input type="number" id="calcProRaum" oninput="zeitfaktorenBeispiel()" step="1" min="0" />
+              </div>
+              <div class="field">
+                <label data-i18n="calc.bauPerSqm">Baureinigung: Minuten pro m²</label>
+                <input type="number" id="calcBauProQm" step="0.1" min="0" />
+              </div>
+            </div>
+            <div id="calcBeispiel" style="font-size:12px; color:var(--text-subtle); margin-top:4px;"></div>
+            <div class="field" style="margin-top:14px;">
+              <label data-i18n="calc.startAddr">Startpunkt der Routen</label>
+              <input type="text" id="calcStartAdresse" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" />
+              <div style="font-size:11.5px; color:var(--text-subtle); margin-top:5px;" data-i18n="calc.startHint">
+                Leer lassen heisst: die Firmenadresse. Die Anfahrt zum ersten Einsatz zählt dann bei „Routen optimieren" mit.
+              </div>
+            </div>
+            <button class="btn btn-accent" onclick="zeitfaktorenSpeichern()" data-i18n="calc.save">Speichern</button>
           </div>
 
           <!-- B7/B8: eigene Texte fuer Offerten und Rechnungen -->
@@ -8330,6 +8361,44 @@
       }
     })();
 
+    function zeitfaktorenFormularFuellen() {
+      const f = ladeZeitfaktoren();
+      const setz = (id, w) => { const e = document.getElementById(id); if (e) e.value = w; };
+      setz('calcProQm', f.proQm);
+      setz('calcProRaum', f.proRaum);
+      setz('calcBauProQm', f.bauProQm);
+      setz('calcStartAdresse', f.startAdresse || '');
+      zeitfaktorenBeispiel();
+    }
+
+    // Zeigt sofort, was die Faktoren fuer eine typische Wohnung bedeuten
+    function zeitfaktorenBeispiel() {
+      const el = document.getElementById('calcBeispiel');
+      if (!el) return;
+      const proQm = parseFloat(document.getElementById('calcProQm')?.value) || 0;
+      const proRaum = parseFloat(document.getElementById('calcProRaum')?.value) || 0;
+      const min = Math.round(80 * proQm + 3 * proRaum);
+      el.textContent = `${tt('calc.example', 'Beispiel')}: 80 m², 3 ${tt('calc.rooms', 'Zimmer')} → `
+        + `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')} min`;
+    }
+
+    function zeitfaktorenSpeichern() {
+      if (!requirePerm('edit_prices', 'Zeitberechnung')) return;
+      const zahl = (id, standard) => {
+        const z = parseFloat(document.getElementById(id)?.value);
+        return (Number.isFinite(z) && z >= 0) ? z : standard;
+      };
+      speichereZeitfaktoren({
+        proQm: zahl('calcProQm', ZEITFAKTOREN_STANDARD.proQm),
+        proRaum: zahl('calcProRaum', ZEITFAKTOREN_STANDARD.proRaum),
+        bauProQm: zahl('calcBauProQm', ZEITFAKTOREN_STANDARD.bauProQm),
+        startAdresse: (document.getElementById('calcStartAdresse')?.value || '').trim()
+      });
+      zeitfaktorenBeispiel();
+      protokolliere('geaendert', 'company_time_factors', tt('calc.title', 'Zeitberechnung'));
+      toast(tt('calc.saved', '✓ Gespeichert'));
+    }
+
     function vorlagenFormularFuellen() {
       const v = ladeVorlagen();
       const setz = (id, w) => { const e = document.getElementById(id); if (e) e.value = w || ''; };
@@ -8965,13 +9034,34 @@
       }
       return order;
     }
-    function optimizeTeamOrder(jobs) {
+    // C2 — Bisher zaehlte nur der Weg zwischen den Einsaetzen. Die Anfahrt vom
+    // Betrieb zum ersten Einsatz fiel unter den Tisch, obwohl sie die
+    // Reihenfolge sehr wohl beeinflusst: der naechstgelegene Einsatz gehoert
+    // nach vorne. startCoord = Koordinaten des Depots, oder null.
+    // Woher die Teams morgens losfahren. Eigene Angabe schlaegt die
+    // Firmenadresse; ohne beides wird wie bisher ohne Startpunkt gerechnet.
+    function routenStartAdresse() {
+      const f = ladeZeitfaktoren();
+      if (f.startAdresse) return f.startAdresse;
+      const co = loadCompany();
+      return [co.addr1, co.addr2].filter(Boolean).join(', ') || null;
+    }
+
+    function optimizeTeamOrder(jobs, startCoord) {
       const n = jobs.length;
-      if (n <= 1) return { order: jobs.slice(), travel: 0, lateness: 0 };
+      if (n <= 1) {
+        const hin = (startCoord && jobs[0]) ? travelMinutes(startCoord, jobs[0].coord) : 0;
+        return { order: jobs.slice(), travel: hin, lateness: 0 };
+      }
       const t0 = Math.min(...jobs.map(j => parseHM(j.start)));
       const evaluate = (order) => {
         let t = t0, travel = 0, lateness = 0;
         for (let i = 0; i < order.length; i++) {
+          if (i === 0 && startCoord) {
+            const hin = travelMinutes(startCoord, order[0].coord);
+            travel += hin;   // Anfahrt zaehlt zum Fahrweg, verschiebt aber
+                             // nicht den ersten Start - dort wird losgefahren
+          }
           if (i > 0) { const tt = travelMinutes(order[i - 1].coord, order[i].coord); t += tt; travel += tt; }
           const end = t + (order[i].duration || 60);
           if (order[i].deadlineMin != null && end > order[i].deadlineMin) lateness += (end - order[i].deadlineMin);
@@ -9018,6 +9108,13 @@
           });
         }
 
+        // C2 — Startpunkt der Routen: die Adresse aus den Einstellungen
+        let startCoord = null;
+        const startAdresse = routenStartAdresse();
+        if (startAdresse) {
+          try { startCoord = await geocodeAddress(startAdresse); } catch {}
+        }
+
         // nach Team gruppieren
         const byTeam = {};
         allJobs.forEach(j => { const k = j.team || '_none'; (byTeam[k] = byTeam[k] || []).push(j); });
@@ -9038,9 +9135,10 @@
 
           // Fahrzeit VORHER (aktuelle Reihenfolge nach Startzeit)
           const before = jobs.slice().sort((a, b) => parseHM(a.start) - parseHM(b.start));
+          if (startCoord && before[0]) travelBefore += travelMinutes(startCoord, before[0].coord);
           for (let i = 1; i < before.length; i++) travelBefore += travelMinutes(before[i - 1].coord, before[i].coord);
 
-          const opt = optimizeTeamOrder(jobs);
+          const opt = optimizeTeamOrder(jobs, startCoord);
           travelAfter += opt.travel;
           if (opt.lateness > 0) lateWarn = true;
 
@@ -9453,9 +9551,11 @@
     });
 
     // ============ Abo-Verträge (Serien-Übersicht) ============
+    let _abosGeprueft = false;
     function renderAbos() {
       const list = document.getElementById('aboList');
       if (!list) return;
+      if (!_abosGeprueft) { _abosGeprueft = true; abosNachfuellen(); }
       const series = getAllSeries();
       const today = isoDate(new Date());
       if (series.length === 0) {
@@ -9494,6 +9594,7 @@
           </div>
           <div style="display:flex; gap:8px;">
             ${next ? `<button class="btn btn-ghost btn-sm" onclick="aboGoToNext('${s.seriesId}')">Im Planer öffnen</button>` : ''}
+            <button class="btn btn-ghost btn-sm" onclick="aboVerlaengernKlick('${s.seriesId}')">${tt('abo.extend', 'Verlängern')}</button>
             ${future.length > 0 ? `<button class="btn btn-secondary btn-sm" onclick="aboEndSeries('${s.seriesId}')">Serie beenden</button>` : ''}
           </div>
         </div>`;
@@ -9508,6 +9609,65 @@
       planSetDate(next);
       navTo('planung');
     }
+    // C6 — Ein Abo legt beim Anlegen eine feste Zahl Termine an und laeuft
+    // dann aus. Niemand traegt nach, das Abo steht eines Tages auf "beendet",
+    // obwohl der Vertrag weiterlaeuft. Darum: verlaengern.
+    const ABO_HORIZONT_TAGE = 56;   // acht Wochen im Voraus
+
+    function aboVerlaengern(seriesId, anzahl = 8, still = false) {
+      const alle = loadPlanJobs();
+      let vorlage = null, letztesDatum = null;
+      Object.keys(alle).sort().forEach(dk => {
+        (alle[dk] || []).forEach(j => {
+          if (j.seriesId === seriesId) { vorlage = j; letztesDatum = dk; }
+        });
+      });
+      if (!vorlage || !vorlage.recurring) return 0;
+
+      const basis = new Date(letztesDatum + 'T00:00:00');
+      let angelegt = 0;
+      for (let i = 1; i <= anzahl; i++) {
+        const dk = isoDate(nextRepeatDate(basis, vorlage.recurring, i));
+        if ((alle[dk] || []).some(j => j.seriesId === seriesId)) continue;   // schon da
+        (alle[dk] ||= []).push({
+          ...vorlage,
+          id: 'j' + Date.now() + '-v' + i,
+          date: dk,
+          createdAt: new Date().toISOString().slice(0, 16)
+        });
+        angelegt++;
+      }
+      if (angelegt) {
+        savePlanJobsAll(alle);
+        if (!still) protokolliere('angelegt', 'plan_jobs',
+          `${vorlage.objekt || ''} · ${angelegt}× ${tt('abo.extended', 'verlängert')}`);
+      }
+      return angelegt;
+    }
+
+    function aboVerlaengernKlick(seriesId) {
+      if (!requirePerm('edit_auftrag', 'Abo verlängern')) return;
+      const n = aboVerlaengern(seriesId, 8);
+      renderAbos();
+      toast(n ? `✓ ${n} ${tt('abo.newDates', 'neue Termine angelegt')}`
+              : tt('abo.nothingToDo', 'Es sind schon Termine vorhanden.'));
+    }
+
+    // Beim Oeffnen der Abo-Seite alles nachfuellen, was den Horizont
+    // unterschreitet — so steht ein laufender Vertrag nie ploetzlich leer da.
+    function abosNachfuellen() {
+      const heute = new Date();
+      const grenze = isoDate(new Date(heute.getTime() + ABO_HORIZONT_TAGE * 86400000));
+      let gesamt = 0;
+      getAllSeries().forEach(s => {
+        const kuenftig = s.dates.filter(d => d >= isoDate(heute));
+        if (!kuenftig.length) return;                       // beendet: in Ruhe lassen
+        if (kuenftig[kuenftig.length - 1] >= grenze) return; // reicht weit genug
+        gesamt += aboVerlaengern(s.seriesId, 8, true);
+      });
+      return gesamt;
+    }
+
     function aboEndSeries(seriesId) {
       const s = getAllSeries().find(x => x.seriesId === seriesId);
       if (!s) return;
@@ -9600,6 +9760,7 @@
       markiereGrund();
       renderHistorie();
       vorlagenFormularFuellen();
+      zeitfaktorenFormularFuellen();
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
@@ -10287,8 +10448,8 @@
       const flaeche = parseInt(document.getElementById('endFlaeche')?.value || '65');
       const raeume = parseInt(document.getElementById('endRaeume')?.value || '2');
 
-      // Grunddauer: ca. 1.8 min pro m² + 15 min pro Raum
-      let mins = Math.round(flaeche * 1.8 + raeume * 15);
+      // Grunddauer aus den Faktoren der Firma (Einstellungen → Zeitberechnung)
+      let mins = grunddauer(flaeche, raeume);
 
       // Zusatzleistungen
       document.querySelectorAll('.add-task.on').forEach(t => {
@@ -10655,7 +10816,7 @@
         document.querySelectorAll('.add-task.on').forEach(t => addMins += parseInt(t.dataset.time || 0));
         const feeEnd = getPrice('end-fee');
         const minAuftrag = getPrice('end-min');
-        const durMins = Math.round(flaeche * 1.8 + raeume * 15 + addMins);
+        const durMins = grunddauer(flaeche, raeume) + addMins;
         // Der Betrieb entscheidet in den Einstellungen, ob nach Flaeche oder
         // nach Zeit abgerechnet wird. Die Dauer bleibt in beiden Faellen gleich.
         const nachStunden = getPriceMode('end') === 'std';
@@ -10701,7 +10862,7 @@
         const minAuftrag = getPrice('bau-min');
         const nachStundenBau = getPriceMode('bau') === 'std';
         const satzBau = getPrice('bau-rate');
-        const durMins = Math.round(flaeche * 1.2 / Math.max(cleaners, 1));
+        const durMins = Math.round(flaeche * ladeZeitfaktoren().bauProQm / Math.max(cleaners, 1));
         const base = nachStundenBau ? (durMins / 60) * satzBau : flaeche * qmPrice;
         const usedMin = base < minAuftrag;
         return {
@@ -10956,6 +11117,30 @@
         doc.addImage(co.logo, /jpe?g/i.test(co.logo) ? 'JPEG' : 'PNG', x, y - 4, 22, 22, undefined, 'FAST');
         return x + 27;
       } catch { return x; }   // unlesbares Bild: dann eben ohne
+    }
+
+    // C1 — die Dauer kam bisher aus fest eingebauten Faktoren:
+    // Flaeche x 1.8 min + Zimmer x 15 min, bei der Baureinigung x 1.2.
+    // Jeder Betrieb rechnet anders, also gehoeren sie in die Einstellungen.
+    const ZEITFAKTOREN_KEY = 'cc-zeitfaktoren-v1';
+    const ZEITFAKTOREN_STANDARD = { proQm: 1.8, proRaum: 15, bauProQm: 1.2 };
+
+    function ladeZeitfaktoren() {
+      try {
+        const v = JSON.parse(localStorage.getItem(ZEITFAKTOREN_KEY));
+        return { ...ZEITFAKTOREN_STANDARD, ...(v && typeof v === 'object' ? v : {}) };
+      } catch { return { ...ZEITFAKTOREN_STANDARD }; }
+    }
+
+    function speichereZeitfaktoren(f) {
+      localStorage.setItem(ZEITFAKTOREN_KEY, JSON.stringify(f));
+      window.MosaDB?.push('company_time_factors', f);
+    }
+
+    // Die Grunddauer eines Einsatzes aus Flaeche und Zimmerzahl
+    function grunddauer(flaeche, raeume) {
+      const f = ladeZeitfaktoren();
+      return Math.round((flaeche || 0) * f.proQm + (raeume || 0) * f.proRaum);
     }
 
     function hexZuRgb(hex) {
