@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=38"></script>
+  <script src="app-i18n.js?v=39"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -356,6 +356,8 @@
               <button class="btn btn-secondary" data-i18n="plan.prevWeek" onclick="planShiftWeek(-1)">← Vorwoche</button>
               <button class="btn btn-secondary" data-i18n="plan.today" onclick="planGoToday()">Heute</button>
               <button class="btn btn-secondary" data-i18n="plan.nextWeek" onclick="planShiftWeek(1)">Nächste Woche →</button>
+              <button class="btn btn-secondary" data-i18n="common.manageTeams" onclick="openTeamManager()">Teams verwalten</button>
+              <button class="btn btn-secondary" onclick="tagesCrewZuruecksetzen()" data-i18n="plan.resetDay">Tag zurücksetzen</button>
               <button class="btn btn-accent" id="autoPlanBtn" onclick="runAutoPlan()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 <span data-i18n="plan.optimize">Routen optimieren</span>
@@ -5276,6 +5278,32 @@
       else all[dateKey] = data;
       saveDayCrews(all);
     }
+    // B2 — die Tages-Crew soll taeglich auf die Stammzuordnung zurueckfallen.
+    // getDayCrew(datum) === null bedeutet genau das. Ein Tag, an dem schon
+    // geplant wurde, wird aber nicht einfach umgeworfen: dort sind Leute
+    // konkret auf Einsaetze gesetzt.
+    function tagAlsGeplant(dateKey) {
+      const jobs = loadPlanJobs()[dateKey] || [];
+      return jobs.some(j => (j.assigned && j.assigned.length) || j.team);
+    }
+
+    function tagesCrewZuruecksetzen() {
+      if (!requirePerm('edit_auftrag', 'die Tages-Crew')) return;
+      const datum = isoDate(planCurrentDate);
+      if (!getDayCrew(datum)) {
+        toast(tt('plan.dayAlreadyDefault', 'Dieser Tag folgt bereits der Stammzuordnung.'));
+        return;
+      }
+      if (tagAlsGeplant(datum) &&
+          !confirm(tt('plan.resetPlannedAsk',
+            'An diesem Tag sind schon Einsätze zugeteilt. Die Tages-Crew trotzdem auf die Stammzuordnung zurücksetzen?'))) return;
+      setDayCrew(datum, null);
+      rebuildTeamMembers();
+      if (typeof renderPlanung === 'function') renderPlanung();
+      protokolliere('geaendert', 'teams', tt('plan.dayCrew', 'Tages-Crew') + ' ' + datum);
+      toast(tt('plan.dayReset', '✓ Tag folgt wieder der Stammzuordnung'));
+    }
+
     // ============ Selbst angelegte Aufträge (pro Datum) ============
     const PLAN_JOBS_KEY = 'cc-plan-jobs-v1';
     function loadPlanJobs() {
