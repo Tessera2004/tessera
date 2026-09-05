@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=36"></script>
+  <script src="app-i18n.js?v=37"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1132,6 +1132,17 @@
 
             <div class="brand-preview" id="brandPreview"><span class="brand-preview-mark">M</span><span id="brandPreviewName">Deine Firma</span></div>
             <button class="btn btn-accent" style="margin-top:14px;" onclick="saveCompanyBranding()">Erscheinungsbild speichern</button>
+          </div>
+
+          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <div>
+                <div style="font-weight:700; font-size:15px;" data-i18n="hist.title">Historie</div>
+                <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;" data-i18n="hist.sub">Wer hat wann was gelöscht oder geändert. Bleibt auf diesem Gerät.</div>
+              </div>
+              <button class="btn btn-secondary" onclick="historieLeeren()" data-i18n="hist.clear">Leeren</button>
+            </div>
+            <div id="historieListe" style="margin-top:14px;"></div>
           </div>
 
           <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
@@ -6311,6 +6322,8 @@
         toast('✓ Kunde angelegt');
       }
       saveCustomers(list);
+      protokolliere(editingCustomerId ? 'geaendert' : 'angelegt', 'customers',
+                    `${firstName} ${lastName}`.trim());
       closeModal('customerEditor');
       editingCustomerId = null;
       renderKunden();
@@ -8008,6 +8021,7 @@
         TASKS.push(newT);
       }
       saveTasks(TASKS);
+      protokolliere(editingTaskId ? 'geaendert' : 'angelegt', 'tasks', data.title || '');
       closeModal('taskEditor');
       editingTaskId = null;
       taskLinkContext = null;
@@ -8128,6 +8142,137 @@
         b.classList.toggle('is-active', b.dataset.f === f);
       });
       renderAnrufprotokoll();
+    }
+
+    // B3 — Historie: wer hat wann was geloescht oder geaendert.
+    // Haengt sich an MosaDB.remove, damit keine der Loeschstellen vergessen
+    // wird, wenn spaeter eine dazukommt.
+    const HISTORIE_KEY = 'cc-historie-v1';
+    const HISTORIE_MAX = 300;
+
+    const TABELLEN_NAMEN = {
+      tasks: 'Aufgabe', plan_jobs: 'Auftrag', customers: 'Kunde',
+      employees: 'Mitarbeiter', office_users: 'Büro-Benutzer', teams: 'Team',
+      work_reports: 'Rapport', work_orders: 'Arbeitsschein', reports: 'Bericht',
+      construction_sites: 'Baustelle', vehicles: 'Fahrzeug',
+      tire_storage: 'Reifeneinlagerung', bait_stations: 'Köderstation',
+      pest_protocols: 'Schädlingsprotokoll', company_prices: 'Preisliste',
+      company_custom_services: 'Eigene Leistung'
+    };
+
+    function ladeHistorie() {
+      try { const v = JSON.parse(localStorage.getItem(HISTORIE_KEY)); return Array.isArray(v) ? v : []; }
+      catch { return []; }
+    }
+
+    // Die Loeschstellen entfernen den Eintrag, bevor MosaDB.remove laeuft —
+    // der Name waere dann schon weg. Darum fuehrt jedes Speichern einen
+    // Namensspeicher mit, aus dem wir ihn nachher noch holen koennen.
+    const NAMEN_CACHE = {};
+    function namenMerken(tabelle, daten) {
+      const nimm = (e) => e.title || e.objekt || e.name
+        || (e.firstName ? `${e.firstName} ${e.lastName || ''}`.trim() : null)
+        || (e.firstname ? `${e.firstname} ${e.lastname || ''}`.trim() : null)
+        || e.ort || null;
+      const eintragen = (e) => {
+        if (e && e.id) { const n = nimm(e); if (n) (NAMEN_CACHE[tabelle] ||= {})[e.id] = n; }
+      };
+      if (Array.isArray(daten)) daten.forEach(eintragen);
+      else if (daten && typeof daten === 'object') {
+        // plan_jobs kommt als Karte nach Datum
+        Object.values(daten).forEach(v => Array.isArray(v) ? v.forEach(eintragen) : eintragen(v));
+      }
+    }
+
+    // Aus einer ID einen lesbaren Namen machen — "tkX" hilft niemandem
+    function bezeichnungFuer(tabelle, id) {
+      let name = null;
+      try {
+        if (tabelle === 'tasks') name = TASKS.find(t => t.id === id)?.title;
+        else if (tabelle === 'customers') {
+          const c = loadCustomers().find(x => x.id === id);
+          name = c ? customerDisplayName(c) : null;
+        } else if (tabelle === 'plan_jobs') {
+          const j = allePlanJobs().find(x => x.id === id);
+          name = j ? (j.objekt || j.ort) : null;
+        } else if (tabelle === 'employees' || tabelle === 'office_users') {
+          const u = loadUsers().find(x => x.id === id);
+          name = u ? `${u.firstname} ${u.lastname}` : null;
+        }
+      } catch {}
+      // Meist ist der Eintrag schon geloescht — dann traegt der Speicher
+      // aus dem letzten Sichern den Namen noch.
+      return name || NAMEN_CACHE[tabelle]?.[id] || id;
+    }
+
+    function protokolliere(aktion, tabelle, bezeichnung) {
+      const liste = ladeHistorie();
+      liste.unshift({
+        ts: new Date().toISOString(),
+        aktion,                                   // geloescht | geaendert | angelegt
+        tabelle,
+        was: TABELLEN_NAMEN[tabelle] || tabelle,
+        bezeichnung: bezeichnung || '',
+        wer: getCurrentUserName(),
+        werId: (typeof currentUserId !== 'undefined') ? currentUserId : null
+      });
+      localStorage.setItem(HISTORIE_KEY, JSON.stringify(liste.slice(0, HISTORIE_MAX)));
+      if (document.getElementById('historieListe')) renderHistorie();
+    }
+
+    // MosaDB.remove umhuellen — jede Loeschung landet automatisch im Protokoll
+    (function historieAnhaengen() {
+      const anbinden = () => {
+        if (!window.MosaDB || window.MosaDB.__historie) return false;
+        const originalPush = window.MosaDB.push;
+        window.MosaDB.push = function (tabelle, daten) {
+          try { namenMerken(tabelle, daten); } catch {}
+          return originalPush ? originalPush.apply(this, arguments) : undefined;
+        };
+        const original = window.MosaDB.remove;
+        window.MosaDB.remove = function (tabelle, id) {
+          try { protokolliere('geloescht', tabelle, bezeichnungFuer(tabelle, id)); } catch {}
+          return original ? original.apply(this, arguments) : undefined;
+        };
+        window.MosaDB.__historie = true;
+        return true;
+      };
+      if (!anbinden()) {
+        // db-sync.js kommt erst spaeter — kurz nachfassen
+        let versuche = 0;
+        const t = setInterval(() => { if (anbinden() || ++versuche > 40) clearInterval(t); }, 250);
+      }
+    })();
+
+    function renderHistorie() {
+      const el = document.getElementById('historieListe');
+      if (!el) return;
+      const eintraege = ladeHistorie().slice(0, 50);
+      if (!eintraege.length) {
+        el.innerHTML = `<div style="text-align:center; padding:22px; color:var(--text-subtle); font-size:13px;">${tt('hist.empty','Noch nichts protokolliert.')}</div>`;
+        return;
+      }
+      const FARBE = { geloescht: 'var(--danger)', geaendert: 'var(--accent)', angelegt: 'var(--success)' };
+      el.innerHTML = eintraege.map(e => {
+        const wann = e.ts ? new Date(e.ts).toLocaleString('de-CH', { dateStyle: 'short', timeStyle: 'short' }) : '';
+        return `<div class="activity-item">
+          <div class="act-icon" style="background:${FARBE[e.aktion] || 'var(--text-muted)'}1a; color:${FARBE[e.aktion] || 'var(--text-muted)'}; font-size:10px; font-weight:700;">
+            ${escapeHtml((e.wer || '?').split(/\s+/).map(t => t[0] || '').join('').slice(0, 2).toUpperCase())}
+          </div>
+          <div class="act-body">
+            <div class="act-text">${escapeHtml(e.wer)} ${tt('hist.' + e.aktion, e.aktion)} ${escapeHtml(e.was)}${e.bezeichnung ? ' · ' + escapeHtml(e.bezeichnung) : ''}</div>
+            <div class="act-meta">${escapeHtml(wann)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function historieLeeren() {
+      if (!requirePerm('edit_users', 'Historie')) return;
+      if (!confirm(tt('hist.clearAsk', 'Die ganze Historie löschen?'))) return;
+      localStorage.removeItem(HISTORIE_KEY);
+      renderHistorie();
+      toast(tt('hist.cleared', 'Historie geleert'));
     }
 
     function getCurrentUserName() {
@@ -9345,6 +9490,7 @@
     }
     function fillCompanyForm() {
       markiereGrund();
+      renderHistorie();
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
@@ -11833,6 +11979,9 @@ ${coSig}`;
           seriesId: seriesId || undefined
         });
       });
+
+      protokolliere('angelegt', 'plan_jobs',
+        objekt + (dateKeys.length > 1 ? ` (${dateKeys.length}×)` : ''));
 
       closeModal('newAuftrag');
       // Planer auf das (erste) Auftragsdatum stellen und anzeigen
