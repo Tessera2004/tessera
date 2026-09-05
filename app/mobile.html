@@ -13,7 +13,7 @@
   <script src="supabase-client.js"></script>
   <script src="db-sync.js?v=2"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=37"></script>
+  <script src="app-i18n.js?v=38"></script>
   <style>
     body { background: var(--bg); }
     .device-frame {
@@ -194,6 +194,15 @@
       </div>
 
       <div id="mStops"></div>
+
+      <!-- B11 — die zugeteilten Aufgaben, bisher kamen sie nie beim Mitarbeiter an -->
+      <div id="mTasksWrap" style="display:none; margin-top:22px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div style="font-weight:700; font-size:14px;" data-i18n="m.tasks">Meine Aufgaben</div>
+          <span id="mTasksCount" style="font-size:12px; color:var(--text-subtle);"></span>
+        </div>
+        <div id="mTasks"></div>
+      </div>
 
     </div>
 
@@ -559,6 +568,84 @@
       MY_JOBS = jobs;
       _doneStops.clear();
       renderMyStops();
+      loadMyTasks(me);
+    }
+
+    // B11 — Aufgaben fuer diesen Mitarbeiter.
+    // Aufgaben zeigen auf Buero-Benutzer, Einsaetze auf Mitarbeiter. Die
+    // Bruecke ist die E-Mail, ueber die sich die Feld-App ohnehin erkennt.
+    let MY_TASKS = [];
+
+    async function loadMyTasks(me) {
+      const sb = mSb(), tid = window._tenantId;
+      const wrap = document.getElementById('mTasksWrap');
+      if (!sb || !tid || !me) { if (wrap) wrap.style.display = 'none'; return; }
+      const meineMail = (window._fieldUser || '').toLowerCase();
+      const ids = new Set([me.id]);
+      try {
+        const { data: bu } = await sb.from('office_users').select('id,email').eq('tenant_id', tid);
+        (bu || []).forEach(u => { if ((u.email || '').toLowerCase() === meineMail) ids.add(u.id); });
+      } catch {}
+      let tasks = [];
+      try {
+        const { data } = await sb.from('tasks').select('*').eq('tenant_id', tid).eq('done', false);
+        tasks = (data || []).filter(t => ids.has(t.assignee));
+      } catch {}
+      const rang = { hoch: 0, normal: 1, tief: 2 };
+      tasks.sort((a, b) => (rang[a.priority] ?? 1) - (rang[b.priority] ?? 1)
+                        || String(a.due_date || '9999').localeCompare(String(b.due_date || '9999')));
+      MY_TASKS = tasks;
+      renderMyTasks();
+    }
+
+    function renderMyTasks() {
+      const wrap = document.getElementById('mTasksWrap');
+      const el = document.getElementById('mTasks');
+      const zaehler = document.getElementById('mTasksCount');
+      if (!wrap || !el) return;
+      if (!MY_TASKS.length) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
+      if (zaehler) zaehler.textContent = MY_TASKS.length + ' ' + tt('m.open', 'offen');
+      const heute = isoDateMobile(new Date());
+      el.innerHTML = MY_TASKS.map(t => {
+        const spaet = t.due_date && t.due_date < heute;
+        const farbe = t.priority === 'hoch' ? 'var(--danger)' : 'var(--accent)';
+        return `<div class="stop" style="align-items:flex-start;">
+          <button onclick="taskErledigt('${mEsc(t.id)}')"
+            aria-label="${mEsc(tt('m.markDone', 'Als erledigt markieren'))}"
+            style="width:26px; height:26px; flex:0 0 26px; border-radius:50%; cursor:pointer;
+                   border:2px solid ${farbe}; background:none; margin-top:2px;"></button>
+          <div class="stop-body">
+            <div class="stop-name">${mEsc(t.title)}</div>
+            ${t.description ? `<div class="stop-addr">${mEsc(t.description)}</div>` : ''}
+            ${t.due_date ? `<div style="font-size:11.5px; margin-top:4px; color:${spaet ? 'var(--danger)' : 'var(--text-subtle)'}; font-weight:${spaet ? '600' : '400'};">
+              ${mEsc(spaet ? tt('m.overdue', 'überfällig') : tt('m.due', 'fällig'))} ${mEsc(t.due_date)}</div>` : ''}
+            ${t.contact_phone ? `<a href="tel:${mEsc(t.contact_phone)}" style="font-size:12px; color:var(--accent); text-decoration:none; display:inline-block; margin-top:6px;">${mEsc(t.contact_phone)}</a>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function taskErledigt(id) {
+      const sb = mSb(), tid = window._tenantId;
+      if (!sb || !tid) return;
+      // Erst aus der Liste nehmen, damit es sich sofort anfuehlt
+      MY_TASKS = MY_TASKS.filter(t => t.id !== id);
+      renderMyTasks();
+      try {
+        // .select() ist wichtig: verbietet die Zugriffsregel den Schreibzugriff,
+        // meldet Supabase keinen Fehler, sondern liefert null Zeilen zurueck.
+        const { data, error } = await sb.from('tasks').update({
+          done: true,
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }).eq('id', id).eq('tenant_id', tid).select();
+        if (error || !data || !data.length) throw new Error('nicht gespeichert');
+        toast(tt('m.taskDone', '✓ Erledigt'));
+      } catch {
+        toast(tt('m.taskFailed', 'Konnte nicht gespeichert werden'));
+        loadMyTasks({ id: window._myEmpId });
+      }
     }
 
     function mStopShell(j, inner, cls, isActive) {
