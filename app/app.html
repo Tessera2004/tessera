@@ -4284,79 +4284,96 @@
     // Jede eigene Leistung bekommt eine eigene Karte mit denselben
     // Einstellungen wie die Standardleistungen: Abrechnungsart, Preis,
     // Mindestbuchung und Anfahrtspauschale.
+    // Eine Preiskarte bauen. Wird fuer eigene Leistungen (id) und fuer die
+    // Preset-Leistungen der anderen Branchen (key) gleichermassen benutzt.
+    function preisKarteHtml(sv, waehrung, setter, loeschbar) {
+      const einheit = sv.unit === 'h' ? 'h' : (sv.unit === 'qm' ? 'qm' : 'flat');
+      const ruf = (feld, wert) => `${setter}('${sv.id}','${feld}',${wert})`;
+      return `
+        <div class="price-card-head">
+          <div class="price-card-icon" style="background: var(--surface-2); color: var(--text-muted);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div class="price-card-title">${escapeHtml(sv.title)}</div>
+            <div class="price-card-sub">${escapeHtml(sv.desc || tt('price.custom.t', 'Eigene Leistung'))}</div>
+          </div>
+          ${loeschbar ? `<button class="btn btn-ghost" title="${tt('common.delete','Löschen')}"
+            style="color: var(--danger); padding: 4px 8px;"
+            onclick="removeCustomService('${sv.id}')">×</button>` : ''}
+        </div>
+        <div class="price-card-body">
+          <div class="price-row">
+            <label>${tt('price.row.mode', 'Abrechnung nach')}</label>
+            <div class="opt-row">
+              <button type="button" class="opt-chip ${einheit==='h'?'on':''}" onclick="${ruf('unit',"'h'")}">${tt('price.mode.hour','pro Stunde')}</button>
+              <button type="button" class="opt-chip ${einheit==='qm'?'on':''}" onclick="${ruf('unit',"'qm'")}">${tt('price.mode.sqm','pro m²')}</button>
+              <button type="button" class="opt-chip ${einheit==='flat'?'on':''}" onclick="${ruf('unit',"'flat'")}">${tt('price.mode.flat','Pauschale')}</button>
+            </div>
+          </div>
+          <div class="price-row">
+            <label>${einheit==='h' ? tt('price.row.hourly','Stundensatz')
+                   : einheit==='qm' ? tt('price.row.perSqm','Preis pro m²')
+                   : tt('price.row.flat','Pauschalpreis')}</label>
+            <div class="price-input-wrap">
+              <input type="number" class="price-input" value="${sv.price}" step="0.5" min="0"
+                onchange="${ruf('price','this.value')}" />
+              <span class="price-suffix">${waehrung}${einheit==='h' ? ' / h' : einheit==='qm' ? ' / m²' : ''}</span>
+            </div>
+          </div>
+          <div class="price-row">
+            <label>${einheit==='h' ? tt('price.row.minHours','Mindestbuchung') : tt('price.row.minOrder','Mindestauftrag')}</label>
+            <div class="price-input-wrap">
+              <input type="number" class="price-input" value="${sv.minQty || 0}" step="0.5" min="0"
+                onchange="${ruf('minQty','this.value')}" />
+              <span class="price-suffix">${einheit==='h' ? 'h' : waehrung}</span>
+            </div>
+          </div>
+          <div class="price-row">
+            <label>${tt('price.row.fee','Anfahrt pauschal')}</label>
+            <div class="price-input-wrap">
+              <input type="number" class="price-input" value="${sv.fee || 0}" step="1" min="0"
+                onchange="${ruf('fee','this.value')}" />
+              <span class="price-suffix">${waehrung}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
     function renderCustomServiceCards() {
-      const grid = document.getElementById('priceGridReinigung');
+      // In die gerade sichtbare Spalte haengen, nicht fest ins Reinigungsraster
+      const reinigung = MosaVertical?.get?.() === 'reinigung';
+      const grid = document.getElementById(reinigung ? 'priceGridReinigung' : 'priceGridGeneric');
       const platzhalter = document.getElementById('customServiceCards');
       if (!grid || !platzhalter) return;
       const waehrung = (typeof coLocale === 'function' && typeof loadCompany === 'function')
         ? coLocale(loadCompany()).cur : 'CHF';
 
       // Karten aus dem vorigen Durchlauf entfernen
-      grid.querySelectorAll('[data-customcard]').forEach(k => k.remove());
+      ['priceGridReinigung','priceGridGeneric'].forEach(id =>
+        document.getElementById(id)?.querySelectorAll('[data-customcard]').forEach(k => k.remove()));
 
       const svcs = servicesForCurrentVertical();
-      const platzhalterKarte = platzhalter.closest('.price-card');
+      const platzhalterKarte = reinigung ? platzhalter.closest('.price-card') : null;
       svcs.forEach(sv => {
-        const einheit = sv.unit === 'h' ? 'h' : (sv.unit === 'qm' ? 'qm' : 'flat');
         const karte = document.createElement('div');
         karte.className = 'price-card';
         karte.dataset.customcard = sv.id;
         karte.style = '--svc-color: var(--text-muted); --svc-color-soft: var(--surface-2);';
-        karte.innerHTML = `
-          <div class="price-card-head">
-            <div class="price-card-icon" style="background: var(--surface-2); color: var(--text-muted);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-            </div>
-            <div style="flex:1; min-width:0;">
-              <div class="price-card-title">${escapeHtml(sv.title)}</div>
-              <div class="price-card-sub">${tt('price.custom.t', 'Eigene Leistung')}</div>
-            </div>
-            <button class="btn btn-ghost" title="${tt('common.delete','Löschen')}"
-              style="color: var(--danger); padding: 4px 8px;"
-              onclick="removeCustomService('${sv.id}')">×</button>
-          </div>
-          <div class="price-card-body">
-            <div class="price-row">
-              <label>${tt('price.row.mode', 'Abrechnung nach')}</label>
-              <div class="opt-row">
-                <button type="button" class="opt-chip ${einheit==='h'?'on':''}"
-                  onclick="setCustomServiceField('${sv.id}','unit','h')">${tt('price.mode.hour','pro Stunde')}</button>
-                <button type="button" class="opt-chip ${einheit==='qm'?'on':''}"
-                  onclick="setCustomServiceField('${sv.id}','unit','qm')">${tt('price.mode.sqm','pro m²')}</button>
-                <button type="button" class="opt-chip ${einheit==='flat'?'on':''}"
-                  onclick="setCustomServiceField('${sv.id}','unit','flat')">${tt('price.mode.flat','Pauschale')}</button>
-              </div>
-            </div>
-            <div class="price-row">
-              <label>${einheit==='h' ? tt('price.row.hourly','Stundensatz')
-                     : einheit==='qm' ? tt('price.row.perSqm','Preis pro m²')
-                     : tt('price.row.flat','Pauschalpreis')}</label>
-              <div class="price-input-wrap">
-                <input type="number" class="price-input" value="${sv.price}" step="0.5" min="0"
-                  onchange="setCustomServiceField('${sv.id}','price', this.value)" />
-                <span class="price-suffix">${waehrung}${einheit==='h' ? ' / h' : einheit==='qm' ? ' / m²' : ''}</span>
-              </div>
-            </div>
-            <div class="price-row">
-              <label>${einheit==='h' ? tt('price.row.minHours','Mindestbuchung')
-                                     : tt('price.row.minOrder','Mindestauftrag')}</label>
-              <div class="price-input-wrap">
-                <input type="number" class="price-input" value="${sv.minQty || 0}" step="0.5" min="0"
-                  onchange="setCustomServiceField('${sv.id}','minQty', this.value)" />
-                <span class="price-suffix">${einheit==='h' ? 'h' : waehrung}</span>
-              </div>
-            </div>
-            <div class="price-row">
-              <label>${tt('price.row.fee','Anfahrt pauschal')}</label>
-              <div class="price-input-wrap">
-                <input type="number" class="price-input" value="${sv.fee || 0}" step="1" min="0"
-                  onchange="setCustomServiceField('${sv.id}','fee', this.value)" />
-                <span class="price-suffix">${waehrung}</span>
-              </div>
-            </div>
-          </div>`;
-        grid.insertBefore(karte, platzhalterKarte);
+        karte.innerHTML = preisKarteHtml(sv, waehrung, 'setCustomServiceField', true);
+        if (platzhalterKarte) grid.insertBefore(karte, platzhalterKarte); else grid.appendChild(karte);
       });
+
+      if (!reinigung) {
+        const zu = document.createElement('div');
+        zu.className = 'price-card'; zu.dataset.customcard = '__add';
+        zu.innerHTML = `<div class="price-card-body" style="text-align:center; padding:18px 0;">
+          <button class="btn btn-secondary" style="width:100%;"
+            onclick="document.getElementById('customServiceName')?.focus();
+                     document.getElementById('customServiceName')?.scrollIntoView({behavior:'smooth', block:'center'});">
+            + ${tt('price.custom.add', 'Service hinzufügen')}</button></div>`;
+        grid.appendChild(zu);
+      }
 
       platzhalter.innerHTML = `<div style="text-align:center; padding:14px 0 18px;">
         <button class="btn btn-secondary" style="width:100%;"
@@ -4437,31 +4454,38 @@
       const vert = MosaVertical.get();
       const canEdit = hasPerm('edit_prices');
       gen.innerHTML = svcs.map(s => {
-        const pk = `${vert}_${s.key}_price`;
-        const val = (prices[pk] != null) ? prices[pk] : s.price;
-        const suffix = s.unit === 'h' ? 'CHF / h' : tt('price.flatSuffix', 'CHF pauschal');
-        return `
-          <div class="price-card">
-            <div class="price-card-head">
-              <div class="price-card-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M17 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
-              </div>
-              <div>
-                <div class="price-card-title">${escapeHtml(s.title)}</div>
-                <div class="price-card-sub">${escapeHtml(s.desc)}</div>
-              </div>
-            </div>
-            <div class="price-card-body">
-              <div class="price-row">
-                <label>${s.unit === 'h' ? tt('price.rateLabel', 'Stundensatz') : tt('price.flatLabel', 'Pauschalpreis')}</label>
-                <div class="price-input-wrap">
-                  <input type="number" class="price-input" data-gprice="${pk}" value="${val}" step="${s.unit === 'h' ? '0.5' : '5'}" oninput="onGenericPriceChange(this)" ${canEdit ? '' : 'disabled'} />
-                  <span class="price-suffix">${suffix}</span>
-                </div>
-              </div>
-            </div>
-          </div>`;
+        const def = { ...s, id: s.key, ...genericUeberschreibungen(s.key) };
+        return `<div class="price-card" ${canEdit ? '' : 'data-locked="1"'}>`
+             + preisKarteHtml(def, tt('price.cur', 'CHF'), 'setGenericServiceField', false)
+             + `</div>`;
       }).join('');
+      if (!canEdit) gen.querySelectorAll('input,button').forEach(e => e.disabled = true);
+    }
+    // Was der Betrieb an einer Preset-Leistung geaendert hat
+    function genericUeberschreibungen(key) {
+      const vert = MosaVertical.get();
+      let p = {}; try { p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); } catch {}
+      const o = {};
+      for (const [feld, endung] of [['unit','unit'], ['price','price'], ['minQty','min'], ['fee','fee']]) {
+        const w = p[`${vert}_${key}_${endung}`];
+        if (w != null) o[feld] = w;
+      }
+      return o;
+    }
+    function setGenericServiceField(key, feld, wert) {
+      if (!requirePerm('edit_prices', 'Preise')) return;
+      const endung = feld === 'minQty' ? 'min' : feld;
+      let p = {}; try { p = JSON.parse(localStorage.getItem('cc-prices') || '{}'); } catch {}
+      if (feld === 'unit') { p[`${MosaVertical.get()}_${key}_unit`] = wert; }
+      else {
+        const z = Number(wert);
+        if (!Number.isFinite(z) || z < 0) return;
+        p[`${MosaVertical.get()}_${key}_${endung}`] = z;
+      }
+      localStorage.setItem('cc-prices', JSON.stringify(p));
+      try { window.MosaDB?.push('company_prices', p); } catch {}
+      renderGenericPrices(); renderCustomServiceCards();
+      toast('Gespeichert');
     }
     function onGenericPriceChange(input) {
       if (!hasPerm('edit_prices')) return;
@@ -9680,7 +9704,9 @@
     function isGenericVertical() { return !!(window.MosaVertical && MosaVertical.get() !== 'reinigung'); }
     function genericServiceDef(svc) {
       const standard = window.MosaVertical ? (MosaVertical.preset().services || []) : [];
-      return standard.find(s => s.key === svc) || servicesForCurrentVertical().find(s => s.id === svc) || null;
+      const treffer = standard.find(s => s.key === svc);
+      if (treffer) return { ...treffer, ...genericUeberschreibungen(svc) };
+      return servicesForCurrentVertical().find(s => s.id === svc) || null;
     }
     function serviceTitle(svc) { return serviceLabels[svc] || (genericServiceDef(svc)?.title) || svc || ''; }
     function genericServicePrice(svc) {
