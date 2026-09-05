@@ -21,7 +21,7 @@
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=33"></script>
+  <script src="app-i18n.js?v=34"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1120,6 +1120,16 @@
               <div class="field"><label>Akzentfarbe</label><div style="display:flex; align-items:center; gap:10px;"><input type="color" id="coBrandColor" value="#E11D2A" style="width:46px; height:38px; padding:3px;" oninput="previewCompanyBranding()" /><code id="coBrandColorValue" style="font-size:12px; color:var(--text-muted);">#E11D2A</code></div></div>
               <div class="field"><label>Firmenlogo</label><input type="file" id="coLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="onCompanyLogoSelected(this)" /><div style="font-size:11.5px; color:var(--text-subtle); margin-top:5px;">PNG, JPG, WebP oder SVG · max. 750 KB</div></div>
             </div>
+            <div class="field" style="margin-top:4px;">
+              <label data-i18n="set.ground">Hintergrund</label>
+              <div class="opt-row" id="grundWahl">
+                <button type="button" class="opt-chip" data-grund="standard" onclick="setzeGrund('standard')" data-i18n="set.groundLight">Hell</button>
+                <button type="button" class="opt-chip" data-grund="dark" onclick="setzeGrund('dark')" data-i18n="set.groundDark">Dunkel</button>
+                <button type="button" class="opt-chip" data-grund="buero" onclick="setzeGrund('buero')" data-i18n="set.groundOffice">Büro — warm &amp; ruhig</button>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-subtle); margin-top:6px;" data-i18n="set.groundHint">Gilt sofort und bleibt auf diesem Gerät gespeichert.</div>
+            </div>
+
             <div class="brand-preview" id="brandPreview"><span class="brand-preview-mark">M</span><span id="brandPreviewName">Deine Firma</span></div>
             <button class="btn btn-accent" style="margin-top:14px;" onclick="saveCompanyBranding()">Erscheinungsbild speichern</button>
           </div>
@@ -9200,6 +9210,37 @@
       const previewMark = document.querySelector('.brand-preview-mark'); if (previewMark) previewMark.textContent = companyInitial(name);
       const previewName = document.getElementById('brandPreviewName'); if (previewName) previewName.textContent = name;
     }
+    // B5 — die Grundstimmung gehoert ins Erscheinungsbild, nicht in einen
+    // versteckten Kopfzeilen-Knopf. Freie Hintergrundfarbe waere gefaehrlich
+    // (unlesbarer Text), darum drei geprüfte Stimmungen.
+    function setzeGrund(wert) {
+      if (wert === 'dark') {
+        localStorage.setItem('cc-skin', 'standard');
+        localStorage.setItem('cc-theme', 'dark');
+        document.documentElement.removeAttribute('data-skin');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else if (wert === 'buero') {
+        localStorage.setItem('cc-skin', 'buero');
+        applySkin('buero');
+      } else {
+        localStorage.setItem('cc-skin', 'standard');
+        localStorage.setItem('cc-theme', 'light');
+        document.documentElement.removeAttribute('data-skin');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+      markiereGrund();
+      applyCompanyBranding();   // Akzentfarbe ueberlebt den Wechsel
+      toast(tt('set.groundSaved', 'Hintergrund gespeichert'));
+    }
+
+    function markiereGrund() {
+      const skin = localStorage.getItem('cc-skin') || 'buero';
+      const jetzt = skin === 'buero' ? 'buero'
+                  : (localStorage.getItem('cc-theme') === 'dark' ? 'dark' : 'standard');
+      document.querySelectorAll('#grundWahl .opt-chip').forEach(c =>
+        c.classList.toggle('on', c.dataset.grund === jetzt));
+    }
+
     function previewCompanyBranding() {
       const color = document.getElementById('coBrandColor')?.value || '#E11D2A';
       const label = document.getElementById('coBrandColorValue'); if (label) label.textContent = color.toUpperCase();
@@ -9222,6 +9263,7 @@
       toast('✓ Erscheinungsbild gespeichert');
     }
     function fillCompanyForm() {
+      markiereGrund();
       const c = loadCompany();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
       set('coName', c.name); set('coIban', c.iban); set('coAddr1', c.addr1);
