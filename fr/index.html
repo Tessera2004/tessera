@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=11">
+  <link rel="stylesheet" href="/styles.css?v=12">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MosaOS">
   <meta property="og:title" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen">
@@ -687,6 +687,21 @@
           <a href="/app/app.html?demo=1" class="btn btn-primary btn-lg" data-i18n="cta.primary">Essayer la démo</a>
           <a href="/fr/anfrage.html" class="btn btn-ghost-light btn-lg" data-i18n="cta.secondary">Demander conseil</a>
         </div>
+
+        <!-- Wer dahintersteht. Fuer einen Betrieb, der seine Auftraege einer
+             Software anvertraut, ist das die erste Frage - nicht die
+             Funktionsliste. Bisher stand der Name nur auf "Über uns". -->
+        <div class="cta-person">
+          <div class="cta-person-mark" aria-hidden="true">BK</div>
+          <div class="cta-person-text">
+            <strong data-cfg="owner">Brian Knuchel</strong>
+            <span data-i18n="cta.personLine">Développeur et propriétaire, entreprise individuelle à Aarau. Vos questions arrivent chez moi, pas dans un système de tickets.</span>
+            <span class="cta-person-links">
+              <a data-cfg="email" href="mailto:info@mosaos.ch">info@mosaos.ch</a>
+              <a data-cfg="phone" href="tel:+41765265975">+41 76 526 59 75</a>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -763,8 +778,8 @@
     </div>
   </footer>
 
-  <script src="/config.js?v=4"></script>
-  <script src="/i18n.js?v=19"></script>
+  <script src="/config.js?v=5"></script>
+  <script src="/i18n.js?v=20"></script>
   <script src="/newsletter.js?v=1"></script>
   <script src="/main.js?v=6" defer=""></script>
 

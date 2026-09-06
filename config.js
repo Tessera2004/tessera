@@ -128,20 +128,29 @@ window.MOSAOS_CONFIG = {
         };
         fillTexts();
         document.addEventListener('mosa-lang-changed', fillTexts);
+        // Auf dem Handy schmal halten. Der Hinweis braucht keine Zustimmung
+        // (nur technische Cookies) — er darf also nicht den wichtigsten
+        // Knopf der Seite verdecken. Vorher nahm er vier Zeilen ein.
+        const schmal = window.matchMedia('(max-width: 640px)').matches;
         const s = bar.style;
-        s.position = 'fixed'; s.left = '16px'; s.right = '16px'; s.bottom = '16px';
+        s.position = 'fixed'; s.left = '12px'; s.right = '12px';
+        s.bottom = 'max(12px, env(safe-area-inset-bottom, 12px))';
         s.maxWidth = '640px'; s.margin = '0 auto'; s.zIndex = '9999';
-        s.display = 'flex'; s.gap = '16px'; s.alignItems = 'center'; s.justifyContent = 'space-between';
+        s.display = 'flex'; s.gap = schmal ? '10px' : '16px';
+        s.alignItems = 'center'; s.justifyContent = 'space-between';
         s.background = '#16181d'; s.color = '#f4f4f5';
-        s.padding = '14px 18px'; s.borderRadius = '14px';
+        s.padding = schmal ? '9px 12px' : '14px 18px';
+        s.borderRadius = schmal ? '10px' : '14px';
         s.boxShadow = '0 8px 30px rgba(0,0,0,0.25)';
-        s.font = '14px/1.4 Inter, system-ui, sans-serif';
+        s.font = (schmal ? '12px/1.35 ' : '14px/1.4 ') + 'Inter, system-ui, sans-serif';
         bar.querySelector('a').style.color = '#fca5a5';
         const btn = bar.querySelector('#mosaos-cookie-ok');
         const bs = btn.style;
         bs.flex = '0 0 auto'; bs.cursor = 'pointer'; bs.border = 'none';
         bs.background = '#E11D2A'; bs.color = '#fff';
-        bs.padding = '8px 16px'; bs.borderRadius = '10px'; bs.fontWeight = '600';
+        bs.padding = schmal ? '6px 12px' : '8px 16px';
+        bs.borderRadius = schmal ? '8px' : '10px'; bs.fontWeight = '600';
+        bs.fontSize = schmal ? '12px' : '14px';
         btn.addEventListener('click', () => {
           localStorage.setItem('mosaos_cookie_ok', '1');
           bar.remove();

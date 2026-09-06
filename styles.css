@@ -1730,3 +1730,29 @@ h1 {
 }
 .mod.mod-paket .mod-name { font-weight: 700; }
 .mod.mod-paket .mod-price { color: var(--swiss-bright); font-weight: 700; }
+
+
+/* Wer hinter MosaOS steht — unter dem Schluss-Aufruf.
+   Ein Betrieb entscheidet nicht nach Funktionsliste, sondern danach,
+   ob jemand greifbar ist. */
+.cta-person {
+  display: flex; align-items: center; gap: 14px;
+  max-width: 520px; margin: 30px auto 0;
+  padding: 16px 18px; text-align: left;
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+}
+.cta-person-mark {
+  flex: 0 0 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.12); color: #fff;
+  font-weight: 700; font-size: 14px; letter-spacing: .02em;
+}
+.cta-person-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cta-person-text strong { font-size: 14.5px; color: #fff; }
+.cta-person-text span { font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.75); }
+.cta-person-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.cta-person-links a { color: #fff; font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 560px) {
+  .cta-person { flex-direction: column; align-items: flex-start; text-align: left; }
+}
