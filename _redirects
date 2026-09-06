@@ -1,0 +1,14 @@
+# Rechtstexte existieren bewusst nur in der verbindlichen deutschen Fassung.
+# Alte Sprachpfade dauerhaft auf diese kanonischen Seiten weiterleiten.
+/fr/datenschutz.html  /datenschutz.html  301
+/it/datenschutz.html  /datenschutz.html  301
+/es/datenschutz.html  /datenschutz.html  301
+/en/datenschutz.html  /datenschutz.html  301
+/fr/impressum.html    /impressum.html    301
+/it/impressum.html    /impressum.html    301
+/es/impressum.html    /impressum.html    301
+/en/impressum.html    /impressum.html    301
+/fr/agb.html          /agb.html          301
+/it/agb.html          /agb.html          301
+/es/agb.html          /agb.html          301
+/en/agb.html          /agb.html          301
