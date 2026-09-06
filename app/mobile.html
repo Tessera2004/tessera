@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
   <script src="db-sync.js?v=3"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=42"></script>
+  <script src="app-i18n.js?v=43"></script>
   <style>
     body { background: var(--bg); }
     .device-frame {
@@ -187,10 +187,18 @@
     <div class="mobile-route">
       <div class="mobile-route-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <span id="mRouteDate" data-i18n="m.today">Heute</span>
-        <button onclick="openChecklist()" style="background:none; border:none; color:var(--accent); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          <span data-i18n="m.materialCheck">Material-Check</span>
-        </button>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <!-- QR hing bisher nur am gerade aktiven Einsatz und war deshalb
+               unerreichbar, sobald keiner aktiv war. Jetzt fest im Kopf. -->
+          <button onclick="openScanner()" style="background:none; border:none; color:var(--accent); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 19h2v2h-2z"/></svg>
+            <span data-i18n="m.scanQR">QR scannen</span>
+          </button>
+          <button onclick="openChecklist()" style="background:none; border:none; color:var(--accent); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <span data-i18n="m.materialCheck">Material-Check</span>
+          </button>
+        </div>
       </div>
 
       <div id="mStops"></div>

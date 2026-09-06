@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -22,7 +22,7 @@
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
   <script src="demo-data.js?v=2"></script>
-  <script src="app-i18n.js?v=43"></script>
+  <script src="app-i18n.js?v=44"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1186,9 +1186,14 @@
               Lege Standardtexte fest, die beim Erstellen einer Offerte oder Rechnung automatisch eingesetzt werden.
             </div>
             <div class="template-placeholders">
-              <span data-i18n="tpl.placeholders">Platzhalter:</span>
-              <code>{kunde}</code> <code>{adresse}</code> <code>{preis}</code>
-              <code>{datum}</code> <code>{gueltig}</code> <code>{firma}</code> <code>{leistung}</code>
+              <span data-i18n="tpl.placeholders">Zum Einfügen anklicken — beim Erstellen wird der echte Wert eingesetzt:</span>
+              <button type="button" onclick="bausteinEinfuegen('{kunde}')" data-i18n="tpl.phCustomer">Kundenname</button>
+              <button type="button" onclick="bausteinEinfuegen('{adresse}')" data-i18n="tpl.phAddress">Adresse</button>
+              <button type="button" onclick="bausteinEinfuegen('{leistung}')" data-i18n="tpl.phService">Leistung</button>
+              <button type="button" onclick="bausteinEinfuegen('{preis}')" data-i18n="tpl.phPrice">Preis</button>
+              <button type="button" onclick="bausteinEinfuegen('{datum}')" data-i18n="tpl.phDate">Datum</button>
+              <button type="button" onclick="bausteinEinfuegen('{gueltig}')" data-i18n="tpl.phValid">Gültig bis</button>
+              <button type="button" onclick="bausteinEinfuegen('{firma}')" data-i18n="tpl.phCompany">Firmenname</button>
             </div>
             <div class="template-grid">
               <div class="template-panel">
@@ -1213,6 +1218,10 @@
                   <textarea id="tplRechnungBedingungen" rows="4" data-i18n-ph="tpl.invoiceTermsPh" placeholder="Zahlbar innert 30 Tagen ohne Abzug."></textarea>
                 </div>
               </div>
+            </div>
+            <div class="template-preview">
+              <div class="template-preview-title" data-i18n="tpl.preview">So sieht es beim Kunden aus</div>
+              <div id="tplVorschau" class="template-preview-body"></div>
             </div>
             <button class="btn btn-accent" onclick="vorlagenSpeichern()" data-i18n="tpl.save">Vorlagen speichern</button>
           </div>
@@ -8420,6 +8429,63 @@
       toast(tt('calc.saved', '✓ Gespeichert'));
     }
 
+    // Die Vorlagenfelder: welches war zuletzt angeklickt, dorthin kommt der Baustein
+    const VORLAGEN_FELDER = ['tplOfferteEinleitung', 'tplOfferteSchluss',
+                             'tplRechnungText', 'tplRechnungBedingungen'];
+    let letztesVorlagenFeld = 'tplOfferteEinleitung';
+
+    // Einen Baustein an der Schreibmarke einfuegen. Die geschweiften Klammern
+    // sind fuer den Benutzer kryptisch, darum tippt er sie nie selbst.
+    function bausteinEinfuegen(baustein) {
+      const feld = document.getElementById(letztesVorlagenFeld);
+      if (!feld) return;
+      const a = feld.selectionStart ?? feld.value.length;
+      const e = feld.selectionEnd ?? feld.value.length;
+      feld.value = feld.value.slice(0, a) + baustein + feld.value.slice(e);
+      const neu = a + baustein.length;
+      feld.focus();
+      feld.setSelectionRange(neu, neu);
+      vorlagenVorschau();
+    }
+
+    // Zeigt mit Beispieldaten, was aus den Bausteinen wird
+    function vorlagenVorschau() {
+      const el = document.getElementById('tplVorschau');
+      if (!el) return;
+      const co = loadCompany();
+      const beispiel = {
+        kunde: 'Lisa Berger',
+        adresse: 'Seestrasse 4, 5000 Aarau',
+        preis: '450.00 ' + coLocale(co).cur,
+        datum: formatDateDE(todayISO()),
+        gueltig: formatDateDE(validUntilISO(30)),
+        firma: co.name || 'Deine Firma',
+        leistung: tt('tpl.exampleService', 'Unterhaltsreinigung')
+      };
+      const fuellen = (t) => Object.entries(beispiel)
+        .reduce((x, [k, v]) => x.split('{' + k + '}').join(v), String(t || ''));
+
+      const hol = (id) => (document.getElementById(id)?.value || '').trim();
+      const einleitung = hol('tplOfferteEinleitung');
+      const schluss = hol('tplOfferteSchluss');
+      const rText = hol('tplRechnungText');
+      const rBed = hol('tplRechnungBedingungen');
+
+      if (!einleitung && !schluss && !rText && !rBed) {
+        el.innerHTML = `<span class="template-preview-empty">${tt('tpl.previewEmpty',
+          'Noch nichts hinterlegt — es gelten die Standardtexte.')}</span>`;
+        return;
+      }
+      const block = (titel, zeilen) => zeilen
+        ? `<div class="template-preview-block"><strong>${escapeHtml(titel)}</strong>
+             <div>${escapeHtml(fuellen(zeilen)).replace(/\n/g, '<br>')}</div></div>` : '';
+      el.innerHTML =
+        block(tt('tpl.previewQuote', 'Offerte'),
+              [einleitung, schluss].filter(Boolean).join('\n\n…\n\n'))
+      + block(tt('tpl.previewInvoice', 'Rechnung'),
+              [rText, rBed].filter(Boolean).join('\n\n…\n\n'));
+    }
+
     function vorlagenFormularFuellen() {
       const v = ladeVorlagen();
       const setz = (id, w) => { const e = document.getElementById(id); if (e) e.value = w || ''; };
@@ -8427,6 +8493,14 @@
       setz('tplOfferteSchluss', v.offerteSchluss);
       setz('tplRechnungText', v.rechnungText);
       setz('tplRechnungBedingungen', v.rechnungBedingungen);
+      VORLAGEN_FELDER.forEach(id => {
+        const f = document.getElementById(id);
+        if (!f || f.dataset.verdrahtet) return;
+        f.dataset.verdrahtet = '1';
+        f.addEventListener('focus', () => { letztesVorlagenFeld = id; });
+        f.addEventListener('input', vorlagenVorschau);
+      });
+      vorlagenVorschau();
     }
 
     function vorlagenSpeichern() {
