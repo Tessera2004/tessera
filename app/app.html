@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=12" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -22,7 +22,7 @@
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
   <script src="demo-data.js?v=2"></script>
-  <script src="app-i18n.js?v=42"></script>
+  <script src="app-i18n.js?v=43"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1045,8 +1045,8 @@
         <section class="view" data-view="einstellungen">
           <div class="page-header">
             <div>
-              <h1 class="page-title" data-i18n="view.preise">Preise & Konditionen</h1>
-              <p class="page-subtitle"><span data-i18n="set.pricesSubA">Stundensätze und Mindestbuchungen pro </span><span data-term="leistungsart">Reinigungsart</span><span data-i18n="set.pricesSubB"> — fließen automatisch in jeden neuen Auftrag.</span></p>
+              <h1 class="page-title">Einstellungen</h1>
+              <p class="page-subtitle">Richte Firma, Dokumente, Leistungen und Sicherheit Schritt für Schritt ein.</p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
               <!-- Tour erneut starten: wer sie übersprungen hat, findet sie sonst nie wieder -->
@@ -1056,13 +1056,22 @@
             </div>
           </div>
 
+          <nav class="settings-jump" aria-label="Bereiche der Einstellungen">
+            <a href="#settings-company"><span>1</span> Firma</a>
+            <a href="#settings-design"><span>2</span> Erscheinungsbild</a>
+            <a href="#settings-workflow"><span>3</span> Planung</a>
+            <a href="#settings-templates"><span>4</span> Dokumentvorlagen</a>
+            <a href="#settings-services"><span>5</span> Leistungen &amp; Preise</a>
+            <a href="#settings-security"><span>6</span> Sicherheit</a>
+          </nav>
+
           <div class="readonly-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span data-i18n="set.readonlyBanner">Du bist als <strong style="margin: 0 4px;">Read-only</strong> angemeldet — Preise können nicht gespeichert werden.</span>
           </div>
 
           <!-- Geschäftsfeld / Branche (Preset-Engine) -->
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:10px;">
               <div style="font-weight:700; font-size:15px;" data-i18n="set.businessField">Geschäftsfeld</div>
               <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.businessFieldDesc">Bestimmt Begriffe, Checklisten &amp; Vorlagen in der ganzen App. „Gebäudereinigung" ist der Standard.</div>
@@ -1075,7 +1084,7 @@
           </div>
 
           <!-- Firma & Zahlungsangaben (für QR-Rechnung) -->
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" id="settings-company" style="padding:20px 22px; margin-bottom:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
               <div>
                 <div style="font-weight:700; font-size:15px;" data-i18n="set.companyTitle">Firma & Zahlungsangaben</div>
@@ -1118,7 +1127,7 @@
             <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;" data-i18n="set.ibanHint">Hinterlege deine echte IBAN — sonst zeigt die QR-Rechnung die Demo-IBAN.</div>
           </div>
 
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" id="settings-design" style="padding:20px 22px; margin-bottom:18px;">
             <div style="font-weight:700; font-size:15px;">Erscheinungsbild</div>
             <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;">Firmenlogo und Akzentfarbe gelten in deinem Büro, der Mitarbeiter-App und auf neuen Dokumenten.</div>
             <div class="brand-settings-grid" style="margin-top:16px;">
@@ -1140,7 +1149,7 @@
           </div>
 
           <!-- C1/C2: Zeitberechnung und Startpunkt der Routen -->
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" id="settings-workflow" style="padding:20px 22px; margin-bottom:18px;">
             <div style="font-weight:700; font-size:15px;" data-i18n="calc.title">Zeitberechnung und Routenstart</div>
             <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;" data-i18n="calc.sub">
               Woraus der Assistent die Dauer eines Einsatzes schätzt — und wo eure Teams morgens losfahren.
@@ -1171,41 +1180,44 @@
           </div>
 
           <!-- B7/B8: eigene Texte fuer Offerten und Rechnungen -->
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
-            <div style="font-weight:700; font-size:15px;" data-i18n="tpl.title">Eigene Vorlagen</div>
+          <div class="card settings-card" id="settings-templates" style="padding:20px 22px; margin-bottom:18px;">
+            <div style="font-weight:700; font-size:15px;" data-i18n="tpl.title">Dokumentvorlagen</div>
             <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;" data-i18n="tpl.sub">
-              Deine eigenen Texte für Offerten und Rechnungen. Leer lassen heisst: Standardtext.
+              Lege Standardtexte fest, die beim Erstellen einer Offerte oder Rechnung automatisch eingesetzt werden.
             </div>
-            <div style="font-size:11.5px; color:var(--text-subtle); margin-top:8px;">
+            <div class="template-placeholders">
               <span data-i18n="tpl.placeholders">Platzhalter:</span>
               <code>{kunde}</code> <code>{adresse}</code> <code>{preis}</code>
               <code>{datum}</code> <code>{gueltig}</code> <code>{firma}</code> <code>{leistung}</code>
             </div>
-
-            <div class="field" style="margin-top:14px;">
-              <label data-i18n="tpl.offerIntro">Offerte — Einleitung</label>
-              <textarea id="tplOfferteEinleitung" rows="3" data-i18n-ph="tpl.offerIntroPh"
-                placeholder="vielen Dank für Ihre Anfrage zu {leistung} an {adresse}."></textarea>
-            </div>
-            <div class="field">
-              <label data-i18n="tpl.offerOutro">Offerte — Schluss</label>
-              <textarea id="tplOfferteSchluss" rows="3" data-i18n-ph="tpl.offerOutroPh"
-                placeholder="Mit freundlichen Grüssen&#10;{firma}"></textarea>
-            </div>
-            <div class="field">
-              <label data-i18n="tpl.invoiceText">Rechnung — Text über der Position</label>
-              <textarea id="tplRechnungText" rows="2" data-i18n-ph="tpl.invoiceTextPh"
-                placeholder="Für die ausgeführten Arbeiten erlauben wir uns zu berechnen:"></textarea>
-            </div>
-            <div class="field">
-              <label data-i18n="tpl.invoiceTerms">Rechnung — Zahlungsbedingungen</label>
-              <textarea id="tplRechnungBedingungen" rows="2" data-i18n-ph="tpl.invoiceTermsPh"
-                placeholder="Zahlbar innert 30 Tagen ohne Abzug."></textarea>
+            <div class="template-grid">
+              <div class="template-panel">
+                <div class="template-panel-title">Offerte</div>
+                <div class="field">
+                  <label data-i18n="tpl.offerIntro">Einleitung</label>
+                  <textarea id="tplOfferteEinleitung" rows="4" data-i18n-ph="tpl.offerIntroPh" placeholder="vielen Dank für Ihre Anfrage zu {leistung} an {adresse}."></textarea>
+                </div>
+                <div class="field">
+                  <label data-i18n="tpl.offerOutro">Abschluss</label>
+                  <textarea id="tplOfferteSchluss" rows="4" data-i18n-ph="tpl.offerOutroPh" placeholder="Mit freundlichen Grüssen&#10;{firma}"></textarea>
+                </div>
+              </div>
+              <div class="template-panel">
+                <div class="template-panel-title">Rechnung</div>
+                <div class="field">
+                  <label data-i18n="tpl.invoiceText">Text über den Positionen</label>
+                  <textarea id="tplRechnungText" rows="4" data-i18n-ph="tpl.invoiceTextPh" placeholder="Für die ausgeführten Arbeiten erlauben wir uns zu berechnen:"></textarea>
+                </div>
+                <div class="field">
+                  <label data-i18n="tpl.invoiceTerms">Zahlungsbedingungen</label>
+                  <textarea id="tplRechnungBedingungen" rows="4" data-i18n-ph="tpl.invoiceTermsPh" placeholder="Zahlbar innert 30 Tagen ohne Abzug."></textarea>
+                </div>
+              </div>
             </div>
             <button class="btn btn-accent" onclick="vorlagenSpeichern()" data-i18n="tpl.save">Vorlagen speichern</button>
           </div>
 
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
               <div>
                 <div style="font-weight:700; font-size:15px;" data-i18n="hist.title">Historie</div>
@@ -1217,7 +1229,7 @@
           </div>
 
           <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
-          <div class="card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" id="settings-services" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:6px;">
               <div style="font-weight:700; font-size:15px;" data-i18n="set.modules">Module</div>
               <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.modulesDesc">Schalte nur die Bereiche ein, die deine Firma braucht. Deaktivierte Module verschwinden aus der Seitenleiste.</div>
@@ -1489,7 +1501,7 @@
             </div>
           </div>
 
-          <div class="card" style="padding:20px 22px; margin-top:24px;">
+          <div class="card settings-card" id="settings-security" style="padding:20px 22px; margin-top:24px;">
             <div style="font-weight:700; font-size:15px;" data-i18n="set.mfaTitle">Zwei-Faktor-Authentifizierung</div>
             <div id="mfaStatus" style="font-size:12.5px; color:var(--text-subtle); margin-top:4px;" data-i18n="set.mfaLoading">Status wird geprüft …</div>
             <button id="mfaEnableBtn" class="btn btn-secondary" style="margin-top:14px;" onclick="enrollMfa()" data-i18n="set.mfaEnable">2FA aktivieren</button>
@@ -9375,8 +9387,12 @@
           erledigt: 'var(--success)', vergeben: 'var(--accent)', abnahme: 'var(--success)',
           auftrag: 'var(--brand-primary)', anruf: 'var(--warning, #D97706)', offerte: 'var(--text-muted)'
         };
+        const ART_LABEL = {
+          erledigt: 'Erledigt', vergeben: 'Aufgabe', abnahme: 'Abnahme',
+          auftrag: 'Auftrag', anruf: 'Anruf', offerte: 'Offerte'
+        };
         const merke = (art, ts, text, meta) => events.push({
-          ts, text, meta: meta || '', icon: SYMBOLE[art], col: FARBEN[art]
+          ts, text, meta: meta || '', icon: SYMBOLE[art], col: FARBEN[art], label: ART_LABEL[art] || art
         });
 
         const events = [];
@@ -9407,9 +9423,20 @@
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
         const top = events.slice(0, 8);
         actEl.innerHTML = top.length
-          ? top.map(ev => `<div class="activity-item"><div class="act-icon" style="background:${ev.col}1a;color:${ev.col}">${ev.icon}</div><div class="act-body"><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div></div>`).join('')
+          ? top.map(ev => `<div class="activity-item"><div class="act-icon" style="background:${ev.col}1a;color:${ev.col}" aria-hidden="true">${ev.icon}</div><div class="act-body"><div class="act-kind" style="color:${ev.col}">${escapeHtml(ev.label)}</div><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div><time class="act-time">${formatActivityTime(ev.ts)}</time></div>`).join('')
           : `<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">${tt('dash.noActivity','Noch keine Aktivität.')}</div>`;
       }
+    }
+
+    function formatActivityTime(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value).slice(0, 10);
+      const today = new Date();
+      const sameDay = date.toDateString() === today.toDateString();
+      return sameDay
+        ? date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })
+        : date.toLocaleDateString([], { day:'2-digit', month:'2-digit' });
     }
     document.querySelector('.nav-item[data-view="dashboard"]')?.addEventListener('click', () => {
       setTimeout(renderDashboard, 50);
