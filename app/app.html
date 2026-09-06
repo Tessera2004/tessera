@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -17,14 +17,17 @@
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
   <script src="mail-config.js"></script>
-  <script src="db-sync.js?v=2"></script>
+  <script src="db-sync.js?v=3"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=41"></script>
+  <script src="demo-data.js?v=2"></script>
+  <script src="app-i18n.js?v=42"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
+  <div id="demoNotice" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10000;background:#fff;color:#171717;border:1px solid #ddd;border-radius:999px;padding:8px 10px 8px 14px;font-size:12px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.24);align-items:center;gap:12px;white-space:nowrap;">Beispieldemo · Änderungen bleiben in diesem Browser <button type="button" onclick="MosaDemo.leave()" style="border:0;border-radius:999px;background:#E11D2A;color:#fff;padding:7px 10px;font:inherit;cursor:pointer;">Eigene Firma starten</button></div>
+  <script>if (localStorage.getItem('cc-demo-active') === '1' && new URLSearchParams(location.search).get('demo') === '1') document.getElementById('demoNotice').style.display = 'flex';</script>
   <div class="app-shell">
     <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
@@ -807,7 +810,7 @@
               <h1 class="page-title" data-i18n="nav.email">E-Mail</h1>
               <p class="page-subtitle" id="mailSubtitle">Lade…</p>
             </div>
-            <button class="btn btn-accent" data-i18n="mail.connect" onclick="openModal('mailConnect')">+ Postfach verbinden</button>
+            <button class="btn btn-accent" id="mailConnectButton" data-i18n="mail.connect" onclick="openModal('mailConnect')">+ Postfach verbinden</button>
           </div>
 
           <!-- Verbundene Konten (Pills) -->
@@ -818,7 +821,7 @@
             <div class="mail-empty-inner">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-subtle);margin-bottom:8px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;" data-i18n="mail.emptyTitle">Kein Postfach verbunden</p>
-              <p style="font-size:13.5px;max-width:400px;margin:0 auto;" data-i18n="mail.emptyDesc">Verbinde dein Postfach, um Mails in der App zu sehen und per Klick als Aufgabe zu übernehmen.</p>
+              <p style="font-size:13.5px;max-width:440px;margin:0 auto;" id="mailEmptyDescription" data-i18n="mail.emptyDesc">Verbinde dein Postfach, um Mails in der App zu sehen und per Klick als Aufgabe zu übernehmen.</p>
             </div>
             <div class="mail-provider-grid" id="mailProviderGridEmpty"></div>
           </div>
@@ -1120,7 +1123,7 @@
             <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;">Firmenlogo und Akzentfarbe gelten in deinem Büro, der Mitarbeiter-App und auf neuen Dokumenten.</div>
             <div class="brand-settings-grid" style="margin-top:16px;">
               <div class="field"><label>Akzentfarbe</label><div style="display:flex; align-items:center; gap:10px;"><input type="color" id="coBrandColor" value="#E11D2A" style="width:46px; height:38px; padding:3px;" oninput="previewCompanyBranding()" /><code id="coBrandColorValue" style="font-size:12px; color:var(--text-muted);">#E11D2A</code></div></div>
-              <div class="field"><label>Firmenlogo</label><input type="file" id="coLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="onCompanyLogoSelected(this)" /><div style="font-size:11.5px; color:var(--text-subtle); margin-top:5px;">PNG, JPG, WebP oder SVG · max. 750 KB</div></div>
+              <div class="field"><label>Firmenlogo</label><input type="file" id="coLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="onCompanyLogoSelected(this)" /><div style="font-size:11.5px; color:var(--text-subtle); margin-top:5px;">PNG, JPG, WebP oder SVG · max. 750 KB. Für PDFs bitte PNG oder JPG verwenden.</div></div>
             </div>
             <div class="field" style="margin-top:4px;">
               <label data-i18n="set.ground">Hintergrund</label>
@@ -3872,6 +3875,12 @@
       transition: all 0.15s;
     }
     .mail-provider-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
+    .mail-provider-card.is-disabled { cursor: default; opacity: .62; }
+    .mail-provider-card.is-disabled:hover { transform: none; border-color: var(--border); box-shadow: none; }
+    @media (max-width: 600px) {
+      #demoNotice { width: calc(100vw - 16px); bottom: 8px !important; border-radius: 14px !important; white-space: normal !important; justify-content: space-between; }
+      #demoNotice button { flex: 0 0 auto; }
+    }
     .mail-provider-icon {
       width: 40px; height: 40px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
@@ -9579,7 +9588,7 @@
           : '<span style="color:var(--text-subtle);">keine künftigen Termine</span>';
         const status = future.length > 0
           ? `<span class="badge badge-success">aktiv</span>`
-          : `<span class="badge badge-muted">beendet</span>`;
+          : `<span class="badge badge-muted">Keine weiteren Termine geplant</span>`;
         return `<div class="card" style="padding:16px 20px; display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;">
           <div style="min-width:0;">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
@@ -9614,7 +9623,8 @@
     // obwohl der Vertrag weiterlaeuft. Darum: verlaengern.
     const ABO_HORIZONT_TAGE = 56;   // acht Wochen im Voraus
 
-    function aboVerlaengern(seriesId, anzahl = 8, still = false) {
+    function aboVerlaengern(seriesId, anzahl = 8, still = false, bisDatum = null) {
+      if (!hasPerm('edit_auftrag')) return 0;
       const alle = loadPlanJobs();
       let vorlage = null, letztesDatum = null;
       Object.keys(alle).sort().forEach(dk => {
@@ -9622,12 +9632,13 @@
           if (j.seriesId === seriesId) { vorlage = j; letztesDatum = dk; }
         });
       });
-      if (!vorlage || !vorlage.recurring) return 0;
+      if (!vorlage || !['weekly', 'biweekly', 'monthly'].includes(vorlage.recurring)) return 0;
 
       const basis = new Date(letztesDatum + 'T00:00:00');
       let angelegt = 0;
       for (let i = 1; i <= anzahl; i++) {
         const dk = isoDate(nextRepeatDate(basis, vorlage.recurring, i));
+        if (bisDatum && dk > bisDatum) break;
         if ((alle[dk] || []).some(j => j.seriesId === seriesId)) continue;   // schon da
         (alle[dk] ||= []).push({
           ...vorlage,
@@ -9656,19 +9667,23 @@
     // Beim Oeffnen der Abo-Seite alles nachfuellen, was den Horizont
     // unterschreitet — so steht ein laufender Vertrag nie ploetzlich leer da.
     function abosNachfuellen() {
+      if (!hasPerm('edit_auftrag')) return 0;
       const heute = new Date();
-      const grenze = isoDate(new Date(heute.getTime() + ABO_HORIZONT_TAGE * 86400000));
+      const horizont = new Date(heute);
+      horizont.setDate(horizont.getDate() + ABO_HORIZONT_TAGE);
+      const grenze = isoDate(horizont);
       let gesamt = 0;
       getAllSeries().forEach(s => {
         const kuenftig = s.dates.filter(d => d >= isoDate(heute));
         if (!kuenftig.length) return;                       // beendet: in Ruhe lassen
         if (kuenftig[kuenftig.length - 1] >= grenze) return; // reicht weit genug
-        gesamt += aboVerlaengern(s.seriesId, 8, true);
+        gesamt += aboVerlaengern(s.seriesId, 8, true, grenze);
       });
       return gesamt;
     }
 
     function aboEndSeries(seriesId) {
+      if (!requirePerm('edit_auftrag', 'Abo beenden')) return;
       const s = getAllSeries().find(x => x.seriesId === seriesId);
       if (!s) return;
       const today = isoDate(new Date());
@@ -11112,11 +11127,20 @@
 
     // Logo oben links ins PDF, gibt die x-Position fuer den Text zurueck
     function pdfLogo(doc, co, x, y) {
-      if (!co.logo || !/^data:image\/(png|jpe?g)/i.test(co.logo)) return x;
+      if (!co.logo) return x;
       try {
-        doc.addImage(co.logo, /jpe?g/i.test(co.logo) ? 'JPEG' : 'PNG', x, y - 4, 22, 22, undefined, 'FAST');
-        return x + 27;
-      } catch { return x; }   // unlesbares Bild: dann eben ohne
+        const mime = /^data:image\/(png|jpe?g);/i.exec(co.logo);
+        if (!mime) throw new Error('unsupported logo');
+        const size = doc.getImageProperties(co.logo);
+        if (!(size.width > 0 && size.height > 0)) throw new Error('invalid logo');
+        const scale = Math.min(22 / size.width, 18 / size.height);
+        const width = size.width * scale, height = size.height * scale;
+        doc.addImage(co.logo, /^jpe?g$/i.test(mime[1]) ? 'JPEG' : 'PNG', x, y - 4, width, height, undefined, 'FAST');
+        return x + width + 5;
+      } catch {
+        toast(tt('pdf.logoSkipped', 'Das Logo konnte nicht ins PDF übernommen werden. Bitte ein PNG- oder JPG-Logo hochladen.'), 'error');
+        return x;
+      }
     }
 
     // C1 — die Dauer kam bisher aus fest eingebauten Faktoren:
@@ -12577,29 +12601,29 @@ ${coSig}`;
         { type:'gmail',   name:'Gmail',         sub:'Google Workspace & Gmail',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24"><path fill="#EA4335" d="M1 6.5l11 7 11-7V18a2 2 0 01-2 2H3a2 2 0 01-2-2V6.5z"/><path fill="#4285F4" d="M23 5.5L12 12.5 1 5.5A2 2 0 013 4h18a2 2 0 012 1.5z"/></svg>`,
           bg:'#fff', border:'1px solid #e5e7eb',
-          ready:!!cfg.gmail?.clientId, notReady:'Client-ID fehlt' },
+          ready:!!cfg.gmail?.clientId },
         { type:'outlook', name:'Outlook',        sub:'Microsoft 365 & Outlook.com',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#0078D4"/><path fill="white" d="M13 5h7v5h-7zM13 11h7v5h-7zM13 17h7v3h-7zM4 5h8v15H4z"/><circle fill="#0078D4" cx="8" cy="12" r="2.5"/></svg>`,
           bg:'#0078D4', border:'none',
-          ready:!!cfg.outlook?.clientId, notReady:'Azure Client-ID fehlt' },
+          ready:!!cfg.outlook?.clientId },
         { type:'icloud',  name:'iCloud Mail',    sub:'Apple iCloud (IMAP via Proxy)',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#1d9bf0"/><path fill="white" d="M18 14a4 4 0 00-3-3.87V10a5 5 0 00-10 0v.13A4 4 0 006 18h12a4 4 0 000-4z"/></svg>`,
           bg:'#1d9bf0', border:'none',
-          ready:!!cfg.imap?.proxyUrl, notReady:'Edge Function fehlt' },
+          ready:!!cfg.imap?.proxyUrl },
         { type:'imap',    name:'Webmail / IMAP', sub:'Beliebiger IMAP-Server',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#6366f1"/><path fill="white" d="M4 8h16v10H4zM4 8l8 6 8-6"/></svg>`,
           bg:'#6366f1', border:'none',
-          ready:!!cfg.imap?.proxyUrl, notReady:'Edge Function fehlt' },
+          ready:!!cfg.imap?.proxyUrl },
       ];
       el.innerHTML = providers.map(p => `
-        <div class="mail-provider-card" onclick="connectProvider('${p.type}')">
+        <div class="mail-provider-card${p.ready ? '' : ' is-disabled'}" ${p.ready ? `onclick="connectProvider('${p.type}')"` : 'aria-disabled="true"'}>
           <div class="mail-provider-icon" style="background:${p.bg};${p.border?'border:'+p.border+';':''}">
             ${p.icon}
           </div>
           <div>
             <div class="mail-provider-name">${p.name}</div>
             <div class="mail-provider-sub">${p.sub}</div>
-            <span class="mail-provider-badge ${p.ready ? 'ready' : 'needs-key'}">${p.ready ? '✓ Bereit' : p.notReady}</span>
+            <span class="mail-provider-badge ${p.ready ? 'ready' : 'needs-key'}">${p.ready ? '✓ Bereit' : 'In Vorbereitung'}</span>
           </div>
         </div>`).join('');
     }
@@ -12614,6 +12638,17 @@ ${coSig}`;
       if (sub) sub.textContent = accounts.length
         ? `${accounts.length} ${tt('sub.connected','verbunden')} · ${allMails.length} ${tt('sub.mails','Mails')} · ${unread} ${tt('sub.unread','ungelesen')}`
         : tt('mail.emptyTitle', 'Kein Postfach verbunden');
+      const cfg = window.MOSAOS_MAIL || {};
+      const mailAvailable = !!(cfg.gmail?.clientId || cfg.outlook?.clientId || cfg.imap?.proxyUrl);
+      const connectButton = document.getElementById('mailConnectButton');
+      if (connectButton && !accounts.length) {
+        connectButton.disabled = !mailAvailable;
+        connectButton.textContent = mailAvailable ? '+ ' + tt('mail.connect', 'Postfach verbinden') : 'Mail-Anbindung in Vorbereitung';
+      }
+      const emptyDescription = document.getElementById('mailEmptyDescription');
+      if (emptyDescription && !accounts.length && !mailAvailable) {
+        emptyDescription.textContent = 'Die Mail-Anbindung wird vorbereitet. Einsatzplanung, Kunden, Aufgaben, Offerten und Rechnungen kannst du bereits nutzen.';
+      }
 
       // Nav-Badge
       const badge = document.getElementById('mailNavBadge');

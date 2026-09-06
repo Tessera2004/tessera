@@ -9,18 +9,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=10">
+  <link rel="stylesheet" href="/styles.css?v=11">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MosaOS">
-  <meta property="og:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen">
-  <meta property="og:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis.">
+  <meta property="og:title" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen">
+  <meta property="og:description" content="Eine App für Einsatzplanung, Anrufprotokolle, Rapporte, Offerten und QR-Rechnung — für Schweizer Dienstleistungsbetriebe. 14 Tage gratis.">
   <meta property="og:image" content="https://mosaos.ch/assets/og/index-en.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen">
+  <meta property="og:image:alt" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen">
-  <meta name="twitter:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis.">
+  <meta name="twitter:title" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen">
+  <meta name="twitter:description" content="Eine App für Einsatzplanung, Anrufprotokolle, Rapporte, Offerten und QR-Rechnung — für Schweizer Dienstleistungsbetriebe. 14 Tage gratis.">
   <meta name="twitter:image" content="https://mosaos.ch/assets/og/index-en.jpg">
   <script type="application/ld+json">
   {
@@ -62,7 +62,7 @@
     "operatingSystem": "Web",
     "url": "https://mosaos.ch/",
     "image": "https://mosaos.ch/assets/og/index-de.jpg",
-    "description": "Modulare Schweizer Software für Dienstleistungsbetriebe: Einsatzplanung, E-Mails und Anrufe am Kunden, Rapporte, Offerten und QR-Rechnung in einer App.",
+    "description": "Modulare Schweizer Software für Dienstleistungsbetriebe: Einsatzplanung, Anrufprotokolle, Rapporte, Offerten und QR-Rechnung in einer App.",
     "offers": {
       "@type": "Offer",
       "price": "49",
@@ -164,23 +164,7 @@
     .lang-switch .lang-link.active { background:var(--swiss); color:var(--swiss-on); }
   </style>
 </head>
-<body class="intro-active lf-einzelunternehmen">
-
-  <!-- ============ INTRO ============ -->
-  <div class="intro" id="intro" aria-hidden="true">
-    <div class="intro-mosaic">
-      <div class="intro-tile"></div>
-      <div class="intro-tile"></div>
-      <div class="intro-tile"></div>
-      <div class="intro-tile intro-tile-swiss">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="6" y="10" width="12" height="4" fill="white"></rect>
-          <rect x="10" y="6" width="4" height="12" fill="white"></rect>
-        </svg>
-      </div>
-      <div class="intro-wordmark">Mosa<span class="intro-os">OS</span></div>
-    </div>
-  </div>
+<body class="intro-done lf-einzelunternehmen">
 
   <div class="noise" aria-hidden="true"></div>
 
@@ -199,7 +183,7 @@
       </nav>
       <div class="nav-actions">
         <a href="/app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
-        <a href="/app/app.html" class="btn btn-primary" data-i18n="nav.demo">Try the demo</a>
+        <a href="/app/app.html?demo=1" class="btn btn-primary" data-i18n="nav.demo">Try the demo</a>
       </div>
       <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
         <span></span><span></span><span></span>
@@ -219,12 +203,12 @@
           <span data-i18n="hero.badge">Made in Switzerland · GDPR-ready</span>
         </div>
         <h1>
-          <span data-i18n="hero.title.line1">One&nbsp;platform.</span><br>
-          <span class="grad" data-i18n="hero.title.line2">Every industry.</span>
+          <span data-i18n="hero.title.line1">Plan jobs.</span><br>
+          <span class="grad" data-i18n="hero.title.line2">Prove the work. Send invoices.</span>
         </h1>
-        <p class="hero-sub" data-i18n="hero.sub">Jobs, emails, calls, work reports, quotes and QR invoices — in one app instead of five programs. Pick the modules your business needs and be running in under 30 minutes.</p>
+        <p class="hero-sub" data-i18n="hero.sub">For Swiss service businesses — from the office to the team on site. Customers, jobs and invoices stay connected in one clear workflow.</p>
         <div class="hero-cta">
-          <a href="/app/app.html" class="btn btn-primary btn-lg">
+          <a href="/app/app.html?demo=1" class="btn btn-primary btn-lg">
             <span data-i18n="hero.cta.primary">Try the demo</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
@@ -532,7 +516,7 @@
         <input type="checkbox" id="mixPaketBox">
         <div class="mod-body">
           <div class="mod-name">⭐ Every module — all-in package</div>
-          <div class="mod-desc">Every module of your industry included. Booked separately: CHF&nbsp;155.</div>
+          <div class="mod-desc">Every module of your industry included. Booked separately: CHF&nbsp;136.</div>
         </div>
         <span class="mod-price">CHF&nbsp;99</span>
       </label>
@@ -599,14 +583,6 @@
           <div class="mod-desc">Central call journal, callback tracking, "turn into task"</div>
         </div>
         <span class="mod-price">+ CHF&nbsp;9</span>
-      </label>
-      <label class="mod">
-        <input type="checkbox" data-price="19" data-name="📧 Email inbox">
-        <div class="mod-body">
-          <div class="mod-name">📧 Email inbox</div>
-          <div class="mod-desc">Connect Gmail/iCloud, turn mails into tasks</div>
-        </div>
-        <span class="mod-price">+ CHF&nbsp;19</span>
       </label></div>
     </div>
 
@@ -626,7 +602,7 @@
                  font-size:13px; font-weight:600; color:var(--text); line-height:1.45;">All-in package — every module included. Booked separately: CHF&nbsp;49.</div>
             <div class="summary-meta" data-i18n="mix.summary.meta">+ CHF 4 / month per user<br>14 days free · cancel anytime</div>
             <a href="/anfrage.html?paket=custom" class="btn btn-primary btn-block" data-i18n="mix.summary.cta">Start with this configuration</a>
-            <a href="/app/app.html" class="btn btn-ghost btn-block" data-i18n="mix.summary.demo">Try the demo first</a>
+            <a href="/app/app.html?demo=1" class="btn btn-ghost btn-block" data-i18n="mix.summary.demo">Try the demo first</a>
           </div>
         </aside>
       </div>
@@ -708,7 +684,7 @@
         <h2 data-i18n="cta.title">Ready to tidy up your office?</h2>
         <p data-i18n="cta.sub">14 days free, no credit card. If it's not for you, click "Delete account" and you're done.</p>
         <div class="cta-actions">
-          <a href="/app/app.html" class="btn btn-primary btn-lg" data-i18n="cta.primary">Try the demo</a>
+          <a href="/app/app.html?demo=1" class="btn btn-primary btn-lg" data-i18n="cta.primary">Try the demo</a>
           <a href="/en/anfrage.html" class="btn btn-ghost-light btn-lg" data-i18n="cta.secondary">Talk to us</a>
         </div>
       </div>
@@ -746,12 +722,12 @@
           <a href="#branchen" data-i18n="nav.branchen">Industries</a>
           <a href="#module" data-i18n="nav.module">Modules</a>
           <a href="#preise" data-i18n="nav.preise">Pricing</a>
-          <a href="/app/app.html" data-i18n="nav.demo">Try the demo</a>
+          <a href="/app/app.html?demo=1" data-i18n="nav.demo">Try the demo</a>
         </div>
 
         <div class="footer-col">
           <h5 data-i18n="footer.col.company">Company</h5>
-          <a href="/en/ratgeber/" data-i18n="footer.guides">Guides</a>
+          <a href="/ratgeber/" data-i18n="footer.guides">Guides</a>
           <a href="/en/ueber-uns.html" data-i18n="footer.about">About us</a>
           <a href="/en/anfrage.html" data-i18n="footer.contact">Contact</a>
         </div>
@@ -788,9 +764,9 @@
   </footer>
 
   <script src="/config.js?v=4"></script>
-  <script src="/i18n.js?v=18"></script>
+  <script src="/i18n.js?v=19"></script>
   <script src="/newsletter.js?v=1"></script>
-  <script src="/main.js?v=5" defer=""></script>
+  <script src="/main.js?v=6" defer=""></script>
 
 
 </body></html>

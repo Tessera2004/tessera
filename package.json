@@ -2,7 +2,7 @@
   "name": "mosaos",
   "private": true,
   "scripts": {
-    "test": "node scripts/security-check.mjs",
+    "test": "node scripts/security-check.mjs && node scripts/handover-regression.mjs",
     "security:check": "node scripts/security-check.mjs"
   }
 }

@@ -1650,7 +1650,7 @@ h1 {
   .nav-burger { display: flex; }
   .nav-actions .btn-ghost { display: none; }
   .hero-inner { grid-template-columns: 1fr; gap: 48px; }
-  .hero-visual { order: -1; }
+  .hero-visual { order: 0; }
   .mosaic-stage { width: min(280px, 100%); height: min(280px, 80vw); }
   .intro-mosaic { width: min(70vmin, 360px); height: min(70vmin, 360px); }
   .step { grid-template-columns: 60px 1fr; }
@@ -1688,6 +1688,8 @@ h1 {
   .footer-grid { grid-template-columns: 1fr; }
   .footer-bottom { flex-direction: column; align-items: flex-start; }
   .hero-cta .btn { flex: 1; justify-content: center; }
+  #mosaos-cookie { left: 8px !important; right: 8px !important; bottom: 8px !important; padding: 10px 12px !important; gap: 10px !important; font-size: 12px !important; }
+  #mosaos-cookie button { padding: 7px 10px !important; }
   .form { padding: 24px; }
   .form-row { grid-template-columns: 1fr; }
   .legal-body { padding: 28px 24px; }

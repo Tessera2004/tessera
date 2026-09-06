@@ -10,20 +10,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="MosaOS" />
   <meta property="og:locale" content="de_CH" />
   <meta property="og:url" content="https://mosaos.ch/" />
-  <meta property="og:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen" />
-  <meta property="og:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis." />
+  <meta property="og:title" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen" />
+  <meta property="og:description" content="Eine App für Einsatzplanung, Anrufprotokolle, Rapporte, Offerten und QR-Rechnung — für Schweizer Dienstleistungsbetriebe. 14 Tage gratis." />
   <meta property="og:image" content="https://mosaos.ch/assets/og/index-de.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen" />
+  <meta property="og:image:alt" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MosaOS — eine App für Einsätze, E-Mails, Offerten und Rechnungen" />
-  <meta name="twitter:description" content="Eine App für Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — für Schweizer Reinigung, Werkstatt, Handwerk, Garten und Schädlingsbekämpfung. 14 Tage gratis." />
+  <meta name="twitter:title" content="MosaOS — eine App für Einsätze, Rapporte und Rechnungen" />
+  <meta name="twitter:description" content="Eine App für Einsatzplanung, Anrufprotokolle, Rapporte, Offerten und QR-Rechnung — für Schweizer Dienstleistungsbetriebe. 14 Tage gratis." />
   <meta name="twitter:image" content="https://mosaos.ch/assets/og/index-de.jpg" />
   <script type="application/ld+json">
   {
@@ -65,7 +65,7 @@
     "operatingSystem": "Web",
     "url": "https://mosaos.ch/",
     "image": "https://mosaos.ch/assets/og/index-de.jpg",
-    "description": "Modulare Schweizer Software für Dienstleistungsbetriebe: Einsatzplanung, E-Mails und Anrufe am Kunden, Rapporte, Offerten und QR-Rechnung in einer App.",
+    "description": "Modulare Schweizer Software für Dienstleistungsbetriebe: Einsatzplanung, Anrufprotokolle, Rapporte, Offerten und QR-Rechnung in einer App.",
     "offers": {
       "@type": "Offer",
       "price": "49",
@@ -154,23 +154,7 @@
   }
   </script>
 </head>
-<body class="intro-active">
-
-  <!-- ============ INTRO ============ -->
-  <div class="intro" id="intro" aria-hidden="true">
-    <div class="intro-mosaic">
-      <div class="intro-tile"></div>
-      <div class="intro-tile"></div>
-      <div class="intro-tile"></div>
-      <div class="intro-tile intro-tile-swiss">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="6" y="10" width="12" height="4" fill="white"/>
-          <rect x="10" y="6" width="4" height="12" fill="white"/>
-        </svg>
-      </div>
-      <div class="intro-wordmark">Mosa<span class="intro-os">OS</span></div>
-    </div>
-  </div>
+<body>
 
   <div class="noise" aria-hidden="true"></div>
 
@@ -189,7 +173,7 @@
       </nav>
       <div class="nav-actions">
         <a href="app/login.html" class="btn btn-ghost" data-i18n="nav.login">Login</a>
-        <a href="app/app.html" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
+        <a href="app/app.html?demo=1" class="btn btn-primary" data-i18n="nav.demo">Demo testen</a>
       </div>
       <button class="nav-burger" aria-label="Menü öffnen" id="navBurger">
         <span></span><span></span><span></span>
@@ -209,16 +193,15 @@
           <span data-i18n="hero.badge">Made in Switzerland · DSG-konform</span>
         </div>
         <h1>
-          <span data-i18n="hero.title.line1">Eine&nbsp;Plattform.</span><br/>
-          <span class="grad" data-i18n="hero.title.line2">Jede Branche.</span>
+          <span data-i18n="hero.title.line1">Einsätze planen.</span><br/>
+          <span class="grad" data-i18n="hero.title.line2">Arbeit belegen. Rechnungen schreiben.</span>
         </h1>
         <p class="hero-sub" data-i18n="hero.sub">
-          Einsätze, E-Mails, Anrufe, Rapporte, Offerten und QR-Rechnung — in einer App
-          statt in fünf Programmen. Du wählst die Module, die dein Betrieb braucht,
-          und bist in unter 30 Minuten startklar.
+          Für Schweizer Dienstleistungsbetriebe — vom Büro bis zum Team vor Ort.
+          Kunden, Einsätze und Rechnungen bleiben in einem klaren Ablauf verbunden.
         </p>
         <div class="hero-cta">
-          <a href="app/app.html" class="btn btn-primary btn-lg">
+          <a href="app/app.html?demo=1" class="btn btn-primary btn-lg">
             <span data-i18n="hero.cta.primary">Demo testen</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
@@ -527,7 +510,7 @@
             <a href="anfrage.html?paket=custom" class="btn btn-primary btn-block" data-i18n="mix.summary.cta">
               Mit dieser Konfiguration starten
             </a>
-            <a href="app/app.html" class="btn btn-ghost btn-block" data-i18n="mix.summary.demo">Erst die Demo testen</a>
+            <a href="app/app.html?demo=1" class="btn btn-ghost btn-block" data-i18n="mix.summary.demo">Erst die Demo testen</a>
           </div>
         </aside>
       </div>
@@ -609,7 +592,7 @@
         <h2 data-i18n="cta.title">Bereit, dein Büro endlich aufzuräumen?</h2>
         <p data-i18n="cta.sub">14 Tage gratis, keine Kreditkarte. Wenn's nichts ist, klickst du auf "Account löschen" und fertig.</p>
         <div class="cta-actions">
-          <a href="app/app.html" class="btn btn-primary btn-lg" data-i18n="cta.primary">Demo testen</a>
+          <a href="app/app.html?demo=1" class="btn btn-primary btn-lg" data-i18n="cta.primary">Demo testen</a>
           <a href="anfrage.html" class="btn btn-ghost-light btn-lg" data-i18n="cta.secondary">Beratung anfragen</a>
         </div>
       </div>
@@ -647,7 +630,7 @@
           <a href="#branchen" data-i18n="nav.branchen">Branchen</a>
           <a href="#module" data-i18n="nav.module">Module</a>
           <a href="#preise" data-i18n="nav.preise">Preise</a>
-          <a href="app/app.html" data-i18n="nav.demo">Demo</a>
+          <a href="app/app.html?demo=1" data-i18n="nav.demo">Demo</a>
         </div>
 
         <div class="footer-col">
@@ -690,8 +673,8 @@
   </footer>
 
   <script src="config.js?v=4"></script>
-  <script src="i18n.js?v=18"></script>
+  <script src="i18n.js?v=19"></script>
   <script src="newsletter.js?v=1"></script>
-  <script src="main.js?v=5" defer></script>
+  <script src="main.js?v=6" defer></script>
 </body>
 </html>

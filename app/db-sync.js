@@ -379,7 +379,7 @@
         ort: r.ort, svc: r.svc, price: r.price, paymethod: r.paymethod || 'rechnung',
         start: r.start_time, end: r.end_time, duration: r.duration, team: r.team,
         assigned: r.assigned || [], noteOffice: r.note_office,
-        noteCrew: r.note_crew, status: r.status || 'geplant' });
+        noteCrew: r.note_crew, seriesId: r.series_id || null, recurring: r.recurring || null, status: r.status || 'geplant' });
     });
     return dict;
   }
@@ -493,6 +493,7 @@
           end_time: j.end || null, duration: j.duration || null,
           team: j.team || null, assigned: j.assigned || [],
           note_office: j.noteOffice || null, note_crew: j.noteCrew || null,
+          series_id: j.seriesId || null, recurring: j.recurring || null,
           status: j.status || 'geplant', updated_at: new Date().toISOString() });
       });
     });
@@ -541,6 +542,17 @@
     const remoteIds = new Set((remoteRows || []).map(r => r.id));
     const merged = JSON.parse(JSON.stringify(remoteDict));
     const localOnly = {};
+    // Recover series metadata from the old browser cache once. Existing
+    // remote schedule fields remain authoritative.
+    const localById = new Map(Object.values(local || {}).flat().filter(Boolean).map(j => [j.id, j]));
+    Object.entries(merged).forEach(([dk, jobs]) => jobs.forEach(j => {
+      const cached = localById.get(j.id);
+      if (!j.seriesId && cached?.seriesId && cached?.recurring) {
+        j.seriesId = cached.seriesId;
+        j.recurring = cached.recurring;
+        (localOnly[dk] ||= []).push(j);
+      }
+    }));
     Object.entries(local || {}).forEach(([dk, jobs]) => {
       (jobs || []).forEach(j => {
         if (j && j.id && !remoteIds.has(j.id)) {

@@ -25,11 +25,11 @@ Deutsch bleibt an der Wurzel und bekommt nur hreflang und das Schema.
 
 Aufruf: python3 scripts/sprachen-bauen.py
 """
-import os, re, io, json, html, shutil
+import os, re, io, json, html
 from playwright.sync_api import sync_playwright
 
 WURZEL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASIS  = 'https://mosaos.pages.dev'
+BASIS  = 'https://mosaos.ch'
 # Ohne Server: die deutschen Quellen nutzen relative Pfade und laufen
 # deshalb auch über file:// . Das macht den Bauschritt unabhängig
 # von einer laufenden Vorschau.
@@ -219,11 +219,10 @@ def main():
         seite = browser.new_page(viewport={'width': 1440, 'height': 900}, locale='de-CH')
 
         for lang in [l for l in SPRACHEN if l != 'de']:
-            if True:
-                ordner = os.path.join(WURZEL, lang)
-                if os.path.isdir(ordner):
-                    shutil.rmtree(ordner)
-                os.makedirs(ordner)
+            # Nur die von diesem Skript verwalteten Seiten überschreiben.
+            # Andere Sprachinhalte wie /ratgeber dürfen erhalten bleiben.
+            ordner = os.path.join(WURZEL, lang)
+            os.makedirs(ordner, exist_ok=True)
 
             for datei in SEITEN:
                 seite.goto(f'{QUELLE}/{datei}', wait_until='load')

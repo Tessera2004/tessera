@@ -75,7 +75,6 @@
     rechnungen:  { emoji: '🧾', price: 14 },
     anruf:       { emoji: '📞', price: 9 },
     aufgaben:    { emoji: '✅', price: 9 },
-    email:       { emoji: '📧', price: 19 },
     abos:        { emoji: '🔁', price: 9 },
     berichte:    { emoji: '📋', price: 9 },
     stunden:     { emoji: '⏱️', price: 14 },
@@ -84,11 +83,11 @@
 
   // Branchen-Module gemäss cleancockpit/presets.js (Basispreis einheitlich 49 CHF)
   const BRANCHEN = {
-    reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],     addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'nachkalk', 'anruf', 'email'] },
-    werkstatt:  { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'berichte', 'stunden', 'anruf', 'email'] },
-    schaedling: { basePrice: 49, base: ['route', 'kunden', 'team'],     addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'anruf', 'email'] },
-    handwerk:   { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'berichte', 'stunden', 'nachkalk', 'anruf', 'email'] },
-    garten:     { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'anruf', 'email'] },
+    reinigung:  { basePrice: 49, base: ['route', 'kunden', 'team'],     addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'nachkalk', 'anruf'] },
+    werkstatt:  { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'berichte', 'stunden', 'anruf'] },
+    schaedling: { basePrice: 49, base: ['route', 'kunden', 'team'],     addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'anruf'] },
+    handwerk:   { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'berichte', 'stunden', 'nachkalk', 'anruf'] },
+    garten:     { basePrice: 49, base: ['auftraege', 'kunden', 'team'], addons: ['offerten', 'rechnungen', 'aufgaben', 'abos', 'berichte', 'stunden', 'anruf'] },
   };
 
   /* ----- Währung nach Region ----- */
