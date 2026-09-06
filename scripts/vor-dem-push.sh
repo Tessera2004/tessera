@@ -18,6 +18,10 @@
 set -e
 cd "$(dirname "$0")/.."
 
+echo "→ App prüfen (Syntax, Sprachen, Sync-Typen, Cache, Migrationen)…"
+python3 scripts/app-pruefen.py
+
+echo ""
 echo "→ Sprachfassungen bauen (/fr /it /es /en)…"
 python3 scripts/sprachen-bauen.py
 
