@@ -1,0 +1,1497 @@
+// MosaOS — app-offerten.js
+//
+// Offerten: Editor, eigene Textvorlagen, PDF-Ausgabe.
+//
+// Teil der frueheren app.html. Die Datei wurde am 6. September 2026
+// aufgeteilt: 9'559 Zeilen in einer Datei bedeuteten, dass jeder, der
+// hier etwas sucht, alles laden muss.
+//
+// WICHTIG: Diese Dateien sind gewoehnliche Skripte, keine Module. Sie
+// teilen sich denselben globalen Namensraum und werden in der Reihenfolge
+// geladen, die in app.html steht. Beim Verschieben von Code darauf achten:
+// Funktionen werden nur noch innerhalb ihrer eigenen Datei nach oben
+// gezogen. Was beim Laden ausgefuehrt wird, darf nichts aus einer spaeter
+// geladenen Datei aufrufen. Die Einrueckung von vier Leerzeichen ist
+// absichtlich stehengeblieben - mehrzeilige Textbausteine wuerden sich
+// sonst inhaltlich aendern.
+
+    // ============ OFFERTEN-SYSTEM ============
+    let currentOffert = null; // null = neu, sonst ID
+    let currentOffertImages = []; // array of dataURLs
+    let currentOffertService = 'unterhalt';
+    let currentOffertHistory = [];
+
+    const svcShortLabels = {
+      unterhalt: 'Unterhaltsreinigung',
+      end: 'Endreinigung',
+      fenster: 'Fensterreinigung',
+      bau: 'Baureinigung',
+      fassade: 'Fassadenreinigung'
+    };
+
+    // B7 — Kunde waehlen statt tippen, und den Preis aus der Preisliste holen.
+    let offKundeId = null;
+    let offPreisBeruehrt = false;   // von Hand geaenderte Preise nie ueberschreiben
+
+    function offKundeListeZu() {
+      const l = document.getElementById('offKundenListe');
+      if (l) l.style.display = 'none';
+    }
+
+    function offKundeSuchen(text) {
+      const liste = document.getElementById('offKundenListe');
+      if (!liste) return;
+      const q = (text || '').toLowerCase().trim();
+      const treffer = loadCustomers().filter(c =>
+        !q || customerDisplayName(c).toLowerCase().includes(q)
+           || (c.address || '').toLowerCase().includes(q)
+      ).slice(0, 8);
+      if (!treffer.length) { offKundeListeZu(); return; }
+      liste.innerHTML = treffer.map(c => `<button type="button" onclick="offKundeWaehlen('${c.id}')">
+        ${escapeHtml(customerDisplayName(c))}${c.address ? `<small>${escapeHtml(c.address)}</small>` : ''}
+      </button>`).join('');
+      liste.style.display = 'block';
+    }
+
+    function offKundeWaehlen(id) {
+      const c = loadCustomers().find(x => x.id === id);
+      if (!c) return;
+      offKundeId = c.id;
+      const k = document.getElementById('offKunde'); if (k) k.value = customerDisplayName(c);
+      const a = document.getElementById('offAdresse');
+      if (a && !a.value.trim() && c.address) a.value = c.address;
+      offKundeListeZu();
+      offPreisAusPreisliste();
+      renderOffertTemplate();
+    }
+
+    // Preis aus derselben Preisliste, die auch der Auftrag-Assistent nutzt
+    function offPreisAusPreisliste(erzwingen = false) {
+      const feld = document.getElementById('offPreis');
+      const hinweis = document.getElementById('offPreisHinweis');
+      const label = document.getElementById('offMengeLabel');
+      if (!feld) return;
+      const def = genericServiceDef(currentOffertService);
+      const waehrung = coLocale(loadCompany()).cur;
+      if (!def) {
+        if (hinweis) hinweis.textContent = tt('off.noPrice', 'Für diese Leistung ist kein Preis hinterlegt.');
+        if (label) label.textContent = tt('off.qty', 'Menge');
+        return;
+      }
+      const einheit = def.unit === 'h' ? 'h' : (def.unit === 'qm' ? 'qm' : 'flat');
+      if (label) label.textContent = einheit === 'h' ? tt('off.hours', 'Stunden')
+                                   : einheit === 'qm' ? tt('off.sqm', 'Fläche in m²')
+                                   : tt('off.qty', 'Menge');
+      const grund = Number(def.price) || 0;
+      const mindest = Number(def.minQty) || 0;
+      const anfahrt = Number(def.fee) || 0;
+      let menge = parseFloat(document.getElementById('offMenge')?.value) || 1;
+      let preis, text;
+      if (einheit === 'h') {
+        const echte = Math.max(menge, mindest);
+        preis = echte * grund;
+        text = `${echte} × ${waehrung} ${grund}` + (echte > menge ? ` (${tt('price.row.minHours','Mindestbuchung')})` : '');
+      } else if (einheit === 'qm') {
+        preis = menge * grund;
+        text = `${menge} m² × ${waehrung} ${grund}`;
+      } else {
+        preis = menge * grund;
+        text = menge > 1 ? `${menge} × ${waehrung} ${grund}` : `${waehrung} ${grund}`;
+      }
+      if (einheit !== 'h' && mindest > 0 && preis < mindest) {
+        preis = mindest;
+        text += ` · ${tt('price.row.minOrder','Mindestauftrag')} ${waehrung} ${mindest}`;
+      }
+      if (anfahrt > 0) { preis += anfahrt; text += ` + ${waehrung} ${anfahrt} ${tt('price.row.fee','Anfahrt')}`; }
+      preis = Math.round(preis * 20) / 20;
+      if (hinweis) hinweis.textContent = text;
+      // Einen von Hand gesetzten Preis nur auf ausdruecklichen Wunsch ersetzen
+      if (!offPreisBeruehrt || erzwingen) {
+        feld.value = preis;
+        offPreisBeruehrt = false;
+        renderOffertTemplate();
+      }
+    }
+
+    // Logo oben links ins PDF, gibt die x-Position fuer den Text zurueck
+    function pdfLogo(doc, co, x, y) {
+      if (!co.logo) return x;
+      try {
+        const mime = /^data:image\/(png|jpe?g);/i.exec(co.logo);
+        if (!mime) throw new Error('unsupported logo');
+        const size = doc.getImageProperties(co.logo);
+        if (!(size.width > 0 && size.height > 0)) throw new Error('invalid logo');
+        const scale = Math.min(22 / size.width, 18 / size.height);
+        const width = size.width * scale, height = size.height * scale;
+        doc.addImage(co.logo, /^jpe?g$/i.test(mime[1]) ? 'JPEG' : 'PNG', x, y - 4, width, height, undefined, 'FAST');
+        return x + width + 5;
+      } catch {
+        toast(tt('pdf.logoSkipped', 'Das Logo konnte nicht ins PDF übernommen werden. Bitte ein PNG- oder JPG-Logo hochladen.'), 'error');
+        return x;
+      }
+    }
+
+    // C1 — die Dauer kam bisher aus fest eingebauten Faktoren:
+    // Flaeche x 1.8 min + Zimmer x 15 min, bei der Baureinigung x 1.2.
+    // Jeder Betrieb rechnet anders, also gehoeren sie in die Einstellungen.
+    const ZEITFAKTOREN_KEY = 'cc-zeitfaktoren-v1';
+    const ZEITFAKTOREN_STANDARD = { proQm: 1.8, proRaum: 15, bauProQm: 1.2 };
+
+    function ladeZeitfaktoren() {
+      try {
+        const v = JSON.parse(localStorage.getItem(ZEITFAKTOREN_KEY));
+        return { ...ZEITFAKTOREN_STANDARD, ...(v && typeof v === 'object' ? v : {}) };
+      } catch { return { ...ZEITFAKTOREN_STANDARD }; }
+    }
+
+    function speichereZeitfaktoren(f) {
+      localStorage.setItem(ZEITFAKTOREN_KEY, JSON.stringify(f));
+      window.MosaDB?.push('company_time_factors', f);
+    }
+
+    // Die Grunddauer eines Einsatzes aus Flaeche und Zimmerzahl
+    function grunddauer(flaeche, raeume) {
+      const f = ladeZeitfaktoren();
+      return Math.round((flaeche || 0) * f.proQm + (raeume || 0) * f.proRaum);
+    }
+
+    function hexZuRgb(hex) {
+      if (!/^#[0-9a-f]{6}$/i.test(hex || '')) return null;
+      return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    }
+
+    function formatDateDE(iso) {
+      if (!iso) return '';
+      const [y, m, d] = iso.split('-');
+      return `${d}.${m}.${y}`;
+    }
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function validUntilISO(daysAhead = 30) {
+      const d = new Date();
+      d.setDate(d.getDate() + daysAhead);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function buildTemplate(svc, data) {
+      const kunde = data.kunde?.trim() || '[Kundenname]';
+      const adresse = data.adresse?.trim() || '[Adresse]';
+      const currency = coLocale(loadCompany()).cur;
+      const preis = data.preis ? `${parseFloat(data.preis).toFixed(2)} ${currency}` : '[Preis]';
+      const datum = formatDateDE(data.datum || todayISO());
+      const gueltig = formatDateDE(validUntilISO(30));
+      const co = loadCompany();
+      const coSig = `${co.name || 'MosaOS'}\n${[co.addr1, co.addr2].filter(Boolean).join(', ')} · ${datum}`;
+
+      const templates = {
+        unterhalt: `Sehr geehrte/r ${kunde},
+
+vielen Dank für Ihre Anfrage zur regelmäßigen Reinigung Ihres Objektes.
+Hiermit unterbreiten wir Ihnen folgendes Angebot für eine professionelle Unterhaltsreinigung.
+
+Leistungsumfang
+• Reinigung sämtlicher Böden, Sanitäranlagen und Arbeitsflächen
+• Mülleimer leeren, Eingangsbereich pflegen
+• Spiegel und Glasflächen polieren
+• Wöchentlicher Qualitätsbericht mit Foto-Dokumentation
+
+Objekt: ${adresse}
+Stundensatz: ${getPrice('unterhalt-rate').toFixed(2)} €/h
+Pauschalpreis pro Einsatz: ${preis}
+
+Das Angebot ist gültig bis ${gueltig}.
+Wir freuen uns auf Ihre Rückmeldung.
+
+Mit freundlichen Grüßen
+${coSig}`,
+
+        end: `Sehr geehrte/r ${kunde},
+
+gerne unterbreiten wir Ihnen ein Angebot für die Endreinigung Ihrer Wohnung.
+
+Leistungsumfang
+• Komplette Wohnungsreinigung inkl. aller Räume
+• Küche inkl. Geräte (Backofen, Kühlschrank, Spüle)
+• Sanitärbereich entkalken und desinfizieren
+• Fenster innen, Heizkörper, Türrahmen
+• Übergabe-bereite Übergabe an den Vermieter
+
+Adresse: ${adresse}
+Preis pro m²: ${getPrice('end-qm').toFixed(2)} €/m²
+Pauschalpreis: ${preis}
+
+Das Angebot ist gültig bis ${gueltig}.
+Wir garantieren eine abnahmefähige Wohnung — andernfalls Nachreinigung kostenfrei.
+
+Mit freundlichen Grüßen
+${coSig}`,
+
+        fenster: `Sehr geehrte/r ${kunde},
+
+vielen Dank für Ihr Interesse an unserer Fensterreinigung.
+
+Leistungsumfang
+• Reinigung sämtlicher Fenster innen und außen
+• Rahmen, Fensterbänke und Beschläge inkl.
+• Streifenfrei dank Osmose-Wassertechnik
+• Auf Wunsch mit Leiter oder Hubsteiger
+
+Objekt: ${adresse}
+Stundensatz: ${getPrice('fenster-rate').toFixed(2)} €/h
+Voraussichtlicher Gesamtpreis: ${preis}
+Mindestbuchung: ${getPrice('fenster-min')} Stunden
+
+Das Angebot ist gültig bis ${gueltig}.
+
+Mit freundlichen Grüßen
+${coSig}`,
+
+        bau: `Sehr geehrte Bauleitung,
+
+gerne übernehmen wir die Baureinigung Ihres Projektes.
+
+Leistungsumfang
+• Entfernung von Bau- und Schleifstaub
+• Reinigung sämtlicher Bodenbeläge
+• Klebereste und Folien entfernen
+• Fenster, Rahmen und Sanitärobjekte reinigen
+• Übergabe-fähige Endreinigung
+
+Objekt: ${adresse}
+Preis pro m²: ${getPrice('bau-qm').toFixed(2)} €/m²
+Pauschalpreis: ${preis}
+
+Das Angebot ist gültig bis ${gueltig}.
+Wir koordinieren uns gerne direkt mit den Gewerken vor Ort.
+
+Mit freundlichen Grüßen
+${coSig}`,
+
+        fassade: `Sehr geehrte/r ${kunde},
+
+für die Reinigung Ihrer Fassade unterbreiten wir Ihnen folgendes Angebot.
+
+Leistungsumfang
+• Statorreinigung mittels Hochdruck (${getPrice('fassade-stator').toFixed(2)} €/m²)
+• Optional: Algen- und Moosentfernung
+• Optional: Imprägnierung für Langzeitschutz
+• Gerüst oder Hubsteiger inkl.
+
+Objekt: ${adresse}
+Mindestauftragswert: ${getPrice('fassade-min').toFixed(2)} €
+Gesamtpreis: ${preis}
+
+Das Angebot ist gültig bis ${gueltig}.
+Vor Beginn führen wir eine Probefläche aus.
+
+Mit freundlichen Grüßen
+${coSig}`
+      };
+
+      // Generische Branchen: neutrales Angebot aus dem Preset (keine Reinigungs-Texte).
+      if (isGenericVertical()) {
+        const def = genericServiceDef(svc);
+        const title = serviceTitle(svc);
+        const preisCHF = data.preis ? `${parseFloat(data.preis).toFixed(2)} ${currency}` : '[Preis]';
+        const priceLine = (def && def.unit === 'h')
+          ? `Stundensatz: ${currency} ${genericServicePrice(svc).toFixed(2)} / h`
+          : `Pauschalpreis: ${currency} ${genericServicePrice(svc).toFixed(2)}`;
+        return `Sehr geehrte/r ${kunde},
+
+vielen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen folgendes Angebot für „${title}".
+
+Leistung: ${title}
+${def?.desc ? '• ' + def.desc + '\n' : ''}${VT('adresseObjekt')}: ${adresse}
+${priceLine}
+Voraussichtlicher Gesamtpreis: ${preisCHF}
+
+Das Angebot ist gültig bis ${gueltig}.
+Wir freuen uns auf Ihre Rückmeldung.
+
+Mit freundlichen Grüßen
+${coSig}`;
+      }
+
+      // B7/B8 — eigene Vorlagen: eine hinterlegte Einleitung ersetzt den
+      // Standardanfang, ein hinterlegter Schluss den Standardschluss.
+      return eigeneVorlageAnwenden(templates[svc] || templates.unterhalt, data);
+    }
+
+    // ============ Eigene Text-Vorlagen (Offerte und Rechnung) ============
+    const VORLAGEN_KEY = 'cc-vorlagen-v1';
+
+    function ladeVorlagen() {
+      try { return JSON.parse(localStorage.getItem(VORLAGEN_KEY)) || {}; } catch { return {}; }
+    }
+
+    function speichereVorlagen(v) {
+      localStorage.setItem(VORLAGEN_KEY, JSON.stringify(v));
+      window.MosaDB?.push('company_templates', v);
+    }
+
+    // Platzhalter, die in einer eigenen Vorlage stehen duerfen
+    function platzhalterFuellen(text, data) {
+      const co = loadCompany();
+      const ersetzungen = {
+        '{kunde}': data?.kunde || '',
+        '{adresse}': data?.adresse || '',
+        '{preis}': data?.preis ? `${parseFloat(data.preis).toFixed(2)} ${coLocale(co).cur}` : '',
+        '{datum}': formatDateDE(data?.datum || todayISO()),
+        '{gueltig}': formatDateDE(validUntilISO(30)),
+        '{firma}': co.name || '',
+        '{leistung}': serviceTitle(currentOffertService) || ''
+      };
+      return Object.entries(ersetzungen)
+        .reduce((t, [k, v]) => t.split(k).join(v), String(text || ''));
+    }
+
+    function eigeneVorlageAnwenden(standard, data) {
+      const v = ladeVorlagen();
+      if (!v.offerteEinleitung && !v.offerteSchluss) return standard;
+      let text = String(standard);
+      if (v.offerteEinleitung) {
+        // Der erste Absatz nach der Anrede ist die Einleitung — ganz ersetzen,
+        // nicht nur die erste Zeile davon.
+        const zeilen = text.split('\n');
+        const anrede = zeilen[0];
+        let i = 1;
+        while (i < zeilen.length && !zeilen[i].trim()) i++;   // Leerzeilen ueberspringen
+        while (i < zeilen.length && zeilen[i].trim()) i++;    // den Absatz selbst
+        text = anrede + '\n\n' + platzhalterFuellen(v.offerteEinleitung, data)
+             + '\n' + zeilen.slice(i).join('\n');
+      }
+      if (v.offerteSchluss) {
+        // Ab 'Mit freundlichen Grüßen' den eigenen Schluss setzen
+        const i = text.lastIndexOf('Mit freundlichen');
+        if (i > 0) text = text.slice(0, i) + platzhalterFuellen(v.offerteSchluss, data);
+        else text += '\n\n' + platzhalterFuellen(v.offerteSchluss, data);
+      }
+      return text;
+    }
+
+    function renderOffertTemplate() {
+      // nur neu rendern wenn Text noch leer ist oder explizit angefordert
+      const ta = document.getElementById('offText');
+      if (!ta || ta.dataset.manuallyEdited === 'true') return;
+      const data = {
+        kunde: document.getElementById('offKunde')?.value,
+        adresse: document.getElementById('offAdresse')?.value,
+        preis: document.getElementById('offPreis')?.value,
+        datum: document.getElementById('offDatum')?.value
+      };
+      ta.value = buildTemplate(currentOffertService, data);
+    }
+
+    function regenerateOffertText() {
+      const ta = document.getElementById('offText');
+      ta.dataset.manuallyEdited = 'false';
+      renderOffertTemplate();
+      toast('Text aus Vorlage neu erzeugt');
+    }
+
+    function selectOffertService(btn, svc) {
+      currentOffertService = svc;
+      btn.parentElement.querySelectorAll('.opt-chip').forEach(c => c.classList.remove('on'));
+      btn.classList.add('on');
+      const pill = document.getElementById('offSvcPill');
+      pill.className = 'svc-pill svc-' + svc;
+      pill.textContent = svcShortLabels[svc] || serviceTitle(svc);
+      // Text neu generieren (wenn nicht manuell bearbeitet)
+      document.getElementById('offText').dataset.manuallyEdited = 'false';
+      offPreisAusPreisliste();   // andere Leistung, anderer Preis
+      renderOffertTemplate();
+    }
+
+    // Offerten-Service-Chips: Reinigung = statische Chips, andere Branchen = aus Preset.
+    const OFFERT_CHIPS_STATIC = document.getElementById('offSvcChips')?.innerHTML || '';
+    function setupOffertChips() {
+      const row = document.getElementById('offSvcChips');
+      if (!row) return 'unterhalt';
+      if (isGenericVertical()) {
+        const svcs = MosaVertical.preset().services || [];
+        row.innerHTML = svcs.map((s, i) =>
+          `<button type="button" class="opt-chip${i === 0 ? ' on' : ''}" data-off-svc="${s.key}" onclick="selectOffertService(this,'${s.key}')">${escapeHtml(s.title)}</button>`).join('');
+        return svcs[0]?.key || 'unterhalt';
+      }
+      row.innerHTML = OFFERT_CHIPS_STATIC;   // Reinigungs-Original wiederherstellen
+      return 'unterhalt';
+    }
+
+    let currentOffertOriginal = null; // Snapshot zum Vergleich (Änderungs-Erkennung)
+
+    function openOffertEditor(id = null) {
+      offKundeId = null;
+      offPreisBeruehrt = !!id;   // bestehende Offerte: gespeicherten Preis behalten
+      offKundeListeZu();
+      currentOffert = id;
+      currentOffertImages = [];
+      currentOffertHistory = [];
+      currentOffertOriginal = null;
+
+      const firstSvc = setupOffertChips();   // Chips je Branche aufbauen
+      const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+      if (id) {
+        const off = offerts.find(o => o.id === id);
+        if (off) {
+          currentOffertService = off.service;
+          document.querySelectorAll('#offSvcChips .opt-chip').forEach(c => c.classList.toggle('on', c.dataset.offSvc === off.service));
+          currentOffertImages = (off.images || []).slice();
+          currentOffertHistory = (off.history || []).slice();
+          document.getElementById('offKunde').value = off.kunde || '';
+          document.getElementById('offAdresse').value = off.adresse || '';
+          document.getElementById('offPreis').value = off.preis || '';
+          document.getElementById('offDatum').value = off.datum || todayISO();
+          document.getElementById('offText').value = off.text || '';
+          document.getElementById('offText').dataset.manuallyEdited = 'true';
+          document.getElementById('offModalTitle').textContent = tt('dyn.offEdit', 'Offerte bearbeiten');
+          document.getElementById('offModalSub').textContent = tt('dyn.offSubEdit', 'Beim Speichern fragen wir nach dem Grund der Änderung');
+          document.getElementById('offDeleteBtn').style.display = 'inline-flex';
+          // Snapshot für Änderungserkennung
+          currentOffertOriginal = {
+            service: off.service,
+            kunde: off.kunde || '',
+            adresse: off.adresse || '',
+            preis: String(off.preis ?? ''),
+            datum: off.datum || '',
+            text: off.text || '',
+            imagesCount: (off.images || []).length
+          };
+          renderOffertHistory();
+        }
+      } else {
+        // neue Offerte
+        document.getElementById('offKunde').value = '';
+        document.getElementById('offAdresse').value = '';
+        document.getElementById('offPreis').value = '';
+        document.getElementById('offDatum').value = todayISO();
+        document.getElementById('offText').value = '';
+        document.getElementById('offText').dataset.manuallyEdited = 'false';
+        document.getElementById('offModalTitle').textContent = tt('dyn.offNew', 'Neue Offerte');
+        document.getElementById('offModalSub').textContent = tt('dyn.offSubNew', 'Vorgefertigter Text — nur Kundendaten ergänzen');
+        document.getElementById('offDeleteBtn').style.display = 'none';
+        document.getElementById('offHistory').style.display = 'none';
+        // set initial service pill (erste Leistung der Branche)
+        const firstChip = document.querySelector(`[data-off-svc="${firstSvc}"]`);
+        if (firstChip) selectOffertService(firstChip, firstSvc);
+      }
+
+      // Service-Pill setzen
+      const pill = document.getElementById('offSvcPill');
+      pill.className = 'svc-pill svc-' + currentOffertService;
+      pill.textContent = svcShortLabels[currentOffertService] || serviceTitle(currentOffertService);
+      document.querySelectorAll('[data-off-svc]').forEach(c => {
+        c.classList.toggle('on', c.dataset.offSvc === currentOffertService);
+      });
+
+      renderOffertImages();
+      renderOffertTemplate();
+      openModal('offert');
+    }
+
+    function handleOffertImages(e) {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          currentOffertImages.push({ src: ev.target.result, name: file.name });
+          renderOffertImages();
+        };
+        reader.readAsDataURL(file);
+      });
+      e.target.value = '';
+    }
+
+    function removeOffertImage(idx) {
+      currentOffertImages.splice(idx, 1);
+      renderOffertImages();
+    }
+
+    function renderOffertImages() {
+      const grid = document.getElementById('offImageGrid');
+      const empty = document.getElementById('offNoImages');
+      if (currentOffertImages.length === 0) {
+        grid.innerHTML = '';
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+      grid.style.display = 'grid';
+      empty.style.display = 'none';
+      grid.innerHTML = currentOffertImages.map((img, i) => `
+        <div style="position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
+          <img src="${img.src}" alt="${img.name}" style="width: 100%; height: 100%; object-fit: cover;" />
+          <button onclick="removeOffertImage(${i})" style="position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); border: none; cursor: pointer; font-size: 14px;">×</button>
+        </div>
+      `).join('');
+    }
+
+    function renderOffertHistory() {
+      const wrap = document.getElementById('offHistory');
+      const list = document.getElementById('offHistoryList');
+      if (!currentOffertHistory || currentOffertHistory.length === 0) {
+        wrap.style.display = 'none';
+        return;
+      }
+      wrap.style.display = 'block';
+      list.innerHTML = currentOffertHistory.map(h => `
+        <div style="font-size: 12px; padding: 8px 12px; background: var(--surface-2); border-radius: 6px; border-left: 3px solid var(--accent);">
+          <div style="color: var(--text-subtle); margin-bottom: 2px;">${formatDateDE(h.date)} · ${h.time || ''}</div>
+          <div style="color: var(--text);">${h.reason}</div>
+          ${h.by ? `<div class="history-author">— von ${h.by}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function collectOffertForm() {
+      return {
+        id: currentOffert || ('off-' + Date.now()),
+        service: currentOffertService,
+        kunde: document.getElementById('offKunde').value.trim(),
+        adresse: document.getElementById('offAdresse').value.trim(),
+        preis: document.getElementById('offPreis').value,
+        datum: document.getElementById('offDatum').value || todayISO(),
+        text: document.getElementById('offText').value.trim(),
+        images: currentOffertImages,
+        history: (currentOffertHistory || []).slice(),
+        status: 'Entwurf',
+        updated: new Date().toISOString()
+      };
+    }
+
+    function offertHasChanges(data) {
+      if (!currentOffertOriginal) return false;
+      const o = currentOffertOriginal;
+      return (
+        o.service !== data.service ||
+        o.kunde !== data.kunde ||
+        o.adresse !== data.adresse ||
+        o.preis !== String(data.preis ?? '') ||
+        o.datum !== data.datum ||
+        o.text !== data.text ||
+        o.imagesCount !== (data.images?.length || 0)
+      );
+    }
+
+    function setRevReason(txt) {
+      const input = document.getElementById('revReasonInput');
+      input.value = txt;
+      input.focus();
+      document.getElementById('revReasonError').style.display = 'none';
+    }
+
+    function persistOffert(data, reason) {
+      if (!requirePerm('edit_offerts', 'Offerten')) return;
+      const authorName = currentUser ? getUserName(currentUser) : 'Unbekannt';
+      if (reason) {
+        const now = new Date();
+        data.history.push({
+          date: now.toISOString().slice(0, 10),
+          time: now.toTimeString().slice(0, 5),
+          reason: reason,
+          by: authorName
+        });
+      }
+      const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+      const idx = offerts.findIndex(o => o.id === data.id);
+      if (idx >= 0) {
+        data.lastUpdatedBy = authorName;
+        offerts[idx] = data;
+        toast('✓ Offerte aktualisiert');
+      } else {
+        data.createdBy = authorName;
+        data.lastUpdatedBy = authorName;
+        offerts.unshift(data);
+        toast('✓ Offerte gespeichert');
+      }
+      localStorage.setItem('cc-offerts', JSON.stringify(offerts));
+      closeModal('offert');
+      renderOffertList();
+    }
+
+    // ============ PDF-Export Offerte ============
+    function downloadOffertePDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        toast('PDF-Bibliothek lädt noch — kurz warten', 'error');
+        return;
+      }
+      const data = collectOffertForm();
+      if (!data.kunde) { toast('Bitte Kundenname angeben', 'error'); return; }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
+      const M = 20; // Rand
+      let y = M;
+
+      // === Header: Firma ===
+      const co = loadCompany();
+      const L = coLocale(co);
+      // B7 — das eigene Logo statt nur des Namens in Markenrot
+      const markenFarbe = hexZuRgb(co.brandColor) || [225, 29, 42];
+      const textX = pdfLogo(doc, co, M, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+      doc.text(co.name || 'Firma', textX, y);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120);
+      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), textX, y + 5);
+      // Rechts: Kontakt
+      doc.setFontSize(8.5);
+      doc.text(`${co.addr1 || ''}, ${co.addr2 || ''}`, W - M, y, { align: 'right' });
+      if (co.contact) doc.text(co.contact, W - M, y + 4, { align: 'right' });
+      if (co.mwst) doc.text('MWST ' + co.mwst, W - M, y + 8, { align: 'right' });
+      y += 18;
+
+      // Trennlinie
+      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+      doc.setLineWidth(0.6);
+      doc.line(M, y, W - M, y);
+      y += 10;
+
+      // === Titel + Offert-Nr / Datum ===
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.setTextColor(20);
+      doc.text('Offerte', M, y);
+      const datum = data.datum || new Date().toISOString().slice(0,10);
+      const datumDE = new Date(datum).toLocaleDateString('de-CH', { day: '2-digit', month: 'long', year: 'numeric' });
+      const offNr = (data.id || '').slice(-6).toUpperCase();
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120);
+      doc.text(`Nr. ${offNr || '—'}`, W - M, y - 4, { align: 'right' });
+      doc.text(`Datum: ${datumDE}`, W - M, y, { align: 'right' });
+      y += 12;
+
+      // === Empfänger ===
+      doc.setFontSize(8.5);
+      doc.setTextColor(120);
+      doc.text('AN', M, y);
+      y += 4;
+      doc.setFontSize(11);
+      doc.setTextColor(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text(data.kunde, M, y);
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      if (data.adresse) {
+        doc.text(data.adresse, M, y);
+        y += 5;
+      }
+      y += 6;
+
+      // === Leistungsbeschreibung ===
+      doc.setFontSize(8.5);
+      doc.setTextColor(120);
+      doc.text('LEISTUNG', M, y);
+      y += 4;
+      doc.setFontSize(10.5);
+      doc.setTextColor(20);
+      doc.setFont('helvetica', 'bold');
+      const svcLbl = (typeof svcShortLabels !== 'undefined' && svcShortLabels[data.service]) || data.service || 'Reinigung';
+      doc.text(svcLbl, M, y);
+      y += 6;
+
+      // === Beschreibung (mehrzeilig) ===
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(40);
+      const text = data.text || 'Leistungsbeschreibung folgt nach Besichtigung.';
+      const lines = doc.splitTextToSize(text, W - 2 * M);
+      lines.forEach(line => {
+        if (y > H - 50) { doc.addPage(); y = M; }
+        doc.text(line, M, y);
+        y += 5.2;
+      });
+      y += 6;
+
+      // === Preis-Box ===
+      if (y > H - 60) { doc.addPage(); y = M; }
+      const preis = parseFloat(data.preis || 0);
+      const mwst = preis * L.vat;
+      const brutto = preis + mwst;
+      doc.setDrawColor(220);
+      doc.setLineWidth(0.3);
+      doc.rect(M, y, W - 2*M, 30);
+
+      doc.setFontSize(9.5);
+      doc.setTextColor(80);
+      doc.text('Auftragspreis netto', M + 4, y + 7);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(20);
+      doc.text(preis.toFixed(2) + ' ' + L.cur, W - M - 4, y + 7, { align: 'right' });
+
+      doc.setFont('helvetica', 'normal');
+      if (L.mwstPflichtig) {
+        doc.setTextColor(80);
+        doc.text(L.vatLabel, M + 4, y + 14);
+        doc.setTextColor(20);
+        doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
+      } else {
+        doc.setFontSize(8);
+        doc.setTextColor(120);
+        doc.text(L.steuerHinweis, M + 4, y + 14);
+        doc.setFontSize(9.5);
+      }
+
+      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+      doc.setLineWidth(0.4);
+      doc.line(M + 4, y + 18, W - M - 4, y + 18);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11.5);
+      doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+      doc.text('Gesamt brutto', M + 4, y + 25);
+      doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
+      y += 38;
+
+      // === Änderungshistorie (Revisionen) ===
+      const hist = (data.history || []);
+      if (hist.length) {
+        if (y > H - 50) { doc.addPage(); y = M; }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(90);
+        doc.text('Änderungshistorie', M, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(120);
+        hist.forEach(h => {
+          if (y > H - 22) { doc.addPage(); y = M; }
+          const datum = h.date ? formatDateDE(h.date) : '';
+          const line = `${datum}${h.time ? ' ' + h.time : ''} · ${h.reason || ''}${h.by ? ' (' + h.by + ')' : ''}`;
+          doc.splitTextToSize(line, W - 2 * M).forEach(l => { doc.text(l, M, y); y += 4.2; });
+        });
+        y += 6;
+      }
+
+      // === Footer-Hinweis ===
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8.5);
+      doc.setTextColor(120);
+      const footer = 'Gültigkeit: 30 Tage ab Offertdatum. Preise inkl. Anfahrt im Umkreis von 15 km. Bei Annahme bitte unterschrieben zurücksenden.';
+      const fLines = doc.splitTextToSize(footer, W - 2 * M);
+      fLines.forEach(l => {
+        if (y > H - 25) { doc.addPage(); y = M; }
+        doc.text(l, M, y);
+        y += 4.5;
+      });
+
+      // Unterschriftslinie
+      if (y > H - 35) { doc.addPage(); y = M; }
+      y = Math.max(y + 14, H - 30);
+      doc.setDrawColor(150);
+      doc.setLineWidth(0.3);
+      doc.line(M, y, M + 70, y);
+      doc.line(W - M - 70, y, W - M, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(120);
+      doc.text('Datum / Unterschrift Kunde', M, y + 4);
+      doc.text(co.name || 'MosaOS', W - M, y + 4, { align: 'right' });
+
+      // Save
+      const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');
+      doc.save(`Offerte_${offNr || 'NEU'}_${safeKunde}.pdf`);
+      toast('✓ PDF heruntergeladen');
+    }
+
+    /* ============================================================
+       Branchen-Belege als PDF (Rapport, HACCP-Protokoll,
+       Werkstattauftrag, Reifen-Einlagerung)
+       — gemeinsame Helfer + ein Export je Beleg. Gleiches Layout
+       wie die Offerte (Firmen-Header, Brand-Rot, Unterschriftsleiste).
+       ============================================================ */
+    function newBelegDoc() {
+      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return null; }
+      return new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    }
+    // Firmen-Header + Dokumenttitel; liefert Layout {doc,W,H,M,y}. meta = rechts ausgerichtete Zeilen.
+    function belegHeader(doc, title, meta) {
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
+      const M = 20; let y = M;
+      const co = loadCompany();
+      const mf = hexZuRgb(co.brandColor) || [225, 29, 42];
+      const tx = pdfLogo(doc, co, M, y);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(mf[0], mf[1], mf[2]);
+      doc.text(co.name || 'Firma', tx, y);
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
+      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), tx, y + 5);
+      doc.setFontSize(8.5);
+      if (co.contact) doc.text(co.contact, W - M, y, { align: 'right' });
+      const L = coLocale(co);
+      if (co.mwst) doc.text(L.vatIdLabel + ' ' + co.mwst, W - M, y + 4, { align: 'right' });
+      y += 18;
+      doc.setDrawColor(mf[0], mf[1], mf[2]); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20);
+      doc.text(title, M, y);
+      doc.setFontSize(9.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(120);
+      (meta || []).forEach((line, i) => doc.text(line, W - M, y - 4 + i * 5, { align: 'right' }));
+      y += 12;
+      return { doc, W, H, M, y, L };
+    }
+    // Empfänger-Block ("AN  …").
+    function belegRecipient(lay, name, sub) {
+      const { doc, M } = lay; let y = lay.y;
+      doc.setFontSize(8.5); doc.setTextColor(120); doc.text('OBJEKT / KUNDE', M, y); y += 4;
+      doc.setFontSize(11); doc.setTextColor(20); doc.setFont('helvetica', 'bold');
+      doc.text(name || '—', M, y); y += 5;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      if (sub) { doc.text(sub, M, y); y += 5; }
+      lay.y = y + 6;
+    }
+    // Feld-Raster (Label/Wert-Paare, zweispaltig).
+    function belegFields(lay, pairs) {
+      const { doc, W, M } = lay; let y = lay.y;
+      const colW = (W - 2 * M) / 2;
+      pairs.filter(p => p[1]).forEach((p, i) => {
+        if (y > lay.H - 45) { doc.addPage(); y = M; }
+        const x = M + (i % 2) * colW;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(140);
+        doc.text(String(p[0]).toUpperCase(), x, y);
+        doc.setFontSize(10.5); doc.setTextColor(30);
+        doc.text(doc.splitTextToSize(String(p[1]), colW - 4), x, y + 5);
+        if (i % 2 === 1) y += 13;
+      });
+      if (pairs.filter(p => p[1]).length % 2 === 1) y += 13;
+      lay.y = y + 2;
+    }
+    // Mehrzeiliger Textblock mit Überschrift.
+    function belegText(lay, title, text) {
+      if (!text) return;
+      const { doc, W, M } = lay; let y = lay.y;
+      if (y > lay.H - 40) { doc.addPage(); y = M; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(120);
+      doc.text(title.toUpperCase(), M, y); y += 5;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(40);
+      doc.splitTextToSize(text, W - 2 * M).forEach(l => {
+        if (y > lay.H - 35) { doc.addPage(); y = M; }
+        doc.text(l, M, y); y += 5;
+      });
+      lay.y = y + 4;
+    }
+    // Positions-Tabelle (Arbeiten/Material/Teile). items = [{label, qty, suffix, price}]. Liefert Zwischensumme.
+    function belegPositions(lay, title, items) {
+      if (!items || !items.length) return 0;
+      const { doc, W, M } = lay; let y = lay.y;
+      if (y > lay.H - 50) { doc.addPage(); y = M; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(90);
+      doc.text(title, M, y); y += 5;
+      const xQty = W - M - 60, xPrice = W - M - 30, xTotal = W - M;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150);
+      doc.text('Menge', xQty, y, { align: 'right' });
+      doc.text('Einzel', xPrice, y, { align: 'right' });
+      doc.text('Total', xTotal, y, { align: 'right' });
+      y += 1.5; doc.setDrawColor(225); doc.setLineWidth(0.2); doc.line(M, y, W - M, y); y += 4.5;
+      doc.setFontSize(9.5); doc.setTextColor(40);
+      let sum = 0;
+      items.forEach(it => {
+        if (y > lay.H - 45) { doc.addPage(); y = M; }
+        const tot = (Number(it.qty) || 0) * (Number(it.price) || 0);
+        sum += tot;
+        const label = doc.splitTextToSize(it.label || '—', xQty - M - 6);
+        doc.text(label[0] || '—', M, y);
+        doc.text(`${it.qty != null ? it.qty : 0}${it.suffix || ''}`, xQty, y, { align: 'right' });
+        doc.text((Number(it.price) || 0).toFixed(2), xPrice, y, { align: 'right' });
+        doc.text(tot.toFixed(2), xTotal, y, { align: 'right' });
+        y += 5.5;
+      });
+      lay.y = y + 3;
+      return sum;
+    }
+    // Summen-Box (netto / MWST 8.1% / brutto). withMwst=false → nur Total.
+    function belegTotal(lay, netto, withMwst) {
+      const bmf = hexZuRgb(loadCompany().brandColor) || [225, 29, 42];
+      const { doc, W, M } = lay;
+      const L = lay.L || LOCALE.CH;
+      let y = lay.y;
+      const boxH = withMwst ? 30 : 14;
+      if (y > lay.H - boxH - 30) { doc.addPage(); y = M; }
+      doc.setDrawColor(220); doc.setLineWidth(0.3); doc.rect(M, y, W - 2 * M, boxH);
+      if (withMwst) {
+        const mwst = netto * L.vat, brutto = netto + mwst;
+        doc.setFontSize(9.5); doc.setTextColor(80); doc.setFont('helvetica', 'normal');
+        doc.text('Total netto', M + 4, y + 7);
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(20);
+        doc.text(netto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 7, { align: 'right' });
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(80);
+        doc.text(L.vatLabel, M + 4, y + 14);
+        doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
+        doc.setDrawColor(bmf[0], bmf[1], bmf[2]); doc.setLineWidth(0.4); doc.line(M + 4, y + 18, W - M - 4, y + 18);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(bmf[0], bmf[1], bmf[2]);
+        doc.text('Gesamt brutto', M + 4, y + 25);
+        doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
+      } else {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(bmf[0], bmf[1], bmf[2]);
+        doc.text('Total', M + 4, y + 9.5);
+        doc.text(netto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 9.5, { align: 'right' });
+        if (!L.mwstPflichtig) {
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120);
+          doc.text(L.steuerHinweis, M + 4, y + boxH + 5);
+        }
+      }
+      lay.y = y + boxH + 8;
+    }
+    // Unterschriftsleiste am Seitenende.
+    function belegSignature(lay, leftLabel, rightLabel) {
+      const { doc, W, H, M } = lay;
+      let y = Math.max(lay.y + 14, H - 28);
+      doc.setDrawColor(150); doc.setLineWidth(0.3);
+      doc.line(M, y, M + 70, y);
+      doc.line(W - M - 70, y, W - M, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(120);
+      doc.text(leftLabel || 'Datum / Unterschrift Kunde', M, y + 4);
+      doc.text(rightLabel || (loadCompany().name || ''), W - M, y + 4, { align: 'right' });
+    }
+    function belegNr(id) { return (id || '').slice(-6).toUpperCase() || '—'; }
+    function safeName(s) { return (s || 'beleg').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 40); }
+
+    // ── Arbeitsrapport (Handwerk / Garten) ──
+    function downloadRapportPDF(id) {
+      id = id || editingRapId;
+      const r = loadRapporte().find(x => x.id === id);
+      if (!r) { toast('Rapport zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const lay = belegHeader(doc, 'Arbeitsrapport', [`Nr. ${belegNr(r.id)}`, `Datum: ${formatDateDE(r.date) || '—'}`]);
+      belegRecipient(lay, r.siteTitle || r.objektName, r.objektName && r.siteTitle !== r.objektName ? r.objektName : '');
+      belegFields(lay, [[MosaVertical.t('feldMitarbeiter'), r.monteur]]);
+      const works = (r.works || []).map(w => ({ label: w.title, qty: w.hours, suffix: ' h', price: w.rate }));
+      const mat = (r.material || []).map(m => ({ label: m.name, qty: m.qty, suffix: '×', price: m.price }));
+      const sumW = belegPositions(lay, 'Arbeiten (Regie)', works);
+      const sumM = belegPositions(lay, 'Material', mat);
+      belegText(lay, 'Bemerkungen', r.note);
+      belegTotal(lay, sumW + sumM, false);
+      belegSignature(lay, 'Datum / Unterschrift Kunde');
+      doc.save(`Rapport_${belegNr(r.id)}_${safeName(r.siteTitle || r.objektName)}.pdf`);
+      toast('✓ Rapport-PDF heruntergeladen');
+    }
+
+    // ── Kontroll-/Behandlungsprotokoll (Schädlingsbekämpfung, HACCP-Nachweis) ──
+    function downloadPestProtocolPDF(id) {
+      id = id || editingPestId;
+      const p = loadPestProtocols().find(x => x.id === id);
+      if (!p) { toast('Protokoll zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const lay = belegHeader(doc, 'Kontroll- / Behandlungsprotokoll', [`Nr. ${belegNr(p.id)}`, `Datum: ${formatDateDE(p.date) || '—'}`]);
+      belegRecipient(lay, pestCustomerName(p.customerId, p.objektName));
+      belegFields(lay, [
+        ['Techniker', p.technician],
+        ['Befallsart', p.pestType],
+        ['Maßnahme', p.measure],
+        ['Mittel / Wirkstoff', p.agent],
+        ['Menge / Dosierung', p.amount],
+        ['Nachkontrolle am', formatDateDE(p.recheck)]
+      ]);
+      belegText(lay, 'Befund', p.findings);
+      belegText(lay, 'Bemerkungen', p.note);
+      // Köderstellen-Status dieses Objekts (HACCP-Monitoring-Nachweis).
+      const baits = (typeof loadBaits === 'function' ? loadBaits() : []).filter(b => p.customerId && b.customerId === p.customerId);
+      if (baits.length) {
+        const { doc: d, W, M } = lay; let y = lay.y;
+        if (y > lay.H - 50) { d.addPage(); y = M; }
+        d.setFont('helvetica', 'bold'); d.setFontSize(9); d.setTextColor(90);
+        d.text('Köderstellen-Kontrolle', M, y); y += 5;
+        d.setFont('helvetica', 'normal'); d.setFontSize(9); d.setTextColor(40);
+        baits.forEach(b => {
+          if (y > lay.H - 35) { d.addPage(); y = M; }
+          const st = (typeof BAIT_STATUS !== 'undefined' && BAIT_STATUS[b.status]) ? BAIT_STATUS[b.status].label : (b.status || '—');
+          const line = `Nr. ${b.number || '—'}${b.location ? ' · ' + b.location : ''} — ${st}${b.lastCheck ? ' (geprüft ' + formatDateDE(b.lastCheck) + ')' : ''}`;
+          d.splitTextToSize(line, W - 2 * M).forEach(l => { d.text(l, M, y); y += 4.6; });
+        });
+        lay.y = y + 4;
+      }
+      belegSignature(lay, 'Datum / Unterschrift Kunde', p.technician ? 'Techniker: ' + p.technician : '');
+      doc.save(`Protokoll_${belegNr(p.id)}_${safeName(pestCustomerName(p.customerId, p.objektName))}.pdf`);
+      toast('✓ Protokoll-PDF heruntergeladen');
+    }
+
+    // ── Werkstattauftrag / Reparaturrechnung (Auto-Werkstatt) ──
+    function downloadWorkOrderPDF(id) {
+      id = id || editingWorkOrderId;
+      const o = loadWorkOrders().find(x => x.id === id);
+      if (!o) { toast('Auftrag zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const datum = o.created ? o.created.slice(0, 10) : new Date().toISOString().slice(0, 10);
+      const lay = belegHeader(doc, 'Reparaturauftrag', [`Nr. ${belegNr(o.id)}`, `Datum: ${formatDateDE(datum) || '—'}`]);
+      belegRecipient(lay, o.owner || workOrderLabel(o), [o.plate, o.model].filter(Boolean).join(' · '));
+      belegFields(lay, [['Mechaniker', o.mechanic], ['Auftragsannahme', formatDateDE(datum)]]);
+      belegText(lay, 'Auftrag / Beanstandung', o.complaint);
+      const works = (o.works || []).map(w => ({ label: w.title, qty: w.hours, suffix: ' h', price: w.rate }));
+      const parts = (o.parts || []).map(pt => ({ label: pt.name, qty: pt.qty, suffix: '×', price: pt.price }));
+      const sumW = belegPositions(lay, 'Arbeiten', works);
+      const sumP = belegPositions(lay, 'Teile / Material', parts);
+      belegText(lay, 'Bemerkungen', o.note);
+      belegTotal(lay, sumW + sumP, coLocale(loadCompany()).mwstPflichtig);
+      belegSignature(lay, 'Datum / Unterschrift Kunde');
+      doc.save(`Auftrag_${belegNr(o.id)}_${safeName(o.plate || o.owner)}.pdf`);
+      toast('✓ Auftrags-PDF heruntergeladen');
+    }
+
+    // ── Einlagerungsbeleg (Reifenhotel, Auto-Werkstatt) ──
+    function downloadTireReceiptPDF(id) {
+      id = id || editingTireId;
+      const t = loadTires().find(x => x.id === id);
+      if (!t) { toast('Einlagerung zuerst speichern', 'error'); return; }
+      const doc = newBelegDoc(); if (!doc) return;
+      const lay = belegHeader(doc, 'Einlagerungsbeleg', [`Nr. ${belegNr(t.id)}`, `Reifenhotel`]);
+      belegRecipient(lay, t.owner || t.plate || 'Einlagerung', t.plate && t.owner ? t.plate : '');
+      const season = (typeof TIRE_SEASONS !== 'undefined' && TIRE_SEASONS[t.season]) ? TIRE_SEASONS[t.season].label : (t.season || '—');
+      const rim = { alu: 'Alufelgen', stahl: 'Stahlfelgen', ohne: 'ohne Felgen' }[t.rim] || t.rim || '';
+      belegFields(lay, [
+        ['Saison', season],
+        ['Anzahl', t.qty ? t.qty + ' Reifen' : ''],
+        ['Felgen', rim],
+        ['Dimension', t.dim],
+        ['Profil', t.tread ? t.tread + ' mm' : ''],
+        ['Lagerplatz', t.location],
+        ['Eingelagert seit', formatDateDE(t.since)]
+      ]);
+      belegText(lay, 'Bemerkungen', t.note);
+      belegSignature(lay, 'Datum / Unterschrift Kunde', 'Eingelagert durch ' + (loadCompany().name || ''));
+      doc.save(`Einlagerung_${belegNr(t.id)}_${safeName(t.owner || t.plate)}.pdf`);
+      toast('✓ Beleg-PDF heruntergeladen');
+    }
+
+    function saveOffert() {
+      const data = collectOffertForm();
+      if (!data.kunde) { toast('Bitte Kundenname angeben'); return; }
+      if (!data.preis) { toast('Bitte Preis angeben'); return; }
+
+      // Bei Bearbeitung mit Änderungen → Revisions-Popup
+      if (currentOffert && offertHasChanges(data)) {
+        pendingOffertData = data;
+        document.getElementById('revReasonInput').value = '';
+        document.getElementById('revReasonError').style.display = 'none';
+        openModal('revisionReason');
+        setTimeout(() => document.getElementById('revReasonInput').focus(), 80);
+        return;
+      }
+
+      // Neue Offerte oder Bearbeitung ohne Änderung → direkt speichern
+      persistOffert(data, null);
+    }
+
+    let pendingOffertData = null;
+
+    function confirmRevisionAndSave() {
+      const reason = document.getElementById('revReasonInput').value.trim();
+      if (!reason) {
+        document.getElementById('revReasonError').style.display = 'block';
+        document.getElementById('revReasonInput').focus();
+        return;
+      }
+      if (!pendingOffertData) { closeModal('revisionReason'); return; }
+      const data = pendingOffertData;
+      pendingOffertData = null;
+      closeModal('revisionReason');
+      persistOffert(data, reason);
+    }
+
+    function deleteOffert() {
+      if (!currentOffert) return;
+      if (!requirePerm('delete_offerts', 'Offerten löschen')) return;
+      if (!confirm('Diese Offerte wirklich löschen?')) return;
+      const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+      const filtered = offerts.filter(o => o.id !== currentOffert);
+      localStorage.setItem('cc-offerts', JSON.stringify(filtered));
+      closeModal('offert');
+      renderOffertList();
+      toast('Offerte gelöscht');
+    }
+
+    function renderOffertList() {
+      const list = document.getElementById('offertList');
+      const empty = document.getElementById('offertEmpty');
+      const badge = document.getElementById('offNavBadge');
+      if (!list) return;
+
+      const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+      badge.textContent = offerts.length;
+      badge.style.display = offerts.length > 0 ? 'inline-flex' : 'none';
+
+      if (offerts.length === 0) {
+        list.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      list.style.display = 'flex';
+      empty.style.display = 'none';
+
+      list.innerHTML = offerts.map(o => {
+        const preis = o.preis ? parseFloat(o.preis).toFixed(2) + ' €' : '—';
+        const hasImages = o.images && o.images.length > 0;
+        const hasHistory = o.history && o.history.length > 0;
+        return `
+          <div class="card" style="cursor: pointer; padding: 18px 22px; display: grid; grid-template-columns: auto 1fr auto auto; gap: 16px; align-items: center; transition: all 0.15s;" onclick="openOffertEditor('${o.id}')" onmouseenter="this.style.borderColor='var(--border-strong)';this.style.transform='translateY(-1px)';this.style.boxShadow='var(--shadow)'" onmouseleave="this.style.borderColor='var(--border)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+            <span class="svc-pill svc-${o.service}">${svcShortLabels[o.service] || o.service}</span>
+            <div style="min-width: 0;">
+              <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">${o.kunde || 'Ohne Name'}</div>
+              <div style="font-size: 12.5px; color: var(--text-subtle);">
+                ${o.adresse || ''} ${o.datum ? '· ' + formatDateDE(o.datum) : ''}
+                ${hasImages ? '· 📎 ' + o.images.length + ' Bild' + (o.images.length > 1 ? 'er' : '') : ''}
+                ${hasHistory ? '· ✎ ' + o.history.length + ' Revision' + (o.history.length > 1 ? 'en' : '') : ''}
+              </div>
+            </div>
+            <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums;">${preis}</div>
+            <span class="badge badge-muted">${o.status || 'Entwurf'}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Wenn Text manuell bearbeitet wird, nicht mehr automatisch neu generieren
+    document.getElementById('offText')?.addEventListener('input', e => {
+      e.target.dataset.manuallyEdited = 'true';
+    });
+
+    // Initial rendern
+    renderOffertList();
+
+    // ---- Wiederkehrende Aufträge (Serien) ----
+    const REPEAT_LABELS_DE = { weekly: 'wöchentlich', biweekly: 'alle 2 Wochen', monthly: 'monatlich' };
+    function repeatLabel(k) { return tt('repeat.' + k, REPEAT_LABELS_DE[k] || k); }
+    function nextRepeatDate(baseDate, mode, i) {
+      const d = new Date(baseDate);
+      if (mode === 'weekly') d.setDate(d.getDate() + 7 * i);
+      else if (mode === 'biweekly') d.setDate(d.getDate() + 14 * i);
+      else if (mode === 'monthly') d.setMonth(d.getMonth() + i);
+      return d;
+    }
+    function wizToggleRepeat() {
+      const mode = document.getElementById('wizRepeat').value;
+      document.getElementById('wizRepeatCountWrap').style.display = mode === 'none' ? 'none' : 'block';
+      if (mode !== 'none') wizUpdateRepeatHint();
+    }
+    function wizUpdateRepeatHint() {
+      const mode = document.getElementById('wizRepeat').value;
+      if (mode === 'none') return;
+      const hint = document.getElementById('wizRepeatHint');
+      const count = Math.max(1, Math.min(52, parseInt(document.getElementById('wizRepeatCount').value) || 1));
+      const dv = document.getElementById('wizDate').value;
+      const base = dv ? new Date(dv + 'T00:00:00') : new Date(planCurrentDate);
+      const last = nextRepeatDate(base, mode, count - 1);
+      hint.textContent = tt('date.until','Bis') + ' ' + last.toLocaleDateString(dateLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    // Bestes Team für eine Serie wählen (wenig Konflikte, wenig Last, viele Mitglieder)
+    function pickBestTeamForSeries(dateKeys, start, duration) {
+      const candidates = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
+      if (!candidates.length) return null;
+      const s = parseHM(start), e = s + (duration || 0);
+      const all = loadPlanJobs();
+      let best = null, bestScore = Infinity;
+      candidates.forEach(t => {
+        let conflicts = 0, load = 0;
+        dateKeys.forEach(dk => {
+          const dayJobs = (all[dk] || []).filter(j => j.team === t.id);
+          load += dayJobs.length;
+          dayJobs.forEach(j => {
+            const js = parseHM(j.start), je = js + (j.duration || 0);
+            if (js < e && je > s) conflicts++;   // zeitliche Überschneidung
+          });
+        });
+        const members = EMPLOYEES.filter(emp => emp.teamId === t.id).length;
+        const score = conflicts * 1000 + load * 10 - members;
+        if (score < bestScore) { bestScore = score; best = t; }
+      });
+      return best ? best.id : null;
+    }
+
+    // ---- Serien-Verwaltung: finden / patchen / löschen / gruppieren ----
+    function findSeriesJobs(seriesId, fromDateKey) {
+      const all = loadPlanJobs();
+      const res = [];
+      Object.keys(all).forEach(dk => {
+        if (fromDateKey && dk < fromDateKey) return;       // ISO-Datum: String-Vergleich ok
+        (all[dk] || []).forEach(j => { if (j.seriesId === seriesId) res.push({ dateKey: dk, jobId: j.id }); });
+      });
+      return res;
+    }
+    function patchSeries(seriesId, fromDateKey, patch) {
+      findSeriesJobs(seriesId, fromDateKey).forEach(({ dateKey, jobId }) => updatePlanJob(dateKey, jobId, patch));
+    }
+    function deleteSeries(seriesId, fromDateKey) {
+      findSeriesJobs(seriesId, fromDateKey).forEach(({ dateKey, jobId }) => deletePlanJob(dateKey, jobId));
+    }
+    function getAllSeries() {
+      const all = loadPlanJobs();
+      const map = {};
+      Object.keys(all).forEach(dk => {
+        (all[dk] || []).forEach(j => {
+          if (!j.seriesId) return;
+          if (!map[j.seriesId]) map[j.seriesId] = { seriesId: j.seriesId, objekt: j.objekt, ort: j.ort, recurring: j.recurring, team: j.team, price: j.price, start: j.start, dates: [] };
+          map[j.seriesId].dates.push(dk);
+        });
+      });
+      return Object.values(map).map(s => { s.dates.sort(); return s; });
+    }
+
+    // ---- Live-Verfügbarkeit fürs Telefon-Booking ----
+    function fmtMinHM(m) { return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+    // Für Einsätze vor Ort rechnen wir mindestens 15 Minuten Übergang zwischen zwei Aufträgen.
+    // Die genaue Fahrzeit kann später aus der echten Routenberechnung ergänzt werden.
+    const PLANNING_TRANSITION_MIN = 15;
+    function freeEmployeesAt(dateKey, startMin, durMin, teamId = '') {
+      const end = startMin + durMin;
+      const jobs = getJobsForDate(new Date(dateKey + 'T00:00:00'));
+      // Wichtig: Nicht das Stammteam verwenden. Die Tages-Crew kann Mitarbeitende
+      // für genau diesen Tag in ein anderes Team verschieben.
+      return EMPLOYEES.filter(emp => (!teamId || empDayTeam(emp.id, dateKey) === teamId) && !empIsAbsent(emp.id, dateKey))
+        .filter(emp => !jobs.some(j => {
+          if (!(j.assigned || []).includes(emp.id)) return false;
+          const js = parseHM(j.start) - PLANNING_TRANSITION_MIN;
+          const je = parseHM(j.start) + (j.duration || 0) + PLANNING_TRANSITION_MIN;
+          return js < end && je > startMin;
+        }));
+    }
+    // Welche Teams haben an dem Tag im Zeitfenster genug freie Mitarbeitende?
+    function availabilityAt(dateKey, startMin, durMin, neededCrew) {
+      neededCrew = Math.max(1, neededCrew || 1);
+      const out = [];
+      PLAN_TEAMS.forEach(t => {
+        const members = teamMembersOnDay(t.id, dateKey);
+        if (members.length === 0) return;
+        const freeEmployees = freeEmployeesAt(dateKey, startMin, durMin, t.id);
+        out.push({ team: t, total: members.length, freeCount: freeEmployees.length, freeEmployees, available: freeEmployees.length >= neededCrew });
+      });
+      return out;
+    }
+    function nextFreeSlotSameDay(dateKey, startMin, durMin, neededCrew, teamId = '', latestEndMin = null) {
+      const latestStart = Math.min(21 * 60 - durMin, latestEndMin != null ? latestEndMin - durMin : 21 * 60 - durMin);
+      for (let t = startMin; t <= latestStart; t += 15) {
+        let available = availabilityAt(dateKey, t, durMin, neededCrew);
+        if (teamId) available = available.filter(r => r.team.id === teamId);
+        if (available.some(r => r.available)) return t;
+      }
+      return null;
+    }
+    function latestFreeSlotBefore(dateKey, deadlineMin, durMin, neededCrew, teamId = '') {
+      for (let t = deadlineMin - durMin; t >= 6 * 60; t -= 15) {
+        let available = availabilityAt(dateKey, t, durMin, neededCrew);
+        if (teamId) available = available.filter(r => r.team.id === teamId);
+        if (available.some(r => r.available)) return t;
+      }
+      return null;
+    }
+    function nextFreeDays(fromDateKey, startMin, durMin, neededCrew, count, teamId = '') {
+      count = count || 3;
+      const res = [];
+      const d = new Date(fromDateKey + 'T00:00:00');
+      d.setDate(d.getDate() + 1);     // erst ab dem Folgetag suchen
+      for (let i = 0; i < 28 && res.length < count; i++) {
+        const dk = isoDate(d);
+        let free = availabilityAt(dk, startMin, durMin, neededCrew).filter(r => r.available);
+        if (teamId) free = free.filter(r => r.team.id === teamId);
+        if (free.length) res.push({ dateKey: dk, teams: free.map(r => r.team.name) });
+        d.setDate(d.getDate() + 1);
+      }
+      return res;
+    }
+    function wizCheckAvailability() {
+      const box = document.getElementById('wizAvail');
+      if (!box) return;
+      const dv = document.getElementById('wizDate')?.value;
+      const dk = dv || isoDate(planCurrentDate);
+      const startHHMM = document.getElementById('wizStart')?.value || '08:00';
+      const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
+      const dur = Math.round(hours * 60);
+      const startMin = parseHM(startHHMM);
+      const neededCrew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+      const deadlineHHMM = document.getElementById('wizDeadline')?.value || '';
+      const deadlineMin = deadlineHHMM ? parseHM(deadlineHHMM) : null;
+
+      const teamsWithMembers = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
+      if (teamsWithMembers.length === 0) {
+        box.innerHTML = `<div class="wiz-avail-box"><div class="wiz-avail-sub">Lege zuerst Teams & Mitarbeiter an — dann siehst du hier sofort, ob der Wunschtermin frei ist.</div></div>`;
+        return;
+      }
+      const selTeam = document.getElementById('wizardTeamSelect')?.value || '';
+      let av = availabilityAt(dk, startMin, dur, neededCrew);
+      if (selTeam) av = av.filter(r => r.team.id === selTeam);
+      const freeTeams = av.filter(r => r.available);
+      const dayLbl = new Date(dk + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'long', day: '2-digit', month: '2-digit' });
+      const endsBeforeDeadline = deadlineMin == null || startMin + dur <= deadlineMin;
+
+      if (freeTeams.length && endsBeforeDeadline) {
+        const names = freeTeams.map(r => `${r.team.name}: ${r.freeEmployees.slice(0, neededCrew).map(e => empShort(e)).join(', ')}`).join(' · ');
+        const deadlineNote = deadlineHHMM ? ` · fertig bis ${deadlineHHMM} Uhr` : '';
+        box.innerHTML = `<div class="wiz-avail-box ok"><div class="wiz-avail-head">✓ ${dayLbl}, ${startHHMM} Uhr — frei${deadlineNote}</div><div class="wiz-avail-sub">Verfügbar: ${escapeHtml(names)}</div></div>`;
+        return;
+      }
+      // belegt → Alternativen anbieten
+      const sameDay = deadlineMin != null
+        ? latestFreeSlotBefore(dk, deadlineMin, dur, neededCrew, selTeam)
+        : nextFreeSlotSameDay(dk, startMin, dur, neededCrew, selTeam);
+      const days = deadlineMin != null ? [] : nextFreeDays(dk, startMin, dur, neededCrew, 3, selTeam);
+      let chips = '';
+      if (sameDay != null && sameDay !== startMin) {
+        const label = deadlineMin != null ? `${dayLbl} ${fmtMinHM(sameDay)}–${fmtMinHM(sameDay + dur)} (vor Abgabe)` : `${dayLbl} ab ${fmtMinHM(sameDay)}`;
+        chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${dk}','${fmtMinHM(sameDay)}')">${label}</button>`;
+      }
+      days.forEach(d => {
+        const dl = new Date(d.dateKey + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' });
+        chips += `<button type="button" class="wiz-slot-chip" onclick="wizApplySlot('${d.dateKey}','${startHHMM}')">${dl}, ${startHHMM}</button>`;
+      });
+      const reason = !endsBeforeDeadline ? `Der Einsatz würde nach dem Abgabetermin um ${deadlineHHMM} Uhr enden.` : `${selTeam ? 'Dieses Team ist' : 'Kein Team ist'} zu dieser Zeit mit ${neededCrew} ${neededCrew === 1 ? 'Person' : 'Personen'} frei.`;
+      box.innerHTML = `<div class="wiz-avail-box bad"><div class="wiz-avail-head">${dayLbl}, ${startHHMM} Uhr — nicht möglich</div>` +
+        `<div class="wiz-avail-sub">${reason} ${chips ? 'Passender Vorschlag:' : ''}</div>` +
+        `<div class="wiz-slot-chips">${chips || '<span class="wiz-avail-sub">Kein passender freier Slot gefunden.</span>'}</div></div>`;
+    }
+    function wizApplySlot(dateKey, startHHMM) {
+      const wd = document.getElementById('wizDate'); if (wd) wd.value = dateKey;
+      const ws = document.getElementById('wizStart'); if (ws) ws.value = startHHMM;
+      wizCheckAvailability();
+    }
+    // Eingaben live an den Check koppeln
+    ['wizDate', 'wizStart', 'wizDuration', 'wizDeadline', 'wizCrew', 'wizardTeamSelect'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.addEventListener('change', wizCheckAvailability); el.addEventListener('input', wizCheckAvailability); }
+    });
+
+    // Beim Oeffnen eines neuen Auftrags die Kundenwahl leeren
+    function wizKundeZuruecksetzen() {
+      wizKundeId = null;
+      const f = document.getElementById('wizCustomer'); if (f) f.value = '';
+      const i = document.getElementById('wizCustomerInfo'); if (i) { i.style.display = 'none'; i.innerHTML = ''; }
+      wizKundeListeZu();
+    }
+
+    function submitAuftrag() {
+      const name = (document.getElementById('termName')?.value || '').trim();
+      const addr = (document.getElementById('wizAddress')?.value || '').trim();
+      const objekt = name || addr || serviceTitle(wizService) || 'Neuer Auftrag';
+      const dateInput = document.getElementById('wizDate');
+      const dateKey = (dateInput && dateInput.value) ? dateInput.value : isoDate(planCurrentDate);
+      const start = (document.getElementById('wizStart')?.value) || '08:00';
+      const hours = parseFloat(document.getElementById('wizDuration')?.value) || 1.5;
+      const duration = Math.round(hours * 60); // Stunden → Minuten
+      const team = document.getElementById('wizardTeamSelect')?.value || null;
+      const requestedCrew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+      const note = (document.getElementById('wizNote')?.value || '').trim();
+      const deadline = document.getElementById('wizDeadline')?.value || null;
+      const extraText = collectWizExtraText();   // branchenspezifische Felder → Büro-Notiz
+      const finalPrice = wizCalcPrice();
+
+      // Wiederholung: aus einem Termin eine Serie machen
+      const repeat = document.getElementById('wizRepeat')?.value || 'none';
+      const count = repeat === 'none' ? 1 : Math.max(1, Math.min(52, parseInt(document.getElementById('wizRepeatCount')?.value) || 1));
+      const seriesId = repeat !== 'none' ? ('serie-' + Date.now()) : null;
+      const baseDate = new Date(dateKey + 'T00:00:00');
+
+      // Alle Serien-Tage vorab sammeln
+      const dateKeys = [];
+      for (let i = 0; i < count; i++) dateKeys.push(isoDate(nextRepeatDate(baseDate, repeat, i)));
+
+      // Für Reinigung: pro Kalendertag ein echtes freies Team und die konkret
+      // freien Personen wählen. Tages-Crews können sich täglich ändern, deshalb
+      // darf eine Serie nie ein einziges Team für alle Termine festschreiben.
+      let assignTeam = team || null;
+      let autoTeamName = null;
+      let assignedByDate = {};
+      let teamByDate = {};
+      const isCleaning = window.MosaVertical?.get?.() === 'reinigung';
+      if (isCleaning) {
+        const deadlineMins = deadline ? parseHM(deadline) : null;
+        if (deadlineMins != null && parseHM(start) + duration > deadlineMins) {
+          toast(`Der Einsatz endet nach der Abgabe um ${deadline}. Wähle einen früheren Vorschlag.`, 'error');
+          return;
+        }
+        for (const dk of dateKeys) {
+          const options = availabilityAt(dk, parseHM(start), duration, requestedCrew)
+            .filter(r => r.available)
+            // Bei gleich vielen freien Personen den im Assistenten gewählten
+            // Teamwunsch bevorzugen, aber für andere Tage nicht erzwingen.
+            .sort((a, b) => (b.freeCount - a.freeCount)
+              || ((b.team.id === team) ? 1 : 0) - ((a.team.id === team) ? 1 : 0)
+              || a.team.name.localeCompare(b.team.name));
+          const option = options[0];
+          if (!option) {
+            // Die Meldung nennt den Tag und sagt, was zu tun ist. Vorher stand
+            // hier immer "Die Serie", auch bei einem einzelnen Termin — und es
+            // blieb offen, woran es lag.
+            const tag = new Date(dk + 'T00:00:00').toLocaleDateString('de-CH',
+              { weekday: 'long', day: '2-digit', month: '2-digit' });
+            const wieViele = requestedCrew === 1 ? 'eine Person' : `${requestedCrew} Personen`;
+            toast(`Am ${tag} ist kein Team mit ${wieViele} frei. `
+                + `Wähle einen anderen Tag, eine andere Zeit oder weniger Personen.`, 'error');
+            return;
+          }
+          teamByDate[dk] = option.team.id;
+          assignedByDate[dk] = option.freeEmployees.slice(0, requestedCrew).map(e => e.id);
+        }
+        assignTeam = teamByDate[dateKey];
+        autoTeamName = (PLAN_TEAMS.find(t => t.id === assignTeam) || {}).name || null;
+      }
+
+      // Auto-Zuweisung für andere Branchen: bei einer Serie ohne Team ein festes Team wählen.
+      if (!isCleaning && !assignTeam && repeat !== 'none') {
+        assignTeam = pickBestTeamForSeries(dateKeys, start, duration);
+        if (assignTeam) autoTeamName = (PLAN_TEAMS.find(t => t.id === assignTeam) || {}).name || null;
+      }
+
+      // Echte Einsätze anlegen → erscheinen im Routenplaner an jedem Serien-Tag
+      dateKeys.forEach((dk, i) => {
+        addPlanJob(dk, {
+          id: 'j' + Date.now() + '-' + i,
+          objekt,
+          ort: addr,
+          createdAt: new Date().toISOString().slice(0, 16),   // fuer den Verlauf
+          customerId: wizKundeId || undefined,   // B1: Verknuepfung zur Kundenakte
+          customer: (document.getElementById('wizCustomer')?.value || '').trim() || undefined,
+          start,
+          duration,
+          team: isCleaning ? (teamByDate[dk] || null) : (assignTeam || null),
+          svc: wizService || 'unterhalt',
+          price: finalPrice,
+          crew: isCleaning ? requestedCrew : 1,
+          assigned: isCleaning ? assignedByDate[dk] : undefined,
+          paymethod: 'rechnung',
+          deadline: deadline,
+          noteCrew: note,
+          noteOffice: extraText,
+          recurring: repeat !== 'none' ? repeat : undefined,
+          seriesId: seriesId || undefined
+        });
+      });
+
+      protokolliere('angelegt', 'plan_jobs',
+        objekt + (dateKeys.length > 1 ? ` (${dateKeys.length}×)` : ''));
+
+      closeModal('newAuftrag');
+      // Planer auf das (erste) Auftragsdatum stellen und anzeigen
+      planSetDate(dateKey);
+      navTo('planung');
+      const dLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' });
+      if (repeat === 'none') {
+        toast(`✓ ${tt('toastdyn.orderWord','Auftrag')} „${objekt}" ${tt('toastdyn.created','angelegt')} — ${tt('toastdyn.inPlannerOn','im Planer am')} ${dLabel}`);
+      } else {
+        const teamSuffix = autoTeamName ? ` · ${autoTeamName} ${tt('toastdyn.assigned','zugewiesen')}` : '';
+        toast(`✓ ${tt('date.series','Serie')} „${objekt}" ${tt('toastdyn.created','angelegt')} — ${count} ${tt('date.appointments','Termine')} (${repeatLabel(repeat)}), ${tt('toastdyn.from','ab')} ${dLabel}${teamSuffix}`);
+      }
+
+      // Wizard zurücksetzen
+      setTimeout(() => {
+        wizCurrent = 1;
+        wizService = null;
+        const repeatSel = document.getElementById('wizRepeat');
+        if (repeatSel) { repeatSel.value = 'none'; document.getElementById('wizRepeatCountWrap').style.display = 'none'; }
+        document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.wstep').forEach(s => { s.classList.remove('done'); s.classList.toggle('active', s.dataset.step === '1'); });
+        document.querySelectorAll('.wizard-page').forEach(p => p.classList.remove('active'));
+        document.querySelector('.wizard-page[data-page="1"]').classList.add('active');
+        document.getElementById('wizBack').style.display = 'none';
+        document.getElementById('wizNext').textContent = 'Weiter →';
+        ['termName', 'wizAddress', 'wizNote', 'wizDeadline'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        const wd = document.getElementById('wizDate'); if (wd) wd.value = '';
+      }, 400);
+    }
