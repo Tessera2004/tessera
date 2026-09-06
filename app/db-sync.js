@@ -597,7 +597,7 @@
       await mergeJobs(jobR.data);
 
       // Firmen-Einstellungen: Remote anwenden, fehlende Teile aus lokal hochladen
-      const settP = settR.data?.profile, settPr = settR.data?.prices, settFt = settR.data?.features, settRl = settR.data?.roles, settCs = settR.data?.custom_services;
+      const settP = settR.data?.profile, settPr = settR.data?.prices, settFt = settR.data?.features, settRl = settR.data?.roles, settCs = settR.data?.custom_services, settTp = settR.data?.templates, settTf = settR.data?.time_factors;
       if (settP && Object.keys(settP).length) localStorage.setItem('cc-company-v1', JSON.stringify(settP));
       else { const lp = lsGet('cc-company-v1', {}); if (Object.keys(lp).length) await push('company_profile', lp); }
       if (settPr && Object.keys(settPr).length) localStorage.setItem('cc-prices', JSON.stringify(settPr));
@@ -608,6 +608,11 @@
       else { const lp = lsGet('cc-roles-v1', []); if (Array.isArray(lp) && lp.length) await push('company_roles', lp); }
       if (Array.isArray(settCs)) localStorage.setItem('cc-custom-services-v1', JSON.stringify(settCs));
       else { const lp = lsGet('cc-custom-services-v1', []); if (Array.isArray(lp) && lp.length) await push('company_custom_services', lp); }
+      // Eigene Textvorlagen und Zeitfaktoren — sonst sieht ein zweites Geraet sie nie
+      if (settTp && Object.keys(settTp).length) localStorage.setItem('cc-vorlagen-v1', JSON.stringify(settTp));
+      else { const lp = lsGet('cc-vorlagen-v1', {}); if (Object.keys(lp).length) await push('company_templates', lp); }
+      if (settTf && Object.keys(settTf).length) localStorage.setItem('cc-zeitfaktoren-v1', JSON.stringify(settTf));
+      else { const lp = lsGet('cc-zeitfaktoren-v1', {}); if (Object.keys(lp).length) await push('company_time_factors', lp); }
 
       // Fahrzeuge separat & resilient laden: fehlt die Tabelle (Branche nutzt das Modul nicht),
       // darf das den restlichen Sync NICHT brechen.
@@ -695,9 +700,9 @@
       } else if (type === 'report_one') {
         // Einzelner Bericht (mobile.html: ein Protokoll, nicht das ganze Array)
         await dbCall(sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' }));
-      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features' || type === 'company_roles' || type === 'company_custom_services') {
+      } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features' || type === 'company_roles' || type === 'company_custom_services' || type === 'company_templates' || type === 'company_time_factors') {
         // Lese erst die anderen Felder, damit sie nicht überschrieben werden
-        const { data: cur } = await sb.from('company_settings').select('profile,prices,features,roles,custom_services')
+        const { data: cur } = await sb.from('company_settings').select('profile,prices,features,roles,custom_services,templates,time_factors')
           .eq('tenant_id', tid).maybeSingle();
         const row = { tenant_id: tid,
           profile:  type === 'company_profile'  ? data : (cur?.profile  || {}),
@@ -705,6 +710,8 @@
           features: type === 'company_features' ? data : (cur?.features || {}),
           roles:    type === 'company_roles'    ? data : (cur?.roles    || []),
           custom_services: type === 'company_custom_services' ? data : (cur?.custom_services || []),
+          templates: type === 'company_templates' ? data : (cur?.templates || {}),
+          time_factors: type === 'company_time_factors' ? data : (cur?.time_factors || {}),
           updated_at: new Date().toISOString() };
         await dbCall(sb.from('company_settings').upsert(row, { onConflict: 'tenant_id' }));
       } else {
