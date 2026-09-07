@@ -166,7 +166,13 @@
       }
     }
     // ============ Teams verwalten ============
-    function openTeamManager() { renderTeamManager(); openModal('teamManager'); }
+    let teamManagerFromWizard = false;
+    function openTeamManager(focusNew, fromWizard) {
+      teamManagerFromWizard = !!fromWizard;
+      renderTeamManager();
+      openModal('teamManager');
+      if (focusNew) setTimeout(() => document.getElementById('newTeamName')?.focus(), 60);
+    }
     function renderTeamManager() {
       const wrap = document.getElementById('teamManagerList');
       if (!wrap) return;
@@ -192,12 +198,14 @@
       const inp = document.getElementById('newTeamName');
       const n = (inp.value || '').trim();
       if (!n) { toast('Bitte Teamname eingeben', 'error'); return; }
-      addTeam(n); inp.value = '';
+      const id = addTeam(n); inp.value = '';
       renderTeamManager(); refreshAfterTeamChange();
+      populateWizardTeams(id);
+      if (typeof protokolliere === 'function') protokolliere('angelegt', 'teams', n);
       toast('✓ Team angelegt');
     }
     function renameTeamFromManager(id, name) {
-      if (name && name.trim()) { renameTeam(id, name.trim()); refreshAfterTeamChange(); }
+      if (name && name.trim()) { renameTeam(id, name.trim()); refreshAfterTeamChange(); if (typeof protokolliere === 'function') protokolliere('geaendert', 'teams', name.trim()); }
     }
     function setTeamColor(id, color) { renameTeam(id, null, color); renderTeamManager(); refreshAfterTeamChange(); }
     function deleteTeamFromManager(id) {
@@ -205,12 +213,20 @@
       if (!t) return;
       if (!confirm(`Team „${t.name}" löschen? Mitarbeiter bleiben bestehen, verlieren aber die Team-Zuordnung.`)) return;
       deleteTeam(id);
+      if (typeof protokolliere === 'function') protokolliere('geloescht', 'teams', t.name);
       renderTeamManager(); refreshAfterTeamChange();
       toast('Team gelöscht');
     }
     function refreshAfterTeamChange() {
       if (typeof renderMitarbeiter === 'function') renderMitarbeiter();
       if (typeof renderPlanung === 'function') renderPlanung();
+    }
+
+    function wizardTeamChanged() {
+      const sel = document.getElementById('wizardTeamSelect');
+      if (!sel || sel.value !== '__new__') return;
+      sel.value = '';
+      openTeamManager(true, true);
     }
 
     function saveMitarbeiter() {
@@ -227,6 +243,7 @@
         canDrive: document.getElementById('mitCanDrive').checked,
         photo: mitPhotoData || null
       };
+      const wurdeBearbeitet = !!editingMitId;
       if (editingMitId) {
         const idx = EMPLOYEES.findIndex(e => e.id === editingMitId);
         if (idx >= 0) EMPLOYEES[idx] = { ...EMPLOYEES[idx], ...data };
@@ -236,6 +253,7 @@
         toast('✓ Mitarbeiter angelegt');
       }
       saveEmployees();
+      if (typeof protokolliere === 'function') protokolliere(wurdeBearbeitet ? 'geaendert' : 'angelegt', 'employees', `${firstName} ${lastName}`);
       rebuildTeamMembers();
       closeModal('mitarbeiterEditor');
       editingMitId = null;
@@ -370,7 +388,7 @@
       });
     }
 
-    function populateWizardTeams() {
+    function populateWizardTeams(selectedId) {
       const sel = document.getElementById('wizardTeamSelect');
       if (!sel) return;
       // Erstes Option (Auto) behalten, Rest neu
@@ -379,7 +397,8 @@
         const drv = t.canDrive ? 'fährt' : 'braucht Fahrer';
         return `<option value="${t.id}">${t.name} (${t.members.length} Pers., ${drv})</option>`;
       }).join('');
-      sel.innerHTML = auto + opts;
+      sel.innerHTML = auto + opts + '<option value="__new__">+ Neues Team anlegen…</option>';
+      if (selectedId && PLAN_TEAMS.some(t => t.id === selectedId)) sel.value = selectedId;
     }
     function closeModal(id) {
       const backdrop = document.getElementById('modal-' + id);

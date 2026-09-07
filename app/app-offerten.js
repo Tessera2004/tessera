@@ -599,6 +599,7 @@ ${coSig}`;
     function persistOffert(data, reason) {
       if (!requirePerm('edit_offerts', 'Offerten')) return;
       const authorName = currentUser ? getUserName(currentUser) : 'Unbekannt';
+      const authorProfile = currentUser ? { id:currentUser.id || null, name:authorName, email:currentUser.email || window._authEmail || '', role:currentUser.role || '' } : { id:null, name:authorName, email:window._authEmail || '', role:'' };
       if (reason) {
         const now = new Date();
         data.history.push({
@@ -612,15 +613,22 @@ ${coSig}`;
       const idx = offerts.findIndex(o => o.id === data.id);
       if (idx >= 0) {
         data.lastUpdatedBy = authorName;
+        data.updatedBy = authorProfile;
+        data.updatedAt = new Date().toISOString();
         offerts[idx] = data;
         toast('✓ Offerte aktualisiert');
       } else {
         data.createdBy = authorName;
         data.lastUpdatedBy = authorName;
+        data.createdByProfile = authorProfile;
+        data.updatedBy = authorProfile;
+        data.createdAt = data.createdAt || new Date().toISOString();
+        data.updatedAt = new Date().toISOString();
         offerts.unshift(data);
         toast('✓ Offerte gespeichert');
       }
       localStorage.setItem('cc-offerts', JSON.stringify(offerts));
+      if (typeof protokolliere === 'function') protokolliere(idx >= 0 ? 'geaendert' : 'angelegt', 'offerts', data.number || data.kunde || 'Offerte');
       closeModal('offert');
       renderOffertList();
     }
@@ -1438,6 +1446,12 @@ ${coSig}`;
       const finalPrice = wizCalcPrice();
       const status = document.getElementById('wizJobStatus')?.value || 'provisorisch';
       const paymethod = document.getElementById('wizPaymethod')?.value || 'rechnung';
+      const actor = (typeof currentUser !== 'undefined' && currentUser) ? {
+        id: currentUser.id || null,
+        name: typeof getUserName === 'function' ? getUserName(currentUser) : getCurrentUserName(),
+        email: currentUser.email || window._authEmail || '',
+        role: currentUser.role || ''
+      } : { id:null, name:getCurrentUserName(), email:window._authEmail || '', role:'' };
 
       // Wiederholung: aus einem Termin eine Serie machen
       const repeat = document.getElementById('wizRepeat')?.value || 'none';
@@ -1508,6 +1522,9 @@ ${coSig}`;
           objekt,
           ort: addr,
           createdAt: new Date().toISOString().slice(0, 16),   // fuer den Verlauf
+          createdBy: actor,
+          updatedAt: new Date().toISOString(),
+          updatedBy: actor,
           customerId: wizKundeId || undefined,   // B1: Verknuepfung zur Kundenakte
           customer: (document.getElementById('wizCustomer')?.value || '').trim() || undefined,
           start,
@@ -1515,6 +1532,7 @@ ${coSig}`;
           team: status === 'provisorisch' ? null : (isCleaning ? (teamByDate[dk] || null) : (assignTeam || null)),
           svc: wizService || 'unterhalt',
           price: finalPrice,
+          addons: (typeof collectWizardAddons === 'function') ? collectWizardAddons() : [],
           crew: isCleaning ? requestedCrew : 1,
           assigned: status === 'provisorisch' ? [] : (isCleaning ? assignedByDate[dk] : undefined),
           paymethod,

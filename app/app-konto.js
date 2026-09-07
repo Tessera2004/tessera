@@ -578,11 +578,16 @@
         if (!list.messages) return;
         const mails = [];
         for (const msg of list.messages.slice(0,20)) {
-          const m = await (await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From,To,Subject,Date`, { headers:{'Authorization':'Bearer '+acc.token} })).json();
-          const h = (m.payload?.headers||[]).reduce((o,x)=>(o[x.name]=x.value,o),{});
-          const raw = h.From||''; const nm = raw.match(/^"?([^"<]+)"?\s*</);
-          mails.push({ id:m.id, accountId:acc.id, from:raw.replace(/.*<(.+)>/,'$1').trim()||raw, fromName:nm?nm[1].trim():'',
-            to:h.To||'', subject:h.Subject||'(kein Betreff)', date:new Date(parseInt(m.internalDate)).toISOString(),
+          const params = new URLSearchParams({ format:'metadata' });
+          ['From','To','Subject','Date'].forEach(name => params.append('metadataHeaders', name));
+          const response = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(msg.id)}?${params}`, { headers:{'Authorization':'Bearer '+acc.token} });
+          const m = await response.json();
+          if (!response.ok) continue;
+          const h = (m.payload?.headers||[]).reduce((o,x)=>(o[String(x.name||'').toLowerCase()]=x.value,o),{});
+          const raw = h.from||''; const nm = raw.match(/^"?([^"<]+)"?\s*</);
+          const sender = raw.replace(/.*<(.+)>/,'$1').trim() || raw || 'Unbekannter Absender';
+          mails.push({ id:m.id, accountId:acc.id, from:sender, fromName:nm?nm[1].trim():'',
+            to:h.to||'', subject:(h.subject||'').trim()||'(Kein Betreff)', date:new Date(parseInt(m.internalDate)).toISOString(),
             snippet:m.snippet||'', body:m.snippet||'', isRead:!m.labelIds?.includes('UNREAD'), labels:m.labelIds||[] });
         }
         const c = loadMailCache(); c[acc.id] = mails; saveMailCache(c);
@@ -626,6 +631,22 @@
           isRead:m.isRead, labels:['inbox'] }));
         const c = loadMailCache(); c[acc.id] = mails; saveMailCache(c);
       } catch {}
+    }
+
+    let mailRefreshRunning = false;
+    async function refreshConnectedMailboxes() {
+      if (mailRefreshRunning) return;
+      const accounts = loadMailAccounts().filter(a => a.token);
+      if (!accounts.length) return;
+      mailRefreshRunning = true;
+      try {
+        for (const acc of accounts) {
+          if (acc.expiresAt && acc.expiresAt <= Date.now()) continue;
+          if (acc.provider === 'gmail') await fetchGmailMails(acc);
+          else if (acc.provider === 'outlook') await fetchOutlookMails(acc);
+        }
+        renderMailView();
+      } finally { mailRefreshRunning = false; }
     }
 
     function updateImapPreset(preset) {
@@ -1154,6 +1175,7 @@
     // Nav-Click Handler
     document.querySelector('.nav-item[data-view="email"]')?.addEventListener('click', () => {
       setTimeout(renderMailView, 30);
+      setTimeout(refreshConnectedMailboxes, 80);
     });
 
     // Initial: Badge mit ungelesenen Mock-Mails setzen

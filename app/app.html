@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=17" />
+  <link rel="stylesheet" href="styles.css?v=18" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -22,8 +22,8 @@
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
   <script src="demo-data.js?v=3"></script>
-  <script src="app-i18n.js?v=46"></script>
-  <script src="tour.js?v=5" defer></script>
+  <script src="app-i18n.js?v=47"></script>
+  <script src="tour.js?v=6" defer></script>
 </head>
 <body>
   <div id="demoNotice" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10000;background:#fff;color:#171717;border:1px solid #ddd;border-radius:999px;padding:8px 10px 8px 14px;font-size:12px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.24);align-items:center;gap:12px;white-space:nowrap;">Beispieldemo · Änderungen bleiben in diesem Browser <button type="button" onclick="MosaDemo.leave()" style="border:0;border-radius:999px;background:#E11D2A;color:#fff;padding:7px 10px;font:inherit;cursor:pointer;">Eigene Firma starten</button></div>
@@ -210,10 +210,12 @@
         </button>
         <div class="topbar-title" id="topbarTitle">Dashboard</div>
         <div class="topbar-actions">
-          <div class="search">
+          <div class="search global-search" id="globalSearchWrap">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" data-term="suchePlatzhalter" data-term-attr="placeholder" placeholder="Objekt, Mitarbeiter, Kunde..." />
+            <input type="search" id="globalSearch" autocomplete="off" aria-label="Ganze App durchsuchen"
+              placeholder="Kunden, Aufträge, Offerten, Rechnungen …" />
             <span class="kbd">⌘K</span>
+            <div class="global-search-results" id="globalSearchResults" role="listbox" hidden></div>
           </div>
           <button class="btn-icon theme-toggle" data-i18n-title="common.themeToggle" title="Theme wechseln" onclick="toggleTheme()">
             <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -364,7 +366,7 @@
               <button class="btn btn-secondary" data-i18n="plan.prevWeek" onclick="planShiftWeek(-1)">← Vorwoche</button>
               <button class="btn btn-secondary" data-i18n="plan.today" onclick="planGoToday()">Heute</button>
               <button class="btn btn-secondary" data-i18n="plan.nextWeek" onclick="planShiftWeek(1)">Nächste Woche →</button>
-              <button class="btn btn-secondary" data-i18n="common.manageTeams" onclick="openTeamManager()">Teams verwalten</button>
+              <button class="btn btn-secondary" onclick="openTeamManager(true)">+ Neues Team</button>
               <button class="btn btn-secondary" onclick="tagesCrewZuruecksetzen()" data-i18n="plan.resetDay">Tag zurücksetzen</button>
               <button class="btn btn-accent" id="autoPlanBtn" onclick="runAutoPlan()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -387,6 +389,7 @@
               </div>
               <div style="display:flex; gap:8px;">
                 <button class="btn btn-ghost" onclick="resetDayCrew()" id="daycrewResetBtn" style="display:none; font-size:12px;" data-i18n="plan.resetDefault">Auf Standard zurück</button>
+                <button class="btn btn-secondary" onclick="openTeamManager(true)" style="font-size:12px;">+ Team</button>
                 <button class="btn btn-accent" onclick="openDayCrewModal()" style="font-size:12px;" data-i18n="plan.editCrew">Crew bearbeiten</button>
               </div>
             </div>
@@ -1061,22 +1064,13 @@
           </div>
 
           <nav class="settings-jump" aria-label="Bereiche der Einstellungen">
-            <a href="#settings-company"><span>1</span> Firma &amp; Abrechnung</a>
-            <a href="#settings-design"><span>2</span> Erscheinungsbild</a>
-            <a href="#settings-workflow"><span>3</span> Planung</a>
-            <a href="#settings-templates"><span>4</span> Dokumente</a>
-            <a href="#settings-services"><span>5</span> Module &amp; Preise</a>
-            <a href="#settings-security"><span>6</span> Sicherheit</a>
+            <a href="#settings-company"><span>1</span><strong>Firma &amp; Abrechnung</strong><small>Adresse, Steuer und IBAN</small></a>
+            <a href="#settings-design"><span>2</span><strong>Erscheinungsbild</strong><small>Logo, Farbe und Ansicht</small></a>
+            <a href="#settings-workflow"><span>3</span><strong>Planung</strong><small>Dauer und Routenstart</small></a>
+            <a href="#settings-templates"><span>4</span><strong>Dokumente</strong><small>Texte für Offerten und Rechnungen</small></a>
+            <a href="#settings-services"><span>5</span><strong>Leistungen &amp; Preise</strong><small>Module, Grund- und Zusatzpreise</small></a>
+            <a href="#settings-security"><span>6</span><strong>Sicherheit</strong><small>Anmeldung, Export und Konto</small></a>
           </nav>
-
-          <div class="settings-guide">
-            <div><strong>1. Firma &amp; Abrechnung</strong><span>Adresse, Steuerangaben und IBAN für deine Dokumente.</span></div>
-            <div><strong>2. Erscheinungsbild</strong><span>Logo, Firmenfarbe und Darstellung der App.</span></div>
-            <div><strong>3. Planung</strong><span>Zeitberechnung und Startpunkt für die Routen.</span></div>
-            <div><strong>4. Dokumente</strong><span>Standardtexte für Offerten und Rechnungen.</span></div>
-            <div><strong>5. Module &amp; Preise</strong><span>Sichtbare Bereiche, Leistungen und Zusatzpreise.</span></div>
-            <div><strong>6. Sicherheit</strong><span>Zwei-Faktor-Anmeldung, Datenexport und Kontolöschung.</span></div>
-          </div>
 
           <div class="readonly-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -1603,7 +1597,7 @@
 
   <!-- Modal: Neuer Auftrag (Wizard) -->
   <div class="modal-backdrop" id="modal-newAuftrag" onclick="if(event.target===this)closeModal('newAuftrag')">
-    <div class="modal" style="max-width: 640px;">
+    <div class="modal job-wizard-modal">
       <div class="modal-header">
         <div>
           <div class="modal-title" data-i18n="wiz.title">Neuer Auftrag</div>
@@ -1621,12 +1615,13 @@
         <div class="wstep-sep"></div>
         <div class="wstep" data-step="3"><div class="wstep-num">3</div><span data-i18n="wiz.stepDate">Termin</span></div>
       </div>
-      <div class="wizard-guide">In drei kurzen Schritten: Leistung wählen, Kundendaten ergänzen und Termin festlegen. Pflichtfelder sind mit * gekennzeichnet.</div>
+      <div class="wizard-guide">Ein klarer Ablauf: Leistung wählen, Umfang festlegen und danach Kunde, Termin, Team und Preis gemeinsam prüfen.</div>
 
       <div class="modal-body">
 
         <!-- ====== Schritt 1: Service-Typ ====== -->
         <div class="wizard-page active" data-page="1">
+          <div class="wizard-page-intro"><strong>Was soll ausgeführt werden?</strong><span>Wähle eine Leistung. Danach kannst du den Umfang und alle Zusätze anpassen.</span></div>
           <div class="svc-grid">
             <button type="button" class="svc-card" data-svc="unterhalt" style="--svc-color: var(--svc-unterhalt); --svc-color-soft: var(--svc-unterhalt-soft);" onclick="selectService('unterhalt')">
               <div class="svc-icon">
@@ -1674,6 +1669,7 @@
 
         <!-- ====== Schritt 2: Details je nach Typ ====== -->
         <div class="wizard-page" data-page="2">
+          <div class="wizard-page-intro"><strong>Umfang und Zusatzleistungen</strong><span>Hier werden nur Angaben gezeigt, die für die gewählte Leistung wirklich nötig sind.</span></div>
 
           <!-- Generisches Optionen-Panel (Nicht-Reinigungs-Branchen) -->
           <div class="svc-options" id="wizGenericOpts" style="display:none; flex-direction:column; gap:16px;">
@@ -1710,7 +1706,7 @@
             <div class="field">
               <label data-i18n="wiz.handover">Abgabe der Wohnung</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" data-abgabe="mit" onclick="setAbgabe(this,'mit')" data-i18n="wiz.handoverWith">Übergabe mit uns</button>
+                <button type="button" class="opt-chip on" data-default-choice data-abgabe="mit" onclick="setAbgabe(this,'mit')" data-i18n="wiz.handoverWith">Übergabe mit uns</button>
                 <button type="button" class="opt-chip" data-abgabe="ohne" onclick="setAbgabe(this,'ohne')" data-i18n="wiz.handoverWithout">Ohne uns</button>
               </div>
             </div>
@@ -1761,7 +1757,7 @@
             <div class="field">
               <label data-i18n="wiz.withLadder">Mit Leiter?</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.ladderNo">Ohne Leiter</button>
+                <button type="button" class="opt-chip on" data-default-choice onclick="toggleOne(this)" data-i18n="wiz.ladderNo">Ohne Leiter</button>
                 <button type="button" class="opt-chip" data-addon-price="fenster-leiter" data-addon-kind="percent" onclick="toggleOne(this)" data-i18n="wiz.ladderYes3m">Mit Leiter (bis 3m)</button>
                 <button type="button" class="opt-chip" data-addon-price="fenster-hubsteiger" onclick="toggleOne(this)" data-i18n="wiz.ladderLift">Hubsteiger nötig</button>
               </div>
@@ -1769,7 +1765,7 @@
             <div class="field">
               <label data-i18n="wiz.area">Bereich</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.areaInOut">Innen + Außen</button>
+                <button type="button" class="opt-chip on" data-default-choice onclick="toggleOne(this)" data-i18n="wiz.areaInOut">Innen + Außen</button>
                 <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaInOnly">Nur innen</button>
                 <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaOutOnly">Nur außen</button>
               </div>
@@ -1794,7 +1790,7 @@
             <div class="field">
               <label data-i18n="wiz.phase">Phase</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.phaseRough">Grobreinigung</button>
+                <button type="button" class="opt-chip on" data-default-choice onclick="toggleOne(this)" data-i18n="wiz.phaseRough">Grobreinigung</button>
                 <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.phaseFine">Feinreinigung</button>
                 <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.phaseFinal">Endreinigung Bau</button>
               </div>
@@ -1819,16 +1815,16 @@
             <div class="field">
               <label data-i18n="wiz.method">Verfahren</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="this.classList.toggle('on')" data-i18n="wiz.methStator">Statorreinigung (Hochdruck)</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methAlgae">Algen-/Moosentfernung</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methImpreg">Imprägnierung</button>
+                <button type="button" class="opt-chip on" data-default-choice data-addon-price="fassade-stator" data-addon-kind="qm" onclick="this.classList.toggle('on')" data-i18n="wiz.methStator">Statorreinigung (Hochdruck)</button>
+                <button type="button" class="opt-chip" data-addon-price="fassade-algen" data-addon-kind="qm" onclick="this.classList.toggle('on')" data-i18n="wiz.methAlgae">Algen-/Moosentfernung</button>
+                <button type="button" class="opt-chip" data-addon-price="fassade-impraeg" data-addon-kind="qm" onclick="this.classList.toggle('on')" data-i18n="wiz.methImpreg">Imprägnierung</button>
                 <button type="button" class="opt-chip" data-addon-price="fassade-graffiti" data-addon-kind="qm" onclick="this.classList.toggle('on')" data-i18n="wiz.methGraffiti">Graffitientfernung</button>
               </div>
             </div>
             <div class="field">
               <label data-i18n="wiz.access">Zugang</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" data-addon-price="fassade-hubsteiger" onclick="toggleOne(this)" data-i18n="wiz.accessLift">Hubsteiger</button>
+                <button type="button" class="opt-chip on" data-default-choice data-addon-price="fassade-hubsteiger" onclick="toggleOne(this)" data-i18n="wiz.accessLift">Hubsteiger</button>
                 <button type="button" class="opt-chip" data-addon-price="fassade-geruest" onclick="toggleOne(this)" data-i18n="wiz.accessScaffold">Gerüst</button>
                 <button type="button" class="opt-chip" data-addon-price="fassade-seil" onclick="toggleOne(this)" data-i18n="wiz.accessRope">Seilzugang</button>
               </div>
@@ -1849,6 +1845,8 @@
 
         <!-- ====== Schritt 3: Termin und Adresse ====== -->
         <div class="wizard-page" data-page="3">
+
+          <div class="wizard-page-intro wizard-main-item"><strong>Auftrag abschliessen</strong><span>Alle Angaben stehen auf einer Seite. Du kannst Preis, Termin und Team vor dem Speichern noch ändern.</span></div>
 
           <div class="price-summary" id="priceSummary">
             <div class="price-row-summary">
@@ -1884,6 +1882,12 @@
             </div>
           </div>
 
+          <div class="wizard-addon-editor" id="wizAddonEditor" hidden>
+            <div class="wizard-side-title">Zusatzpreise für diesen Auftrag</div>
+            <p>Zusätze können je Einsatz unterschiedlich aufwendig sein. Prüfe diese Preise deshalb jedes Mal neu.</p>
+            <div id="wizAddonEditorRows"></div>
+          </div>
+
           <div class="field" id="priceOverrideField" style="display: none;">
             <label style="display: flex; justify-content: space-between; align-items: center;">
               <span data-i18n="wiz.ownPrice">Eigener Auftragspreis (netto)</span>
@@ -1895,15 +1899,16 @@
             </div>
           </div>
 
-          <div class="field">
+          <div class="wizard-section-title wizard-main-item"><strong>Kunde &amp; Einsatzort</strong><span>Wähle einen bestehenden Kunden oder erfasse einen neuen Namen.</span></div>
+          <div class="field wizard-main-item">
             <label data-i18n="wiz.orderName">Auftrag-/Objektname</label>
             <input type="text" id="termName" data-i18n-ph="wiz.orderNamePh" placeholder="z. B. Wohnung Schmidt – Karlstraße 12" />
           </div>
-          <div class="field">
+          <div class="field wizard-main-item">
             <label data-i18n="wiz.address">Adresse</label>
             <input type="text" id="wizAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" />
           </div>
-          <div class="field" style="position: relative;">
+          <div class="field wizard-main-item" style="position: relative;">
             <label data-i18n="wiz.customer">Kunde</label>
             <input type="text" id="wizCustomer" autocomplete="off"
               data-i18n-ph="wiz.customerPh" placeholder="Name oder bestehenden Kunden wählen…"
@@ -1913,8 +1918,9 @@
             <div id="wizCustomerInfo" style="display:none; font-size:12px; color:var(--text-subtle); margin-top:6px;"></div>
           </div>
           <!-- Branchenspezifische Felder (z. B. Werkstatt-Fahrzeug, Schädling-Nachkontrolle) -->
-          <div id="wizExtraFields"></div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div id="wizExtraFields" class="wizard-main-item"></div>
+          <div class="wizard-section-title wizard-main-item"><strong>Termin &amp; Einsatz</strong><span>Die Dauer wird nur hier einmal erfasst und für Planung sowie Preis verwendet.</span></div>
+          <div class="wizard-main-item wizard-three-cols">
             <div class="field">
               <label data-i18n="th.date">Datum</label>
               <input type="date" id="wizDate" />
@@ -1929,12 +1935,12 @@
               <small>Einmalige Zeitangabe für Planung und Preisberechnung.</small>
             </div>
           </div>
-          <div class="field" id="wizCrewWrap">
+          <div class="field wizard-main-item" id="wizCrewWrap">
             <label data-i18n="wiz.crewNeeded">Benötigte Mitarbeitende</label>
             <input type="number" id="wizCrew" value="1" min="1" step="1" inputmode="numeric" />
             <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.crewHint">MosaOS prüft genau diese Anzahl gegen die übrigen Einsätze des Teams.</div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="wizard-main-item wizard-two-cols">
             <div class="field">
               <label data-i18n="wiz.priceCalc">Preis (Dauer × Stundensatz)</label>
               <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
@@ -1949,7 +1955,8 @@
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="wizard-section-title wizard-main-item"><strong>Abrechnung &amp; Wiederholung</strong><span>Status, Zahlart und wiederkehrende Termine.</span></div>
+          <div class="wizard-main-item wizard-two-cols">
             <div class="field">
               <label data-i18n="job.status">Auftragsstatus</label>
               <select id="wizJobStatus">
@@ -1967,7 +1974,7 @@
               </select>
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="wizard-main-item wizard-two-cols">
             <div class="field">
               <label data-i18n="wiz.repeat">Wiederholung</label>
               <select id="wizRepeat" onchange="wizToggleRepeat()" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
@@ -1984,9 +1991,10 @@
               <div id="wizRepeatHint" style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;"></div>
             </div>
           </div>
-          <div class="field">
+          <div class="wizard-section-title wizard-main-item"><strong>Team &amp; Hinweise</strong><span>Für zukünftige Aufträge ist eine Teamzuordnung optional.</span></div>
+          <div class="field wizard-main-item">
             <label data-i18n="wiz.assignedTeam">Zugewiesenes Team</label>
-            <select id="wizardTeamSelect" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
+            <select id="wizardTeamSelect" onchange="wizardTeamChanged()">
               <option value="" data-i18n="wiz.autoAssign">Auto-Zuweisung (empfohlen)</option>
             </select>
             <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.teamHint">
@@ -1994,9 +2002,9 @@
             </div>
           </div>
           <!-- Live-Verfügbarkeit (fürs Telefon: "geht Dienstag 8 Uhr?") -->
-          <div id="wizAvail" class="wiz-avail"></div>
+          <div id="wizAvail" class="wiz-avail wizard-main-item"></div>
 
-          <div class="field">
+          <div class="field wizard-main-item">
             <label data-i18n="wiz.notes">Notizen / Sonderwünsche</label>
             <input type="text" id="wizNote" data-i18n-ph="wiz.notesPh" placeholder="Schlüssel beim Hausmeister, Code 1234, Hund vorhanden, …" />
           </div>
@@ -2992,7 +3000,7 @@
       <div class="modal-body">
         <div id="teamManagerList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
         <div style="display:flex; gap:8px; align-items:center; border-top:1px solid var(--border); padding-top:14px;">
-          <input type="text" id="newTeamName" data-i18n-ph="tm.newTeamPh" placeholder="Neues Team — z. B. „Auto 1" oder „Team Anna"" style="flex:1;" />
+          <input type="text" id="newTeamName" data-i18n-ph="tm.newTeamPh" placeholder="Neues Team — z. B. Auto 1 oder Team Anna" style="flex:1;" onkeydown="if(event.key==='Enter')addTeamFromManager()" />
           <button class="btn btn-accent" onclick="addTeamFromManager()" data-i18n="tm.addTeam">+ Team</button>
         </div>
       </div>
@@ -4134,19 +4142,19 @@
     <!-- Der App-Code, aufgeteilt nach Bereich. Reihenfolge zaehlt:
        gewoehnliche Skripte, gemeinsamer Namensraum, kein Hoisting
        ueber Dateigrenzen hinweg. -->
-  <script src="app-basis.js?v=3"></script>
+  <script src="app-basis.js?v=4"></script>
   <script src="app-benutzer.js?v=1"></script>
   <script src="app-planung.js?v=3"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
   <script src="app-fahrzeuge.js?v=3"></script>
-  <script src="app-aufgaben.js?v=1"></script>
-  <script src="app-mitarbeiter.js?v=2"></script>
+  <script src="app-aufgaben.js?v=2"></script>
+  <script src="app-mitarbeiter.js?v=3"></script>
   <script src="app-routen.js?v=4"></script>
-  <script src="app-firma.js?v=2"></script>
-  <script src="app-preise.js?v=2"></script>
-  <script src="app-offerten.js?v=4"></script>
-  <script src="app-konto.js?v=4"></script>
+  <script src="app-firma.js?v=3"></script>
+  <script src="app-preise.js?v=3"></script>
+  <script src="app-offerten.js?v=5"></script>
+  <script src="app-konto.js?v=5"></script>
 </body>
 </html>

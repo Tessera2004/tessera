@@ -550,7 +550,9 @@
       construction_sites: 'Baustelle', vehicles: 'Fahrzeug',
       tire_storage: 'Reifeneinlagerung', bait_stations: 'Köderstation',
       pest_protocols: 'Schädlingsprotokoll', company_prices: 'Preisliste',
-      company_custom_services: 'Eigene Leistung'
+      company_custom_services: 'Eigene Leistung', offerts: 'Offerte',
+      company_profile: 'Firmeneinstellungen', company_templates: 'Dokumentvorlagen',
+      company_time_factors: 'Planungseinstellungen'
     };
 
     function ladeHistorie() {
@@ -598,7 +600,10 @@
       return name || NAMEN_CACHE[tabelle]?.[id] || id;
     }
 
-    function protokolliere(aktion, tabelle, bezeichnung) {
+    const LETZTER_AUDIT = {};
+    function protokolliere(aktion, tabelle, bezeichnung, automatisch) {
+      if (!automatisch) LETZTER_AUDIT[tabelle] = Date.now();
+      const profil = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : {};
       const liste = ladeHistorie();
       liste.unshift({
         ts: new Date().toISOString(),
@@ -607,7 +612,15 @@
         was: TABELLEN_NAMEN[tabelle] || tabelle,
         bezeichnung: bezeichnung || '',
         wer: getCurrentUserName(),
-        werId: (typeof currentUserId !== 'undefined') ? currentUserId : null
+        werId: (typeof currentUserId !== 'undefined') ? currentUserId : (profil.id || null),
+        werEmail: profil.email || window._authEmail || '',
+        werRolle: profil.role || '',
+        profil: {
+          id: profil.id || null,
+          name: getCurrentUserName(),
+          email: profil.email || window._authEmail || '',
+          role: profil.role || ''
+        }
       });
       localStorage.setItem(HISTORIE_KEY, JSON.stringify(liste.slice(0, HISTORIE_MAX)));
       if (document.getElementById('historieListe')) renderHistorie();
@@ -620,7 +633,23 @@
         const originalPush = window.MosaDB.push;
         window.MosaDB.push = function (tabelle, daten) {
           try { namenMerken(tabelle, daten); } catch {}
-          return originalPush ? originalPush.apply(this, arguments) : undefined;
+          const result = originalPush ? originalPush.apply(this, arguments) : undefined;
+          // Bereiche ohne eigenes Protokoll werden zentral erfasst. Explizite,
+          // genauere Eintraege derselben Aktion gewinnen und verhindern Duplikate.
+          setTimeout(() => {
+            if (Date.now() - (LETZTER_AUDIT[tabelle] || 0) < 500) return;
+            let label = '';
+            try {
+              const items = Array.isArray(daten) ? daten : (daten && typeof daten === 'object' ? Object.values(daten) : []);
+              const last = items[items.length - 1];
+              label = last && typeof last === 'object'
+                ? (last.name || last.title || last.objekt || last.number || last.email || '')
+                : '';
+              if (!label && Array.isArray(daten)) label = `${daten.length} Einträge`;
+            } catch {}
+            protokolliere('geaendert', tabelle, label, true);
+          }, 80);
+          return result;
         };
         const original = window.MosaDB.remove;
         window.MosaDB.remove = function (tabelle, id) {
@@ -779,7 +808,7 @@
           </div>
           <div class="act-body">
             <div class="act-text">${escapeHtml(e.wer)} ${tt('hist.' + e.aktion, e.aktion)} ${escapeHtml(e.was)}${e.bezeichnung ? ' · ' + escapeHtml(e.bezeichnung) : ''}</div>
-            <div class="act-meta">${escapeHtml(wann)}</div>
+            <div class="act-meta">${escapeHtml(wann)}${e.werRolle ? ' · ' + escapeHtml(ROLE_DEFS[e.werRolle]?.label || e.werRolle) : ''}${e.werEmail ? ' · ' + escapeHtml(e.werEmail) : ''}</div>
           </div>
         </div>`;
       }).join('');

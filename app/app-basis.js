@@ -145,6 +145,68 @@
       });
     });
 
+    // ============ GLOBALE SUCHE ============
+    // Sucht bewusst ueber die lokalen App-Daten: localStorage ist der
+    // synchrone Cache, deshalb erscheinen Treffer ohne Server-Wartezeit.
+    let globaleSuchTreffer = [];
+    const suchText = value => String(value == null ? '' : value).toLocaleLowerCase('de-CH');
+    const suchEscape = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function globaleSucheDaten() {
+      const out = [];
+      const add = (typ, titel, meta, view, action) => {
+        if (!titel) return;
+        out.push({ typ, titel:String(titel), meta:String(meta || ''), view, action, hay:suchText([typ,titel,meta].join(' ')) });
+      };
+      try { loadCustomers().forEach(c => add('Kunde', customerDisplayName(c), [c.email,c.phone,c.address,c.city].filter(Boolean).join(' · '), 'kunden', () => openCustomerDetail(c.id))); } catch {}
+      try { allePlanJobs().forEach(j => add('Auftrag', j.objekt || j.ort, [j.date,j.ort,j.customer,j.status].filter(Boolean).join(' · '), 'planung', () => { if (j.date) planSetDate(j.date); navTo('planung'); })); } catch {}
+      try { EMPLOYEES.forEach(e => add('Mitarbeiter', [e.firstName,e.lastName].filter(Boolean).join(' '), [e.email,e.role].filter(Boolean).join(' · '), 'mitarbeiter', () => openMitarbeiterModal(e.id))); } catch {}
+      try { TASKS.forEach(t => add('Aufgabe', t.title, [t.due,t.status,t.category].filter(Boolean).join(' · '), 'aufgaben', () => { navTo('aufgaben'); setTimeout(() => typeof openTaskModal === 'function' && openTaskModal(t.id), 50); })); } catch {}
+      try { PLAN_TEAMS.forEach(t => add('Team', t.name, `${(t.members || []).length} Personen`, 'planung', () => openTeamManager())); } catch {}
+      try {
+        const offers = typeof loadOfferts === 'function' ? loadOfferts() : JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+        (Array.isArray(offers) ? offers : []).forEach(o => add('Offerte', o.number || o.title || o.customer || 'Offerte', [o.customer,o.status,o.total].filter(Boolean).join(' · '), 'offerten', () => { navTo('offerten'); setTimeout(() => typeof openOffertEditor === 'function' && openOffertEditor(o.id), 60); }));
+      } catch {}
+      try { getAllMails().forEach(m => add('E-Mail', m.subject || '(Kein Betreff)', [m.fromName,m.from,m.to].filter(Boolean).join(' · '), 'email', () => { navTo('email'); setTimeout(() => typeof selectMail === 'function' && selectMail(m.id), 60); })); } catch {}
+      return out;
+    }
+    function globaleSucheRender(value) {
+      const box = document.getElementById('globalSearchResults');
+      if (!box) return;
+      const q = suchText(value).trim();
+      if (q.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
+      const words = q.split(/\s+/).filter(Boolean);
+      globaleSuchTreffer = globaleSucheDaten().filter(x => words.every(w => x.hay.includes(w))).slice(0, 12);
+      box.hidden = false;
+      box.innerHTML = globaleSuchTreffer.length ? globaleSuchTreffer.map((x, i) =>
+        `<button type="button" role="option" onclick="globaleSucheOeffnen(${i})"><span class="global-search-kind">${suchEscape(x.typ)}</span><span class="global-search-copy"><strong>${suchEscape(x.titel)}</strong><small>${suchEscape(x.meta || x.view)}</small></span></button>`
+      ).join('') : '<div class="global-search-empty">Keine passenden Einträge gefunden.</div>';
+    }
+    function globaleSucheOeffnen(index) {
+      const treffer = globaleSuchTreffer[index];
+      if (!treffer) return;
+      document.getElementById('globalSearchResults').hidden = true;
+      document.getElementById('globalSearch').value = '';
+      if (typeof treffer.action === 'function') treffer.action(); else navTo(treffer.view);
+    }
+    window.globaleSucheOeffnen = globaleSucheOeffnen;
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('globalSearch');
+      if (!input) return;
+      input.addEventListener('input', () => globaleSucheRender(input.value));
+      input.addEventListener('focus', () => globaleSucheRender(input.value));
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && globaleSuchTreffer[0]) { e.preventDefault(); globaleSucheOeffnen(0); }
+        if (e.key === 'Escape') document.getElementById('globalSearchResults').hidden = true;
+      });
+      document.addEventListener('click', e => { if (!e.target.closest('#globalSearchWrap')) document.getElementById('globalSearchResults').hidden = true; });
+    });
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        document.getElementById('globalSearch')?.focus();
+      }
+    });
+
     // ============ MODULE / FEATURE-FLAGS (pro Mandant) ============
     const FEATURE_MODULES = [
       { key: 'offerten',        view: 'offerten',        label: 'Offerten',             desc: 'Angebote schreiben, PDF, Versionshistorie' },

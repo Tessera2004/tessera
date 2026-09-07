@@ -703,6 +703,13 @@
       const genGrid = document.getElementById('wizGenericGrid');
       const custom = servicesForCurrentVertical();
       wizService = null;
+      // Jeder neue Auftrag startet sauber. Zusatzpreise gelten nur fuer den
+      // aktuellen Auftrag und werden nie unbemerkt vom letzten uebernommen.
+      document.querySelectorAll('#modal-newAuftrag .svc-options .opt-chip').forEach(chip => {
+        chip.classList.remove('on');
+        delete chip.dataset.jobAddonPrice;
+      });
+      document.querySelectorAll('#modal-newAuftrag [data-default-choice]').forEach(chip => chip.classList.add('on'));
       if (isGenericVertical()) {
         if (cleanGrid) cleanGrid.style.display = 'none';
         if (genGrid) { genGrid.style.display = ''; renderWizGenericServices(); }
@@ -758,8 +765,7 @@
       wizService = svc;
       document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
       document.querySelector(`.svc-card[data-svc="${svc}"]`).classList.add('selected');
-      // auto-advance after short delay
-      setTimeout(() => wizStep(1), 280);
+      document.getElementById('wizNext')?.focus();
     }
 
     function wizStep(dir) {
@@ -785,6 +791,8 @@
       // show correct page
       document.querySelectorAll('.wizard-page').forEach(p => p.classList.remove('active'));
       document.querySelector(`.wizard-page[data-page="${wizCurrent}"]`).classList.add('active');
+      const wizardBody = document.querySelector('#modal-newAuftrag .modal-body');
+      if (wizardBody) wizardBody.scrollTop = 0;
 
       // show service-specific options on step 2
       if (wizCurrent === 2 && wizService) {

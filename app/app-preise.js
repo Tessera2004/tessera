@@ -52,12 +52,55 @@
     }
 
     function addonPriceText(key, kind = 'flat') {
-      const value = getPrice(key);
+      const chip = document.querySelector(`#modal-newAuftrag [data-addon-price="${key}"]`);
+      const value = wizardAddonUnitPrice(chip);
       const currency = coLocale(loadCompany()).cur;
       if (!value) return 'inklusive';
       if (kind === 'percent') return `+${value}%`;
       if (kind === 'qm') return `+${currency} ${value.toFixed(2)}/m²`;
       return `+${currency} ${value.toFixed(2)}`;
+    }
+
+    function wizardAddonUnitPrice(chip) {
+      if (!chip) return 0;
+      const own = parseFloat(chip.dataset.jobAddonPrice);
+      return Number.isFinite(own) ? own : getPrice(chip.dataset.addonPrice);
+    }
+
+    function wizardAddonLabel(chip) {
+      return (chip.querySelector('span:not(.addon-price)')?.textContent || chip.childNodes[0]?.textContent || chip.textContent || '').trim();
+    }
+
+    function setWizardAddonPrice(key, value) {
+      const chip = document.querySelector(`#modal-newAuftrag [data-addon-price="${key}"].on`);
+      if (!chip) return;
+      const number = parseFloat(value);
+      chip.dataset.jobAddonPrice = Number.isFinite(number) ? String(Math.max(0, number)) : '0';
+      renderWizardAddonPrices();
+      updatePriceSummary();
+    }
+
+    function renderWizardAddonEditor() {
+      const editor = document.getElementById('wizAddonEditor');
+      const rows = document.getElementById('wizAddonEditorRows');
+      if (!editor || !rows) return;
+      const chips = Array.from(document.querySelectorAll(`.svc-options[data-svc-opts="${wizService}"] [data-addon-price].on`));
+      editor.hidden = chips.length === 0;
+      rows.innerHTML = chips.map(chip => {
+        const key = chip.dataset.addonPrice;
+        const kind = chip.dataset.addonKind || 'flat';
+        const suffix = kind === 'percent' ? '%' : (kind === 'qm' ? `${coLocale(loadCompany()).cur}/m²` : coLocale(loadCompany()).cur);
+        return `<label class="wizard-addon-row"><span>${escapeHtml(wizardAddonLabel(chip))}</span><span class="wizard-addon-input"><input type="number" min="0" step="0.5" value="${wizardAddonUnitPrice(chip)}" oninput="setWizardAddonPrice('${safeAttr(key)}',this.value)"><em>${escapeHtml(suffix)}</em></span></label>`;
+      }).join('');
+    }
+
+    function collectWizardAddons() {
+      return Array.from(document.querySelectorAll(`#modal-newAuftrag [data-addon-price].on`)).map(chip => ({
+        key: chip.dataset.addonPrice,
+        label: wizardAddonLabel(chip),
+        kind: chip.dataset.addonKind || 'flat',
+        price: wizardAddonUnitPrice(chip)
+      }));
     }
 
     function renderWizardAddonPrices() {
@@ -75,7 +118,7 @@
     function selectedFixedAddons(selector) {
       return Array.from(document.querySelectorAll(selector + ' [data-addon-price].on'))
         .filter(chip => (chip.dataset.addonKind || 'flat') === 'flat')
-        .reduce((sum, chip) => sum + getPrice(chip.dataset.addonPrice), 0);
+        .reduce((sum, chip) => sum + wizardAddonUnitPrice(chip), 0);
     }
 
     // Abrechnungsart je Leistung: 'qm' oder 'std'. Wird neben den Preisen
@@ -387,7 +430,7 @@
         const leiterChips = document.querySelectorAll('.svc-options[data-svc-opts="fenster"] .opt-row:first-of-type .opt-chip.on');
         const leiterText = leiterChips[0]?.textContent || '';
         if (leiterText.includes('Leiter')) {
-          const aufschlag = getPrice('fenster-leiter');
+          const aufschlag = wizardAddonUnitPrice(leiterChips[0]);
           rate = rate * (1 + aufschlag / 100);
           breakdown.push(`+${aufschlag}% Leiter-Aufschlag`);
         }
@@ -429,10 +472,10 @@
         const verfahren = document.querySelectorAll('.svc-options[data-svc-opts="fassade"] .opt-row:first-of-type .opt-chip.on');
         verfahren.forEach(chip => {
           const t = chip.textContent;
-          if (t.includes('Stator')) qmPrice += getPrice('fassade-stator');
-          if (t.includes('Algen')) qmPrice += getPrice('fassade-algen');
-          if (t.includes('Imprägn')) qmPrice += getPrice('fassade-impraeg');
-          if (t.includes('Graffiti')) qmPrice += getPrice('fassade-graffiti');
+          if (t.includes('Stator')) qmPrice += wizardAddonUnitPrice(chip);
+          if (t.includes('Algen')) qmPrice += wizardAddonUnitPrice(chip);
+          if (t.includes('Imprägn')) qmPrice += wizardAddonUnitPrice(chip);
+          if (t.includes('Graffiti')) qmPrice += wizardAddonUnitPrice(chip);
         });
         const subtotal = qmPrice * flaeche;
         const minAuftrag = getPrice('fassade-min');
@@ -492,7 +535,7 @@
       const fmt = v => `${v.toFixed(2)} ${currency}`;
       const addonRow = document.getElementById('sumAddonRow');
       const addonText = Array.from(document.querySelectorAll(`.svc-options[data-svc-opts="${wizService}"] [data-addon-price].on`))
-        .map(chip => `${chip.childNodes[0]?.textContent?.trim() || chip.textContent.trim()} ${addonPriceText(chip.dataset.addonPrice, chip.dataset.addonKind || 'flat')}`);
+        .map(chip => `${wizardAddonLabel(chip)} ${addonPriceText(chip.dataset.addonPrice, chip.dataset.addonKind || 'flat')}`);
       if (addonRow) addonRow.style.display = addonText.length ? 'flex' : 'none';
       const addonValue = document.getElementById('sumAddons');
       if (addonValue) addonValue.textContent = addonText.join(' · ');
@@ -544,7 +587,7 @@
 
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('opt-chip') || e.target.classList.contains('add-task')) {
-        setTimeout(updatePriceSummary, 10);
+        setTimeout(() => { renderWizardAddonEditor(); updatePriceSummary(); }, 10);
       }
     });
 
@@ -556,9 +599,25 @@
         priceOverrideActive = false;
         document.getElementById('priceOverrideField').style.display = 'none';
         document.getElementById('priceOverride').value = '';
+        renderWizardAddonEditor();
         updatePriceSummary();
       }
     };
 
+    function prepareWizardFinalLayout() {
+      const page = document.querySelector('.wizard-page[data-page="3"]');
+      if (!page || page.querySelector('.wizard-main-column')) return;
+      const main = document.createElement('div');
+      const side = document.createElement('aside');
+      main.className = 'wizard-main-column';
+      side.className = 'wizard-side-column';
+      Array.from(page.children).forEach(child => {
+        if (['priceSummary', 'wizAddonEditor', 'priceOverrideField'].includes(child.id)) side.appendChild(child);
+        else main.appendChild(child);
+      });
+      page.append(main, side);
+    }
+
+      prepareWizardFinalLayout();
       loadPrices();
       renderWizardAddonPrices();

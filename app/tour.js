@@ -69,7 +69,11 @@
     return [
       { ziel: null, view: null,
         titel: () => t('tour.1.t', 'Willkommen bei MosaOS'),
-        text:  () => t('tour.1.x', 'In sechs kurzen Schritten zeigen wir dir, wo was liegt. Du kannst jederzeit abbrechen und später weitermachen.') },
+        text:  () => t('tour.1.x', 'Wir zeigen dir die wichtigsten Abläufe Schritt für Schritt. Du kannst jederzeit abbrechen und die Tour später in den Einstellungen neu starten.') },
+
+      { ziel: '#globalSearchWrap', view: 'dashboard',
+        titel: () => t('tour.9.t', 'Alles an einem Ort suchen'),
+        text:  () => t('tour.9.x', 'Mit der Suche oder ⌘K findest du Kunden, Aufträge, Mitarbeitende, Teams, Offerten und E-Mails in der ganzen App.') },
 
       { ziel: '.nav-item[data-view="dashboard"]', view: 'dashboard',
         titel: () => t('tour.2.t', 'Deine Übersicht'),
@@ -79,9 +83,21 @@
         titel: () => t('tour.3.t', 'Hier läuft die Arbeit'),
         text:  () => t('tour.3.x', 'Der Kernbereich deiner Branche. Hier planst du, wer wann wo im Einsatz ist — und siehst, was gerade läuft.') },
 
+      { ziel: '.nav-item[data-view="aufgaben"]', view: null,
+        titel: () => t('tour.10.t', 'Aufgaben und Fristen'),
+        text:  () => t('tour.10.x', 'Erfasse interne Aufgaben, Verantwortliche und Fälligkeiten. Offene Punkte bleiben im Dashboard sichtbar.') },
+
       { ziel: '.nav-item[data-view="kunden"]', view: null,
         titel: () => t('tour.4.t', 'Kunden und Objekte'),
         text:  () => t('tour.4.x', 'Jeder Einsatz, jede Offerte und jede Rechnung hängt an einem Kunden. Anrufe und E-Mails bleiben ebenfalls dort — nichts geht in einem Postfach verloren.') },
+
+      { ziel: '.nav-item[data-view="email"]', view: null,
+        titel: () => t('tour.11.t', 'E-Mail direkt im Kundenablauf'),
+        text:  () => t('tour.11.x', 'Verbinde Gmail, lies Nachrichten und ordne sie Kunden oder Aufgaben zu. Absender und Betreff werden automatisch übernommen.') },
+
+      { ziel: '.nav-item[data-view="offerten"]', view: null,
+        titel: () => t('tour.12.t', 'Professionelle Offerten'),
+        text:  () => t('tour.12.x', 'Erstelle eine Offerte aus deiner Preisliste, passe Positionen an und hinterlege sie direkt beim gewählten Kunden.') },
 
       { ziel: '.nav-item[data-view="rechnungen"]', view: null,
         titel: () => t('tour.5.t', 'Vom Einsatz zur Rechnung'),
@@ -91,9 +107,17 @@
         titel: () => t('tour.6.t', 'Dein Team'),
         text:  () => t('tour.6.x', 'Hier legst du Mitarbeitende an. Sie öffnen die Feld-App am Handy, sehen ihren Tag, checken beim Kunden ein und schliessen mit Rapport ab.') },
 
+      { ziel: '.nav-item[data-view="berichte"]', view: null,
+        titel: () => t('tour.13.t', 'Nachweise und Auswertung'),
+        text:  () => t('tour.13.x', 'Rapporte, Arbeitszeiten und Nachkalkulation zeigen, was erledigt wurde und ob Planung und tatsächlicher Aufwand zusammenpassen.') },
+
       { ziel: '.nav-item[data-view="einstellungen"]', view: null,
         titel: () => t('tour.7.t', 'Land, Steuersatz und Firmendaten'),
         text:  () => t('tour.7.x', 'Wichtig vor der ersten Rechnung: Unter Einstellungen stehen Firmenadresse, IBAN und dein Land. Das Land steuert Währung, Steuersatz und den Zahlteil — Schweiz QR-Einzahlschein, Deutschland und Österreich SEPA.') },
+
+      { ziel: '.nav-item[data-view="team"]', view: null,
+        titel: () => t('tour.14.t', 'Profile und nachvollziehbare Änderungen'),
+        text:  () => t('tour.14.x', 'Profile steuern Berechtigungen. In der Historie siehst du mit Name, Rolle und E-Mail, wer Daten angelegt, geändert oder gelöscht hat.') },
 
       /* zielEgal: die Karte „Erste Schritte" kann ausgeblendet sein.
          Der Abschluss soll trotzdem erscheinen, dann eben mittig. */
