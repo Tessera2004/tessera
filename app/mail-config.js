@@ -36,7 +36,8 @@ window.MOSAOS_MAIL = {
   gmail: {
     clientId: '15565945062-1lvsqe05aguv0r5otdqagde1sgvlvoad.apps.googleusercontent.com',
     // Scopes: gmail.readonly + gmail.send (Rechnungen aus dem verbundenen Postfach)
-    // Redirect: window.location.origin (automatisch)
+    // Google Identity Services nutzt ein Popup. Es genügt, unter
+    // "Autorisierte JavaScript-Quellen" https://mosaos.ch einzutragen.
   },
 
   outlook: {

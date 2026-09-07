@@ -494,27 +494,57 @@
       else { updateImapPreset('custom'); openModal('mailImap'); }
     }
 
-    function connectGmail() {
+    function loadGoogleIdentityServices() {
+      if (window.google?.accounts?.oauth2) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-mosaos-google-oauth]');
+        if (existing) {
+          existing.addEventListener('load', resolve, { once: true });
+          existing.addEventListener('error', () => reject(new Error('Google-Anmeldung konnte nicht geladen werden.')), { once: true });
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.dataset.mosaosGoogleOauth = 'true';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Google-Anmeldung konnte nicht geladen werden.'));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function connectGmail() {
       const cid = window.MOSAOS_MAIL?.gmail?.clientId;
       if (!cid) { toast('Gmail Client-ID fehlt — in mail-config.js eintragen.', 'error'); return; }
       const scope = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
-      const redirect = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
-      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(cid)}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=select_account`;
-      const popup = window.open(url, 'gmail-auth', 'width=520,height=640,left=200,top=80');
-      if (!popup) { toast('Pop-up blockiert — bitte im Browser erlauben.', 'error'); return; }
-      const t = setInterval(() => {
-        try {
-          const token = new URLSearchParams(popup.location.hash.slice(1)).get('access_token');
-          if (token) { clearInterval(t); popup.close(); finishGmailConnect(token); }
-        } catch {}
-        if (popup.closed) clearInterval(t);
-      }, 600);
-    }
-    async function finishGmailConnect(token) {
       try {
-        const p = await (await fetch('https://www.googleapis.com/gmail/v1/users/me/profile', { headers:{'Authorization':'Bearer '+token} })).json();
-        const acc = { id:'gmail-'+Date.now(), provider:'gmail', email:p.emailAddress, name:p.emailAddress, token };
-        const accs = loadMailAccounts(); accs.push(acc); saveMailAccounts(accs);
+        await loadGoogleIdentityServices();
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: cid,
+          scope,
+          callback: response => {
+            if (response.error) {
+              toast('Gmail-Verbindung abgebrochen: ' + response.error, 'error');
+              return;
+            }
+            finishGmailConnect(response.access_token, Number(response.expires_in) || 3600);
+          },
+          error_callback: () => toast('Google-Anmeldung wurde geschlossen oder blockiert.', 'error')
+        });
+        tokenClient.requestAccessToken({ prompt: 'select_account consent' });
+      } catch (e) {
+        toast(e.message || 'Google-Anmeldung konnte nicht gestartet werden.', 'error');
+      }
+    }
+    async function finishGmailConnect(token, expiresIn = 3600) {
+      try {
+        const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/profile', { headers:{'Authorization':'Bearer '+token} });
+        const p = await response.json();
+        if (!response.ok || !p.emailAddress) throw new Error(p?.error?.message || 'Google hat keine Postfachdaten zurückgegeben.');
+        const acc = { id:'gmail-'+Date.now(), provider:'gmail', email:p.emailAddress, name:p.emailAddress, token, expiresAt: Date.now() + expiresIn * 1000 };
+        const accs = loadMailAccounts().filter(a => !(a.provider === 'gmail' && a.email?.toLowerCase() === p.emailAddress.toLowerCase()));
+        accs.push(acc); saveMailAccounts(accs);
         toast(tt('toastdyn.gmailConnected','✓ Gmail verbunden') + ': ' + p.emailAddress);
         await fetchGmailMails(acc);
         renderMailView();
