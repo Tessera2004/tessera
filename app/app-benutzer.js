@@ -279,6 +279,7 @@
       document.getElementById('userRole').textContent = ROLE_DEFS[currentUser.role]?.label || currentUser.role;
       document.body.classList.toggle('is-readonly', currentUser.role === 'readonly');
       renderUserMenu();
+      if (typeof renderNotificationCenter === 'function') renderNotificationCenter();
     }
     function hasPerm(perm) {
       if (!currentUser) return false;

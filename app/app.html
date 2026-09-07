@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=19" />
+  <link rel="stylesheet" href="styles.css?v=20" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -216,6 +216,17 @@
               placeholder="Kunden, Aufträge, Offerten, Rechnungen …" />
             <span class="kbd">⌘K</span>
             <div class="global-search-results" id="globalSearchResults" role="listbox" hidden></div>
+          </div>
+          <div class="notification-center" id="notificationCenter">
+            <button class="btn-icon notification-trigger" id="notificationButton" aria-label="Benachrichtigungen" aria-expanded="false" onclick="toggleNotificationCenter(event)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+              <span class="notification-badge" id="notificationBadge" hidden>0</span>
+            </button>
+            <div class="notification-panel" id="notificationPanel" hidden>
+              <div class="notification-panel-head"><div><strong>Benachrichtigungen</strong><span id="notificationFor">Für dich</span></div><button type="button" class="btn-icon" onclick="toggleNotificationCenter(event,false)" aria-label="Schliessen">×</button></div>
+              <div id="notificationList" class="notification-list"></div>
+              <button type="button" class="notification-all" onclick="toggleNotificationCenter(event,false);navTo('aufgaben')">Alle Aufgaben und Fristen öffnen →</button>
+            </div>
           </div>
           <button class="btn-icon theme-toggle" data-i18n-title="common.themeToggle" title="Theme wechseln" onclick="toggleTheme()">
             <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -803,10 +814,12 @@
             </div>
             <button class="btn btn-accent" data-i18n="task.new" onclick="openTaskModal(null)">+ Neue Aufgabe</button>
           </div>
-          <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+          <div class="task-overview" id="taskOverview"></div>
+          <div class="task-toolbar">
             <input type="search" id="taskSearch" data-i18n-ph="task.searchPh" placeholder="Suchen: Titel, Person, Beschreibung…" oninput="renderAufgaben()" style="flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text);" />
             <div class="task-filter" id="taskFilter" style="display: flex; gap: 6px; flex-wrap: wrap;">
               <button class="btn btn-secondary is-active" data-f="alle" onclick="setTaskFilter('alle')" data-i18n="task.fAllOpen">Alle offen</button>
+              <button class="btn btn-secondary" data-f="fragen" onclick="setTaskFilter('fragen')">Offene Fragen</button>
               <button class="btn btn-secondary" data-f="dringend" onclick="setTaskFilter('dringend')" data-i18n="task.fUrgent">Dringend</button>
               <button class="btn btn-secondary" data-f="normal" onclick="setTaskFilter('normal')" data-i18n="task.fNormal">Normal</button>
               <button class="btn btn-secondary" data-f="erledigt" onclick="setTaskFilter('erledigt')" data-i18n="common.doneCheck">✓ Erledigt</button>
@@ -1938,15 +1951,15 @@
               <input type="time" id="wizStart" value="08:00" step="900" oninput="_wizStartBeruehrt = true;" />
             </div>
             <div class="field">
-              <label data-i18n="wiz.durationH">Dauer (Stunden)</label>
+              <label>Einsatzdauer (Stunden)</label>
               <input type="number" id="wizDuration" value="1.5" min="0.25" step="0.25" oninput="wizCalcPrice()" />
-              <small>Einmalige Zeitangabe für Planung und Preisberechnung.</small>
+              <small>Kalenderzeit des gesamten Teams – nicht die Summe aller Personalstunden.</small>
             </div>
           </div>
           <div class="field wizard-main-item wizard-advanced-item" id="wizCrewWrap">
             <label data-i18n="wiz.crewNeeded">Benötigte Mitarbeitende</label>
             <input type="number" id="wizCrew" value="1" min="1" step="1" inputmode="numeric" />
-            <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.crewHint">MosaOS prüft genau diese Anzahl gegen die übrigen Einsätze des Teams.</div>
+            <div id="wizCrewCalcHint" style="font-size: 12px; color: var(--text-subtle); margin-top: 5px;">MosaOS teilt den Arbeitsaufwand durch die Anzahl der Mitarbeitenden.</div>
           </div>
           <div class="wizard-main-item wizard-two-cols wizard-advanced-item">
             <div class="field">
@@ -4175,18 +4188,18 @@
        gewoehnliche Skripte, gemeinsamer Namensraum, kein Hoisting
        ueber Dateigrenzen hinweg. -->
   <script src="app-basis.js?v=4"></script>
-  <script src="app-benutzer.js?v=1"></script>
+  <script src="app-benutzer.js?v=2"></script>
   <script src="app-planung.js?v=3"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
   <script src="app-fahrzeuge.js?v=3"></script>
-  <script src="app-aufgaben.js?v=3"></script>
+  <script src="app-aufgaben.js?v=4"></script>
   <script src="app-mitarbeiter.js?v=4"></script>
-  <script src="app-routen.js?v=5"></script>
+  <script src="app-routen.js?v=6"></script>
   <script src="app-firma.js?v=3"></script>
-  <script src="app-preise.js?v=4"></script>
+  <script src="app-preise.js?v=5"></script>
   <script src="app-offerten.js?v=5"></script>
-  <script src="app-konto.js?v=5"></script>
+  <script src="app-konto.js?v=6"></script>
 </body>
 </html>

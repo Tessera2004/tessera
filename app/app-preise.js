@@ -208,6 +208,11 @@
       if (!p?.mins) return;
       const durEl = document.getElementById('wizDuration');
       if (durEl) durEl.value = Math.round(p.mins / 60 * 4) / 4 || 0.25;
+      const hint = document.getElementById('wizCrewCalcHint');
+      const crew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+      if (hint) hint.textContent = crew > 1 && p.laborMins
+        ? `${(p.laborMins / 60).toFixed(2).replace('.', ',')} Personalstunden ÷ ${crew} Personen = ${(p.mins / 60).toFixed(2).replace('.', ',')} Stunden Einsatzdauer.`
+        : 'MosaOS prüft diese Anzahl gegen Einsätze und berechnet daraus die tatsächliche Einsatzdauer.';
     }
 
     // Preis im Wizard-Schritt 3: Dauer (Stunden) × Stundensatz (+ Anfahrtspauschale)
@@ -379,13 +384,16 @@
       let minHours = 0;
       let fee = 0;
       let breakdown = [];
+      const crew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+      let laborMins = 0;
 
       if (wizService === 'unterhalt') {
         // :nth-of-type(2) traf nie etwas — jedes Feld sitzt in einem eigenen
         // Container, ist dort also das erste seiner Art. Die eingegebene Dauer
         // wurde deshalb ignoriert und immer mit 90 Minuten gerechnet.
         const area = parseInt(document.querySelector('.svc-options[data-svc-opts="unterhalt"] input[type="number"]')?.value || 120);
-        mins = fromDetails ? Math.max(30, Math.round(area * 0.75)) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 1.5) * 60);
+        laborMins = Math.max(30, Math.round(area * 0.75));
+        mins = fromDetails ? Math.max(15, Math.ceil((laborMins / crew) / 15) * 15) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 1.5) * 60);
         rate = getPrice('unterhalt-rate');
         minHours = getPrice('unterhalt-min');
         fee = getPrice('unterhalt-fee');
@@ -400,19 +408,21 @@
         const feeEnd = getPrice('end-fee');
         const minAuftrag = getPrice('end-min');
         const vorgeschlagen = grunddauer(flaeche, raeume) + addMins;
-        const durMins = fromDetails ? vorgeschlagen : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / 60) * 60);
+        const durMins = fromDetails ? Math.max(15, Math.ceil((vorgeschlagen / crew) / 15) * 15) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / crew / 60) * 60);
         // Der Betrieb entscheidet in den Einstellungen, ob nach Flaeche oder
         // nach Zeit abgerechnet wird. Die Dauer bleibt in beiden Faellen gleich.
         const nachStunden = getPriceMode('end') === 'std';
         const stundensatz = getPrice('end-rate');
-        const base = nachStunden ? (durMins / 60) * stundensatz : flaeche * qmPrice;
+        const personalMins = fromDetails ? vorgeschlagen : durMins * crew;
+        const base = nachStunden ? (personalMins / 60) * stundensatz : flaeche * qmPrice;
         const usedMin = base < minAuftrag;
         return {
           total: Math.max(base, minAuftrag) + feeEnd + selectedFixedAddons('.svc-options[data-svc-opts="end"]'),
           mins: durMins,
-          dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
+          laborMins: personalMins,
+          dur: crew > 1 ? `${(durMins/60).toFixed(2).replace('.', ',')} h Einsatz · ${(personalMins/60).toFixed(2).replace('.', ',')} Personalstunden` : `${Math.floor(durMins/60)}h ${durMins%60}min`,
           rateStr: nachStunden
-            ? `${(durMins/60).toFixed(2).replace('.', ',')} Std × ${currency} ${stundensatz}`
+            ? `${crew} Pers. × ${(durMins/60).toFixed(2).replace('.', ',')} h × ${currency} ${stundensatz}`
             : `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: feeEnd,
           showFee: feeEnd > 0,
@@ -424,7 +434,8 @@
 
       else if (wizService === 'fenster') {
         const count = parseInt(document.querySelector('.svc-options[data-svc-opts="fenster"] input[type="number"]')?.value || 24);
-        mins = fromDetails ? Math.max(30, count * 5) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 2) * 60);
+        laborMins = Math.max(30, count * 5);
+        mins = fromDetails ? Math.max(15, Math.ceil((laborMins / crew) / 15) * 15) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 2) * 60);
         rate = getPrice('fenster-rate');
         // check if "mit Leiter" or "Hubsteiger" selected
         const leiterChips = document.querySelectorAll('.svc-options[data-svc-opts="fenster"] .opt-row:first-of-type .opt-chip.on');
@@ -441,22 +452,25 @@
 
       else if (wizService === 'bau') {
         const flaeche = parseInt(document.querySelector('.svc-options[data-svc-opts="bau"] input[type="number"]')?.value || 200);
-        const cleaners = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
+        const cleaners = crew;
         const qmPrice = getPrice('bau-qm');
         const feeBau = getPrice('bau-fee');
         const minAuftrag = getPrice('bau-min');
         const nachStundenBau = getPriceMode('bau') === 'std';
         const satzBau = getPrice('bau-rate');
-        const vorgeschlagen = Math.round(flaeche * ladeZeitfaktoren().bauProQm / Math.max(cleaners, 1));
+        const personalMins = Math.round(flaeche * ladeZeitfaktoren().bauProQm);
+        const vorgeschlagen = Math.max(15, Math.ceil((personalMins / cleaners) / 15) * 15);
         const durMins = fromDetails ? vorgeschlagen : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / 60) * 60);
-        const base = nachStundenBau ? (durMins / 60) * satzBau : flaeche * qmPrice;
+        const billedPersonalMins = fromDetails ? personalMins : durMins * cleaners;
+        const base = nachStundenBau ? (billedPersonalMins / 60) * satzBau : flaeche * qmPrice;
         const usedMin = base < minAuftrag;
         return {
           total: Math.max(base, minAuftrag) + feeBau + selectedFixedAddons('.svc-options[data-svc-opts="bau"]'),
           mins: durMins,
-          dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
+          laborMins: billedPersonalMins,
+          dur: cleaners > 1 ? `${(durMins/60).toFixed(2).replace('.', ',')} h Einsatz · ${(billedPersonalMins/60).toFixed(2).replace('.', ',')} Personalstunden` : `${Math.floor(durMins/60)}h ${durMins%60}min`,
           rateStr: nachStundenBau
-            ? `${(durMins/60).toFixed(2).replace('.', ',')} Std × ${currency} ${satzBau}`
+            ? `${cleaners} Pers. × ${(durMins/60).toFixed(2).replace('.', ',')} h × ${currency} ${satzBau}`
             : `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: feeBau,
           showFee: feeBau > 0,
@@ -491,7 +505,8 @@
         };
       }
 
-      const hours = mins / 60;
+      const personalMins = fromDetails ? (laborMins || mins * crew) : mins * crew;
+      const hours = personalMins / 60;
       const billedHours = Math.max(hours, minHours);
       const minApplied = hours < minHours;
       const subtotal = billedHours * rate + fee;
@@ -499,8 +514,9 @@
       return {
         total: subtotal,
         mins: mins,
-        dur: `${Math.floor(mins/60)}h ${mins%60}min`,
-        rateStr: `${rate.toFixed(2)} ${currency}/h × ${billedHours.toFixed(1)} h`,
+        laborMins: personalMins,
+        dur: crew > 1 ? `${(mins/60).toFixed(2).replace('.', ',')} h Einsatz · ${(personalMins/60).toFixed(2).replace('.', ',')} Personalstunden` : `${Math.floor(mins/60)}h ${mins%60}min`,
+        rateStr: `${crew} Pers. × ${(mins/60).toFixed(2).replace('.', ',')} h × ${rate.toFixed(2)} ${currency}/h`,
         fee: fee,
         showFee: fee > 0,
         minApplied: minApplied,
@@ -580,14 +596,18 @@
 
     // wire up: recalc price whenever step 3 is shown or options change
     document.addEventListener('input', (e) => {
-      if (e.target.closest('.svc-options') || e.target.id === 'priceOverride') {
+      if (e.target.id === 'wizCrew') {
+        _syncWizDuration();
+        updatePriceSummary();
+      } else if (e.target.closest('.svc-options') || e.target.id === 'priceOverride') {
+        if (e.target.closest('.svc-options')) _syncWizDuration();
         if (wizCurrent === 3 || wizCurrent === 2) updatePriceSummary();
       }
     });
 
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('opt-chip') || e.target.classList.contains('add-task')) {
-        setTimeout(() => { renderWizardAddonEditor(); updatePriceSummary(); }, 10);
+        setTimeout(() => { _syncWizDuration(); renderWizardAddonEditor(); updatePriceSummary(); }, 10);
       }
     });
 
@@ -596,6 +616,7 @@
     wizStep = function(dir) {
       _originalWizStep(dir);
       if (wizCurrent === 3) {
+        _syncWizDuration();
         priceOverrideActive = false;
         document.getElementById('priceOverrideField').style.display = 'none';
         document.getElementById('priceOverride').value = '';

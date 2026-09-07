@@ -1203,6 +1203,11 @@
       if (window._dbReady) {
         try {
           TASKS = loadTasks();
+          const syncedEmployees = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || '[]');
+          const syncedTeams = JSON.parse(localStorage.getItem(TEAMS_KEY) || '[]');
+          if (Array.isArray(syncedEmployees)) EMPLOYEES = syncedEmployees;
+          if (Array.isArray(syncedTeams)) PLAN_TEAMS = syncedTeams;
+          rebuildTeamMembers();
           if (typeof loadCurrentUser === 'function') loadCurrentUser();
         } catch {}
         try { await processPendingJobInvoices(); } catch (e) { console.warn('[MosaOS] Rechnungsautomatik', e); }

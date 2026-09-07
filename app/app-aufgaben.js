@@ -146,10 +146,15 @@
       localStorage.setItem(TASKS_KEY, JSON.stringify(DEFAULT_TASKS));
       return JSON.parse(JSON.stringify(DEFAULT_TASKS));
     }
-    function saveTasks(arr) { localStorage.setItem(TASKS_KEY, JSON.stringify(arr)); window.MosaDB?.push('tasks', arr); }
+    function saveTasks(arr) {
+      localStorage.setItem(TASKS_KEY, JSON.stringify(arr));
+      window.MosaDB?.push('tasks', arr);
+      setTimeout(() => renderNotificationCenter(), 0);
+    }
     let TASKS = loadTasks();
 
     let nurMeineAufgaben = false;
+    let taskMetricFilter = null;
     function toggleNurMeine() {
       nurMeineAufgaben = !nurMeineAufgaben;
       const b = document.getElementById('taskNurMeine');
@@ -178,12 +183,36 @@
       });
     })();
 
+    function taskAssignablePeople() {
+      const people = [];
+      const seen = new Set();
+      loadUsers().forEach(u => {
+        if (!u?.id || seen.has(u.id)) return;
+        seen.add(u.id);
+        people.push({ ...u, kind: 'office' });
+      });
+      (Array.isArray(window.EMPLOYEES) ? window.EMPLOYEES : (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES : [])).forEach(e => {
+        if (!e?.id || seen.has(e.id)) return;
+        seen.add(e.id);
+        people.push({ id: e.id, firstname: e.firstName || e.firstname || '', lastname: e.lastName || e.lastname || '', email: e.email || '', role: e.role || 'field', kind: 'field' });
+      });
+      return people;
+    }
+    function currentRecipientIds() {
+      if (!currentUser) return [];
+      const ids = new Set([currentUser.id]);
+      const mail = String(currentUser.email || '').toLowerCase();
+      if (mail) taskAssignablePeople().forEach(p => {
+        if (String(p.email || '').toLowerCase() === mail) ids.add(p.id);
+      });
+      return [...ids].filter(Boolean);
+    }
     function taskAssigneeLabel(uid) {
-      const u = loadUsers().find(x => x.id === uid);
+      const u = taskAssignablePeople().find(x => x.id === uid);
       return u ? `${u.firstname} ${u.lastname}` : '— niemand —';
     }
     function taskAssigneeInitials(uid) {
-      const u = loadUsers().find(x => x.id === uid);
+      const u = taskAssignablePeople().find(x => x.id === uid);
       return u ? ((u.firstname[0] || '?') + (u.lastname[0] || '')).toUpperCase() : '?';
     }
     function isOverdue(t) {
@@ -202,16 +231,19 @@
     function renderAufgaben() {
       const wrap = document.getElementById('taskList');
       if (!wrap) return;
-      const users = loadUsers();
+      const users = taskAssignablePeople();
       // Assignee-Filter Dropdown füllen
       const assSel = document.getElementById('taskAssigneeFilter');
-      if (assSel && assSel.options.length <= 1) {
+      if (assSel) {
+        const selected = assSel.value;
+        assSel.innerHTML = '<option value="">Alle Zuständigen</option>';
         users.forEach(u => {
           const opt = document.createElement('option');
           opt.value = u.id;
           opt.textContent = `${u.firstname} ${u.lastname}`;
           assSel.appendChild(opt);
         });
+        assSel.value = selected;
       }
 
       const filter = (document.querySelector('#taskFilter .is-active')?.dataset.f) || 'alle';
@@ -220,14 +252,20 @@
 
       let filtered = TASKS.slice();
       if (filter === 'erledigt') filtered = filtered.filter(t => t.done);
+      else if (filter === 'fragen') filtered = filtered.filter(t => !t.done && isQuestion(t));
       else if (filter === 'dringend') filtered = filtered.filter(t => !t.done && t.prio === 'dringend');
       else if (filter === 'normal') filtered = filtered.filter(t => !t.done && t.prio !== 'dringend');
       else filtered = filtered.filter(t => !t.done);
+      if (taskMetricFilter === 'heute') filtered = filtered.filter(t => !t.done && t.dueDate === isoDate(new Date()));
+      if (taskMetricFilter === 'ueberfaellig') filtered = filtered.filter(isOverdue);
 
       if (assFilter) filtered = filtered.filter(t => t.assignee === assFilter);
       // "Nur meine" hat Vorrang vor der Personenauswahl: Wer den Knopf drueckt,
       // will seine eigenen Aufgaben sehen, egal was im Auswahlfeld steht.
-      if (nurMeineAufgaben && currentUser) filtered = filtered.filter(t => t.assignee === currentUser.id);
+      if (nurMeineAufgaben && currentUser) {
+        const myIds = currentRecipientIds();
+        filtered = filtered.filter(t => myIds.includes(t.assignee));
+      }
       if (q) {
         filtered = filtered.filter(t =>
           (t.title || '').toLowerCase().includes(q) ||
@@ -251,8 +289,15 @@
       const offen = TASKS.filter(t => !t.done).length;
       const dringend = TASKS.filter(t => !t.done && t.prio === 'dringend').length;
       const ueberfaellig = TASKS.filter(isOverdue).length;
+      const meine = TASKS.filter(t => !t.done && currentRecipientIds().includes(t.assignee)).length;
+      const fragen = TASKS.filter(t => !t.done && isQuestion(t)).length;
       const sub = document.getElementById('aufgabenSubtitle');
       if (sub) sub.textContent = `${offen} ${tt('sub.open','offen')} · ${dringend} ${tt('sub.urgent','dringend')} · ${ueberfaellig} ${tt('sub.overdue','überfällig')}`;
+      const overview = document.getElementById('taskOverview');
+      if (overview) overview.innerHTML = [
+        ['Mir zugewiesen', meine, 'mine'], ['Heute fällig', TASKS.filter(t => !t.done && t.dueDate === isoDate(new Date())).length, 'today'],
+        ['Überfällig', ueberfaellig, 'overdue'], ['Offene Fragen', fragen, 'questions']
+      ].map(x => `<button type="button" class="task-overview-card is-${x[2]}" onclick="${x[2] === 'mine' ? 'toggleNurMeine()' : x[2] === 'questions' ? "setTaskFilter('fragen')" : `setTaskMetricFilter('${x[2] === 'today' ? 'heute' : 'ueberfaellig'}')`}"><strong>${x[1]}</strong><span>${x[0]}</span></button>`).join('');
 
       if (filtered.length === 0) {
         wrap.innerHTML = `<div class="card" style="padding: 40px; text-align: center; color: var(--text-subtle);">${tt('est.noTasks','Keine Aufgaben.')}</div>`;
@@ -268,23 +313,23 @@
             : '<span class="task-prio task-prio-normal">Normal</span>';
         const overdue = isOverdue(t);
         const dueLbl = t.dueDate
-          ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">${new Date(t.dueDate).toLocaleDateString(dateLocale(), { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ` · ${tt('sub.overdue','überfällig')}` : ''}</span>`
+          ? `<span class="task-due ${overdue ? 'is-overdue' : ''}">${new Date(t.dueDate + 'T12:00:00').toLocaleDateString(dateLocale(), { day:'2-digit', month:'short', year:'numeric' })}${overdue ? ` · ${tt('sub.overdue','überfällig')}` : ''}</span>`
           : '';
-        const linkLbl = t.linkLabel ? `<span class="task-link">🔗 ${t.linkLabel}</span>` : '';
+        const linkLbl = t.linkLabel ? `<span class="task-link">${escapeHtml(t.linkLabel)}</span>` : '';
         const contactBtns = [];
-        if (t.contactEmail) contactBtns.push(`<a class="task-contact-btn" href="mailto:${t.contactEmail}" onclick="event.stopPropagation()" title="${t.contactEmail}">📧 Mail</a>`);
+        if (t.contactEmail) contactBtns.push(`<a class="task-contact-btn" href="mailto:${escapeHtml(t.contactEmail)}" onclick="event.stopPropagation()" title="${escapeHtml(t.contactEmail)}">E-Mail</a>`);
         if (t.contactPhone) contactBtns.push(`<a class="task-contact-btn" href="tel:${t.contactPhone.replace(/\s/g,'')}" onclick="event.stopPropagation()" title="${t.contactPhone}">Anrufen</a>`);
         const contactRow = contactBtns.length ? `<div class="task-contact-row">${contactBtns.join('')}</div>` : '';
-        return `<div class="task-item ${t.done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}">
+        return `<article class="task-item ${t.done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''} ${isQuestion(t) ? 'is-question' : ''}">
           <label class="task-check">
             <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDone('${t.id}')" />
           </label>
           <div class="task-body" onclick="${isQuestion(t) ? `openQuestionModal('${t.id}')` : `openTaskModal('${t.id}')`}">
             <div class="task-row1">
-              <span class="task-title">${t.title}</span>
+              <span class="task-title">${escapeHtml(t.title)}</span>
               ${prioBadge}
             </div>
-            ${t.desc ? `<div class="task-desc">${t.desc}</div>` : ''}
+            ${t.desc ? `<div class="task-desc">${escapeHtml(t.desc)}</div>` : ''}
             <div class="task-row2">
               <span class="task-assignee" title="Zuständig">
                 <span class="task-avatar">${taskAssigneeInitials(t.assignee)}</span>
@@ -295,15 +340,20 @@
             </div>
             ${contactRow}
           </div>
-        </div>`;
+        </article>`;
       }).join('');
       updateAufgabenBadge();
     }
 
     function setTaskFilter(f) {
+      taskMetricFilter = null;
       document.querySelectorAll('#taskFilter button').forEach(b => {
         b.classList.toggle('is-active', b.dataset.f === f);
       });
+      renderAufgaben();
+    }
+    function setTaskMetricFilter(value) {
+      taskMetricFilter = taskMetricFilter === value ? null : value;
       renderAufgaben();
     }
 
@@ -327,9 +377,9 @@
     function openTaskModal(id, linkContext) {
       editingTaskId = id;
       taskLinkContext = linkContext || null;
-      const users = loadUsers();
+      const users = taskAssignablePeople();
       const assSel = document.getElementById('taskAssignee');
-      assSel.innerHTML = users.map(u => `<option value="${u.id}">${u.firstname} ${u.lastname} · ${ROLE_DEFS[u.role]?.label || u.role}</option>`).join('');
+      assSel.innerHTML = users.map(u => `<option value="${u.id}">${escapeHtml(`${u.firstname} ${u.lastname}`.trim())} · ${u.kind === 'field' ? 'Mitarbeiter' : (ROLE_DEFS[u.role]?.label || u.role)}</option>`).join('');
 
       const linkInfo = document.getElementById('taskLinkInfo');
       const linkLabel = document.getElementById('taskLinkLabel');
@@ -340,7 +390,7 @@
         document.getElementById('taskModalTitle').textContent = tt('dyn.taskEdit', 'Aufgabe bearbeiten');
         document.getElementById('taskTitle').value = t.title || '';
         document.getElementById('taskDesc').value = t.desc || '';
-        document.getElementById('taskAssignee').value = t.assignee || users[0].id;
+        document.getElementById('taskAssignee').value = t.assignee || users[0]?.id || '';
         document.getElementById('taskDueDate').value = t.dueDate || '';
         setTaskPrio(t.prio || 'normal');
         document.getElementById('taskDeleteBtn').style.display = '';
@@ -356,7 +406,7 @@
         document.getElementById('taskModalTitle').textContent = tt('dyn.taskNew', 'Neue Aufgabe');
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDesc').value = linkContext?.desc || '';
-        const preAssignee = linkContext?.assignee && users.find(u => u.id === linkContext.assignee) ? linkContext.assignee : users[0].id;
+        const preAssignee = linkContext?.assignee && users.find(u => u.id === linkContext.assignee) ? linkContext.assignee : users[0]?.id || '';
         document.getElementById('taskAssignee').value = preAssignee;
         // Default Fälligkeit: in 3 Tagen (Folgeaufgaben aus Rückrufen: morgen)
         const dueInDays = (linkContext && Number.isFinite(linkContext.dueInDays)) ? linkContext.dueInDays : 3;
@@ -448,7 +498,7 @@
 
     function openQuestionModal(id) {
       editingQuestionId = id || null;
-      const users = loadUsers();
+      const users = taskAssignablePeople();
       const sel = document.getElementById('questionAssignee');
       sel.innerHTML = users.length
         ? users.map(u => `<option value="${u.id}">${escapeHtml(`${u.firstname} ${u.lastname}`.trim())}</option>`).join('')
@@ -530,11 +580,68 @@
       }).join('') : '<div class="dashboard-question-empty"><strong>Alles geklärt</strong><span>Momentan wartet keine offene Frage auf eine Antwort.</span></div>';
     }
 
+    let notificationActions = [];
+    function renderNotificationCenter() {
+      const list = document.getElementById('notificationList');
+      const badge = document.getElementById('notificationBadge');
+      if (!list || !badge) return;
+      const ids = currentRecipientIds();
+      const today = isoDate(new Date());
+      const horizon = new Date(); horizon.setDate(horizon.getDate() + 14);
+      const until = isoDate(horizon);
+      const items = [];
+      TASKS.filter(t => !t.done && ids.includes(t.assignee)).forEach(t => {
+        const overdue = t.dueDate && t.dueDate < today;
+        const dueToday = t.dueDate === today;
+        items.push({
+          type: isQuestion(t) ? 'Frage' : 'Aufgabe',
+          title: t.title,
+          meta: overdue ? `Überfällig seit ${new Date(t.dueDate + 'T12:00:00').toLocaleDateString(dateLocale())}` : dueToday ? 'Heute fällig' : t.dueDate ? `Fällig ${new Date(t.dueDate + 'T12:00:00').toLocaleDateString(dateLocale())}` : 'Ohne Frist',
+          urgent: overdue || dueToday,
+          sort: t.dueDate || '9999-12-31',
+          open: () => { toggleNotificationCenter(null, false); navTo('aufgaben'); setTimeout(() => isQuestion(t) ? openQuestionModal(t.id) : openTaskModal(t.id), 60); }
+        });
+      });
+      try {
+        allePlanJobs().filter(j => !['cancelled', 'draft'].includes(j.status) && j.date >= today && j.date <= until && (j.assigned || []).some(id => ids.includes(id))).forEach(j => {
+          items.push({
+            type: 'Einsatz', title: j.objekt || j.ort || 'Geplanter Einsatz',
+            meta: `${j.date === today ? 'Heute' : new Date(j.date + 'T12:00:00').toLocaleDateString(dateLocale())}${j.start ? ` · ${j.start}` : ''}`,
+            urgent: j.date === today, sort: j.date,
+            open: () => { toggleNotificationCenter(null, false); planSetDate(j.date); navTo('planung'); setTimeout(() => { const jobs = getJobsForDate(new Date(j.date + 'T12:00:00')); const i = jobs.findIndex(x => (x.id || x._jobId) === (j.id || j._jobId)); if (i >= 0) openJobEditor(j.date, i); }, 80); }
+          });
+        });
+      } catch {}
+      items.sort((a, b) => String(a.sort).localeCompare(String(b.sort)));
+      notificationActions = items.map(x => x.open);
+      badge.textContent = items.length > 99 ? '99+' : String(items.length);
+      badge.hidden = !items.length;
+      const who = document.getElementById('notificationFor');
+      if (who) who.textContent = currentUser ? `Für ${getCurrentUserName()}` : 'Persönliche Übersicht';
+      list.innerHTML = items.length ? items.slice(0, 30).map((n, i) => `<button type="button" class="notification-item ${n.urgent ? 'is-urgent' : ''}" onclick="openNotification(${i})"><span class="notification-kind">${escapeHtml(n.type)}</span><strong>${escapeHtml(n.title)}</strong><small>${escapeHtml(n.meta)}</small></button>`).join('') : '<div class="notification-empty"><strong>Alles erledigt</strong><span>Keine offenen Fristen oder Einsätze.</span></div>';
+    }
+    function openNotification(index) { notificationActions[index]?.(); }
+    function toggleNotificationCenter(event, force) {
+      event?.stopPropagation();
+      const center = document.getElementById('notificationCenter');
+      const panel = document.getElementById('notificationPanel');
+      if (!center || !panel) return;
+      const open = force == null ? !center.classList.contains('is-open') : !!force;
+      center.classList.toggle('is-open', open);
+      panel.hidden = !open;
+      document.getElementById('notificationButton')?.setAttribute('aria-expanded', String(open));
+      if (open) renderNotificationCenter();
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#notificationCenter')) toggleNotificationCenter(null, false);
+    });
+
     // Re-render bei Nav auf "aufgaben"
     document.querySelector('.nav-item[data-view="aufgaben"]')?.addEventListener('click', () => {
       setTimeout(renderAufgaben, 50);
     });
     renderAufgaben();
+    renderNotificationCenter();
 
     function renderAnrufprotokoll() {
       const wrap = document.getElementById('anrufList');

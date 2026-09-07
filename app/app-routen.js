@@ -440,60 +440,81 @@
           erledigt: 'Erledigt', vergeben: 'Aufgabe', abnahme: 'Abnahme',
           auftrag: 'Auftrag', anruf: 'Anruf', offerte: 'Offerte', aenderung: 'Änderung', frage: 'Offene Frage'
         };
-        const merke = (art, ts, text, meta) => events.push({
-          art, ts, text, meta: meta || '', icon: SYMBOLE[art], col: FARBEN[art], label: ART_LABEL[art] || art
+        const merke = (art, ts, text, meta, open) => events.push({
+          art, ts, text, meta: meta || '', open, icon: SYMBOLE[art], col: FARBEN[art], label: ART_LABEL[art] || art
         });
 
         const events = [];
         reports.forEach(r => {
           if (r.isProtocol) merke('abnahme', r.date + (r.time ? 'T' + r.time : ''),
             `${tt('act.handover','Abnahme')}: ${r.objekt || tt('act.job','Einsatz')}`,
-            r.signed ? tt('act.signed','Unterschrift erhalten') : (r.note || ''));
+            r.signed ? tt('act.signed','Unterschrift erhalten') : (r.note || ''), () => navTo('berichte'));
         });
         TASKS.forEach(t => {
           if (typeof isQuestion === 'function' && isQuestion(t)) {
-            if (t.done && t.completedAt) merke('erledigt', t.completedAt, `Frage beantwortet: ${t.title}`, t.sourceMail?.answeredBy || taskAssigneeLabel(t.assignee));
-            else merke('frage', t.created || t.createdAt, t.title, taskAssigneeLabel(t.assignee));
+            if (t.done && t.completedAt) merke('erledigt', t.completedAt, `Frage beantwortet: ${t.title}`, t.sourceMail?.answeredBy || taskAssigneeLabel(t.assignee), () => { navTo('aufgaben'); setTimeout(() => openQuestionModal(t.id), 60); });
+            else merke('frage', t.created || t.createdAt, t.title, taskAssigneeLabel(t.assignee), () => { navTo('aufgaben'); setTimeout(() => openQuestionModal(t.id), 60); });
           } else if (t.done && t.completedAt) {
-            merke('erledigt', t.completedAt, t.title, taskAssigneeLabel(t.assignee));
+            merke('erledigt', t.completedAt, t.title, taskAssigneeLabel(t.assignee), () => { navTo('aufgaben'); setTimeout(() => openTaskModal(t.id), 60); });
           } else if (t.assignee && (t.created || t.createdAt)) {
             merke('vergeben', t.created || t.createdAt,
-              `${tt('act.assigned','Aufgabe vergeben')}: ${t.title}`, taskAssigneeLabel(t.assignee));
+              `${tt('act.assigned','Aufgabe vergeben')}: ${t.title}`, taskAssigneeLabel(t.assignee), () => { navTo('aufgaben'); setTimeout(() => openTaskModal(t.id), 60); });
           }
         });
         // Angelegte Auftraege und protokollierte Anrufe gehoeren auch in den Verlauf
         try {
           allePlanJobs().forEach(t => {
             if (t.createdAt) merke('auftrag', t.createdAt,
-              `${tt('act.newJob','Auftrag angelegt')}: ${t.objekt || t.ort || ''}`, t.date || '');
+              `${tt('act.newJob','Auftrag angelegt')}: ${t.objekt || t.ort || ''}`, t.date || '', () => openDashboardJob(t));
           });
           loadCustomers().forEach(c => (c.calls || []).forEach(a => {
             if (a.ts) merke('anruf', a.ts,
-              `${tt('act.call','Anruf')}: ${customerDisplayName(c)}`, a.text || a.verlangteNach || '');
+              `${tt('act.call','Anruf')}: ${customerDisplayName(c)}`, a.text || a.verlangteNach || '', () => openCustomerDetail(c.id));
           }));
           JSON.parse(localStorage.getItem('cc-offerts') || '[]').forEach(o => {
             const ts = o.updated || (o.datum ? o.datum + 'T12:00:00' : '');
             if (ts) merke('offerte', ts, `Offerte für ${o.kunde || 'Kunde'}`,
-              `${serviceTitle(o.service)}${o.preis ? ' · ' + Number(o.preis).toFixed(2) + ' ' + coLocale(loadCompany()).cur : ''}`);
+              `${serviceTitle(o.service)}${o.preis ? ' · ' + Number(o.preis).toFixed(2) + ' ' + coLocale(loadCompany()).cur : ''}`, () => openOffertEditor(o.id));
           });
           ladeHistorie().forEach(h => {
             const action = ({ angelegt: 'angelegt', geaendert: 'geändert', geloescht: 'gelöscht' })[h.aktion] || h.aktion || 'geändert';
             merke('aenderung', h.ts, `${h.was || 'Eintrag'} ${action}${h.bezeichnung ? ': ' + h.bezeichnung : ''}`,
-              [h.wer, h.werRolle, h.werEmail].filter(Boolean).join(' · '));
+              [h.wer, h.werRolle, h.werEmail].filter(Boolean).join(' · '), () => openHistoryDestination(h.was));
           });
         } catch {}
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
         const limit = dashboardActivityCenterOpen ? 100 : (dashboardActivityExpanded ? 30 : 6);
         const top = events.slice(0, limit);
+        window._dashboardActivityActions = top.map(ev => ev.open);
         actEl.innerHTML = top.length
-          ? top.map(ev => `<div class="activity-item activity-${ev.art}" style="--activity-color:${ev.col}"><div class="act-icon" aria-hidden="true">${ev.icon}</div><div class="act-body"><div class="act-kind">${escapeHtml(ev.label)}</div><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div><time class="act-time">${formatActivityTime(ev.ts)}</time></div>`).join('')
+          ? top.map((ev, i) => `<button type="button" class="activity-item activity-${ev.art}" style="--activity-color:${ev.col}" onclick="openDashboardActivity(${i})"><div class="act-icon" aria-hidden="true">${ev.icon}</div><div class="act-body"><div class="act-kind">${escapeHtml(ev.label)}</div><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div><time class="act-time">${formatActivityTime(ev.ts)}</time><span class="activity-open" aria-hidden="true">→</span></button>`).join('')
           : `<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">${tt('dash.noActivity','Noch keine Aktivität.')}</div>`;
         const more = document.getElementById('dashActivityMore');
         if (more) {
           more.style.display = !dashboardActivityCenterOpen && events.length > 6 ? '' : 'none';
           more.textContent = dashboardActivityExpanded ? 'Weniger anzeigen' : `Alle Aktivitäten anzeigen (${Math.min(events.length, 30)})`;
         }
+        if (typeof renderNotificationCenter === 'function') renderNotificationCenter();
       }
+    }
+
+    function openDashboardActivity(index) {
+      toggleDashboardActivityCenter(false);
+      window._dashboardActivityActions?.[index]?.();
+    }
+    function openDashboardJob(job) {
+      if (!job?.date) return navTo('planung');
+      planSetDate(job.date);
+      navTo('planung');
+      setTimeout(() => {
+        const jobs = getJobsForDate(new Date(job.date + 'T12:00:00'));
+        const index = jobs.findIndex(x => (x.id || x._jobId) === (job.id || job._jobId));
+        if (index >= 0) openJobEditor(job.date, index);
+      }, 80);
+    }
+    function openHistoryDestination(table) {
+      const view = { tasks:'aufgaben', plan_jobs:'planung', customers:'kunden', employees:'mitarbeiter', teams:'planung', reports:'berichte', company_settings:'einstellungen' }[table] || 'dashboard';
+      navTo(view);
     }
 
     function formatActivityTime(value) {
