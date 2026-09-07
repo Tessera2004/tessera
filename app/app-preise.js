@@ -20,9 +20,13 @@
     const defaultPrices = {
       'unterhalt-rate': 35, 'unterhalt-min': 1, 'unterhalt-fee': 0,
       'end-qm': 3.2, 'end-min': 250, 'end-fee': 25,
-      'fenster-rate': 40, 'fenster-leiter': 15, 'fenster-min': 2, 'fenster-fee': 20,
+      'end-fenster': 35, 'end-backofen': 35, 'end-kuehlschrank': 25, 'end-balkon': 30, 'end-keller': 30,
+      'fenster-rate': 40, 'fenster-leiter': 15, 'fenster-hubsteiger': 150, 'fenster-min': 2, 'fenster-fee': 20,
+      'fenster-rahmen': 30, 'fenster-rolladen': 40, 'fenster-baenke': 20,
       'bau-qm': 2.8, 'bau-min': 400, 'bau-fee': 35,
-      'fassade-stator': 8.5, 'fassade-algen': 3.5, 'fassade-impraeg': 4.0, 'fassade-min': 800
+      'bau-schutt': 120, 'bau-container': 250, 'bau-estrich': 90, 'bau-kleber': 90,
+      'fassade-stator': 8.5, 'fassade-algen': 3.5, 'fassade-impraeg': 4.0, 'fassade-graffiti': 12,
+      'fassade-hubsteiger': 180, 'fassade-geruest': 350, 'fassade-seil': 220, 'fassade-min': 800
     };
 
     function loadPrices() {
@@ -45,6 +49,33 @@
     function getPrice(key) {
       const el = document.querySelector(`[data-price="${key}"]`);
       return el ? parseFloat(el.value) || 0 : (defaultPrices[key] || 0);
+    }
+
+    function addonPriceText(key, kind = 'flat') {
+      const value = getPrice(key);
+      const currency = coLocale(loadCompany()).cur;
+      if (!value) return 'inklusive';
+      if (kind === 'percent') return `+${value}%`;
+      if (kind === 'qm') return `+${currency} ${value.toFixed(2)}/m²`;
+      return `+${currency} ${value.toFixed(2)}`;
+    }
+
+    function renderWizardAddonPrices() {
+      document.querySelectorAll('#modal-newAuftrag [data-addon-price]').forEach(chip => {
+        let price = chip.querySelector('.addon-price');
+        if (!price) {
+          price = document.createElement('span');
+          price.className = 'addon-price';
+          chip.appendChild(price);
+        }
+        price.textContent = addonPriceText(chip.dataset.addonPrice, chip.dataset.addonKind || 'flat');
+      });
+    }
+
+    function selectedFixedAddons(selector) {
+      return Array.from(document.querySelectorAll(selector + ' [data-addon-price].on'))
+        .filter(chip => (chip.dataset.addonKind || 'flat') === 'flat')
+        .reduce((sum, chip) => sum + getPrice(chip.dataset.addonPrice), 0);
     }
 
     // Abrechnungsart je Leistung: 'qm' oder 'std'. Wird neben den Preisen
@@ -88,6 +119,7 @@
       document.querySelectorAll('[data-price]').forEach(el => {
         data[el.dataset.price] = parseFloat(el.value) || 0;
       });
+      renderWizardAddonPrices();
       localStorage.setItem('cc-prices', JSON.stringify(data));
     }
 
@@ -129,7 +161,7 @@
     function _syncWizDuration() {
       if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) return;   // generische/eigene Leistungen: Dauer manuell in Schritt 3
       if (!wizService || wizService === 'fassade') return;
-      const p = calcPriceForService();
+      const p = calcPriceForService(true);
       if (!p?.mins) return;
       const durEl = document.getElementById('wizDuration');
       if (durEl) durEl.value = Math.round(p.mins / 60 * 4) / 4 || 0.25;
@@ -281,30 +313,21 @@
         if (hint) hint.textContent = htxt;
         return price;
       }
-      if (!hoursEl) return 0;
-      const hours = parseFloat(hoursEl.value) || 0;
-      const svc = wizService || 'unterhalt';
-      const rate = getPrice(svc + '-rate') || getPrice('unterhalt-rate') || 35;
-      const minHours = getPrice(svc + '-min') || 0;
-      const fee = getPrice(svc + '-fee') || 0;
       if (priceOverrideActive) {
         const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
         if (out) out.textContent = currency + ' ' + ov.toFixed(2);
         if (hint) hint.textContent = 'eigener Preis';
         return ov;
       }
-      const billed = Math.max(hours, minHours);
-      const price = Math.round((billed * rate + fee) * 20) / 20; // auf 5 Rappen
+      const detailed = calcPriceForService();
+      if (!detailed) return 0;
+      const price = Math.round(detailed.total * 20) / 20;
       if (out) out.textContent = currency + ' ' + price.toFixed(2);
-      if (hint) {
-        const hoursTxt = String(billed).replace('.', ',');
-        hint.textContent = `${hoursTxt} Std × ${currency} ${rate}` + (fee ? ` + ${currency} ${fee} Anfahrt` : '') +
-          (minHours && hours < minHours ? ` (Min. ${minHours} Std)` : '');
-      }
+      if (hint) hint.textContent = detailed.rateStr + (detailed.fee ? ` + ${currency} ${detailed.fee} Anfahrt/Zusätze` : '');
       return price;
     }
 
-    function calcPriceForService() {
+    function calcPriceForService(fromDetails = false) {
       if (!wizService) return null;
       const currency = coLocale(loadCompany()).cur;
 
@@ -318,8 +341,8 @@
         // :nth-of-type(2) traf nie etwas — jedes Feld sitzt in einem eigenen
         // Container, ist dort also das erste seiner Art. Die eingegebene Dauer
         // wurde deshalb ignoriert und immer mit 90 Minuten gerechnet.
-        const uInputs = document.querySelectorAll('.svc-options[data-svc-opts="unterhalt"] input[type="number"]');
-        mins = parseInt(uInputs[1]?.value || 90);
+        const area = parseInt(document.querySelector('.svc-options[data-svc-opts="unterhalt"] input[type="number"]')?.value || 120);
+        mins = fromDetails ? Math.max(30, Math.round(area * 0.75)) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 1.5) * 60);
         rate = getPrice('unterhalt-rate');
         minHours = getPrice('unterhalt-min');
         fee = getPrice('unterhalt-fee');
@@ -333,7 +356,8 @@
         document.querySelectorAll('.add-task.on').forEach(t => addMins += parseInt(t.dataset.time || 0));
         const feeEnd = getPrice('end-fee');
         const minAuftrag = getPrice('end-min');
-        const durMins = grunddauer(flaeche, raeume) + addMins;
+        const vorgeschlagen = grunddauer(flaeche, raeume) + addMins;
+        const durMins = fromDetails ? vorgeschlagen : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / 60) * 60);
         // Der Betrieb entscheidet in den Einstellungen, ob nach Flaeche oder
         // nach Zeit abgerechnet wird. Die Dauer bleibt in beiden Faellen gleich.
         const nachStunden = getPriceMode('end') === 'std';
@@ -341,7 +365,7 @@
         const base = nachStunden ? (durMins / 60) * stundensatz : flaeche * qmPrice;
         const usedMin = base < minAuftrag;
         return {
-          total: Math.max(base, minAuftrag) + feeEnd,
+          total: Math.max(base, minAuftrag) + feeEnd + selectedFixedAddons('.svc-options[data-svc-opts="end"]'),
           mins: durMins,
           dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
           rateStr: nachStunden
@@ -356,34 +380,36 @@
       }
 
       else if (wizService === 'fenster') {
-        const inputs = document.querySelectorAll('.svc-options[data-svc-opts="fenster"] input[type="number"]');
-        mins = parseInt(inputs[1]?.value || 120);
+        const count = parseInt(document.querySelector('.svc-options[data-svc-opts="fenster"] input[type="number"]')?.value || 24);
+        mins = fromDetails ? Math.max(30, count * 5) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 2) * 60);
         rate = getPrice('fenster-rate');
         // check if "mit Leiter" or "Hubsteiger" selected
         const leiterChips = document.querySelectorAll('.svc-options[data-svc-opts="fenster"] .opt-row:first-of-type .opt-chip.on');
         const leiterText = leiterChips[0]?.textContent || '';
-        if (leiterText.includes('Leiter') || leiterText.includes('Hubsteiger')) {
+        if (leiterText.includes('Leiter')) {
           const aufschlag = getPrice('fenster-leiter');
           rate = rate * (1 + aufschlag / 100);
           breakdown.push(`+${aufschlag}% Leiter-Aufschlag`);
         }
         minHours = getPrice('fenster-min');
         fee = getPrice('fenster-fee');
+        fee += selectedFixedAddons('.svc-options[data-svc-opts="fenster"]');
       }
 
       else if (wizService === 'bau') {
         const flaeche = parseInt(document.querySelector('.svc-options[data-svc-opts="bau"] input[type="number"]')?.value || 200);
-        const cleaners = parseInt(document.querySelectorAll('.svc-options[data-svc-opts="bau"] input[type="number"]')[1]?.value || 3);
+        const cleaners = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
         const qmPrice = getPrice('bau-qm');
         const feeBau = getPrice('bau-fee');
         const minAuftrag = getPrice('bau-min');
         const nachStundenBau = getPriceMode('bau') === 'std';
         const satzBau = getPrice('bau-rate');
-        const durMins = Math.round(flaeche * ladeZeitfaktoren().bauProQm / Math.max(cleaners, 1));
+        const vorgeschlagen = Math.round(flaeche * ladeZeitfaktoren().bauProQm / Math.max(cleaners, 1));
+        const durMins = fromDetails ? vorgeschlagen : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / 60) * 60);
         const base = nachStundenBau ? (durMins / 60) * satzBau : flaeche * qmPrice;
         const usedMin = base < minAuftrag;
         return {
-          total: Math.max(base, minAuftrag) + feeBau,
+          total: Math.max(base, minAuftrag) + feeBau + selectedFixedAddons('.svc-options[data-svc-opts="bau"]'),
           mins: durMins,
           dur: `${Math.floor(durMins/60)}h ${durMins%60}min`,
           rateStr: nachStundenBau
@@ -392,7 +418,7 @@
           fee: feeBau,
           showFee: feeBau > 0,
           minApplied: usedMin,
-          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} €` : null,
+          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} ${currency}` : null,
           breakdown: cleaners > 1 ? [`${cleaners} ${VT('feldMitarbeiterPlural')}`] : []
         };
       }
@@ -406,14 +432,15 @@
           if (t.includes('Stator')) qmPrice += getPrice('fassade-stator');
           if (t.includes('Algen')) qmPrice += getPrice('fassade-algen');
           if (t.includes('Imprägn')) qmPrice += getPrice('fassade-impraeg');
+          if (t.includes('Graffiti')) qmPrice += getPrice('fassade-graffiti');
         });
         const subtotal = qmPrice * flaeche;
         const minAuftrag = getPrice('fassade-min');
         const usedMin = subtotal < minAuftrag;
         return {
-          total: Math.max(subtotal, minAuftrag),
+          total: Math.max(subtotal, minAuftrag) + selectedFixedAddons('.svc-options[data-svc-opts="fassade"]'),
           dur: '~' + Math.round(flaeche * 0.4) + ' min',
-          rateStr: `${qmPrice.toFixed(2)} €/m² × ${flaeche} m²`,
+          rateStr: `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
           fee: 0,
           showFee: false,
           minApplied: usedMin,
@@ -463,6 +490,12 @@
       if (!p) return;
       const currency = coLocale(loadCompany()).cur;
       const fmt = v => `${v.toFixed(2)} ${currency}`;
+      const addonRow = document.getElementById('sumAddonRow');
+      const addonText = Array.from(document.querySelectorAll(`.svc-options[data-svc-opts="${wizService}"] [data-addon-price].on`))
+        .map(chip => `${chip.childNodes[0]?.textContent?.trim() || chip.textContent.trim()} ${addonPriceText(chip.dataset.addonPrice, chip.dataset.addonKind || 'flat')}`);
+      if (addonRow) addonRow.style.display = addonText.length ? 'flex' : 'none';
+      const addonValue = document.getElementById('sumAddons');
+      if (addonValue) addonValue.textContent = addonText.join(' · ');
       document.getElementById('sumDur').textContent = p.dur;
       document.getElementById('sumRate').textContent = p.rateStr;
       document.getElementById('sumFeeRow').style.display = p.showFee ? 'flex' : 'none';
@@ -527,4 +560,5 @@
       }
     };
 
-    loadPrices();
+      loadPrices();
+      renderWizardAddonPrices();

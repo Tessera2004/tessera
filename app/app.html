@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=15" />
+  <link rel="stylesheet" href="styles.css?v=16" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -336,12 +336,12 @@
             <div style="display: flex; flex-direction: column; gap: var(--space-5);">
               <div class="card">
                 <div class="card-header">
-                  <div class="card-title" data-i18n="dash.activity">Aktivität</div>
-                  <div class="card-subtitle">Aufträge, Offerten, Anrufe und erledigte Aufgaben – neueste zuerst</div>
+                  <div><div class="card-title" data-i18n="dash.activity">Aktivität</div><div class="card-subtitle">Aufträge, Offerten, Anrufe und Aufgaben</div></div>
                 </div>
                 <div class="activity" id="dashActivity">
                   <div style="text-align:center; padding:24px; color:var(--text-subtle); font-size:13px;" data-i18n="dash.noActivity">Noch keine Aktivität.</div>
                 </div>
+                <button type="button" class="activity-more" id="dashActivityMore" style="display:none" onclick="toggleDashboardActivity()">Alle Aktivitäten anzeigen</button>
               </div>
 
             </div>
@@ -1234,17 +1234,6 @@
             <button class="btn btn-accent" onclick="vorlagenSpeichern()" data-i18n="tpl.save">Vorlagen speichern</button>
           </div>
 
-          <div class="card settings-card" style="padding:20px 22px; margin-bottom:18px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-              <div>
-                <div style="font-weight:700; font-size:15px;" data-i18n="hist.title">Historie</div>
-                <div style="font-size:12.5px; color:var(--text-subtle); margin-top:3px;" data-i18n="hist.sub">Wer hat wann was gelöscht oder geändert. Bleibt auf diesem Gerät.</div>
-              </div>
-              <button class="btn btn-secondary" onclick="historieLeeren()" data-i18n="hist.clear">Leeren</button>
-            </div>
-            <div id="historieListe" style="margin-top:14px;"></div>
-          </div>
-
           <!-- Module / Abo: welche Bereiche diese Firma nutzt -->
           <div class="card settings-card" id="settings-services" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:6px;">
@@ -1493,6 +1482,27 @@
               </div>
             </div>
 
+            <div class="price-card" style="grid-column:1/-1;">
+              <div class="price-card-head">
+                <div class="price-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg></div>
+                <div><div class="price-card-title">Preise für Zusatzleistungen</div><div class="price-card-sub">Werden im Auftrag angezeigt und automatisch zum Preis addiert.</div></div>
+              </div>
+              <div class="price-card-body addon-settings-grid">
+                <div class="addon-settings-group"><strong>Endreinigung</strong>
+                  <label>Fenster innen <span><input type="number" data-price="end-fenster" value="35" oninput="onPriceChange()"> CHF</span></label><label>Backofen <span><input type="number" data-price="end-backofen" value="35" oninput="onPriceChange()"> CHF</span></label><label>Kühlschrank <span><input type="number" data-price="end-kuehlschrank" value="25" oninput="onPriceChange()"> CHF</span></label><label>Balkon / Terrasse <span><input type="number" data-price="end-balkon" value="30" oninput="onPriceChange()"> CHF</span></label><label>Keller <span><input type="number" data-price="end-keller" value="30" oninput="onPriceChange()"> CHF</span></label>
+                </div>
+                <div class="addon-settings-group"><strong>Fensterreinigung</strong>
+                  <label>Hubsteiger <span><input type="number" data-price="fenster-hubsteiger" value="150" oninput="onPriceChange()"> CHF</span></label><label>Rahmen <span><input type="number" data-price="fenster-rahmen" value="30" oninput="onPriceChange()"> CHF</span></label><label>Rollläden / Jalousien <span><input type="number" data-price="fenster-rolladen" value="40" oninput="onPriceChange()"> CHF</span></label><label>Fensterbänke <span><input type="number" data-price="fenster-baenke" value="20" oninput="onPriceChange()"> CHF</span></label>
+                </div>
+                <div class="addon-settings-group"><strong>Baureinigung</strong>
+                  <label>Bauschutt entfernen <span><input type="number" data-price="bau-schutt" value="120" oninput="onPriceChange()"> CHF</span></label><label>Container stellen <span><input type="number" data-price="bau-container" value="250" oninput="onPriceChange()"> CHF</span></label><label>Estrich abkratzen <span><input type="number" data-price="bau-estrich" value="90" oninput="onPriceChange()"> CHF</span></label><label>Klebereste entfernen <span><input type="number" data-price="bau-kleber" value="90" oninput="onPriceChange()"> CHF</span></label>
+                </div>
+                <div class="addon-settings-group"><strong>Fassadenreinigung</strong>
+                  <label>Graffiti <span><input type="number" data-price="fassade-graffiti" value="12" step="0.5" oninput="onPriceChange()"> CHF/m²</span></label><label>Hubsteiger <span><input type="number" data-price="fassade-hubsteiger" value="180" oninput="onPriceChange()"> CHF</span></label><label>Gerüst <span><input type="number" data-price="fassade-geruest" value="350" oninput="onPriceChange()"> CHF</span></label><label>Seilzugang <span><input type="number" data-price="fassade-seil" value="220" oninput="onPriceChange()"> CHF</span></label>
+                </div>
+              </div>
+            </div>
+
             <div class="price-card" style="background: linear-gradient(135deg, var(--surface), var(--surface-2)); border-style: dashed;">
               <div class="price-card-head" style="background: none;">
                 <div class="price-card-icon" style="background: var(--surface-2); color: var(--text-muted);">
@@ -1547,6 +1557,11 @@
               <button class="btn btn-secondary" onclick="openInviteModal()" id="inviteBtn" data-i18n="team.invite">Einladen</button>
               <button class="btn btn-accent" onclick="openUserEditor()" id="addUserBtn" data-i18n="common.addEmployee">+ Mitarbeiter hinzufügen</button>
             </div>
+          </div>
+
+          <div class="card team-history-card">
+            <div class="team-history-head"><div><strong>Änderungsverlauf</strong><small>Wer hat Daten angelegt, geändert oder gelöscht?</small></div><button class="btn btn-secondary btn-sm" onclick="historieLeeren()" data-i18n="hist.clear">Leeren</button></div>
+            <div id="historieListe"></div>
           </div>
 
           <div class="readonly-banner">
@@ -1675,15 +1690,10 @@
                 <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.dSo">So</button>
               </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <div class="field">
-                <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
-                <input type="number" oninput="wizCalcPrice()" value="120" />
-              </div>
-              <div class="field">
-                <label data-i18n="wiz.estDurMin">Geschätzte Dauer (min)</label>
-                <input type="number" oninput="wizCalcPrice()" value="90" />
-              </div>
+            <div class="field">
+              <label data-i18n="wiz.areaSqm">Fläche (m²)</label>
+              <input type="number" oninput="wizCalcPrice()" value="120" />
+              <small>Die geplante Dauer legst du einmalig im nächsten Schritt fest.</small>
             </div>
           </div>
 
@@ -1718,11 +1728,11 @@
             <div class="field">
               <label data-i18n="wiz.extras">Zusatzleistungen</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip add-task" data-time="20" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addWindowInside">Fenster innen</span> <span style="opacity: 0.6; font-size: 11px;">+20 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="15" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addOven">Backofen</span> <span style="opacity: 0.6; font-size: 11px;">+15 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="10" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addFridge">Kühlschrank</span> <span style="opacity: 0.6; font-size: 11px;">+10 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="25" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addBalcony">Balkon/Terrasse</span> <span style="opacity: 0.6; font-size: 11px;">+25 min</span></button>
-                <button type="button" class="opt-chip add-task" data-time="20" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addCellar">Keller</span> <span style="opacity: 0.6; font-size: 11px;">+20 min</span></button>
+                <button type="button" class="opt-chip add-task" data-time="20" data-addon-price="end-fenster" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addWindowInside">Fenster innen</span></button>
+                <button type="button" class="opt-chip add-task" data-time="15" data-addon-price="end-backofen" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addOven">Backofen</span></button>
+                <button type="button" class="opt-chip add-task" data-time="10" data-addon-price="end-kuehlschrank" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addFridge">Kühlschrank</span></button>
+                <button type="button" class="opt-chip add-task" data-time="25" data-addon-price="end-balkon" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addBalcony">Balkon/Terrasse</span></button>
+                <button type="button" class="opt-chip add-task" data-time="20" data-addon-price="end-keller" onclick="this.classList.toggle('on'); recalcStart()"><span data-i18n="wiz.addCellar">Keller</span></button>
               </div>
             </div>
 
@@ -1744,8 +1754,8 @@
               <label data-i18n="wiz.withLadder">Mit Leiter?</label>
               <div class="opt-row">
                 <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.ladderNo">Ohne Leiter</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.ladderYes3m">Mit Leiter (bis 3m)</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.ladderLift">Hubsteiger nötig</button>
+                <button type="button" class="opt-chip" data-addon-price="fenster-leiter" data-addon-kind="percent" onclick="toggleOne(this)" data-i18n="wiz.ladderYes3m">Mit Leiter (bis 3m)</button>
+                <button type="button" class="opt-chip" data-addon-price="fenster-hubsteiger" onclick="toggleOne(this)" data-i18n="wiz.ladderLift">Hubsteiger nötig</button>
               </div>
             </div>
             <div class="field">
@@ -1759,20 +1769,15 @@
             <div class="field">
               <label data-i18n="wiz.extras">Zusatzleistungen</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addFrames">Rahmen mit reinigen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addBlinds">Rolläden / Jalousien</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addSills">Fensterbänke</button>
+                <button type="button" class="opt-chip" data-addon-price="fenster-rahmen" onclick="this.classList.toggle('on')" data-i18n="wiz.addFrames">Rahmen mit reinigen</button>
+                <button type="button" class="opt-chip" data-addon-price="fenster-rolladen" onclick="this.classList.toggle('on')" data-i18n="wiz.addBlinds">Rolläden / Jalousien</button>
+                <button type="button" class="opt-chip" data-addon-price="fenster-baenke" onclick="this.classList.toggle('on')" data-i18n="wiz.addSills">Fensterbänke</button>
               </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <div class="field">
-                <label data-i18n="wiz.windowCount">Anzahl Fenster</label>
-                <input type="number" oninput="wizCalcPrice()" value="24" />
-              </div>
-              <div class="field">
-                <label data-i18n="wiz.estDurMin">Geschätzte Dauer (min)</label>
-                <input type="number" oninput="wizCalcPrice()" value="120" />
-              </div>
+            <div class="field">
+              <label data-i18n="wiz.windowCount">Anzahl Fenster</label>
+              <input type="number" oninput="wizCalcPrice()" value="24" />
+              <small>Die geplante Dauer legst du einmalig im nächsten Schritt fest.</small>
             </div>
           </div>
 
@@ -1789,10 +1794,10 @@
             <div class="field">
               <label data-i18n="wiz.extras">Zusatzleistungen</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addDebris">Bauschutt entfernen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addContainer">Container stellen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addScreed">Estrich abkratzen</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.addGlue">Klebereste entfernen</button>
+                <button type="button" class="opt-chip" data-addon-price="bau-schutt" onclick="this.classList.toggle('on')" data-i18n="wiz.addDebris">Bauschutt entfernen</button>
+                <button type="button" class="opt-chip" data-addon-price="bau-container" onclick="this.classList.toggle('on')" data-i18n="wiz.addContainer">Container stellen</button>
+                <button type="button" class="opt-chip" data-addon-price="bau-estrich" onclick="this.classList.toggle('on')" data-i18n="wiz.addScreed">Estrich abkratzen</button>
+                <button type="button" class="opt-chip" data-addon-price="bau-kleber" onclick="this.classList.toggle('on')" data-i18n="wiz.addGlue">Klebereste entfernen</button>
               </div>
             </div>
             <div class="field">
@@ -1809,15 +1814,15 @@
                 <button type="button" class="opt-chip on" onclick="this.classList.toggle('on')" data-i18n="wiz.methStator">Statorreinigung (Hochdruck)</button>
                 <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methAlgae">Algen-/Moosentfernung</button>
                 <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methImpreg">Imprägnierung</button>
-                <button type="button" class="opt-chip" onclick="this.classList.toggle('on')" data-i18n="wiz.methGraffiti">Graffitientfernung</button>
+                <button type="button" class="opt-chip" data-addon-price="fassade-graffiti" data-addon-kind="qm" onclick="this.classList.toggle('on')" data-i18n="wiz.methGraffiti">Graffitientfernung</button>
               </div>
             </div>
             <div class="field">
               <label data-i18n="wiz.access">Zugang</label>
               <div class="opt-row">
-                <button type="button" class="opt-chip on" onclick="toggleOne(this)" data-i18n="wiz.accessLift">Hubsteiger</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.accessScaffold">Gerüst</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.accessRope">Seilzugang</button>
+                <button type="button" class="opt-chip on" data-addon-price="fassade-hubsteiger" onclick="toggleOne(this)" data-i18n="wiz.accessLift">Hubsteiger</button>
+                <button type="button" class="opt-chip" data-addon-price="fassade-geruest" onclick="toggleOne(this)" data-i18n="wiz.accessScaffold">Gerüst</button>
+                <button type="button" class="opt-chip" data-addon-price="fassade-seil" onclick="toggleOne(this)" data-i18n="wiz.accessRope">Seilzugang</button>
               </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -1849,6 +1854,10 @@
             <div class="price-row-summary" id="sumFeeRow">
               <span data-i18n="wiz.travel">Anfahrt</span>
               <span id="sumFee">—</span>
+            </div>
+            <div class="price-row-summary" id="sumAddonRow" style="display:none; align-items:flex-start;">
+              <span>Zusätze</span>
+              <span id="sumAddons" style="max-width:70%; text-align:right; font-size:11px; line-height:1.45;">—</span>
             </div>
             <div class="price-row-summary" id="sumMinRow" style="display: none;">
               <span style="opacity: 0.7;" data-i18n="wiz.minApplied">Mindestbuchung angewendet</span>
@@ -1909,6 +1918,7 @@
             <div class="field">
               <label data-i18n="wiz.durationH">Dauer (Stunden)</label>
               <input type="number" id="wizDuration" value="1.5" min="0.25" step="0.25" oninput="wizCalcPrice()" />
+              <small>Einmalige Zeitangabe für Planung und Preisberechnung.</small>
             </div>
           </div>
           <div class="field" id="wizCrewWrap">
@@ -2724,7 +2734,13 @@
       <div class="modal-body">
         <div class="cust-detail-grid" id="custDetailInfo"></div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; margin: 18px 0 10px;">
+        <div class="customer-section-head">
+          <div><strong>Offerten</strong><small>Direkt mit dieser Kundenakte verknüpft</small></div>
+          <button class="btn btn-secondary btn-sm" onclick="openOffertForCurrentCustomer()">+ Neue Offerte</button>
+        </div>
+        <div id="custOffertLog" class="cust-offert-log"></div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin: 8px 0 10px;">
           <div style="font-size: 14px; font-weight: 700; color: var(--text);" data-i18n="cust.phoneHistory">Telefon-Historie</div>
           <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="addCallLog()" data-i18n="call.new">+ Anruf vermerken</button>
         </div>
@@ -4110,19 +4126,19 @@
     <!-- Der App-Code, aufgeteilt nach Bereich. Reihenfolge zaehlt:
        gewoehnliche Skripte, gemeinsamer Namensraum, kein Hoisting
        ueber Dateigrenzen hinweg. -->
-  <script src="app-basis.js?v=1"></script>
+  <script src="app-basis.js?v=2"></script>
   <script src="app-benutzer.js?v=1"></script>
   <script src="app-planung.js?v=3"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
-  <script src="app-fahrzeuge.js?v=2"></script>
+  <script src="app-fahrzeuge.js?v=3"></script>
   <script src="app-aufgaben.js?v=1"></script>
   <script src="app-mitarbeiter.js?v=2"></script>
-  <script src="app-routen.js?v=3"></script>
+  <script src="app-routen.js?v=4"></script>
   <script src="app-firma.js?v=2"></script>
-  <script src="app-preise.js?v=1"></script>
-  <script src="app-offerten.js?v=3"></script>
-  <script src="app-konto.js?v=3"></script>
+  <script src="app-preise.js?v=2"></script>
+  <script src="app-offerten.js?v=4"></script>
+  <script src="app-konto.js?v=4"></script>
 </body>
 </html>

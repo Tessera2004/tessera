@@ -141,7 +141,7 @@
         titleEl.textContent = topbarTitle(target);
         window.scrollTo(0, 0);
         closeSidebar();
-        if (target === 'team') renderTeamGrid();
+        if (target === 'team') { renderTeamGrid(); renderHistorie(); }
       });
     });
 

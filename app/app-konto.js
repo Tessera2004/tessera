@@ -497,10 +497,11 @@
     function loadGoogleIdentityServices() {
       if (window.google?.accounts?.oauth2) return Promise.resolve();
       return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('GOOGLE_SCRIPT_BLOCKED')), 6000);
         const existing = document.querySelector('script[data-mosaos-google-oauth]');
         if (existing) {
-          existing.addEventListener('load', resolve, { once: true });
-          existing.addEventListener('error', () => reject(new Error('Google-Anmeldung konnte nicht geladen werden.')), { once: true });
+          existing.addEventListener('load', () => { clearTimeout(timeout); resolve(); }, { once: true });
+          existing.addEventListener('error', () => { clearTimeout(timeout); reject(new Error('GOOGLE_SCRIPT_BLOCKED')); }, { once: true });
           return;
         }
         const script = document.createElement('script');
@@ -508,10 +509,27 @@
         script.async = true;
         script.defer = true;
         script.dataset.mosaosGoogleOauth = 'true';
-        script.onload = resolve;
-        script.onerror = () => reject(new Error('Google-Anmeldung konnte nicht geladen werden.'));
+        script.onload = () => { clearTimeout(timeout); resolve(); };
+        script.onerror = () => { clearTimeout(timeout); reject(new Error('GOOGLE_SCRIPT_BLOCKED')); };
         document.head.appendChild(script);
       });
+    }
+
+    function connectGmailDirect(cid, scope) {
+      const redirect = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(cid)}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=select_account%20consent`;
+      const popup = window.open(url, 'gmail-google-auth', 'width=540,height=680,left=200,top=70');
+      if (!popup) { toast('Google-Popup blockiert. Erlaube Pop-ups für mosaos.ch.', 'error'); return; }
+      const timer = setInterval(() => {
+        try {
+          const params = new URLSearchParams(popup.location.hash.slice(1));
+          const token = params.get('access_token');
+          const error = params.get('error');
+          if (token) { clearInterval(timer); popup.close(); finishGmailConnect(token, Number(params.get('expires_in')) || 3600); }
+          else if (error) { clearInterval(timer); popup.close(); toast('Google-Anmeldung abgebrochen: ' + error, 'error'); }
+        } catch {}
+        if (popup.closed) clearInterval(timer);
+      }, 500);
     }
 
     async function connectGmail() {
@@ -534,7 +552,11 @@
         });
         tokenClient.requestAccessToken({ prompt: 'select_account consent' });
       } catch (e) {
-        toast(e.message || 'Google-Anmeldung konnte nicht gestartet werden.', 'error');
+        if (e.message === 'GOOGLE_SCRIPT_BLOCKED') {
+          connectGmailDirect(cid, scope);
+        } else {
+          toast(e.message || 'Google-Anmeldung konnte nicht gestartet werden.', 'error');
+        }
       }
     }
     async function finishGmailConnect(token, expiresIn = 3600) {

@@ -297,10 +297,30 @@
         <div class="cust-info-row"><span>Telefon</span><strong>${c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : '—'}</strong></div>
         <div class="cust-info-row"><span>E-Mail</span><strong>${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '—'}</strong></div>
         <div class="cust-info-row"><span>Notiz</span><strong>${c.note || '—'}</strong></div>
-        <div class="cust-info-row"><span>Offerten</span><strong>${(() => { const name = customerDisplayName(c).trim().toLowerCase(); const os = JSON.parse(localStorage.getItem('cc-offerts') || '[]').filter(o => o.customerId === c.id || (!o.customerId && (o.kunde || '').trim().toLowerCase() === name)); return os.length ? os.map(o => `<a href="#" onclick="event.preventDefault();closeModal('customerDetail');openOffertEditor('${o.id}')">${formatDateDE(o.datum)} · ${serviceTitle(o.service)}</a>`).join('<br>') : 'Noch keine Offerte'; })()}</strong></div>
       `;
+      renderCustomerOfferts(c);
       renderCallLog(c);
       openModal('customerDetail');
+    }
+
+    function renderCustomerOfferts(c) {
+      const wrap = document.getElementById('custOffertLog');
+      if (!wrap) return;
+      const name = customerDisplayName(c).trim().toLowerCase();
+      const offers = JSON.parse(localStorage.getItem('cc-offerts') || '[]')
+        .filter(o => o.customerId === c.id || (!o.customerId && ((o.kunde || '').trim().toLowerCase() === name || (c.address && o.adresse === c.address))))
+        .sort((a, b) => String(b.updated || b.datum || '').localeCompare(String(a.updated || a.datum || '')));
+      wrap.innerHTML = offers.length ? offers.map(o => `<button type="button" class="cust-offert-item" onclick="closeModal('customerDetail');openOffertEditor('${o.id}')">
+        <span><strong>${escapeHtml(serviceTitle(o.service))}</strong><small>${escapeHtml(formatDateDE(o.datum))} · ${escapeHtml(o.status || 'Entwurf')}</small></span>
+        <b>${Number(o.preis || 0).toFixed(2)} ${coLocale(loadCompany()).cur}</b><span aria-hidden="true">→</span>
+      </button>`).join('') : '<div class="cust-offert-empty">Noch keine Offerte für diesen Kunden gespeichert.</div>';
+    }
+
+    function openOffertForCurrentCustomer() {
+      const customerId = openCustomerId;
+      closeModal('customerDetail');
+      openOffertEditor();
+      if (customerId) offKundeWaehlen(customerId);
     }
 
     function editCurrentCustomer() {

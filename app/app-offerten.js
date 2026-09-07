@@ -556,11 +556,14 @@ ${coSig}`;
     }
 
     function collectOffertForm() {
+      const customerName = document.getElementById('offKunde').value.trim();
+      const matchedCustomer = offKundeId || (loadCustomers().find(c =>
+        customerDisplayName(c).trim().toLowerCase() === customerName.toLowerCase()) || {}).id;
       return {
         id: currentOffert || ('off-' + Date.now()),
         service: currentOffertService,
-        customerId: offKundeId || undefined,
-        kunde: document.getElementById('offKunde').value.trim(),
+        customerId: matchedCustomer || undefined,
+        kunde: customerName,
         adresse: document.getElementById('offAdresse').value.trim(),
         preis: document.getElementById('offPreis').value,
         datum: document.getElementById('offDatum').value || todayISO(),
@@ -635,158 +638,206 @@ ${coSig}`;
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
       const W = doc.internal.pageSize.getWidth();
       const H = doc.internal.pageSize.getHeight();
-      const M = 20; // Rand
-      let y = M;
-
-      // === Header: Firma ===
+      const M = 18;
       const co = loadCompany();
       const L = coLocale(co);
-      // B7 — das eigene Logo statt nur des Namens in Markenrot
       const markenFarbe = hexZuRgb(co.brandColor) || [225, 29, 42];
-      const textX = pdfLogo(doc, co, M, y);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(18);
-      doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
-      doc.text(co.name || 'Firma', textX, y);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120);
-      if (co.addr1) doc.text([co.addr1, co.addr2].filter(Boolean).join(', '), textX, y + 5);
-      // Rechts: Kontakt
-      doc.setFontSize(8.5);
-      doc.text(`${co.addr1 || ''}, ${co.addr2 || ''}`, W - M, y, { align: 'right' });
-      if (co.contact) doc.text(co.contact, W - M, y + 4, { align: 'right' });
-      if (co.mwst) doc.text('MWST ' + co.mwst, W - M, y + 8, { align: 'right' });
-      y += 18;
-
-      // Trennlinie
-      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
-      doc.setLineWidth(0.6);
-      doc.line(M, y, W - M, y);
-      y += 10;
-
-      // === Titel + Offert-Nr / Datum ===
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(20);
-      doc.setTextColor(20);
-      doc.text('Offerte', M, y);
       const datum = data.datum || new Date().toISOString().slice(0,10);
       const datumDE = new Date(datum).toLocaleDateString('de-CH', { day: '2-digit', month: 'long', year: 'numeric' });
       const offNr = (data.id || '').slice(-6).toUpperCase();
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120);
-      doc.text(`Nr. ${offNr || '—'}`, W - M, y - 4, { align: 'right' });
-      doc.text(`Datum: ${datumDE}`, W - M, y, { align: 'right' });
-      y += 12;
-
-      // === Empfänger ===
-      doc.setFontSize(8.5);
-      doc.setTextColor(120);
-      doc.text('AN', M, y);
-      y += 4;
-      doc.setFontSize(11);
-      doc.setTextColor(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text(data.kunde, M, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      if (data.adresse) {
-        doc.text(data.adresse, M, y);
-        y += 5;
-      }
-      y += 6;
-
-      // === Leistungsbeschreibung ===
-      doc.setFontSize(8.5);
-      doc.setTextColor(120);
-      doc.text('LEISTUNG', M, y);
-      y += 4;
-      doc.setFontSize(10.5);
-      doc.setTextColor(20);
-      doc.setFont('helvetica', 'bold');
       const svcLbl = (typeof svcShortLabels !== 'undefined' && svcShortLabels[data.service]) || data.service || 'Reinigung';
-      doc.text(svcLbl, M, y);
-      y += 6;
+      let y = 0;
 
-      // === Beschreibung (mehrzeilig) ===
+      function pageHeader(firstPage) {
+        doc.setFillColor(248, 248, 249);
+        doc.rect(0, 0, W, firstPage ? 39 : 24, 'F');
+        doc.setFillColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+        doc.rect(0, 0, 4, firstPage ? 39 : 24, 'F');
+        const logoY = firstPage ? 16 : 13;
+        const textX = pdfLogo(doc, co, M, logoY);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(firstPage ? 16 : 12);
+        doc.setTextColor(28, 31, 36);
+        doc.text(co.name || 'Firma', textX, logoY);
+        if (firstPage) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.3);
+          doc.setTextColor(105, 110, 118);
+          const companyLine = [co.addr1, co.addr2, co.contact].filter(Boolean).join('  |  ');
+          if (companyLine) doc.text(companyLine, textX, logoY + 5);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+          doc.text('ANGEBOT', W - M, 13, { align: 'right' });
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(80, 84, 91);
+          doc.text(`Nr. ${offNr || 'ENTWURF'}`, W - M, 19, { align: 'right' });
+          doc.text(datumDE, W - M, 24, { align: 'right' });
+        } else {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.5);
+          doc.setTextColor(110);
+          doc.text(`Offerte ${offNr || 'ENTWURF'}  |  ${data.kunde}`, W - M, logoY, { align: 'right' });
+        }
+        y = firstPage ? 50 : 34;
+      }
+
+      function ensureSpace(mm) {
+        if (y + mm <= H - 22) return;
+        doc.addPage();
+        pageHeader(false);
+      }
+
+      function sectionLabel(label) {
+        ensureSpace(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+        doc.text(String(label).toUpperCase(), M, y);
+        y += 6;
+      }
+
+      function bodyText(text, options = {}) {
+        const indent = options.indent || 0;
+        const width = W - 2 * M - indent;
+        doc.setFont('helvetica', options.bold ? 'bold' : 'normal');
+        doc.setFontSize(options.size || 9.6);
+        doc.setTextColor(options.muted ? 96 : 38, options.muted ? 100 : 41, options.muted ? 108 : 47);
+        const wrapped = doc.splitTextToSize(String(text), width);
+        ensureSpace(wrapped.length * 4.8 + 1);
+        doc.text(wrapped, M + indent, y);
+        y += wrapped.length * 4.8 + (options.after ?? 2.4);
+      }
+
+      pageHeader(true);
+
+      // Empfänger und Angebotsgegenstand klar voneinander trennen.
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.setTextColor(40);
-      const text = data.text || 'Leistungsbeschreibung folgt nach Besichtigung.';
-      const lines = doc.splitTextToSize(text, W - 2 * M);
-      lines.forEach(line => {
-        if (y > H - 50) { doc.addPage(); y = M; }
-        doc.text(line, M, y);
-        y += 5.2;
-      });
-      y += 6;
+      doc.setFontSize(8);
+      doc.setTextColor(115);
+      doc.text('EMPFÄNGER', M, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11.5);
+      doc.setTextColor(26, 29, 34);
+      doc.text(data.kunde, M, y + 6);
+      if (data.adresse) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9.3);
+        doc.setTextColor(82, 86, 94);
+        doc.text(doc.splitTextToSize(data.adresse, 75), M, y + 12);
+      }
 
-      // === Preis-Box ===
-      if (y > H - 60) { doc.addPage(); y = M; }
+      doc.setFillColor(248, 248, 249);
+      doc.roundedRect(W - M - 72, y - 4, 72, 25, 2, 2, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(112);
+      doc.text('ANGEBOTENE LEISTUNG', W - M - 68, y + 2);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(30, 33, 38);
+      doc.text(doc.splitTextToSize(svcLbl, 64), W - M - 68, y + 9);
+      y += 31;
+
+      // Editor-Inhalt professionell setzen: Metadaten und Preiszeilen erscheinen
+      // bereits in eigenen Bereichen und werden deshalb nicht doppelt gedruckt.
+      sectionLabel('Leistungsbeschreibung');
+      const rawLines = String(data.text || 'Leistungsbeschreibung folgt nach Besichtigung.').split(/\r?\n/);
+      const duplicateLine = /^(Objekt|Adresse|Leistung|Stundensatz|Preis pro|Pauschalpreis|Gesamtpreis|Voraussichtlicher Gesamtpreis|Mindestbuchung|Mindestauftragswert)\s*:/i;
+      let signoffReached = false;
+      rawLines.forEach((raw, index) => {
+        const line = raw.trim();
+        if (/^Mit freundlichen Gr/i.test(line)) { signoffReached = true; return; }
+        if (signoffReached || duplicateLine.test(line)) return;
+        if (!line) { y += index ? 1.4 : 0; return; }
+        if (/^Leistungsumfang:?$/i.test(line)) {
+          bodyText('Im Preis enthalten', { bold: true, size: 9.8, after: 2 });
+          return;
+        }
+        if (/^[•\-] ?/.test(line)) {
+          ensureSpace(7);
+          doc.setFillColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+          doc.circle(M + 1.2, y - 1.1, 0.8, 'F');
+          bodyText(line.replace(/^[•\-] ?\s*/, ''), { indent: 5, after: 1.4 });
+          return;
+        }
+        if (/^Das Angebot ist gültig/i.test(line)) return;
+        bodyText(line, { after: 2.5 });
+      });
+      y += 4;
+
+      // Preisübersicht als ruhige, klar lesbare Zusammenfassung.
+      ensureSpace(48);
+      sectionLabel('Preisübersicht');
       const preis = parseFloat(data.preis || 0);
       const mwst = preis * L.vat;
       const brutto = preis + mwst;
-      doc.setDrawColor(220);
-      doc.setLineWidth(0.3);
-      doc.rect(M, y, W - 2*M, 30);
-
-      doc.setFontSize(9.5);
-      doc.setTextColor(80);
-      doc.text('Auftragspreis netto', M + 4, y + 7);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(20);
-      doc.text(preis.toFixed(2) + ' ' + L.cur, W - M - 4, y + 7, { align: 'right' });
-
+      const priceHeight = L.mwstPflichtig ? 35 : 31;
+      doc.setFillColor(248, 248, 249);
+      doc.roundedRect(M, y, W - 2 * M, priceHeight, 2, 2, 'F');
+      doc.setFontSize(9.3);
       doc.setFont('helvetica', 'normal');
-      if (L.mwstPflichtig) {
-        doc.setTextColor(80);
-        doc.text(L.vatLabel, M + 4, y + 14);
-        doc.setTextColor(20);
-        doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M - 4, y + 14, { align: 'right' });
-      } else {
-        doc.setFontSize(8);
-        doc.setTextColor(120);
-        doc.text(L.steuerHinweis, M + 4, y + 14);
-        doc.setFontSize(9.5);
-      }
-
-      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
-      doc.setLineWidth(0.4);
-      doc.line(M + 4, y + 18, W - M - 4, y + 18);
-
+      doc.setTextColor(76, 80, 87);
+      doc.text('Leistung netto', M + 6, y + 8);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11.5);
+      doc.setTextColor(29, 32, 37);
+      doc.text(preis > 0 ? `${preis.toFixed(2)} ${L.cur}` : 'Nach Vereinbarung', W - M - 6, y + 8, { align: 'right' });
+      if (L.mwstPflichtig) {
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(76, 80, 87);
+        doc.text(L.vatLabel, M + 6, y + 15);
+        doc.setTextColor(29, 32, 37);
+        doc.text(`${mwst.toFixed(2)} ${L.cur}`, W - M - 6, y + 15, { align: 'right' });
+      } else {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text(L.steuerHinweis, M + 6, y + 15);
+      }
+      doc.setDrawColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
+      doc.setLineWidth(0.35);
+      doc.line(M + 6, y + 20, W - M - 6, y + 20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
       doc.setTextColor(markenFarbe[0], markenFarbe[1], markenFarbe[2]);
-      doc.text('Gesamt brutto', M + 4, y + 25);
-      doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
-      y += 38;
+      doc.text(L.mwstPflichtig ? 'Gesamt inkl. MWST' : 'Gesamt', M + 6, y + 28);
+      doc.text(preis > 0 ? `${brutto.toFixed(2)} ${L.cur}` : 'Nach Vereinbarung', W - M - 6, y + 28, { align: 'right' });
+      y += priceHeight + 8;
 
-      // === Footer-Hinweis ===
-      doc.setFont('helvetica', 'italic');
+      ensureSpace(47);
+      doc.setFillColor(253, 248, 248);
+      doc.roundedRect(M, y, W - 2 * M, 18, 2, 2, 'F');
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
-      doc.setTextColor(120);
-      const footer = 'Diese Offerte ist 30 Tage ab Offertdatum gültig. Zusatzleistungen werden nur nach Rücksprache ausgeführt. Bei Annahme bitten wir um unterzeichnete Rücksendung.';
-      const fLines = doc.splitTextToSize(footer, W - 2 * M);
-      fLines.forEach(l => {
-        if (y > H - 25) { doc.addPage(); y = M; }
-        doc.text(l, M, y);
-        y += 4.5;
-      });
+      doc.setTextColor(79, 82, 89);
+      const validity = 'Gültig 30 Tage ab Offertdatum. Zusatzleistungen erfolgen nur nach vorgängiger Absprache.';
+      doc.text(doc.splitTextToSize(validity, W - 2 * M - 12), M + 6, y + 7);
+      y += 29;
 
-      // Unterschriftslinie
-      if (y > H - 35) { doc.addPage(); y = M; }
-      y = Math.max(y + 14, H - 30);
-      doc.setDrawColor(150);
-      doc.setLineWidth(0.3);
+      doc.setDrawColor(150, 153, 160);
+      doc.setLineWidth(0.25);
       doc.line(M, y, M + 70, y);
       doc.line(W - M - 70, y, W - M, y);
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(120);
-      doc.text('Ort, Datum / Unterschrift Auftraggeber', M, y + 4);
-      doc.text('Unterschrift Auftragnehmer', W - M, y + 4, { align: 'right' });
+      doc.setFontSize(8);
+      doc.setTextColor(105);
+      doc.text('Ort, Datum / Unterschrift Auftraggeber', M, y + 5);
+      doc.text('Unterschrift Auftragnehmer', W - M, y + 5, { align: 'right' });
+
+      // Einheitlicher Seitenfuss auf jeder Seite.
+      const pageCount = doc.getNumberOfPages();
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+        doc.setDrawColor(226, 227, 230);
+        doc.setLineWidth(0.2);
+        doc.line(M, H - 14, W - M, H - 14);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(120);
+        const legal = [co.name, co.mwst ? `MWST ${co.mwst}` : '', co.contact].filter(Boolean).join('  |  ');
+        doc.text(legal || co.name || '', M, H - 9);
+        doc.text(`Seite ${page} / ${pageCount}`, W - M, H - 9, { align: 'right' });
+      }
 
       // Save
       const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');

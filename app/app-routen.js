@@ -353,6 +353,12 @@
       el.textContent = tt(key, fallback) + (vorname ? ', ' + vorname : '');
     }
 
+    let dashboardActivityExpanded = false;
+    function toggleDashboardActivity() {
+      dashboardActivityExpanded = !dashboardActivityExpanded;
+      renderDashboard();
+    }
+
     function renderDashboard() {
       renderDashGreeting();
       renderFirstSteps();
@@ -455,10 +461,15 @@
           });
         } catch {}
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
-        const top = events.slice(0, 8);
+        const top = events.slice(0, dashboardActivityExpanded ? 30 : 6);
         actEl.innerHTML = top.length
           ? top.map(ev => `<div class="activity-item"><div class="act-icon" style="background:${ev.col}1a;color:${ev.col}" aria-hidden="true">${ev.icon}</div><div class="act-body"><div class="act-kind" style="color:${ev.col}">${escapeHtml(ev.label)}</div><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div><time class="act-time">${formatActivityTime(ev.ts)}</time></div>`).join('')
           : `<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">${tt('dash.noActivity','Noch keine Aktivität.')}</div>`;
+        const more = document.getElementById('dashActivityMore');
+        if (more) {
+          more.style.display = events.length > 6 ? '' : 'none';
+          more.textContent = dashboardActivityExpanded ? 'Weniger anzeigen' : `Alle Aktivitäten anzeigen (${Math.min(events.length, 30)})`;
+        }
       }
     }
 
