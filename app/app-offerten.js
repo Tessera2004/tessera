@@ -71,7 +71,16 @@
       const hinweis = document.getElementById('offPreisHinweis');
       const label = document.getElementById('offMengeLabel');
       if (!feld) return;
-      const def = genericServiceDef(currentOffertService);
+      let def = genericServiceDef(currentOffertService);
+      if (!def && !isGenericVertical()) {
+        def = {
+          unterhalt: { unit: 'h', price: getPrice('unterhalt-rate'), minQty: 0, fee: 0 },
+          end: { unit: 'qm', price: getPrice('end-qm'), minQty: 0, fee: 0 },
+          fenster: { unit: 'h', price: getPrice('fenster-rate'), minQty: getPrice('fenster-min'), fee: 0 },
+          bau: { unit: 'qm', price: getPrice('bau-qm'), minQty: 0, fee: 0 },
+          fassade: { unit: 'qm', price: getPrice('fassade-stator'), minQty: getPrice('fassade-min'), fee: 0 }
+        }[currentOffertService];
+      }
       const waehrung = coLocale(loadCompany()).cur;
       if (!def) {
         if (hinweis) hinweis.textContent = tt('off.noPrice', 'Für diese Leistung ist kein Preis hinterlegt.');
@@ -184,10 +193,10 @@
       const datum = formatDateDE(data.datum || todayISO());
       const gueltig = formatDateDE(validUntilISO(30));
       const co = loadCompany();
-      const coSig = `${co.name || 'MosaOS'}\n${[co.addr1, co.addr2].filter(Boolean).join(', ')} · ${datum}`;
+      const coSig = `${co.name || 'MosaOS'}\n${[co.addr1, co.addr2].filter(Boolean).join(', ')}`;
 
       const templates = {
-        unterhalt: `Sehr geehrte/r ${kunde},
+        unterhalt: `Guten Tag ${kunde}
 
 vielen Dank für Ihre Anfrage zur regelmäßigen Reinigung Ihres Objektes.
 Hiermit unterbreiten wir Ihnen folgendes Angebot für eine professionelle Unterhaltsreinigung.
@@ -199,7 +208,7 @@ Leistungsumfang
 • Wöchentlicher Qualitätsbericht mit Foto-Dokumentation
 
 Objekt: ${adresse}
-Stundensatz: ${getPrice('unterhalt-rate').toFixed(2)} €/h
+Stundensatz: ${currency} ${getPrice('unterhalt-rate').toFixed(2)} / h
 Pauschalpreis pro Einsatz: ${preis}
 
 Das Angebot ist gültig bis ${gueltig}.
@@ -208,7 +217,7 @@ Wir freuen uns auf Ihre Rückmeldung.
 Mit freundlichen Grüßen
 ${coSig}`,
 
-        end: `Sehr geehrte/r ${kunde},
+        end: `Guten Tag ${kunde}
 
 gerne unterbreiten wir Ihnen ein Angebot für die Endreinigung Ihrer Wohnung.
 
@@ -217,10 +226,10 @@ Leistungsumfang
 • Küche inkl. Geräte (Backofen, Kühlschrank, Spüle)
 • Sanitärbereich entkalken und desinfizieren
 • Fenster innen, Heizkörper, Türrahmen
-• Übergabe-bereite Übergabe an den Vermieter
+• Abgabebereite Ausführung
 
 Adresse: ${adresse}
-Preis pro m²: ${getPrice('end-qm').toFixed(2)} €/m²
+Preis pro m²: ${currency} ${getPrice('end-qm').toFixed(2)}
 Pauschalpreis: ${preis}
 
 Das Angebot ist gültig bis ${gueltig}.
@@ -229,7 +238,7 @@ Wir garantieren eine abnahmefähige Wohnung — andernfalls Nachreinigung kosten
 Mit freundlichen Grüßen
 ${coSig}`,
 
-        fenster: `Sehr geehrte/r ${kunde},
+        fenster: `Guten Tag ${kunde}
 
 vielen Dank für Ihr Interesse an unserer Fensterreinigung.
 
@@ -240,7 +249,7 @@ Leistungsumfang
 • Auf Wunsch mit Leiter oder Hubsteiger
 
 Objekt: ${adresse}
-Stundensatz: ${getPrice('fenster-rate').toFixed(2)} €/h
+Stundensatz: ${currency} ${getPrice('fenster-rate').toFixed(2)} / h
 Voraussichtlicher Gesamtpreis: ${preis}
 Mindestbuchung: ${getPrice('fenster-min')} Stunden
 
@@ -249,7 +258,7 @@ Das Angebot ist gültig bis ${gueltig}.
 Mit freundlichen Grüßen
 ${coSig}`,
 
-        bau: `Sehr geehrte Bauleitung,
+        bau: `Guten Tag ${kunde}
 
 gerne übernehmen wir die Baureinigung Ihres Projektes.
 
@@ -258,10 +267,10 @@ Leistungsumfang
 • Reinigung sämtlicher Bodenbeläge
 • Klebereste und Folien entfernen
 • Fenster, Rahmen und Sanitärobjekte reinigen
-• Übergabe-fähige Endreinigung
+• Übergabefertige Schlussreinigung
 
 Objekt: ${adresse}
-Preis pro m²: ${getPrice('bau-qm').toFixed(2)} €/m²
+Preis pro m²: ${currency} ${getPrice('bau-qm').toFixed(2)}
 Pauschalpreis: ${preis}
 
 Das Angebot ist gültig bis ${gueltig}.
@@ -270,18 +279,18 @@ Wir koordinieren uns gerne direkt mit den Gewerken vor Ort.
 Mit freundlichen Grüßen
 ${coSig}`,
 
-        fassade: `Sehr geehrte/r ${kunde},
+        fassade: `Guten Tag ${kunde}
 
 für die Reinigung Ihrer Fassade unterbreiten wir Ihnen folgendes Angebot.
 
 Leistungsumfang
-• Statorreinigung mittels Hochdruck (${getPrice('fassade-stator').toFixed(2)} €/m²)
+• Schonende Fassadenreinigung mit geeignetem Verfahren (${currency} ${getPrice('fassade-stator').toFixed(2)} / m²)
 • Optional: Algen- und Moosentfernung
 • Optional: Imprägnierung für Langzeitschutz
-• Gerüst oder Hubsteiger inkl.
+• Zugangstechnik nach Aufwand und örtlichen Gegebenheiten
 
 Objekt: ${adresse}
-Mindestauftragswert: ${getPrice('fassade-min').toFixed(2)} €
+Mindestauftragswert: ${currency} ${getPrice('fassade-min').toFixed(2)}
 Gesamtpreis: ${preis}
 
 Das Angebot ist gültig bis ${gueltig}.
@@ -299,7 +308,7 @@ ${coSig}`
         const priceLine = (def && def.unit === 'h')
           ? `Stundensatz: ${currency} ${genericServicePrice(svc).toFixed(2)} / h`
           : `Pauschalpreis: ${currency} ${genericServicePrice(svc).toFixed(2)}`;
-        return `Sehr geehrte/r ${kunde},
+        return `Guten Tag ${kunde}
 
 vielen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen folgendes Angebot für „${title}".
 
@@ -436,6 +445,7 @@ ${coSig}`;
       if (id) {
         const off = offerts.find(o => o.id === id);
         if (off) {
+          offKundeId = off.customerId || (loadCustomers().find(c => customerDisplayName(c).trim().toLowerCase() === (off.kunde || '').trim().toLowerCase()) || {}).id || null;
           currentOffertService = off.service;
           document.querySelectorAll('#offSvcChips .opt-chip').forEach(c => c.classList.toggle('on', c.dataset.offSvc === off.service));
           currentOffertImages = (off.images || []).slice();
@@ -549,6 +559,7 @@ ${coSig}`;
       return {
         id: currentOffert || ('off-' + Date.now()),
         service: currentOffertService,
+        customerId: offKundeId || undefined,
         kunde: document.getElementById('offKunde').value.trim(),
         adresse: document.getElementById('offAdresse').value.trim(),
         preis: document.getElementById('offPreis').value,
@@ -752,32 +763,11 @@ ${coSig}`;
       doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M - 4, y + 25, { align: 'right' });
       y += 38;
 
-      // === Änderungshistorie (Revisionen) ===
-      const hist = (data.history || []);
-      if (hist.length) {
-        if (y > H - 50) { doc.addPage(); y = M; }
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9.5);
-        doc.setTextColor(90);
-        doc.text('Änderungshistorie', M, y);
-        y += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
-        doc.setTextColor(120);
-        hist.forEach(h => {
-          if (y > H - 22) { doc.addPage(); y = M; }
-          const datum = h.date ? formatDateDE(h.date) : '';
-          const line = `${datum}${h.time ? ' ' + h.time : ''} · ${h.reason || ''}${h.by ? ' (' + h.by + ')' : ''}`;
-          doc.splitTextToSize(line, W - 2 * M).forEach(l => { doc.text(l, M, y); y += 4.2; });
-        });
-        y += 6;
-      }
-
       // === Footer-Hinweis ===
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(8.5);
       doc.setTextColor(120);
-      const footer = 'Gültigkeit: 30 Tage ab Offertdatum. Preise inkl. Anfahrt im Umkreis von 15 km. Bei Annahme bitte unterschrieben zurücksenden.';
+      const footer = 'Diese Offerte ist 30 Tage ab Offertdatum gültig. Zusatzleistungen werden nur nach Rücksprache ausgeführt. Bei Annahme bitten wir um unterzeichnete Rücksendung.';
       const fLines = doc.splitTextToSize(footer, W - 2 * M);
       fLines.forEach(l => {
         if (y > H - 25) { doc.addPage(); y = M; }
@@ -795,8 +785,8 @@ ${coSig}`;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
       doc.setTextColor(120);
-      doc.text('Datum / Unterschrift Kunde', M, y + 4);
-      doc.text(co.name || 'MosaOS', W - M, y + 4, { align: 'right' });
+      doc.text('Ort, Datum / Unterschrift Auftraggeber', M, y + 4);
+      doc.text('Unterschrift Auftragnehmer', W - M, y + 4, { align: 'right' });
 
       // Save
       const safeKunde = (data.kunde || 'kunde').replace(/[^a-zA-Z0-9_-]+/g, '_');
@@ -1238,7 +1228,7 @@ ${coSig}`;
       Object.keys(all).forEach(dk => {
         (all[dk] || []).forEach(j => {
           if (!j.seriesId) return;
-          if (!map[j.seriesId]) map[j.seriesId] = { seriesId: j.seriesId, objekt: j.objekt, ort: j.ort, recurring: j.recurring, team: j.team, price: j.price, start: j.start, dates: [] };
+          if (!map[j.seriesId]) map[j.seriesId] = { seriesId: j.seriesId, objekt: j.objekt, ort: j.ort, customerId: j.customerId, customer: j.customer, recurring: j.recurring, team: j.team, price: j.price, start: j.start, dates: [] };
           map[j.seriesId].dates.push(dk);
         });
       });
@@ -1325,7 +1315,8 @@ ${coSig}`;
 
       const teamsWithMembers = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
       if (teamsWithMembers.length === 0) {
-        box.innerHTML = `<div class="wiz-avail-box"><div class="wiz-avail-sub">Lege zuerst Teams & Mitarbeiter an — dann siehst du hier sofort, ob der Wunschtermin frei ist.</div></div>`;
+        const future = dk > isoDate(new Date());
+        box.innerHTML = `<div class="wiz-avail-box ${future ? '' : 'bad'}"><div class="wiz-avail-head">${future ? 'Termin kann unbesetzt vorgemerkt werden' : 'Für heute ist ein Team erforderlich'}</div><div class="wiz-avail-sub">${future ? 'Du kannst speichern und das Team später in der Routenplanung zuweisen.' : 'Lege zuerst ein Team mit mindestens einer Person an.'}</div></div>`;
         return;
       }
       const selTeam = document.getElementById('wizardTeamSelect')?.value || '';
@@ -1430,6 +1421,11 @@ ${coSig}`;
               || ((b.team.id === team) ? 1 : 0) - ((a.team.id === team) ? 1 : 0)
               || a.team.name.localeCompare(b.team.name));
           const option = options[0];
+          if (!option && dk > isoDate(new Date())) {
+            teamByDate[dk] = null;
+            assignedByDate[dk] = [];
+            continue;
+          }
           if (!option) {
             // Die Meldung nennt den Tag und sagt, was zu tun ist. Vorher stand
             // hier immer "Die Serie", auch bei einem einzelnen Termin — und es

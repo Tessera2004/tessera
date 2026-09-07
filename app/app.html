@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=13" />
+  <link rel="stylesheet" href="styles.css?v=14" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -337,6 +337,7 @@
               <div class="card">
                 <div class="card-header">
                   <div class="card-title" data-i18n="dash.activity">Aktivität</div>
+                  <div class="card-subtitle">Aufträge, Offerten, Anrufe und erledigte Aufgaben – neueste zuerst</div>
                 </div>
                 <div class="activity" id="dashActivity">
                   <div style="text-align:center; padding:24px; color:var(--text-subtle); font-size:13px;" data-i18n="dash.noActivity">Noch keine Aktivität.</div>
@@ -974,7 +975,7 @@
               <h1 class="page-title" data-i18n="nav.abos">Abo-Verträge</h1>
               <p class="page-subtitle" data-i18n="abo.subtitle">Alle wiederkehrenden Aufträge auf einen Blick — Intervall, nächster Termin, Team. Eine Serie endest du mit einem Klick.</p>
             </div>
-            <button class="btn btn-accent" data-i18n="common.newAuftrag" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
+            <button class="btn btn-accent" onclick="openAboWizard()">+ Abo-Vertrag anlegen</button>
           </div>
           <div id="aboList" style="display:flex; flex-direction:column; gap:12px;"></div>
         </section>
@@ -1064,6 +1065,13 @@
             <a href="#settings-services"><span>5</span> Leistungen &amp; Preise</a>
             <a href="#settings-security"><span>6</span> Sicherheit</a>
           </nav>
+
+          <div class="settings-guide">
+            <div><strong>1. Firma</strong><span>Kontaktdaten und Zahlungsangaben für PDFs eintragen.</span></div>
+            <div><strong>2. Planung</strong><span>Arbeitszeiten, Dauerberechnung und Startadresse festlegen.</span></div>
+            <div><strong>3. Preise</strong><span>Nur die Leistungen ausfüllen, die du tatsächlich anbietest.</span></div>
+            <div><strong>4. Dokumente</strong><span>Eigene Texte sind optional – die Standardtexte funktionieren sofort.</span></div>
+          </div>
 
           <div class="readonly-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -2678,17 +2686,14 @@
           <textarea id="callText" rows="3" data-i18n-ph="call.whatSaidPh" placeholder="Kurz notieren: Anliegen, Termin, Reklamation, …"></textarea>
         </div>
 
-        <div class="field">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500;">
+        <div class="call-options">
+          <label class="call-option">
             <input type="checkbox" id="callRueckruf" />
-            <span data-i18n="call.callbackNeeded">Rückruf nötig (taucht in der Topbar als Erinnerung auf)</span>
+            <span><strong>Rückruf vormerken</strong><small>Bleibt sichtbar, bis der Rückruf erledigt ist.</small></span>
           </label>
-        </div>
-
-        <div class="field">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500;">
+          <label class="call-option">
             <input type="checkbox" id="callAlsAufgabe" onchange="document.getElementById('callAufgabeWer').parentElement.style.display = this.checked ? '' : 'none'" />
-            <span data-i18n="call.makeTask">Aufgabe daraus erstellen</span>
+            <span><strong>Aufgabe erstellen</strong><small>Direkt einer Person im Büro zuweisen.</small></span>
           </label>
           <div class="field" style="display:none; margin-top:8px;">
             <label data-i18n="call.taskFor">Aufgabe für</label>
@@ -4106,17 +4111,17 @@
        ueber Dateigrenzen hinweg. -->
   <script src="app-basis.js?v=1"></script>
   <script src="app-benutzer.js?v=1"></script>
-  <script src="app-planung.js?v=2"></script>
+  <script src="app-planung.js?v=3"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
-  <script src="app-fahrzeuge.js?v=1"></script>
+  <script src="app-fahrzeuge.js?v=2"></script>
   <script src="app-aufgaben.js?v=1"></script>
   <script src="app-mitarbeiter.js?v=1"></script>
-  <script src="app-routen.js?v=2"></script>
+  <script src="app-routen.js?v=3"></script>
   <script src="app-firma.js?v=2"></script>
   <script src="app-preise.js?v=1"></script>
-  <script src="app-offerten.js?v=2"></script>
+  <script src="app-offerten.js?v=3"></script>
   <script src="app-konto.js?v=2"></script>
 </body>
 </html>

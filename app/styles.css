@@ -3449,3 +3449,8 @@ body.tour-laeuft { overflow: hidden; }
 @media (max-width: 640px) {
   #tourKarte { width: calc(100vw - 32px); }
 }
+/* Verständliche Einstellungs- und Formularhilfen */
+.settings-guide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 18px}.settings-guide>div{display:flex;flex-direction:column;gap:5px;padding:14px 15px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}.settings-guide strong{font-size:13px;color:var(--text)}.settings-guide span{font-size:12px;line-height:1.45;color:var(--text-subtle)}
+.call-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.call-option{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);cursor:pointer}.call-option input{margin-top:3px;flex:0 0 auto}.call-option span{display:flex;flex-direction:column;gap:3px}.call-option strong{font-size:13px;color:var(--text)}.call-option small{font-size:11.5px;line-height:1.35;color:var(--text-subtle)}
+.call-options>.field{grid-column:1/-1;margin:0;padding:12px 14px;border-left:2px solid var(--accent);background:var(--surface-2);border-radius:8px}
+@media(max-width:900px){.settings-guide{grid-template-columns:1fr 1fr}}@media(max-width:600px){.settings-guide,.call-options{grid-template-columns:1fr}}

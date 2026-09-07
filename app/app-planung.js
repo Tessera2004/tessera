@@ -62,7 +62,7 @@
       window.MosaDB?.push('teams', arr);
     }
     function addTeam(name, color) {
-      const id = 't' + Date.now();
+      const id = 't' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
       PLAN_TEAMS.push({ id, name: name || 'Neues Team', short: teamInitials(name || 'Team'), color: color || TEAM_COLORS[PLAN_TEAMS.length % TEAM_COLORS.length] });
       saveTeams(); rebuildTeamMembers();
       return id;
@@ -1049,8 +1049,8 @@
         toast('Bitte gültige Zeit und Dauer (≥15 min) eingeben', 'error');
         return;
       }
-      if (status !== 'provisorisch' && assigned.length === 0) {
-        toast('Mindestens 1 Mitarbeiter zuweisen', 'error');
+      if (status !== 'provisorisch' && assigned.length === 0 && editingJob.dateKey <= isoDate(new Date())) {
+        toast('Für einen Einsatz am heutigen Tag muss mindestens 1 Mitarbeiter zugewiesen sein.', 'error');
         return;
       }
       if (oldJob?.status === 'beendet' && status !== 'beendet') {

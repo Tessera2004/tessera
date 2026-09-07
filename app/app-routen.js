@@ -448,6 +448,11 @@
             if (a.ts) merke('anruf', a.ts,
               `${tt('act.call','Anruf')}: ${customerDisplayName(c)}`, a.text || a.verlangteNach || '');
           }));
+          JSON.parse(localStorage.getItem('cc-offerts') || '[]').forEach(o => {
+            const ts = o.updated || (o.datum ? o.datum + 'T12:00:00' : '');
+            if (ts) merke('offerte', ts, `Offerte für ${o.kunde || 'Kunde'}`,
+              `${serviceTitle(o.service)}${o.preis ? ' · ' + Number(o.preis).toFixed(2) + ' ' + coLocale(loadCompany()).cur : ''}`);
+          });
         } catch {}
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
         const top = events.slice(0, 8);
@@ -617,6 +622,17 @@
 
     // ============ Abo-Verträge (Serien-Übersicht) ============
     let _abosGeprueft = false;
+    function openAboWizard() {
+      openModal('newAuftrag');
+      setTimeout(() => {
+        const repeat = document.getElementById('wizRepeat');
+        if (repeat) {
+          repeat.value = 'weekly';
+          repeat.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        wizKundeZuruecksetzen();
+      }, 0);
+    }
     function renderAbos() {
       const list = document.getElementById('aboList');
       if (!list) return;
@@ -637,7 +653,8 @@
       list.innerHTML = series.map(s => {
         const future = s.dates.filter(d => d >= today);
         const next = future[0] || null;
-        const teamName = s.team ? ((PLAN_TEAMS.find(t => t.id === s.team) || {}).name || '—') : 'Auto';
+        const teamName = s.team ? ((PLAN_TEAMS.find(t => t.id === s.team) || {}).name || '—') : 'noch nicht zugewiesen';
+        const customerName = s.customer || (s.customerId ? customerDisplayName(loadCustomers().find(c => c.id === s.customerId) || {}) : '') || 'Kein Kunde verknüpft';
         const intervalLbl = REPEAT_LABELS_DE[s.recurring] ? repeatLabel(s.recurring).replace(/^./, c => c.toUpperCase()) : tt('date.series','Serie');
         const nextLbl = next
           ? new Date(next + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + (s.start || '')
@@ -652,7 +669,7 @@
               ${status}
             </div>
             <div style="font-size:12.5px; color:var(--text-subtle);">
-              ${intervalLbl} · ${future.length} künftige / ${s.dates.length} total · 👥 ${escapeHtml(teamName)}
+              ${escapeHtml(customerName)} · ${intervalLbl} · ${future.length} künftige / ${s.dates.length} total · Team: ${escapeHtml(teamName)}
               ${s.price ? '· ' + Number(s.price).toFixed(0) + '.– CHF/Termin' : ''}
             </div>
             <div style="font-size:12.5px; color:var(--text-muted); margin-top:3px;">Nächster: ${nextLbl}</div>
