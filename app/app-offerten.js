@@ -1218,7 +1218,16 @@ ${coSig}`;
       return res;
     }
     function patchSeries(seriesId, fromDateKey, patch) {
-      findSeriesJobs(seriesId, fromDateKey).forEach(({ dateKey, jobId }) => updatePlanJob(dateKey, jobId, patch));
+      const all = loadPlanJobs();
+      let changed = false;
+      Object.entries(all).forEach(([dateKey, jobs]) => {
+        if (fromDateKey && dateKey < fromDateKey) return;
+        (jobs || []).forEach((job, i) => {
+          if (job.seriesId === seriesId) { jobs[i] = { ...job, ...patch }; changed = true; }
+        });
+      });
+      if (changed) return savePlanJobsAll(all);
+      return Promise.resolve(false);
     }
     function deleteSeries(seriesId, fromDateKey) {
       findSeriesJobs(seriesId, fromDateKey).forEach(({ dateKey, jobId }) => deletePlanJob(dateKey, jobId));
@@ -1243,7 +1252,7 @@ ${coSig}`;
     const PLANNING_TRANSITION_MIN = 15;
     function freeEmployeesAt(dateKey, startMin, durMin, teamId = '') {
       const end = startMin + durMin;
-      const jobs = getJobsForDate(new Date(dateKey + 'T00:00:00'));
+      const jobs = getJobsForDate(new Date(dateKey + 'T00:00:00')).filter(istDefinitiverFeldeinsatz);
       // Wichtig: Nicht das Stammteam verwenden. Die Tages-Crew kann Mitarbeitende
       // für genau diesen Tag in ein anderes Team verschieben.
       return EMPLOYEES.filter(emp => (!teamId || empDayTeam(emp.id, dateKey) === teamId) && !empIsAbsent(emp.id, dateKey))
@@ -1300,6 +1309,10 @@ ${coSig}`;
     function wizCheckAvailability() {
       const box = document.getElementById('wizAvail');
       if (!box) return;
+      if ((document.getElementById('wizJobStatus')?.value || 'provisorisch') === 'provisorisch') {
+        box.innerHTML = `<div class="wiz-avail-box"><div class="wiz-avail-sub">${escapeHtml(tt('job.provisionalAvailability','Provisorisch: Der Termin wird vorgemerkt, blockiert aber noch kein Team.'))}</div></div>`;
+        return;
+      }
       const dv = document.getElementById('wizDate')?.value;
       const dk = dv || isoDate(planCurrentDate);
       const startHHMM = document.getElementById('wizStart')?.value || '08:00';
@@ -1353,7 +1366,7 @@ ${coSig}`;
       wizCheckAvailability();
     }
     // Eingaben live an den Check koppeln
-    ['wizDate', 'wizStart', 'wizDuration', 'wizDeadline', 'wizCrew', 'wizardTeamSelect'].forEach(id => {
+    ['wizDate', 'wizStart', 'wizDuration', 'wizDeadline', 'wizCrew', 'wizardTeamSelect', 'wizJobStatus'].forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.addEventListener('change', wizCheckAvailability); el.addEventListener('input', wizCheckAvailability); }
     });
@@ -1381,6 +1394,8 @@ ${coSig}`;
       const deadline = document.getElementById('wizDeadline')?.value || null;
       const extraText = collectWizExtraText();   // branchenspezifische Felder → Büro-Notiz
       const finalPrice = wizCalcPrice();
+      const status = document.getElementById('wizJobStatus')?.value || 'provisorisch';
+      const paymethod = document.getElementById('wizPaymethod')?.value || 'rechnung';
 
       // Wiederholung: aus einem Termin eine Serie machen
       const repeat = document.getElementById('wizRepeat')?.value || 'none';
@@ -1400,7 +1415,7 @@ ${coSig}`;
       let assignedByDate = {};
       let teamByDate = {};
       const isCleaning = window.MosaVertical?.get?.() === 'reinigung';
-      if (isCleaning) {
+      if (isCleaning && status === 'definitiv') {
         const deadlineMins = deadline ? parseHM(deadline) : null;
         if (deadlineMins != null && parseHM(start) + duration > deadlineMins) {
           toast(`Der Einsatz endet nach der Abgabe um ${deadline}. Wähle einen früheren Vorschlag.`, 'error');
@@ -1434,7 +1449,7 @@ ${coSig}`;
       }
 
       // Auto-Zuweisung für andere Branchen: bei einer Serie ohne Team ein festes Team wählen.
-      if (!isCleaning && !assignTeam && repeat !== 'none') {
+      if (status === 'definitiv' && !isCleaning && !assignTeam && repeat !== 'none') {
         assignTeam = pickBestTeamForSeries(dateKeys, start, duration);
         if (assignTeam) autoTeamName = (PLAN_TEAMS.find(t => t.id === assignTeam) || {}).name || null;
       }
@@ -1450,12 +1465,13 @@ ${coSig}`;
           customer: (document.getElementById('wizCustomer')?.value || '').trim() || undefined,
           start,
           duration,
-          team: isCleaning ? (teamByDate[dk] || null) : (assignTeam || null),
+          team: status === 'provisorisch' ? null : (isCleaning ? (teamByDate[dk] || null) : (assignTeam || null)),
           svc: wizService || 'unterhalt',
           price: finalPrice,
           crew: isCleaning ? requestedCrew : 1,
-          assigned: isCleaning ? assignedByDate[dk] : undefined,
-          paymethod: 'rechnung',
+          assigned: status === 'provisorisch' ? [] : (isCleaning ? assignedByDate[dk] : undefined),
+          paymethod,
+          status,
           deadline: deadline,
           noteCrew: note,
           noteOffice: extraText,

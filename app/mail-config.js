@@ -12,6 +12,7 @@
    4. Authorized JavaScript origins: https://mosaos.ch
    5. clientId unten eintragen (Format: xxxx.apps.googleusercontent.com)
    6. Gmail API aktivieren (APIs & Services → Library → Gmail API → Enable)
+   7. OAuth-Zustimmung für gmail.readonly und gmail.send freigeben
 
    OUTLOOK / MICROSOFT 365
    ────────────────────────
@@ -19,7 +20,7 @@
    2. Azure Active Directory → App registrations → New registration
    3. Name: MosaOS Mail, Supported account types: Multitenant (oder Single)
    4. Redirect URI: Single-page application (SPA) → https://mosaos.ch
-   5. API permissions: Microsoft Graph → Mail.Read, offline_access (Delegated)
+   5. API permissions: Microsoft Graph → Mail.Read, Mail.Send, offline_access (Delegated)
    6. Application (Client) ID unten eintragen
 
    iCLOUD MAIL & GENERISCHES IMAP
@@ -33,15 +34,15 @@
 window.MOSAOS_MAIL = {
 
   gmail: {
-    clientId: '',
-    // Scope: https://www.googleapis.com/auth/gmail.readonly
+    clientId: '15565945062-1lvsqe05aguv0r5otdqagde1sgvlvoad.apps.googleusercontent.com',
+    // Scopes: gmail.readonly + gmail.send (Rechnungen aus dem verbundenen Postfach)
     // Redirect: window.location.origin (automatisch)
   },
 
   outlook: {
     clientId: '',
     tenantId: 'common',   // 'common' = alle MS-Accounts; oder konkrete Tenant-ID
-    // Scope: https://graph.microsoft.com/Mail.Read offline_access
+    // Scopes: Mail.Read + Mail.Send + offline_access
     // Redirect: window.location.origin (automatisch)
   },
 

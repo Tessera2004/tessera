@@ -16,13 +16,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
-  <script src="mail-config.js"></script>
-  <script src="db-sync.js?v=4"></script>
+  <script src="mail-config.js?v=1"></script>
+  <script src="db-sync.js?v=5"></script>
   <script src="stripe-config.js"></script>
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="demo-data.js?v=2"></script>
-  <script src="app-i18n.js?v=44"></script>
+  <script src="demo-data.js?v=3"></script>
+  <script src="app-i18n.js?v=45"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -1921,6 +1921,25 @@
               <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.handoverByHint">Fester Termin (z. B. Wohnungsabgabe) — wird bei Routenoptimierung eingehalten.</div>
             </div>
           </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="field">
+              <label data-i18n="job.status">Auftragsstatus</label>
+              <select id="wizJobStatus">
+                <option value="provisorisch" selected data-i18n="job.statusProvisional">Provisorisch</option>
+                <option value="definitiv" data-i18n="job.statusDefinitive">Definitiv</option>
+              </select>
+              <div style="font-size:11px;color:var(--text-subtle);margin-top:4px;" data-i18n="job.provisionalHint">Provisorisch blockiert weder Team noch Abrechnung.</div>
+            </div>
+            <div class="field">
+              <label data-i18n="job.paymethod">Zahlart</label>
+              <select id="wizPaymethod">
+                <option value="rechnung" data-i18n="job.pmInvoice">Rechnung</option>
+                <option value="bar" data-i18n="job.pmCash">Bar</option>
+                <option value="twint">TWINT</option>
+              </select>
+            </div>
+          </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="field">
               <label data-i18n="wiz.repeat">Wiederholung</label>
@@ -2761,6 +2780,17 @@
 
         <!-- Zahlart -->
         <div class="field">
+          <label data-i18n="job.status">Auftragsstatus</label>
+          <select id="jobEditStatus">
+            <option value="provisorisch" data-i18n="job.statusProvisional">Provisorisch</option>
+            <option value="definitiv" data-i18n="job.statusDefinitive">Definitiv</option>
+            <option value="beendet" data-i18n="job.statusFinished">Beendet</option>
+          </select>
+          <div style="font-size:11px;color:var(--text-subtle);margin-top:4px;" data-i18n="job.statusFlowHint">Provisorisch → Definitiv → Beendet. Nur definitive Einsätze erscheinen im Feld.</div>
+        </div>
+
+        <!-- Zahlart -->
+        <div class="field">
           <label data-i18n="job.paymethod">Zahlart</label>
           <div class="paymethod-switch" id="jobEditPaymethod">
             <button type="button" data-pm="bar"      onclick="setJobPaymethod('bar')" data-i18n="job.pmCash">Bar</button>
@@ -2796,7 +2826,7 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" id="jobEditResetBtn" onclick="resetJobEdit()" style="margin-right: auto;" data-i18n="job.resetDefault">Auf Standard zurücksetzen</button>
         <button class="btn btn-secondary" id="jobEditQrBtn" onclick="openJobQrModal()">QR ↗</button>
-        <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()" data-i18n="job.pmInvoice">Rechnung</button>
+        <button class="btn btn-secondary" id="jobEditInvoiceBtn" onclick="generateInvoiceForCurrentJob()" data-i18n="job.document">Rechnung / Quittung</button>
         <button class="btn btn-secondary" onclick="closeModal('jobEditor')" data-i18n="common.cancel">Abbrechen</button>
         <button class="btn btn-accent" onclick="saveJobEdit()" data-i18n="common.save">Speichern</button>
       </div>
@@ -4076,17 +4106,17 @@
        ueber Dateigrenzen hinweg. -->
   <script src="app-basis.js?v=1"></script>
   <script src="app-benutzer.js?v=1"></script>
-  <script src="app-planung.js?v=1"></script>
+  <script src="app-planung.js?v=2"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
   <script src="app-fahrzeuge.js?v=1"></script>
   <script src="app-aufgaben.js?v=1"></script>
   <script src="app-mitarbeiter.js?v=1"></script>
-  <script src="app-routen.js?v=1"></script>
-  <script src="app-firma.js?v=1"></script>
+  <script src="app-routen.js?v=2"></script>
+  <script src="app-firma.js?v=2"></script>
   <script src="app-preise.js?v=1"></script>
-  <script src="app-offerten.js?v=1"></script>
-  <script src="app-konto.js?v=1"></script>
+  <script src="app-offerten.js?v=2"></script>
+  <script src="app-konto.js?v=2"></script>
 </body>
 </html>

@@ -155,11 +155,34 @@
 
     // ============ Selbst angelegte Aufträge (pro Datum) ============
     const PLAN_JOBS_KEY = 'cc-plan-jobs-v1';
+    const AUFTRAGSSTATUS = ['provisorisch', 'definitiv', 'beendet'];
+    function normalisiereAuftragsstatus(status, dateKey) {
+      const raw = String(status || '').toLowerCase();
+      if (['provisorisch', 'provisional', 'draft'].includes(raw)) return 'provisorisch';
+      if (['beendet', 'erledigt', 'abgeschlossen', 'completed'].includes(raw)) return 'beendet';
+      if (raw === 'definitiv') return 'definitiv';
+      // Altbestand kannte nur "geplant"/leer. Vergangene Termine waren bisher
+      // abrechenbar und werden deshalb beendet, heutige/kuenftige definitiv.
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      return dateKey && dateKey < today ? 'beendet' : 'definitiv';
+    }
+    function istDefinitiverFeldeinsatz(job) { return normalisiereAuftragsstatus(job?.status, job?._dateKey || job?.date) === 'definitiv'; }
+    function istAuftragBeendet(job) { return normalisiereAuftragsstatus(job?.status, job?._dateKey || job?.date) === 'beendet'; }
     function loadPlanJobs() {
-      try { return JSON.parse(localStorage.getItem(PLAN_JOBS_KEY)) || {}; }
+      try {
+        const all = JSON.parse(localStorage.getItem(PLAN_JOBS_KEY)) || {};
+        Object.entries(all).forEach(([dateKey, jobs]) => {
+          if (Array.isArray(jobs)) jobs.forEach(j => { j.status = normalisiereAuftragsstatus(j.status, dateKey); });
+        });
+        return all;
+      }
       catch { return {}; }
     }
-    function savePlanJobsAll(d) { localStorage.setItem(PLAN_JOBS_KEY, JSON.stringify(d)); window.MosaDB?.push('plan_jobs', d); }
+    function savePlanJobsAll(d) {
+      localStorage.setItem(PLAN_JOBS_KEY, JSON.stringify(d));
+      return window.MosaDB?.push('plan_jobs', d) || Promise.resolve(false);
+    }
     function addPlanJob(dateKey, job) {
       const all = loadPlanJobs();
       if (!all[dateKey]) all[dateKey] = [];
@@ -177,7 +200,8 @@
       const all = loadPlanJobs();
       const arr = all[dateKey] || [];
       const i = arr.findIndex(j => j.id === jobId);
-      if (i >= 0) { arr[i] = { ...arr[i], ...patch }; savePlanJobsAll(all); }
+      if (i >= 0) { arr[i] = { ...arr[i], ...patch }; return savePlanJobsAll(all); }
+      return Promise.resolve(false);
     }
     function deletePlanJob(dateKey, jobId) {
       const all = loadPlanJobs();
@@ -262,11 +286,15 @@
           };
         }
         const merged = { ...base, ...j, ...ov, customerId: custId };
+        merged.status = normalisiereAuftragsstatus(merged.status, dateKey);
         // Customer-Objekt mitliefern (für UI), aber NICHT in localStorage zurückschreiben
         merged._customer = cust || null;
 
         const team = PLAN_TEAMS.find(t => t.id === merged.team);
-        if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
+        if (merged.status === 'provisorisch') {
+          merged.assigned = [];
+          merged.team = null;
+        } else if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
           // Team zugewiesen → GANZES Team arbeitet den Auftrag (bleibt für den Tag stabil,
           // wird NICHT durch defaultCrew auf 1 zugeschnitten). Tages-Crew/Abwesenheit zählt.
           const teamEmps = team ? teamMembersOnDay(team.id, dateKey) : [];
@@ -290,9 +318,12 @@
       // Selbst angelegte Aufträge (cc-plan-jobs-v1) anhängen
       const addedJobs = (loadPlanJobs()[dateKey] || []).map((j) => {
         const cust = j.customerId ? customers.find(c => c.id === j.customerId) : null;
-        const merged = { ...j, customerId: j.customerId || null, _customer: cust || null, _added: true, _jobId: j.id, _dateKey: dateKey };
+        const merged = { ...j, status: normalisiereAuftragsstatus(j.status, dateKey), customerId: j.customerId || null, _customer: cust || null, _added: true, _jobId: j.id, _dateKey: dateKey };
         const team = PLAN_TEAMS.find(t => t.id === merged.team);
-        if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
+        if (merged.status === 'provisorisch') {
+          merged.assigned = [];
+          merged.team = null;
+        } else if (!merged.assigned || !Array.isArray(merged.assigned) || merged.assigned.length === 0) {
           // Team zugewiesen → ganzes Team (stabil für den Tag), nicht auf crew zugeschnitten
           const teamEmps = team ? teamMembersOnDay(team.id, dateKey) : [];
           merged.assigned = teamEmps.map(e => e.id);
@@ -457,7 +488,7 @@
       dayLabel.textContent = isSameDay(planCurrentDate, today)
         ? tt('date.today','heute') : planCurrentDate.toLocaleDateString(dateLocale(), { weekday:'long', day:'numeric', month:'long' });
 
-      const jobs = getJobsForDate(planCurrentDate);
+      const jobs = getJobsForDate(planCurrentDate).filter(istDefinitiverFeldeinsatz);
       const nowMin = nowMinIfToday();
       const totalJobs = jobs.length;
 
@@ -587,12 +618,13 @@
             const e = empById(id);
             return e ? empShort(e) : '?';
           }).join(', ');
-          return `<div class="job-card svc-${j.svc}" onclick="openJobEditor('${j._dateKey}', ${j._idx})" title="Klicken zum Bearbeiten">
+          const statusLabel = j.status === 'provisorisch' ? tt('job.statusProvisional','Provisorisch') : j.status === 'beendet' ? tt('job.statusFinished','Beendet') : tt('job.statusDefinitive','Definitiv');
+          return `<div class="job-card svc-${j.svc}" data-job-status="${j.status}" onclick="openJobEditor('${j._dateKey}', ${j._idx})" title="Klicken zum Bearbeiten">
             <div class="jteam" style="background: ${team ? team.color : '#9CA3AF'};">${team ? team.short : '–'}</div>
             <div class="jbody">
-              <div class="jname">${j.objekt}</div>
+              <div class="jname">${j.objekt} <span class="badge badge-neutral" style="font-size:10px;margin-left:5px;">${statusLabel}</span></div>
               <div class="jmeta">${j.ort}</div>
-              <div class="jassigned">${assignedNames || `<em style="color: var(--danger);">${tt('est.noStaffAssigned','Keine Mitarbeiter zugewiesen')}</em>`}</div>
+              <div class="jassigned">${assignedNames || (j.status === 'provisorisch' ? `<em>${tt('job.notFieldYet','Noch kein Feldeinsatz')}</em>` : `<em style="color: var(--danger);">${tt('est.noStaffAssigned','Keine Mitarbeiter zugewiesen')}</em>`)}</div>
             </div>
             <div class="jright">
               <div class="jdur">${j.start} – ${fmtHM(endMin)}</div>
@@ -833,6 +865,7 @@
       document.getElementById('jobEditStart').value = j.start;
       document.getElementById('jobEditDuration').value = j.duration;
       document.getElementById('jobEditPrice').value = j.price || 0;
+      document.getElementById('jobEditStatus').value = j.status || 'provisorisch';
       document.getElementById('jobEditNoteOffice').value = j.noteOffice || '';
       document.getElementById('jobEditNoteCrew').value = j.noteCrew || '';
 
@@ -886,6 +919,9 @@
       wrap.querySelectorAll('button').forEach(b => {
         b.classList.toggle('is-active', b.dataset.pm === pm);
       });
+      const documentBtn = document.getElementById('jobEditInvoiceBtn');
+      if (documentBtn) documentBtn.textContent = pm === 'rechnung'
+        ? tt('job.pmInvoice','Rechnung') : tt('m.receiptTitle','Quittung');
     }
 
     function renderJobPhoneLog(j) {
@@ -996,12 +1032,15 @@
       el.style.color = fahrer === 0 && n > 0 ? 'var(--warning)' : 'var(--text-subtle)';
     }
 
-    function saveJobEdit() {
+    async function saveJobEdit() {
       if (!editingJob) return;
       const start = document.getElementById('jobEditStart').value;
       const duration = parseInt(document.getElementById('jobEditDuration').value, 10);
       const price = parseFloat(document.getElementById('jobEditPrice').value) || 0;
       const paymethod = document.getElementById('jobEditPaymethod').dataset.value || 'rechnung';
+      const oldJobs = getJobsForDate(new Date(editingJob.dateKey + 'T00:00:00'));
+      const oldJob = oldJobs[editingJob.idx];
+      const status = document.getElementById('jobEditStatus')?.value || oldJob?.status || 'provisorisch';
       const noteOffice = document.getElementById('jobEditNoteOffice').value.trim();
       const noteCrew = document.getElementById('jobEditNoteCrew').value.trim();
       const assigned = Array.from(document.querySelectorAll('#jobEditEmployees input[type=checkbox]:checked'))
@@ -1010,21 +1049,44 @@
         toast('Bitte gültige Zeit und Dauer (≥15 min) eingeben', 'error');
         return;
       }
-      if (assigned.length === 0) {
+      if (status !== 'provisorisch' && assigned.length === 0) {
         toast('Mindestens 1 Mitarbeiter zuweisen', 'error');
+        return;
+      }
+      if (oldJob?.status === 'beendet' && status !== 'beendet') {
+        toast(tt('job.finishedLocked','Ein beendeter Auftrag kann nicht zurückgesetzt werden.'), 'error');
+        return;
+      }
+      if (oldJob?.status === 'beendet' && (paymethod !== (oldJob.paymethod || 'rechnung') || price !== Number(oldJob.price || 0))) {
+        toast(tt('job.finishedBillingLocked','Preis und Zahlart eines beendeten Auftrags bleiben unverändert.'), 'error');
+        return;
+      }
+      if (oldJob?.status === 'provisorisch' && status === 'beendet') {
+        toast(tt('job.makeDefinitiveFirst','Auftrag zuerst auf Definitiv setzen.'), 'error');
         return;
       }
       const firstEmp = empById(assigned[0]);
       const teamId = firstEmp ? firstEmp.teamId : editingJob.team;
-      const patch = { start, duration, team: teamId, assigned, price, paymethod, noteOffice, noteCrew };
+      const isCompletion = oldJob?.status === 'definitiv' && status === 'beendet';
+      const patch = { start, duration, team: status === 'provisorisch' ? null : teamId,
+        assigned: status === 'provisorisch' ? [] : assigned, price, paymethod, noteOffice, noteCrew, status };
+      if (isCompletion) {
+        patch.completedAt = new Date().toISOString();
+        patch.invoiceStatus = paymethod === 'rechnung' ? (oldJob.invoiceStatus || 'pending') : null;
+      }
       const scope = editingJob.seriesId ? (document.getElementById('jobEditSeriesScope').value || 'this') : 'this';
+      if (isCompletion && scope !== 'this') {
+        toast(tt('job.finishSingleOnly','Ein Serien-Termin wird einzeln beendet.'), 'error');
+        return;
+      }
+      const completedDateKey = editingJob.dateKey;
       let msg = '✓ Einsatz aktualisiert';
       if (editingJob.added) {
         if (editingJob.seriesId && scope !== 'this') {
-          patchSeries(editingJob.seriesId, scope === 'future' ? editingJob.dateKey : null, patch);
+          await patchSeries(editingJob.seriesId, scope === 'future' ? editingJob.dateKey : null, patch);
           msg = scope === 'future' ? '✓ Diesen + künftige Termine aktualisiert' : '✓ Ganze Serie aktualisiert';
         } else {
-          updatePlanJob(editingJob.dateKey, editingJob.jobId, patch);
+          await updatePlanJob(editingJob.dateKey, editingJob.jobId, patch);
         }
       } else {
         setJobOverride(editingJob.dateKey, editingJob.idx, patch);
@@ -1033,16 +1095,25 @@
       editingJob = null;
       renderPlanung();
       toast(msg);
+      if (isCompletion) {
+        const updated = { ...oldJob, ...patch, _dateKey: completedDateKey };
+        await handleCompletedJob(updated, completedDateKey);
+      }
     }
 
-    function generateInvoiceForCurrentJob() {
+    async function generateInvoiceForCurrentJob() {
       if (!editingJob) return;
       const jobs = getJobsForDate(new Date(editingJob.dateKey));
       const j = jobs[editingJob.idx];
       if (!j) { toast('Einsatz nicht gefunden', 'error'); return; }
       // aktuelle (evtl. ungespeicherte) Zahlart aus dem Editor berücksichtigen
       const pm = document.getElementById('jobEditPaymethod')?.dataset.value || j.paymethod || 'rechnung';
-      generateInvoiceForJob({ ...j, paymethod: pm }, editingJob.dateKey);
+      if (!istAuftragBeendet(j)) { toast(tt('job.documentAfterFinish','Rechnung oder Quittung erst nach Abschluss erstellen.'), 'error'); return; }
+      if (pm === 'rechnung') generateInvoiceForJob({ ...j, paymethod: pm }, editingJob.dateKey);
+      else {
+        const receipt = generateReceiptForJob({ ...j, paymethod: pm }, editingJob.dateKey);
+        if (receipt && j._added) await updatePlanJob(editingJob.dateKey, j._jobId || j.id, { receiptCreatedAt: new Date().toISOString() });
+      }
     }
 
     function resetJobEdit() {

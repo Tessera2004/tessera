@@ -9,11 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=5" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
-  <script src="db-sync.js?v=4"></script>
+  <script src="db-sync.js?v=5"></script>
   <script src="presets.js?v=9"></script>
-  <script src="app-i18n.js?v=43"></script>
+  <script src="app-i18n.js?v=45"></script>
   <style>
     body { background: var(--bg); }
     .device-frame {
@@ -570,7 +571,13 @@
       let jobs = [];
       try {
         const { data } = await sb.from('plan_jobs').select('*').eq('tenant_id', tid).eq('date_key', today);
-        jobs = (data || []).filter(j => (j.assigned || []).includes(me.id));
+        jobs = (data || []).filter(j => j.status === 'definitiv' && (j.assigned || []).includes(me.id));
+        const customerIds = [...new Set(jobs.map(j => j.customer_id).filter(Boolean))];
+        if (customerIds.length) {
+          const { data: customers } = await sb.from('customers').select('id,first_name,last_name,address').eq('tenant_id', tid).in('id', customerIds);
+          const byId = new Map((customers || []).map(c => [c.id, c]));
+          jobs.forEach(j => { j._customer = byId.get(j.customer_id) || null; });
+        }
       } catch {}
       jobs.sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
       MY_JOBS = jobs;
@@ -691,7 +698,11 @@
       const activeIdx = MY_JOBS.findIndex((j, i) => !_doneStops.has(i));
       stopsEl.innerHTML = MY_JOBS.map((j, i) => {
         const note = j.note_crew ? `<div style="font-size:12px;color:var(--text-subtle);margin-top:4px;">${mEsc(j.note_crew)}</div>` : '';
-        if (_doneStops.has(i)) return mStopShell(j, `<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">${mEsc(tt('m.completed', 'Abgeschlossen'))}</div>`, 'done', false);
+        if (_doneStops.has(i)) {
+          const receipt = ['bar','twint'].includes(j.paymethod)
+            ? `<button class="btn btn-secondary" style="width:100%;margin-top:8px;" onclick="mobileReceiptPdf(${i})">${mEsc(tt('m.receipt','Quittung PDF'))}</button>` : '';
+          return mStopShell(j, `<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:4px;">${mEsc(tt('m.completed', 'Abgeschlossen'))}</div>${receipt}`, 'done', false);
+        }
         if (i === activeIdx) {
           return mStopShell(j, `${note}
             <div class="stop-hint" style="font-size:12px;color:var(--text-muted);margin-top:6px;"><strong style="color:var(--accent);">${mEsc(tt('m.nowActive', 'Jetzt aktiv'))}</strong>${mEsc(tt('m.checkinUpload', ' · einchecken & Fotos hochladen'))}</div>
@@ -869,39 +880,89 @@
         }
       }
     }
-    function markStopDone() {
+    async function markStopDone() {
       // Echten Auftrag als erledigt markieren und Liste neu zeichnen
       if (typeof window._activeStopIdx === 'number') {
-        _doneStops.add(window._activeStopIdx);
-        window._protoPhotoCount = 0; // Foto-Zähler für nächsten Stopp zurücksetzen
+        const idx = window._activeStopIdx;
+        const job = MY_JOBS[idx];
+        const sb = mSb(), tid = window._tenantId;
+        if (!job || !sb || !tid) return false;
+        try {
+          const patch = {
+            status: 'beendet',
+            completed_at: new Date().toISOString(),
+            invoice_status: (job.paymethod || 'rechnung') === 'rechnung' ? (job.invoice_status || 'pending') : null,
+            updated_at: new Date().toISOString()
+          };
+          const { data, error } = await sb.from('plan_jobs').update(patch)
+            .eq('id', job.id).eq('tenant_id', tid).eq('status', 'definitiv').select('id');
+          if (error || !data?.length) throw error || new Error('nicht gespeichert');
+          job.status = 'beendet';
+          job.completed_at = patch.completed_at;
+          job.invoice_status = patch.invoice_status;
+        } catch (e) {
+          toast(tt('m.finishSaveFailed','Abschluss konnte nicht gespeichert werden. Bitte erneut versuchen.'));
+          return false;
+        }
+        _doneStops.add(idx);
         renderMyStops();
-        return;
+        return true;
       }
       const s = document.getElementById('activeStop'); if (!s) return;
       const hint = s.querySelector('.stop-hint'); if (hint) hint.innerHTML = '<strong style="color:var(--success);">' + mEsc(tt('m.completedAt', 'Abgeschlossen um {t}').replace('{t}', nowTime())) + '</strong>';
       s.classList.add('checked', 'done');
+      return true;
     }
 
-    function finishProtocol() {
+    async function finishProtocol() {
       if (!sigHasInk && !confirm(tt('m.confirmNoSig', 'Noch keine Unterschrift. Trotzdem ohne Kunden-Signatur abschliessen?'))) return;
+      if (!await markStopDone()) return;
       saveProtocol(sigHasInk ? 'vor Ort' : 'ohne Signatur', sigHasInk);
-      markStopDone();
+      window._protoPhotoCount = 0;
       closeProtocol();
       toast(sigHasInk ? tt('m.toastSigned', 'Protokoll unterschrieben & abgeschlossen') : tt('m.toastFinished', 'Einsatz abgeschlossen'));
     }
 
     function sendProtocolLink() {
       const text = protoSummaryText() + '\n\n' + tt('m.pleaseConfirm', 'Bitte bestätige die Abnahme.');
-      saveProtocol('Link gesendet', false);
       if (navigator.share) {
         navigator.share({ title: tt('m.shareTitle', 'Abnahmeprotokoll'), text })
-          .then(() => { toast(tt('m.shared', 'Protokoll geteilt')); markStopDone(); closeProtocol(); })
+          .then(async () => { if (!await markStopDone()) return; saveProtocol('Link gesendet', false); window._protoPhotoCount = 0; toast(tt('m.shared', 'Protokoll geteilt')); closeProtocol(); })
           .catch(() => { /* abgebrochen */ });
       } else {
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-        toast(tt('m.linkOpened', 'Protokoll-Link geöffnet — an Kundin senden'));
-        markStopDone(); closeProtocol();
+        markStopDone().then(ok => { if (!ok) return; saveProtocol('Link gesendet', false); window._protoPhotoCount = 0; toast(tt('m.linkOpened', 'Protokoll-Link geöffnet — an Kundin senden')); closeProtocol(); });
       }
+    }
+
+    function mobileReceiptPdf(idx) {
+      const job = MY_JOBS[idx];
+      if (!job || !['bar','twint'].includes(job.paymethod) || !window.jspdf?.jsPDF) {
+        toast(tt('m.receiptFailed','Quittung konnte nicht erstellt werden.'));
+        return;
+      }
+      let company = window._mobileCompany || {};
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit:'mm', format:'a4' });
+      const dateKey = job.date_key || isoDateMobile(new Date());
+      const nr = ('Q-' + dateKey.replace(/-/g,'') + '-' + String(job.id || '').slice(-4)).toUpperCase();
+      const vatRates = { CH:0.081, DE:0.19, AT:0.20 };
+      const vat = company.mwstPflichtig === false ? 0 : (vatRates[String(company.country || 'CH').toUpperCase()] || 0.081);
+      const amount = Number(job.price || 0) * (1 + vat);
+      const currency = String(company.country || 'CH').toUpperCase() === 'CH' ? 'CHF' : 'EUR';
+      const customerName = [job._customer?.first_name, job._customer?.last_name].filter(Boolean).join(' ') || job.objekt || '—';
+      doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.text(company.name || 'MosaOS', 20, 24);
+      doc.setFontSize(20); doc.text(tt('m.receiptTitle','Quittung'), 20, 48);
+      doc.setFont('helvetica','normal'); doc.setFontSize(10);
+      doc.text(`${tt('m.receiptNumber','Nr.')} ${nr}`, 20, 59);
+      doc.text(`${tt('m.receiptFrom','Erhalten von')}: ${customerName}`, 20, 70);
+      if (job._customer?.address) doc.text(String(job._customer.address).slice(0, 90), 20, 76);
+      doc.text(`${tt('m.receiptFor','Leistung')}: ${job.objekt || job.svc || '—'}`, 20, 84);
+      doc.text(`${tt('m.receiptPayment','Zahlungsart')}: ${job.paymethod === 'twint' ? 'TWINT' : tt('job.pmCash','Bar')}`, 20, 92);
+      doc.setFont('helvetica','bold'); doc.setFontSize(13);
+      doc.text(`${tt('m.receiptPaid','Bezahlt')}: ${amount.toFixed(2)} ${currency}`, 20, 106);
+      doc.save(`Quittung_${nr}.pdf`);
+      toast(tt('m.receiptCreated','✓ Quittung erstellt'));
     }
 
     /* ---------- Problem melden ---------- */
@@ -960,6 +1021,7 @@
       try {
         const { data } = await sb.from('company_settings').select('profile')
           .eq('tenant_id', window._tenantId).maybeSingle();
+        window._mobileCompany = data?.profile || {};
         const v = data?.profile?.vertical;
         if (v && MosaVertical.PRESETS[v]) MosaVertical.set(v);   // persistiert + relabelt (data-term)
       } catch (e) {}

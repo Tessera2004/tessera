@@ -207,13 +207,22 @@
     }
 
     // Eine Rechnung (PDF mit QR-Einzahlschein) aus einem Job erzeugen
-    async function generateInvoiceForJob(job, dateKey) {
+    function pdfArrayBufferToBase64(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      }
+      return btoa(binary);
+    }
+
+    async function generateInvoiceForJob(job, dateKey, options = {}) {
       const pm = job.paymethod || 'rechnung';
       if (pm !== 'rechnung') {
         toast(pm === 'bar' ? 'Barzahlung — keine Rechnung nötig' : 'Twint — keine QR-Rechnung nötig', 'error');
-        return;
+        return null;
       }
-      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return; }
+      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return null; }
 
       const c = loadCompany();
       const L = coLocale(c);
@@ -230,7 +239,7 @@
       let qrUrl = null;
       if (L.payment === 'qr') {
         try { qrUrl = await qrDataUrl(buildSwissQrPayload(c, debtor, brutto, message)); }
-        catch (e) { toast('QR-Code konnte nicht erzeugt werden', 'error'); return; }
+        catch (e) { toast('QR-Code konnte nicht erzeugt werden', 'error'); return null; }
       }
 
       const { jsPDF } = window.jspdf;
@@ -317,8 +326,57 @@
       if (L.payment === 'qr') drawQrSlip(doc, c, debtor, brutto, message, qrUrl, W, H);
       else drawSepaBlock(doc, c, debtor, brutto, message, L, W, H);
 
-      doc.save(`Rechnung_${invNr}.pdf`);
-      toast(tt('toastdyn.invoiceCreated','✓ Rechnung erstellt') + ' — ' + invNr);
+      const filename = `Rechnung_${invNr}.pdf`;
+      const pdfBase64 = pdfArrayBufferToBase64(doc.output('arraybuffer'));
+      if (options.download !== false) doc.save(filename);
+      if (options.quiet !== true) toast(tt('toastdyn.invoiceCreated','✓ Rechnung erstellt') + ' — ' + invNr);
+      return { doc, invNr, filename, pdfBase64 };
+    }
+
+    // Bar-/TWINT-Zahlungen erhalten einen einfachen, steuerlich konsistenten
+    // Zahlungsbeleg. Er verwendet dieselben Firmen-, Kunden- und Preiswerte
+    // wie die Rechnung, jedoch ohne Zahlungsaufforderung.
+    function generateReceiptForJob(job, dateKey, options = {}) {
+      const pm = job.paymethod || 'bar';
+      if (!['bar', 'twint'].includes(pm)) { toast('Quittung nur für Bar oder TWINT', 'error'); return null; }
+      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return null; }
+      const c = loadCompany();
+      const L = coLocale(c);
+      const cust = job._customer;
+      const name = cust ? customerDisplayName(cust) : (job.objekt || 'Kunde');
+      const netto = Number(job.price || 0), mwst = netto * L.vat, brutto = netto + mwst;
+      const receiptNr = ('Q-' + dateKey.replace(/-/g, '') + '-' + String(job.id || '').slice(-4)).toUpperCase();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth(), M = 20;
+      const mf = hexZuRgb(c.brandColor) || [225, 29, 42];
+      let y = M;
+      const tx = pdfLogo(doc, c, M, y);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(mf[0], mf[1], mf[2]);
+      doc.text(c.name || 'Firma', tx, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(100);
+      doc.text([c.addr1, c.addr2].filter(Boolean).join(', '), W - M, y, { align: 'right' });
+      y += 16; doc.setDrawColor(mf[0], mf[1], mf[2]); doc.line(M, y, W - M, y); y += 12;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20); doc.text('Quittung', M, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100);
+      doc.text('Nr. ' + receiptNr, W - M, y - 4, { align: 'right' });
+      doc.text('Datum: ' + new Date(dateKey + 'T00:00:00').toLocaleDateString(L.dateLoc), W - M, y, { align: 'right' });
+      y += 16; doc.setTextColor(30); doc.setFontSize(10);
+      doc.text(`Erhalten von: ${name}`, M, y); y += 8;
+      const svcLbl = (typeof svcShortLabels !== 'undefined' && svcShortLabels[job.svc]) || job.svc || 'Leistung';
+      doc.text(doc.splitTextToSize(`${svcLbl} — ${job.objekt || ''}`, W - 2 * M), M, y); y += 12;
+      doc.setDrawColor(220); doc.line(M, y, W - M, y); y += 8;
+      doc.text('Netto', M, y); doc.text(netto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 7;
+      if (L.mwstPflichtig) { doc.text(L.vatLabel, M, y); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 7; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(mf[0], mf[1], mf[2]);
+      doc.text('Bezahlt', M, y); doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 9;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90);
+      doc.text(`Zahlungsart: ${pm === 'twint' ? 'TWINT' : 'Bar'}`, M, y);
+      if (!L.mwstPflichtig) doc.text(L.steuerHinweis, M, y + 7);
+      const filename = `Quittung_${receiptNr}.pdf`;
+      if (options.download !== false) doc.save(filename);
+      if (options.quiet !== true) toast(tt('job.receiptCreated','✓ Quittung erstellt') + ' — ' + receiptNr);
+      return { doc, receiptNr, filename, pdfBase64: pdfArrayBufferToBase64(doc.output('arraybuffer')) };
     }
 
     // Zeichnet Empfangsschein + Zahlteil am Seitenfuss

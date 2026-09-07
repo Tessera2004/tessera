@@ -3,13 +3,14 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const app=read('app/app.html'),mobile=read('app/mobile.html'),sync=read('app/db-sync.js');
+const offerten=read('app/app-offerten.js'),routen=read('app/app-routen.js');
 function section(s,start,end){const i=s.indexOf(start);assert(i>=0);const j=s.indexOf(end,i+start.length);assert(j>i);return s.slice(i,j);}
 for(const file of ['app/app.html','app/mobile.html'])for(const m of read(file).matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g))new vm.Script(m[1]);
-for(const file of ['app/app-i18n.js','app/db-sync.js'])new vm.Script(read(file));
+for(const file of ['app/app-i18n.js','app/db-sync.js',...fs.readdirSync('app').filter(f=>/^app-.*\.js$/.test(f)).map(f=>'app/'+f)])new vm.Script(read(file));
 let jobs={},allowed=true;
 const date=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
 const ctx=vm.createContext({Date,loadPlanJobs:()=>structuredClone(jobs),savePlanJobsAll:v=>jobs=v,hasPerm:()=>allowed,isoDate:date,protokolliere:()=>{},tt:(k,v)=>v});
-vm.runInContext(section(app,'    function nextRepeatDate(', '    function wizToggleRepeat(')+section(app,'    function aboVerlaengern(', '    function aboVerlaengernKlick(')+section(app,'    function abosNachfuellen(', '    function aboEndSeries(')+'\nconst ABO_HORIZONT_TAGE=56;',ctx);
+vm.runInContext(section(offerten,'    function nextRepeatDate(', '    function wizToggleRepeat(')+section(routen,'    function aboVerlaengern(', '    function aboVerlaengernKlick(')+section(routen,'    function abosNachfuellen(', '    function aboEndSeries(')+'\nconst ABO_HORIZONT_TAGE=56;',ctx);
 ctx.getAllSeries=()=>{const m={};for(const [d,list] of Object.entries(jobs))for(const j of list)(m[j.seriesId]??={seriesId:j.seriesId,dates:[]}).dates.push(d);return Object.values(m).map(s=>({...s,dates:s.dates.sort()}));};
 const today=date(new Date());
 for(const [recurring,n] of [['weekly',8],['biweekly',4]]){jobs={[today]:[{id:'j',seriesId:'s',recurring}]};assert.equal(ctx.abosNachfuellen(),n);assert.equal(ctx.abosNachfuellen(),0);}
@@ -17,11 +18,13 @@ jobs={[today]:[{id:'j',seriesId:'s',recurring:'monthly'}]};const n=ctx.abosNachf
 jobs={'2020-01-01':[{id:'j',seriesId:'s',recurring:'weekly'}]};assert.equal(ctx.abosNachfuellen(),0);
 allowed=false;assert.equal(ctx.aboVerlaengern('s'),0);assert.equal(ctx.abosNachfuellen(),0);
 let notices=0,calls=[];ctx.toast=()=>notices++;
-vm.runInContext(section(app,'    function pdfLogo(', '    // C1'),ctx);
+vm.runInContext(section(offerten,'    function pdfLogo(', '    // C1'),ctx);
 for(const [w,h] of [[400,100],[100,400],[100,100]]){calls=[];ctx.pdfLogo({getImageProperties:()=>({width:w,height:h}),addImage:(...a)=>calls.push(a)},{logo:'data:image/png;base64,fixture'},20,20);assert.equal(calls.length,1);assert.equal(calls[0][4]/calls[0][5],w/h);assert(calls[0][4]<=22&&calls[0][5]<=18);}
 ctx.pdfLogo({}, {logo:'data:image/svg+xml;base64,fixture'},20,20);assert.equal(notices,1);
 const syncCtx=vm.createContext({Date});vm.runInContext(section(sync,'  function unflattenJobs(', '  // ── Format-Konverter')+section(sync,'  function flattenJobs(', '  // ── Merge-Helfer'),syncCtx);
-const rows=syncCtx.flattenJobs({[today]:[{id:'j',seriesId:'s',recurring:'monthly'}]},'tenant');const restored=syncCtx.unflattenJobs(rows);assert.equal(restored[today][0].seriesId,'s');assert.equal(restored[today][0].recurring,'monthly');
+const rows=syncCtx.flattenJobs({[today]:[{id:'j',seriesId:'s',recurring:'monthly',status:'beendet',completedAt:'2026-09-07T10:00:00Z',invoiceNumber:'R-1',invoiceStatus:'sent',invoiceCreatedAt:'2026-09-07T10:01:00Z',invoiceSentAt:'2026-09-07T10:02:00Z',receiptCreatedAt:null}]},'tenant');
+const restored=syncCtx.unflattenJobs(rows);assert.equal(restored[today][0].seriesId,'s');assert.equal(restored[today][0].recurring,'monthly');
+assert.deepEqual([restored[today][0].status,restored[today][0].completedAt,restored[today][0].invoiceNumber,restored[today][0].invoiceStatus,restored[today][0].invoiceCreatedAt,restored[today][0].invoiceSentAt],['beendet','2026-09-07T10:00:00Z','R-1','sent','2026-09-07T10:01:00Z','2026-09-07T10:02:00Z']);
 const elements={};const el=id=>elements[id]??={style:{},textContent:'',appendChild(x){this.child=x;}};
 let failure=null,rendered=0,filters;
 const sb={from(table){const q={select(){return q},eq(){return q},in(k,v){filters=v;return q},then(resolve){return Promise.resolve({data:table==='office_users'?[{id:'office',email:'me@example.test'}]:[{id:'task',assignee:'office',priority:'hoch'}],error:failure===table?{message:'test failure'}:null}).then(resolve)}};return q;}};

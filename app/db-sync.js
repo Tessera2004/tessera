@@ -78,7 +78,9 @@
  *     start_time  TEXT, end_time TEXT, duration INTEGER,
  *     team TEXT, assigned JSONB DEFAULT '[]',
  *     note_office TEXT, note_crew TEXT,
- *     status      TEXT DEFAULT 'geplant',
+ *     status      TEXT DEFAULT 'provisorisch', completed_at TIMESTAMPTZ,
+ *     invoice_number TEXT, invoice_status TEXT, invoice_created_at TIMESTAMPTZ,
+ *     invoice_sent_at TIMESTAMPTZ, invoice_send_error TEXT, receipt_created_at TIMESTAMPTZ,
  *     updated_at  TIMESTAMPTZ DEFAULT NOW()
  *   );
  *   ALTER TABLE plan_jobs ENABLE ROW LEVEL SECURITY;
@@ -379,7 +381,11 @@
         ort: r.ort, svc: r.svc, price: r.price, paymethod: r.paymethod || 'rechnung',
         start: r.start_time, end: r.end_time, duration: r.duration, team: r.team,
         assigned: r.assigned || [], noteOffice: r.note_office,
-        noteCrew: r.note_crew, seriesId: r.series_id || null, recurring: r.recurring || null, status: r.status || 'geplant' });
+        noteCrew: r.note_crew, seriesId: r.series_id || null, recurring: r.recurring || null,
+        status: r.status || 'provisorisch', completedAt: r.completed_at || null,
+        invoiceNumber: r.invoice_number || null, invoiceStatus: r.invoice_status || null,
+        invoiceCreatedAt: r.invoice_created_at || null, invoiceSentAt: r.invoice_sent_at || null,
+        invoiceSendError: r.invoice_send_error || null, receiptCreatedAt: r.receipt_created_at || null });
     });
     return dict;
   }
@@ -494,7 +500,11 @@
           team: j.team || null, assigned: j.assigned || [],
           note_office: j.noteOffice || null, note_crew: j.noteCrew || null,
           series_id: j.seriesId || null, recurring: j.recurring || null,
-          status: j.status || 'geplant', updated_at: new Date().toISOString() });
+          status: j.status || 'provisorisch', completed_at: j.completedAt || null,
+          invoice_number: j.invoiceNumber || null, invoice_status: j.invoiceStatus || null,
+          invoice_created_at: j.invoiceCreatedAt || null, invoice_sent_at: j.invoiceSentAt || null,
+          invoice_send_error: j.invoiceSendError || null, receipt_created_at: j.receiptCreatedAt || null,
+          updated_at: new Date().toISOString() });
       });
     });
     return rows;

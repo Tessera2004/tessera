@@ -136,7 +136,7 @@
       btn.innerHTML = '<span class="spinner"></span> Berechne Routen…';
       try {
         const dateKey = isoDate(planCurrentDate);
-        const allJobs = getJobsForDate(planCurrentDate);
+        const allJobs = getJobsForDate(planCurrentDate).filter(istDefinitiverFeldeinsatz);
         if (allJobs.length === 0) { toast('Keine Einsätze an diesem Tag'); return; }
 
         // Auto-Zuweisung: Jobs ohne Team auf verfügbare Teams verteilen (Load-Balancing)
@@ -503,7 +503,7 @@
       const end = new Date(y, m, 0);
       const out = [];
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        getJobsForDate(new Date(d)).forEach(j => out.push(j));
+        getJobsForDate(new Date(d)).filter(istAuftragBeendet).forEach(j => out.push(j));
       }
       // Nach Datum + Startzeit sortieren
       out.sort((a, b) => (a._dateKey || '').localeCompare(b._dateKey || '') || String(a.start).localeCompare(String(b.start)));
@@ -700,6 +700,14 @@
           ...vorlage,
           id: 'j' + Date.now() + '-v' + i,
           date: dk,
+          status: 'definitiv',
+          completedAt: null,
+          invoiceNumber: null,
+          invoiceStatus: null,
+          invoiceCreatedAt: null,
+          invoiceSentAt: null,
+          invoiceSendError: null,
+          receiptCreatedAt: null,
           createdAt: new Date().toISOString().slice(0, 16)
         });
         angelegt++;

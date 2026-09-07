@@ -36,9 +36,9 @@
   ];
   const jobs = {};
   jobs[dateKey] = [
-    { id: 'demo-j1', customerId: 'demo-c1', objekt: 'Praxis am Bahnhof', ort: customers[0].address, svc: 'unterhalt', price: 240, paymethod: 'rechnung', start: '07:30', end: '09:30', duration: 120, team: 'demo-t1', assigned: ['demo-e1', 'demo-e2'], noteCrew: 'Schlüssel im Schlüsseltresor.', status: 'geplant' },
-    { id: 'demo-j2', customerId: 'demo-c2', objekt: 'Müller Treuhand AG', ort: customers[1].address, svc: 'unterhalt', price: 180, paymethod: 'rechnung', start: '10:15', end: '11:45', duration: 90, team: 'demo-t2', assigned: ['demo-e3'], status: 'geplant' },
-    { id: 'demo-j3', customerId: 'demo-c3', objekt: 'Wohnung Russo', ort: customers[2].address, svc: 'end', price: 680, paymethod: 'rechnung', start: '13:00', end: '17:00', duration: 240, team: 'demo-t1', assigned: ['demo-e1', 'demo-e2'], noteCrew: 'Wohnungsabgabe morgen um 10:00.', status: 'geplant' }
+    { id: 'demo-j1', customerId: 'demo-c1', objekt: 'Praxis am Bahnhof', ort: customers[0].address, svc: 'unterhalt', price: 240, paymethod: 'rechnung', start: '07:30', end: '09:30', duration: 120, team: 'demo-t1', assigned: ['demo-e1', 'demo-e2'], noteCrew: 'Schlüssel im Schlüsseltresor.', status: 'definitiv' },
+    { id: 'demo-j2', customerId: 'demo-c2', objekt: 'Müller Treuhand AG', ort: customers[1].address, svc: 'unterhalt', price: 180, paymethod: 'rechnung', start: '10:15', end: '11:45', duration: 90, team: 'demo-t2', assigned: ['demo-e3'], status: 'definitiv' },
+    { id: 'demo-j3', customerId: 'demo-c3', objekt: 'Wohnung Russo', ort: customers[2].address, svc: 'end', price: 680, paymethod: 'rechnung', start: '13:00', end: '17:00', duration: 240, team: 'demo-t1', assigned: ['demo-e1', 'demo-e2'], noteCrew: 'Wohnungsabgabe morgen um 10:00.', status: 'definitiv' }
   ];
   localStorage.setItem('cc-employees-v1', JSON.stringify(employees));
   localStorage.setItem('cc-teams-v1', JSON.stringify([
