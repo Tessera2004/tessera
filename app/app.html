@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=16" />
+  <link rel="stylesheet" href="styles.css?v=17" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -22,7 +22,7 @@
   <script src="billing.js?v=5"></script>
   <script src="presets.js?v=9"></script>
   <script src="demo-data.js?v=3"></script>
-  <script src="app-i18n.js?v=45"></script>
+  <script src="app-i18n.js?v=46"></script>
   <script src="tour.js?v=5" defer></script>
 </head>
 <body>
@@ -68,7 +68,7 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label" data-i18n="nav.sec.jobs">Einsätze</div>
+          <div class="nav-label" data-i18n="nav.sec.jobs">Einsätze &amp; Planung</div>
           <a class="nav-item" data-view="werkstattplan" data-vertical-view="werkstattplan" style="display:none;">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
             Werkstattplan
@@ -106,8 +106,13 @@
           </a>
           <a class="nav-item" data-view="planung">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Routenplanung
+            Einsatzplanung
             <span class="nav-badge" id="planungNavBadge" style="display:none;">0</span>
+          </a>
+          <a class="nav-item" data-view="aufgaben">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Aufgaben
+            <span class="nav-badge" id="aufgabenNavBadge">0</span>
           </a>
           <a class="nav-item" data-view="zeiten">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -121,20 +126,29 @@
         </div>
 
         <div class="nav-section">
-          <div class="nav-label" data-i18n="nav.sec.customers">Kunden</div>
+          <div class="nav-label" data-i18n="nav.sec.customers">Kunden &amp; Kommunikation</div>
           <a class="nav-item" data-view="kunden">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Kunden
-          </a>
-          <a class="nav-item" data-view="offerten">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-            Offerten
-            <span class="nav-badge" id="offNavBadge">0</span>
           </a>
           <a class="nav-item" data-view="anrufprotokoll">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             Anrufprotokoll
             <span class="nav-badge" id="anrufNavBadge">0</span>
+          </a>
+          <a class="nav-item" data-view="email">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            E-Mail
+            <span class="nav-badge" id="mailNavBadge" style="display:none;">0</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label" data-i18n="nav.sec.sales">Verkauf &amp; Verträge</div>
+          <a class="nav-item" data-view="offerten">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+            Offerten
+            <span class="nav-badge" id="offNavBadge">0</span>
           </a>
           <a class="nav-item" data-view="abos">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -164,16 +178,6 @@
           <a class="nav-item" data-view="team">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
             Büro-Team
-          </a>
-          <a class="nav-item" data-view="aufgaben">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            Aufgaben
-            <span class="nav-badge" id="aufgabenNavBadge">0</span>
-          </a>
-          <a class="nav-item" data-view="email">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            E-Mail
-            <span class="nav-badge" id="mailNavBadge" style="display:none;">0</span>
           </a>
         </div>
 
@@ -353,7 +357,7 @@
         <section class="view" data-view="planung">
           <div class="page-header">
             <div>
-              <h1 class="page-title" data-i18n="nav.planung">Routenplanung</h1>
+              <h1 class="page-title" data-i18n="nav.planung">Einsatzplanung</h1>
               <p class="page-subtitle" id="planSubtitle">Lade…</p>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -1053,24 +1057,25 @@
               <!-- Tour erneut starten: wer sie übersprungen hat, findet sie sonst nie wieder -->
               <button class="btn btn-secondary" onclick="MosaTour && MosaTour.starten()"
                       data-i18n="set.tourStart">Tour erneut starten</button>
-              <button class="btn btn-accent" data-i18n="set.saveChanges" onclick="savePrices()">Änderungen speichern</button>
             </div>
           </div>
 
           <nav class="settings-jump" aria-label="Bereiche der Einstellungen">
-            <a href="#settings-company"><span>1</span> Firma</a>
+            <a href="#settings-company"><span>1</span> Firma &amp; Abrechnung</a>
             <a href="#settings-design"><span>2</span> Erscheinungsbild</a>
             <a href="#settings-workflow"><span>3</span> Planung</a>
-            <a href="#settings-templates"><span>4</span> Dokumentvorlagen</a>
-            <a href="#settings-services"><span>5</span> Leistungen &amp; Preise</a>
+            <a href="#settings-templates"><span>4</span> Dokumente</a>
+            <a href="#settings-services"><span>5</span> Module &amp; Preise</a>
             <a href="#settings-security"><span>6</span> Sicherheit</a>
           </nav>
 
           <div class="settings-guide">
-            <div><strong>1. Firma</strong><span>Kontaktdaten und Zahlungsangaben für PDFs eintragen.</span></div>
-            <div><strong>2. Planung</strong><span>Arbeitszeiten, Dauerberechnung und Startadresse festlegen.</span></div>
-            <div><strong>3. Preise</strong><span>Nur die Leistungen ausfüllen, die du tatsächlich anbietest.</span></div>
-            <div><strong>4. Dokumente</strong><span>Eigene Texte sind optional – die Standardtexte funktionieren sofort.</span></div>
+            <div><strong>1. Firma &amp; Abrechnung</strong><span>Adresse, Steuerangaben und IBAN für deine Dokumente.</span></div>
+            <div><strong>2. Erscheinungsbild</strong><span>Logo, Firmenfarbe und Darstellung der App.</span></div>
+            <div><strong>3. Planung</strong><span>Zeitberechnung und Startpunkt für die Routen.</span></div>
+            <div><strong>4. Dokumente</strong><span>Standardtexte für Offerten und Rechnungen.</span></div>
+            <div><strong>5. Module &amp; Preise</strong><span>Sichtbare Bereiche, Leistungen und Zusatzpreise.</span></div>
+            <div><strong>6. Sicherheit</strong><span>Zwei-Faktor-Anmeldung, Datenexport und Kontolöschung.</span></div>
           </div>
 
           <div class="readonly-banner">
@@ -1079,7 +1084,7 @@
           </div>
 
           <!-- Geschäftsfeld / Branche (Preset-Engine) -->
-          <div class="card settings-card" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" id="settings-company" style="padding:20px 22px; margin-bottom:18px;">
             <div style="margin-bottom:10px;">
               <div style="font-weight:700; font-size:15px;" data-i18n="set.businessField">Geschäftsfeld</div>
               <div style="font-size:12.5px; color:var(--text-subtle);" data-i18n="set.businessFieldDesc">Bestimmt Begriffe, Checklisten &amp; Vorlagen in der ganzen App. „Gebäudereinigung" ist der Standard.</div>
@@ -1092,7 +1097,7 @@
           </div>
 
           <!-- Firma & Zahlungsangaben (für QR-Rechnung) -->
-          <div class="card settings-card" id="settings-company" style="padding:20px 22px; margin-bottom:18px;">
+          <div class="card settings-card" style="padding:20px 22px; margin-bottom:18px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
               <div>
                 <div style="font-weight:700; font-size:15px;" data-i18n="set.companyTitle">Firma & Zahlungsangaben</div>
@@ -1255,7 +1260,10 @@
             <div id="customServicesList" class="custom-services-list"></div>
           </div>
 
-          <h2 style="font-size:15px; font-weight:600; margin:0 0 4px;" data-i18n="set.pricesPerService">Preise pro Leistung</h2>
+          <div class="settings-price-heading">
+            <div><h2 data-i18n="set.pricesPerService">Preise pro Leistung</h2><span>Diese Werte verwendet der Auftrags-Assistent für seine automatische Berechnung.</span></div>
+            <button class="btn btn-accent" onclick="savePrices()">Preise speichern</button>
+          </div>
           <!-- Datengetriebene Preis-Karten für Nicht-Reinigungs-Branchen (aus dem Preset) -->
           <div id="priceGridGeneric" style="display:none; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px;"></div>
           <!-- Reinigungs-Original (unverändert) -->
@@ -4126,7 +4134,7 @@
     <!-- Der App-Code, aufgeteilt nach Bereich. Reihenfolge zaehlt:
        gewoehnliche Skripte, gemeinsamer Namensraum, kein Hoisting
        ueber Dateigrenzen hinweg. -->
-  <script src="app-basis.js?v=2"></script>
+  <script src="app-basis.js?v=3"></script>
   <script src="app-benutzer.js?v=1"></script>
   <script src="app-planung.js?v=3"></script>
   <script src="app-kunden.js?v=1"></script>

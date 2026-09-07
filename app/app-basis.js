@@ -23,7 +23,7 @@
 
     const titles = {
       dashboard: 'Dashboard',
-      planung: 'Routenplanung',
+      planung: 'Einsatzplanung',
       offerten: 'Offerten',
       objekte: 'Objekte',
       mitarbeiter: 'Mitarbeiter',
