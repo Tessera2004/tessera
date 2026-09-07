@@ -279,7 +279,7 @@
           <label class="task-check">
             <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDone('${t.id}')" />
           </label>
-          <div class="task-body" onclick="openTaskModal('${t.id}')">
+          <div class="task-body" onclick="${isQuestion(t) ? `openQuestionModal('${t.id}')` : `openTaskModal('${t.id}')`}">
             <div class="task-row1">
               <span class="task-title">${t.title}</span>
               ${prioBadge}
@@ -310,6 +310,10 @@
     function toggleTaskDone(id) {
       const t = TASKS.find(x => x.id === id);
       if (!t) return;
+      if (isQuestion(t)) {
+        openQuestionModal(id);
+        return;
+      }
       t.done = !t.done;
       t.completedAt = t.done ? new Date().toISOString() : null;
       saveTasks(TASKS);
@@ -432,6 +436,98 @@
       editingTaskId = null;
       renderAufgaben();
       toast('Gelöscht');
+    }
+
+    // Offene Fragen sind bewusst auf dem Dashboard sichtbar. Technisch nutzen
+    // sie die synchronisierte Aufgaben-Tabelle, damit sie auf allen Geräten
+    // erscheinen und denselben Verantwortlichen-/Fälligkeitsmechanismus haben.
+    let editingQuestionId = null;
+    function isQuestion(task) {
+      return task?.linkType === 'frage' || task?.sourceMail?.question === true;
+    }
+
+    function openQuestionModal(id) {
+      editingQuestionId = id || null;
+      const users = loadUsers();
+      const sel = document.getElementById('questionAssignee');
+      sel.innerHTML = users.length
+        ? users.map(u => `<option value="${u.id}">${escapeHtml(`${u.firstname} ${u.lastname}`.trim())}</option>`).join('')
+        : '<option value="">Noch niemand erfasst</option>';
+      const q = id ? TASKS.find(t => t.id === id && isQuestion(t)) : null;
+      if (id && !q) return;
+      const due = new Date(); due.setDate(due.getDate() + 2);
+      document.getElementById('questionModalTitle').textContent = q ? 'Frage beantworten' : 'Offene Frage anlegen';
+      document.getElementById('questionTitle').value = q?.title || '';
+      document.getElementById('questionContext').value = q?.desc || '';
+      document.getElementById('questionAssignee').value = q?.assignee || users[0]?.id || '';
+      document.getElementById('questionDue').value = q?.dueDate || due.toISOString().slice(0, 10);
+      document.getElementById('questionAnswer').value = q?.sourceMail?.answer || '';
+      document.getElementById('questionDeleteBtn').style.display = q ? '' : 'none';
+      openModal('questionEditor');
+    }
+
+    function saveQuestion() {
+      const title = document.getElementById('questionTitle').value.trim();
+      if (!title) { toast('Bitte eine Frage eingeben', 'error'); return; }
+      const answer = document.getElementById('questionAnswer').value.trim();
+      const existing = editingQuestionId ? TASKS.find(t => t.id === editingQuestionId) : null;
+      const now = new Date().toISOString();
+      const data = {
+        title,
+        desc: document.getElementById('questionContext').value.trim(),
+        assignee: document.getElementById('questionAssignee').value || null,
+        dueDate: document.getElementById('questionDue').value || null,
+        prio: 'normal',
+        linkType: 'frage',
+        linkLabel: 'Offene Frage',
+        done: !!answer,
+        completedAt: answer ? (existing?.completedAt || now) : null,
+        sourceMail: {
+          ...(existing?.sourceMail || {}),
+          question: true,
+          answer,
+          answeredAt: answer ? now : null,
+          answeredBy: answer ? getCurrentUserName() : null
+        }
+      };
+      if (existing) Object.assign(existing, data);
+      else TASKS.push({ id: 'q' + Date.now(), ...data, created: now });
+      saveTasks(TASKS);
+      protokolliere(existing ? 'geaendert' : 'angelegt', 'tasks', `Frage: ${title}`);
+      closeModal('questionEditor');
+      editingQuestionId = null;
+      renderAufgaben();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      toast(answer ? 'Antwort gespeichert' : 'Frage gespeichert');
+    }
+
+    function deleteQuestion() {
+      if (!editingQuestionId) return;
+      const q = TASKS.find(t => t.id === editingQuestionId);
+      if (!q || !confirm(`Frage „${q.title}“ löschen?`)) return;
+      TASKS = TASKS.filter(t => t.id !== editingQuestionId);
+      saveTasks(TASKS);
+      window.MosaDB?.remove('tasks', editingQuestionId);
+      closeModal('questionEditor');
+      editingQuestionId = null;
+      renderAufgaben();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      toast('Frage gelöscht');
+    }
+
+    function renderDashboardQuestions() {
+      const wrap = document.getElementById('dashQuestions');
+      if (!wrap) return;
+      const open = TASKS.filter(t => isQuestion(t) && !t.done)
+        .sort((a, b) => String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999')));
+      wrap.innerHTML = open.length ? open.slice(0, 6).map(q => {
+        const overdue = q.dueDate && q.dueDate < new Date().toISOString().slice(0, 10);
+        return `<button type="button" class="dashboard-question ${overdue ? 'is-overdue' : ''}" onclick="openQuestionModal('${q.id}')">
+          <span class="dashboard-question-mark" aria-hidden="true">?</span>
+          <span><strong>${escapeHtml(q.title)}</strong>${q.desc ? `<small>${escapeHtml(q.desc)}</small>` : ''}</span>
+          <span class="dashboard-question-meta">${escapeHtml(taskAssigneeLabel(q.assignee))}${q.dueDate ? ` · ${new Date(q.dueDate + 'T12:00:00').toLocaleDateString(dateLocale(), {day:'2-digit', month:'2-digit'})}` : ''}</span>
+        </button>`;
+      }).join('') : '<div class="dashboard-question-empty"><strong>Alles geklärt</strong><span>Momentan wartet keine offene Frage auf eine Antwort.</span></div>';
     }
 
     // Re-render bei Nav auf "aufgaben"

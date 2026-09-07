@@ -615,6 +615,16 @@
         if (['priceSummary', 'wizAddonEditor', 'priceOverrideField'].includes(child.id)) side.appendChild(child);
         else main.appendChild(child);
       });
+      const advanced = Array.from(main.querySelectorAll('.wizard-advanced-item'));
+      if (advanced.length) {
+        const details = document.createElement('details');
+        details.className = 'wizard-advanced';
+        details.innerHTML = '<summary><span><strong>Weitere Optionen</strong><small>Personalbedarf, Übergabe, Zahlart und Wiederholung</small></span><span class="wizard-advanced-chevron" aria-hidden="true">⌄</span></summary><div class="wizard-advanced-body"></div>';
+        const body = details.querySelector('.wizard-advanced-body');
+        advanced.forEach(item => body.appendChild(item));
+        const teamHeading = main.querySelector('[data-wizard-section="team"]');
+        main.insertBefore(details, teamHeading || null);
+      }
       page.append(main, side);
     }
 

@@ -354,14 +354,26 @@
     }
 
     let dashboardActivityExpanded = false;
+    let dashboardActivityCenterOpen = false;
     function toggleDashboardActivity() {
       dashboardActivityExpanded = !dashboardActivityExpanded;
+      renderDashboard();
+    }
+
+    function toggleDashboardActivityCenter(force) {
+      dashboardActivityCenterOpen = typeof force === 'boolean' ? force : !dashboardActivityCenterOpen;
+      if (dashboardActivityCenterOpen) dashboardActivityExpanded = true;
+      document.getElementById('dashboardActivityCard')?.classList.toggle('is-expanded', dashboardActivityCenterOpen);
+      document.body.classList.toggle('activity-center-open', dashboardActivityCenterOpen);
+      const button = document.getElementById('dashActivityExpand');
+      if (button) button.textContent = dashboardActivityCenterOpen ? 'Schliessen' : 'Vergrössern';
       renderDashboard();
     }
 
     function renderDashboard() {
       renderDashGreeting();
       renderFirstSteps();
+      if (typeof renderDashboardQuestions === 'function') renderDashboardQuestions();
       const aktiv = EMPLOYEES.filter(e => e.status !== 'abwesend').length;
       const total = EMPLOYEES.length;
       const kunden = (typeof loadCustomers === 'function') ? loadCustomers().length : 0;
@@ -416,18 +428,20 @@
           abnahme:   S('<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'),
           auftrag:   S('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
           anruf:     S('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>'),
-          offerte:   S('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>')
+          offerte:   S('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>'),
+          aenderung: S('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/>'),
+          frage:      S('<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2-3 4"/><path d="M12 18h.01"/>')
         };
         const FARBEN = {
           erledigt: 'var(--success)', vergeben: 'var(--accent)', abnahme: 'var(--success)',
-          auftrag: 'var(--brand-primary)', anruf: 'var(--warning, #D97706)', offerte: 'var(--text-muted)'
+          auftrag: 'var(--brand-primary)', anruf: 'var(--warning, #D97706)', offerte: '#64748B', aenderung: '#8B5CF6', frage: '#0EA5E9'
         };
         const ART_LABEL = {
           erledigt: 'Erledigt', vergeben: 'Aufgabe', abnahme: 'Abnahme',
-          auftrag: 'Auftrag', anruf: 'Anruf', offerte: 'Offerte'
+          auftrag: 'Auftrag', anruf: 'Anruf', offerte: 'Offerte', aenderung: 'Änderung', frage: 'Offene Frage'
         };
         const merke = (art, ts, text, meta) => events.push({
-          ts, text, meta: meta || '', icon: SYMBOLE[art], col: FARBEN[art], label: ART_LABEL[art] || art
+          art, ts, text, meta: meta || '', icon: SYMBOLE[art], col: FARBEN[art], label: ART_LABEL[art] || art
         });
 
         const events = [];
@@ -437,7 +451,10 @@
             r.signed ? tt('act.signed','Unterschrift erhalten') : (r.note || ''));
         });
         TASKS.forEach(t => {
-          if (t.done && t.completedAt) {
+          if (typeof isQuestion === 'function' && isQuestion(t)) {
+            if (t.done && t.completedAt) merke('erledigt', t.completedAt, `Frage beantwortet: ${t.title}`, t.sourceMail?.answeredBy || taskAssigneeLabel(t.assignee));
+            else merke('frage', t.created || t.createdAt, t.title, taskAssigneeLabel(t.assignee));
+          } else if (t.done && t.completedAt) {
             merke('erledigt', t.completedAt, t.title, taskAssigneeLabel(t.assignee));
           } else if (t.assignee && (t.created || t.createdAt)) {
             merke('vergeben', t.created || t.createdAt,
@@ -459,15 +476,21 @@
             if (ts) merke('offerte', ts, `Offerte für ${o.kunde || 'Kunde'}`,
               `${serviceTitle(o.service)}${o.preis ? ' · ' + Number(o.preis).toFixed(2) + ' ' + coLocale(loadCompany()).cur : ''}`);
           });
+          ladeHistorie().forEach(h => {
+            const action = ({ angelegt: 'angelegt', geaendert: 'geändert', geloescht: 'gelöscht' })[h.aktion] || h.aktion || 'geändert';
+            merke('aenderung', h.ts, `${h.was || 'Eintrag'} ${action}${h.bezeichnung ? ': ' + h.bezeichnung : ''}`,
+              [h.wer, h.werRolle, h.werEmail].filter(Boolean).join(' · '));
+          });
         } catch {}
         events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
-        const top = events.slice(0, dashboardActivityExpanded ? 30 : 6);
+        const limit = dashboardActivityCenterOpen ? 100 : (dashboardActivityExpanded ? 30 : 6);
+        const top = events.slice(0, limit);
         actEl.innerHTML = top.length
-          ? top.map(ev => `<div class="activity-item"><div class="act-icon" style="background:${ev.col}1a;color:${ev.col}" aria-hidden="true">${ev.icon}</div><div class="act-body"><div class="act-kind" style="color:${ev.col}">${escapeHtml(ev.label)}</div><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div><time class="act-time">${formatActivityTime(ev.ts)}</time></div>`).join('')
+          ? top.map(ev => `<div class="activity-item activity-${ev.art}" style="--activity-color:${ev.col}"><div class="act-icon" aria-hidden="true">${ev.icon}</div><div class="act-body"><div class="act-kind">${escapeHtml(ev.label)}</div><div class="act-text">${escapeHtml(ev.text)}</div>${ev.meta ? `<div class="act-meta">${escapeHtml(ev.meta)}</div>` : ''}</div><time class="act-time">${formatActivityTime(ev.ts)}</time></div>`).join('')
           : `<div style="text-align:center;padding:24px;color:var(--text-subtle);font-size:13px;">${tt('dash.noActivity','Noch keine Aktivität.')}</div>`;
         const more = document.getElementById('dashActivityMore');
         if (more) {
-          more.style.display = events.length > 6 ? '' : 'none';
+          more.style.display = !dashboardActivityCenterOpen && events.length > 6 ? '' : 'none';
           more.textContent = dashboardActivityExpanded ? 'Weniger anzeigen' : `Alle Aktivitäten anzeigen (${Math.min(events.length, 30)})`;
         }
       }
@@ -485,6 +508,9 @@
     }
     document.querySelector('.nav-item[data-view="dashboard"]')?.addEventListener('click', () => {
       setTimeout(renderDashboard, 50);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && dashboardActivityCenterOpen) toggleDashboardActivityCenter(false);
     });
     renderDashboard();
 

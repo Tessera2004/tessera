@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=19" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -340,9 +340,17 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: var(--space-5);">
-              <div class="card">
+              <div class="card dashboard-questions-card">
                 <div class="card-header">
-                  <div><div class="card-title" data-i18n="dash.activity">Aktivität</div><div class="card-subtitle">Aufträge, Offerten, Anrufe und Aufgaben</div></div>
+                  <div><div class="card-title">Offene Fragen</div><div class="card-subtitle">Entscheidungen, die noch beantwortet werden müssen</div></div>
+                  <button class="btn btn-secondary btn-sm" onclick="openQuestionModal()">+ Frage</button>
+                </div>
+                <div id="dashQuestions" class="dashboard-questions"></div>
+              </div>
+              <div class="card dashboard-activity-card" id="dashboardActivityCard">
+                <div class="card-header">
+                  <div><div class="card-title" data-i18n="dash.activity">Aktivität</div><div class="card-subtitle">Aufträge, Fragen, Änderungen und weitere Ereignisse</div></div>
+                  <button class="btn btn-secondary btn-sm activity-expand" id="dashActivityExpand" onclick="toggleDashboardActivityCenter()">Vergrössern</button>
                 </div>
                 <div class="activity" id="dashActivity">
                   <div style="text-align:center; padding:24px; color:var(--text-subtle); font-size:13px;" data-i18n="dash.noActivity">Noch keine Aktivität.</div>
@@ -1935,12 +1943,12 @@
               <small>Einmalige Zeitangabe für Planung und Preisberechnung.</small>
             </div>
           </div>
-          <div class="field wizard-main-item" id="wizCrewWrap">
+          <div class="field wizard-main-item wizard-advanced-item" id="wizCrewWrap">
             <label data-i18n="wiz.crewNeeded">Benötigte Mitarbeitende</label>
             <input type="number" id="wizCrew" value="1" min="1" step="1" inputmode="numeric" />
             <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" data-i18n="wiz.crewHint">MosaOS prüft genau diese Anzahl gegen die übrigen Einsätze des Teams.</div>
           </div>
-          <div class="wizard-main-item wizard-two-cols">
+          <div class="wizard-main-item wizard-two-cols wizard-advanced-item">
             <div class="field">
               <label data-i18n="wiz.priceCalc">Preis (Dauer × Stundensatz)</label>
               <div style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle,#F3F4F6);">
@@ -1955,8 +1963,8 @@
             </div>
           </div>
 
-          <div class="wizard-section-title wizard-main-item"><strong>Abrechnung &amp; Wiederholung</strong><span>Status, Zahlart und wiederkehrende Termine.</span></div>
-          <div class="wizard-main-item wizard-two-cols">
+          <div class="wizard-section-title wizard-main-item wizard-advanced-item"><strong>Abrechnung &amp; Wiederholung</strong><span>Status, Zahlart und wiederkehrende Termine.</span></div>
+          <div class="wizard-main-item wizard-two-cols wizard-advanced-item">
             <div class="field">
               <label data-i18n="job.status">Auftragsstatus</label>
               <select id="wizJobStatus">
@@ -1974,7 +1982,7 @@
               </select>
             </div>
           </div>
-          <div class="wizard-main-item wizard-two-cols">
+          <div class="wizard-main-item wizard-two-cols wizard-advanced-item">
             <div class="field">
               <label data-i18n="wiz.repeat">Wiederholung</label>
               <select id="wizRepeat" onchange="wizToggleRepeat()" style="padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 14px; color: var(--text);">
@@ -1991,7 +1999,7 @@
               <div id="wizRepeatHint" style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;"></div>
             </div>
           </div>
-          <div class="wizard-section-title wizard-main-item"><strong>Team &amp; Hinweise</strong><span>Für zukünftige Aufträge ist eine Teamzuordnung optional.</span></div>
+          <div class="wizard-section-title wizard-main-item" data-wizard-section="team"><strong>Team &amp; Hinweise</strong><span>Für zukünftige Aufträge ist eine Teamzuordnung optional.</span></div>
           <div class="field wizard-main-item">
             <label data-i18n="wiz.assignedTeam">Zugewiesenes Team</label>
             <select id="wizardTeamSelect" onchange="wizardTeamChanged()">
@@ -3166,6 +3174,30 @@
     </div>
   </div>
 
+  <!-- Offene Frage anlegen / beantworten -->
+  <div class="modal-backdrop" id="modal-questionEditor" onclick="if(event.target===this)closeModal('questionEditor')">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <div><div class="modal-title" id="questionModalTitle">Offene Frage</div><div class="modal-subtitle">Eine klare Frage mit Verantwortlichem und Fälligkeit.</div></div>
+        <button class="btn-icon" onclick="closeModal('questionEditor')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="field"><label>Frage</label><input id="questionTitle" type="text" placeholder="z. B. Soll der Kunde einen eigenen Schlüssel erhalten?" /></div>
+        <div class="field"><label>Hintergrund</label><textarea id="questionContext" rows="3" placeholder="Welche Informationen werden für die Entscheidung benötigt?"></textarea></div>
+        <div class="wizard-two-cols">
+          <div class="field"><label>Antwort von</label><select id="questionAssignee"></select></div>
+          <div class="field"><label>Antwort bis</label><input id="questionDue" type="date" /></div>
+        </div>
+        <div class="field"><label>Antwort</label><textarea id="questionAnswer" rows="3" placeholder="Leer lassen, solange die Frage offen ist."></textarea><small>Mit einer Antwort wird die Frage automatisch als beantwortet markiert.</small></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="questionDeleteBtn" style="display:none;color:var(--danger);margin-right:auto" onclick="deleteQuestion()">Löschen</button>
+        <button class="btn btn-secondary" onclick="closeModal('questionEditor')">Abbrechen</button>
+        <button class="btn btn-accent" onclick="saveQuestion()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Tages-Crew: Wer arbeitet heute mit wem -->
   <div class="modal-backdrop" id="modal-dayCrew" onclick="if(event.target===this)closeModal('dayCrew')">
     <div class="modal" style="max-width: 720px;">
@@ -4149,11 +4181,11 @@
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
   <script src="app-fahrzeuge.js?v=3"></script>
-  <script src="app-aufgaben.js?v=2"></script>
-  <script src="app-mitarbeiter.js?v=3"></script>
-  <script src="app-routen.js?v=4"></script>
+  <script src="app-aufgaben.js?v=3"></script>
+  <script src="app-mitarbeiter.js?v=4"></script>
+  <script src="app-routen.js?v=5"></script>
   <script src="app-firma.js?v=3"></script>
-  <script src="app-preise.js?v=3"></script>
+  <script src="app-preise.js?v=4"></script>
   <script src="app-offerten.js?v=5"></script>
   <script src="app-konto.js?v=5"></script>
 </body>

@@ -183,14 +183,16 @@
       wrap.innerHTML = PLAN_TEAMS.map(t => {
         const count = empsByTeam(t.id).length;
         const dots = TEAM_COLORS.map(c =>
-          `<button type="button" title="Farbe" onclick="setTeamColor('${t.id}','${c}')" style="width:18px;height:18px;border-radius:50%;border:2px solid ${t.color === c ? 'var(--text)' : 'transparent'};background:${c};cursor:pointer;padding:0;"></button>`
+          `<button type="button" class="team-color-swatch ${t.color === c ? 'is-selected' : ''}" title="Teamfarbe ${c}" aria-label="Teamfarbe ${c}" aria-pressed="${t.color === c}" onclick="setTeamColor('${t.id}','${c}')" style="--team-color:${c}">${t.color === c ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</button>`
         ).join('');
-        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;">
-          <span style="width:12px;height:12px;border-radius:50%;background:${t.color};flex-shrink:0;"></span>
-          <input type="text" value="${escapeHtml(t.name)}" onchange="renameTeamFromManager('${t.id}', this.value)" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text);" />
-          <span style="font-size:11.5px;color:var(--text-subtle);white-space:nowrap;">${count} Pers.</span>
-          <div style="display:flex;gap:3px;">${dots}</div>
-          <button type="button" onclick="deleteTeamFromManager('${t.id}')" title="Team löschen" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:2px;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        return `<div class="team-manager-card" style="--team-color:${t.color}">
+          <div class="team-manager-head">
+            <span class="team-manager-color" aria-hidden="true"></span>
+            <input type="text" value="${escapeHtml(t.name)}" aria-label="Teamname" onchange="renameTeamFromManager('${t.id}', this.value)" />
+            <span class="team-manager-count">${count} ${count === 1 ? 'Person' : 'Personen'}</span>
+            <button type="button" class="team-manager-delete" onclick="deleteTeamFromManager('${t.id}')" title="Team löschen" aria-label="Team löschen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          </div>
+          <div class="team-color-picker"><span>Teamfarbe</span><div>${dots}<label class="team-custom-color" title="Eigene Farbe wählen"><input type="color" value="${t.color}" onchange="setTeamColor('${t.id}',this.value)" /><span>Eigene</span></label></div></div>
         </div>`;
       }).join('');
     }
@@ -207,7 +209,12 @@
     function renameTeamFromManager(id, name) {
       if (name && name.trim()) { renameTeam(id, name.trim()); refreshAfterTeamChange(); if (typeof protokolliere === 'function') protokolliere('geaendert', 'teams', name.trim()); }
     }
-    function setTeamColor(id, color) { renameTeam(id, null, color); renderTeamManager(); refreshAfterTeamChange(); }
+    function setTeamColor(id, color) {
+      const t = PLAN_TEAMS.find(x => x.id === id);
+      renameTeam(id, null, color);
+      if (typeof protokolliere === 'function') protokolliere('geaendert', 'teams', `${t?.name || 'Team'} · Farbe`);
+      renderTeamManager(); refreshAfterTeamChange();
+    }
     function deleteTeamFromManager(id) {
       const t = PLAN_TEAMS.find(x => x.id === id);
       if (!t) return;
