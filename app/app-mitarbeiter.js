@@ -340,8 +340,23 @@
     }
 
     // ============ Modals ============
+    let modalAusloeser = null;
     function openModal(id) {
-      document.getElementById('modal-' + id).classList.add('open');
+      const backdrop = document.getElementById('modal-' + id);
+      if (!backdrop) return;
+      modalAusloeser = document.activeElement;
+      const dialog = backdrop.querySelector('.modal');
+      const title = backdrop.querySelector('.modal-title');
+      backdrop.classList.add('open');
+      document.body.classList.add('modal-open');
+      if (dialog) {
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+        if (title) {
+          if (!title.id) title.id = 'modal-title-' + id;
+          dialog.setAttribute('aria-labelledby', title.id);
+        }
+      }
       if (id === 'newAuftrag') {
         populateWizardTeams();
         setupWizardForVertical();
@@ -349,6 +364,10 @@
         const wd = document.getElementById('wizDate');
         if (wd && !wd.value) wd.value = isoDate(planCurrentDate);
       }
+      requestAnimationFrame(() => {
+        const focusTarget = backdrop.querySelector('[autofocus], input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])');
+        focusTarget?.focus({ preventScroll: true });
+      });
     }
 
     function populateWizardTeams() {
@@ -363,8 +382,29 @@
       sel.innerHTML = auto + opts;
     }
     function closeModal(id) {
-      document.getElementById('modal-' + id).classList.remove('open');
+      const backdrop = document.getElementById('modal-' + id);
+      if (!backdrop) return;
+      backdrop.classList.remove('open');
+      if (!document.querySelector('.modal-backdrop.open')) document.body.classList.remove('modal-open');
+      if (modalAusloeser && document.contains(modalAusloeser)) modalAusloeser.focus({ preventScroll: true });
     }
+
+    document.addEventListener('keydown', e => {
+      const offene = Array.from(document.querySelectorAll('.modal-backdrop.open'));
+      if (!offene.length) return;
+      const top = offene[offene.length - 1];
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal(top.id.replace(/^modal-/, ''));
+      }
+      if (e.key === 'Tab') {
+        const focusable = Array.from(top.querySelectorAll('button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(el => el.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
 
     // ============ Toast notifications ============
     function toast(msg, type = 'success') {
