@@ -402,6 +402,33 @@
       set('kpiReinigerMeta', total === 0 ? tt('dash.kpiNoneYet','noch keine erfasst') : (total - aktiv > 0 ? `${total - aktiv} ${tt('sub.absent','abwesend')}` : tt('dash.kpiAllActive','alle aktiv')));
       set('kpiKunden', kunden);
       set('kpiBerichte', reports.length);
+      // Tages-KPI und Tabelle werden aus derselben normalisierten Quelle wie die
+      // Einsatzplanung gespeist. Nach dem Aufteilen der App-Skripte blieb hier
+      // sonst dauerhaft der statische HTML-Startwert 0 stehen.
+      let todayJobs = [];
+      try { todayJobs = getJobsForDate(new Date()).sort((a, b) => String(a.start || '').localeCompare(String(b.start || ''))); } catch (e) {}
+      set('kpiEinsaetze', todayJobs.length);
+      const todayBody = document.getElementById('dashTodayBody');
+      if (todayBody) {
+        window._dashboardTodayJobs = todayJobs;
+        todayBody.innerHTML = todayJobs.length ? todayJobs.map((job, index) => {
+          const assigned = (job.assigned || []).map(id => {
+            const employee = empById(id);
+            return employee ? empShort(employee) : '';
+          }).filter(Boolean).join(', ');
+          const status = normalisiereAuftragsstatus(job.status, job._dateKey || job.date);
+          const statusLabel = status === 'provisorisch'
+            ? tt('job.statusProvisional', 'Provisorisch')
+            : status === 'beendet' ? tt('job.statusFinished', 'Beendet') : tt('job.statusDefinitive', 'Definitiv');
+          const badgeClass = status === 'beendet' ? 'badge-success' : (status === 'provisorisch' ? 'badge-warning' : 'badge-neutral');
+          return `<tr onclick="openDashboardTodayJob(${index})" style="cursor:pointer;">
+            <td>${escapeHtml(job.start || '—')}</td>
+            <td><strong>${escapeHtml(job.objekt || job.ort || tt('act.job', 'Einsatz'))}</strong>${job.ort ? `<div style="font-size:12px;color:var(--text-subtle);">${escapeHtml(job.ort)}</div>` : ''}</td>
+            <td>${escapeHtml(assigned || '—')}</td>
+            <td><span class="badge ${badgeClass}">${escapeHtml(statusLabel)}</span></td>
+          </tr>`;
+        }).join('') : `<tr><td colspan="4" style="text-align:center; padding:28px; color:var(--text-subtle);">${escapeHtml(tt('dash.noJobs', 'Noch keine Einsätze geplant.'))}</td></tr>`;
+      }
       const reklamationen = reports.filter(r => r.status === 'reklamation').length;
       set('kpiBerichteMeta', reklamationen > 0 ? `${reklamationen} ${tt('dash.kpiComplaint','Reklamation')}` : tt('dash.kpiPhotoProof','Foto-Nachweise'));
       // Hero passt sich an: leeres System vs. eingerichtet
@@ -511,6 +538,9 @@
         const index = jobs.findIndex(x => (x.id || x._jobId) === (job.id || job._jobId));
         if (index >= 0) openJobEditor(job.date, index);
       }, 80);
+    }
+    function openDashboardTodayJob(index) {
+      openDashboardJob(window._dashboardTodayJobs?.[index]);
     }
     function openHistoryDestination(table) {
       const view = { tasks:'aufgaben', plan_jobs:'planung', customers:'kunden', employees:'mitarbeiter', teams:'planung', reports:'berichte', company_settings:'einstellungen' }[table] || 'dashboard';
