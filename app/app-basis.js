@@ -16,6 +16,19 @@
 // absichtlich stehengeblieben - mehrzeilige Textbausteine wuerden sich
 // sonst inhaltlich aendern.
 
+    // ============ Gemeinsame Ausgabe-Helfer ============
+    // Muss vor allen Bereichsskripten verfügbar sein: renderKunden() wird
+    // bereits während der Initialisierung aufgerufen, bevor app-mitarbeiter.js
+    // geladen ist.
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function safeAttr(s) { return escapeHtml(s); }
+    function safeImageUrl(value) {
+      const url = String(value || '').trim();
+      return /^(data:image\/(jpeg|png|webp);base64,|https:\/\/|\/)/i.test(url) ? url : '';
+    }
+
     // Navigation between views
     const navItems = document.querySelectorAll('.nav-item[data-view]');
     const views = document.querySelectorAll('.view[data-view]');

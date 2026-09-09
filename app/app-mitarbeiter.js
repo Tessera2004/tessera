@@ -17,17 +17,6 @@
 
     // ============ MITARBEITER (Reiniger) ============
     let editingMitId = null;
-    // ============ Text-Helfer ============
-    function escapeHtml(s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-    // Nutzdaten nie direkt in Attribute oder Bildquellen übernehmen.
-    function safeAttr(s) { return escapeHtml(s); }
-    function safeImageUrl(value) {
-      const url = String(value || '').trim();
-      return /^(data:image\/(jpeg|png|webp);base64,|https:\/\/|\/)/i.test(url) ? url : '';
-    }
-
     // ============ Bild-Helfer (verkleinert Fotos vor dem Speichern) ============
     function ccResizeImage(file, maxSize, quality) {
       return new Promise((resolve, reject) => {
