@@ -3412,6 +3412,58 @@ html[data-skin="buero"] .timeline-hour { background: var(--surface-2); }
   .plan-team-actions { justify-content: flex-end; }
 }
 
+/* Dokumentbereiche: kompakte, scanbare Zeilen statt einzelner grosser Karten. */
+.document-summary {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  padding: 11px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  background: var(--surface);
+}
+.document-summary strong { color: var(--text); margin-right: 3px; }
+.document-list { display: flex; flex-direction: column; gap: 8px; }
+.document-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto 18px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.document-row:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.document-row-main { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.document-row-main strong { font-size: 13.5px; }
+.document-row-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-subtle); font-size: 12px; }
+.document-row-amount { font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.document-row-arrow { color: var(--text-subtle); }
+.editor-secondary { margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.editor-secondary summary { padding: 12px 14px; cursor: pointer; color: var(--text-muted); font-size: 12.5px; font-weight: 600; }
+.editor-secondary-body { padding: 2px 14px 14px; }
+.invoice-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.invoice-toolbar input,
+.invoice-toolbar select { padding:8px 12px; border:1px solid var(--border-strong); border-radius:8px; background:var(--surface); color:var(--text); font-size:13px; }
+@media (max-width: 760px) {
+  .document-summary { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .document-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .document-row-amount { grid-column: 2; }
+  .document-row .badge { grid-column: 3; grid-row: 1; }
+  .document-row-arrow { display: none; }
+  .invoice-toolbar { width: 100%; }
+  .invoice-toolbar input, .invoice-toolbar select { flex: 1 1 130px; }
+  .invoice-toolbar .btn { flex-basis: 100%; }
+}
+
 
 /* ============================================================
    Geführte Tour (tour.js)
@@ -3513,6 +3565,7 @@ body.tour-laeuft { overflow: hidden; }
 
 /* Dialogsystem: einheitlich, ruhig und auf kleinen Bildschirmen vollständig bedienbar */
 body.modal-open{overflow:hidden}
+body.modal-open #demoNotice{display:none!important}
 .modal-backdrop{background:rgba(5,5,7,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:24px;overscroll-behavior:contain}
 .modal{display:flex;flex-direction:column;max-height:calc(100dvh - 48px);overflow:hidden;border-color:var(--border-strong);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.38)}
 .modal-header{flex:0 0 auto;min-height:72px;padding:18px 22px;gap:16px;background:var(--surface)}

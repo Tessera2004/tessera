@@ -432,6 +432,8 @@ ${coSig}`;
     let currentOffertOriginal = null; // Snapshot zum Vergleich (Änderungs-Erkennung)
 
     function openOffertEditor(id = null) {
+      const priceLabel = document.getElementById('offPreisLabel');
+      if (priceLabel) priceLabel.textContent = `Gesamtpreis (${coLocale(loadCompany()).cur})`;
       offKundeId = null;
       offPreisBeruehrt = !!id;   // bestehende Offerte: gespeicherten Preis behalten
       offKundeListeZu();
@@ -1161,39 +1163,49 @@ ${coSig}`;
       const list = document.getElementById('offertList');
       const empty = document.getElementById('offertEmpty');
       const badge = document.getElementById('offNavBadge');
+      const summary = document.getElementById('offertSummary');
       if (!list) return;
 
       const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
+      const locale = coLocale(loadCompany());
       badge.textContent = offerts.length;
       badge.style.display = offerts.length > 0 ? 'inline-flex' : 'none';
 
       if (offerts.length === 0) {
         list.style.display = 'none';
+        if (summary) summary.style.display = 'none';
         empty.style.display = 'block';
         return;
       }
 
       list.style.display = 'flex';
+      if (summary) {
+        const total = offerts.reduce((sum, o) => sum + (Number(o.preis) || 0), 0);
+        const entwürfe = offerts.filter(o => !o.status || String(o.status).toLowerCase() === 'entwurf').length;
+        summary.style.display = 'flex';
+        summary.innerHTML = `<span><strong>${offerts.length}</strong> Offerte${offerts.length === 1 ? '' : 'n'}</span><span><strong>${entwürfe}</strong> Entwurf${entwürfe === 1 ? '' : 'e'}</span><span><strong>${total.toFixed(2)} ${escapeHtml(locale.cur)}</strong> Gesamtwert</span>`;
+      }
       empty.style.display = 'none';
 
       list.innerHTML = offerts.map(o => {
-        const preis = o.preis ? parseFloat(o.preis).toFixed(2) + ' €' : '—';
+        const preis = o.preis ? parseFloat(o.preis).toFixed(2) + ' ' + locale.cur : '—';
         const hasImages = o.images && o.images.length > 0;
         const hasHistory = o.history && o.history.length > 0;
         return `
-          <div class="card" style="cursor: pointer; padding: 18px 22px; display: grid; grid-template-columns: auto 1fr auto auto; gap: 16px; align-items: center; transition: all 0.15s;" onclick="openOffertEditor('${o.id}')" onmouseenter="this.style.borderColor='var(--border-strong)';this.style.transform='translateY(-1px)';this.style.boxShadow='var(--shadow)'" onmouseleave="this.style.borderColor='var(--border)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
-            <span class="svc-pill svc-${o.service}">${svcShortLabels[o.service] || o.service}</span>
-            <div style="min-width: 0;">
-              <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">${o.kunde || 'Ohne Name'}</div>
-              <div style="font-size: 12.5px; color: var(--text-subtle);">
-                ${o.adresse || ''} ${o.datum ? '· ' + formatDateDE(o.datum) : ''}
-                ${hasImages ? '· 📎 ' + o.images.length + ' Bild' + (o.images.length > 1 ? 'er' : '') : ''}
-                ${hasHistory ? '· ✎ ' + o.history.length + ' Revision' + (o.history.length > 1 ? 'en' : '') : ''}
-              </div>
-            </div>
-            <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums;">${preis}</div>
-            <span class="badge badge-muted">${o.status || 'Entwurf'}</span>
-          </div>
+          <button type="button" class="document-row" onclick="openOffertEditor('${safeAttr(o.id)}')">
+            <span class="svc-pill svc-${safeAttr(o.service)}">${escapeHtml(svcShortLabels[o.service] || o.service)}</span>
+            <span class="document-row-main">
+              <strong>${escapeHtml(o.kunde || 'Ohne Name')}</strong>
+              <span class="document-row-meta">
+                ${escapeHtml(o.adresse || '')} ${o.datum ? '· ' + escapeHtml(formatDateDE(o.datum)) : ''}
+                ${hasImages ? '· ' + o.images.length + ' Bild' + (o.images.length > 1 ? 'er' : '') : ''}
+                ${hasHistory ? ' · ' + o.history.length + ' Revision' + (o.history.length > 1 ? 'en' : '') : ''}
+              </span>
+            </span>
+            <strong class="document-row-amount">${escapeHtml(preis)}</strong>
+            <span class="badge badge-muted">${escapeHtml(o.status || 'Entwurf')}</span>
+            <span class="document-row-arrow" aria-hidden="true">→</span>
+          </button>
         `;
       }).join('');
     }

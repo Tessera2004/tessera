@@ -1083,6 +1083,7 @@
       if (!selEl.value) selEl.value = nkMonthDefault();
       const ym = selEl.value;
       const jobs = collectRechnungsJobs(ym);
+      const filter = document.getElementById('invStatusFilter')?.value || 'alle';
       const statuses = loadInvoiceStatuses();
       const invL = coLocale(loadCompany());
       // Währung im Tabellenkopf folgt dem Firmenland (CHF/EUR) — Platzhalter {cur} ersetzen.
@@ -1114,12 +1115,19 @@
 
       const body = document.getElementById('invBody');
       if (!body) return;
-      if (!jobs.length) {
-        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-subtle);">${tt('est.noInvoicesMonth','Keine Rechnungen im ausgewählten Monat.')}<br><span style="font-size:12px;">${tt('est.noInvoicesHint','Einsätze mit Zahlart „Rechnung" erscheinen hier automatisch.')}</span></td></tr>`;
+      const visibleJobs = filter === 'alle' ? jobs : jobs.filter(j => rechnungsStatus(j) === filter);
+      if (!visibleJobs.length) {
+        const emptyTitle = filter === 'alle'
+          ? tt('est.noInvoicesMonth','Keine Rechnungen im ausgewählten Monat.')
+          : tt('est.noInvoicesStatus','Keine Rechnungen mit diesem Status.');
+        const emptyHint = filter === 'alle'
+          ? tt('est.noInvoicesHint','Einsätze mit Zahlart „Rechnung" erscheinen hier automatisch.')
+          : tt('est.noInvoicesStatusHint','Wähle einen anderen Status oder zeige alle Rechnungen.');
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-subtle);">${emptyTitle}<br><span style="font-size:12px;">${emptyHint}</span></td></tr>`;
         return;
       }
       const ST_LABELS = { offen: 'Offen', gesendet: 'Gesendet', bezahlt: 'Bezahlt ✓' };
-      body.innerHTML = jobs.map(j => {
+      body.innerHTML = visibleJobs.map(j => {
         const stored = statuses[j._jobKey];
         const st = stored || (j.invoiceStatus === 'sent' ? 'gesendet' : 'offen');
         const netto  = Number(j.price || 0);
