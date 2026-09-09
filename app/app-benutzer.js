@@ -405,6 +405,12 @@
       if (!requirePerm('edit_users', 'das Team verwalten')) return;
       ['inviteFirstname', 'inviteLastname', 'inviteEmail'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
       document.getElementById('inviteError').style.display = 'none';
+      const result = document.getElementById('inviteResult');
+      const resultInput = document.getElementById('inviteCreatedLink');
+      const sendBtn = document.getElementById('inviteSendBtn');
+      if (result) result.style.display = 'none';
+      if (resultInput) resultInput.value = '';
+      if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Einladung erstellen'; }
       inviteRole = 'readonly';
       // Aus der Mitarbeiterliste heraus wird mit Name, Mail und Rolle "field"
       // vorbelegt: Mitarbeitende brauchen einen Zugang fuer die Feld-App,
@@ -451,6 +457,18 @@
       if (token) q.set('token', token);
       return base + '?' + q.toString();
     }
+    async function copyCreatedInviteLink() {
+      const input = document.getElementById('inviteCreatedLink');
+      if (!input?.value) return;
+      try {
+        await navigator.clipboard.writeText(input.value);
+        toast('✓ Einladungslink kopiert');
+      } catch {
+        input.focus();
+        input.select();
+        toast('Link ist markiert — jetzt kopieren.', 'error');
+      }
+    }
     async function sendInvite() {
       const errEl = document.getElementById('inviteError');
       const email = (document.getElementById('inviteEmail').value || '').trim().toLowerCase();
@@ -463,6 +481,7 @@
       const tid = await loadTenantId();
       if (!tid) { errEl.textContent = 'Du bist nicht angemeldet — Einladen geht nur eingeloggt.'; errEl.style.display = 'block'; return; }
       const btn = document.getElementById('inviteSendBtn');
+      let created = false;
       btn.disabled = true; btn.textContent = 'Erstelle …';
       try {
         const token = (await sb.auth.getSession()).data.session?.access_token;
@@ -473,18 +492,26 @@
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.token) { errEl.textContent = result.error || 'Einladung konnte nicht erstellt werden.'; errEl.style.display = 'block'; }
         else {
-          closeModal('inviteUser');
           const link = inviteLink(email, result.token);
+          const resultBox = document.getElementById('inviteResult');
+          const resultInput = document.getElementById('inviteCreatedLink');
+          if (resultInput) resultInput.value = link;
+          if (resultBox) resultBox.style.display = 'block';
+          created = true;
           try {
             await navigator.clipboard.writeText(link);
             toast(tt('toastdyn.inviteCopiedPre','✓ Einladung erstellt — Link kopiert! An ') + email + tt('toastdyn.inviteCopiedPost',' senden.'));
           } catch {
-            prompt('Sicherer Einladungs-Link (nur einmal sichtbar):', link);
+            if (resultInput) { resultInput.focus(); resultInput.select(); }
+            toast('✓ Einladung erstellt — Link unten kopieren.');
           }
           renderInvites();
         }
       } catch { errEl.textContent = 'Fehlgeschlagen (Internet?).'; errEl.style.display = 'block'; }
-      finally { btn.disabled = false; btn.textContent = 'Einladung erstellen'; }
+      finally {
+        btn.disabled = created;
+        btn.textContent = created ? 'Einladung erstellt' : 'Einladung erstellen';
+      }
     }
     async function renderInvites() {
       const sec = document.getElementById('invitesSection');
