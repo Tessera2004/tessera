@@ -103,6 +103,10 @@
     }
 
     async function processPendingJobInvoices() {
+      // Feldkonten duerfen Auftraege abschliessen, aber weder Rechnungen
+      // erzeugen noch deren Status zurueckschreiben. Beim Start muss die
+      // Rechnungsautomatik deshalb auch clientseitig konsequent ausbleiben.
+      if (window._authRole === 'field' || (currentUser && !hasPerm('edit_auftrag') && !hasPerm('edit_prices'))) return;
       const all = loadPlanJobs();
       for (const [dateKey, jobs] of Object.entries(all)) {
         for (const raw of (jobs || [])) {
@@ -115,7 +119,7 @@
 
     function watchCompletedJobsForInvoices() {
       const sb = getSupabase();
-      if (!sb || !window._tenantId || window._invoiceJobChannel) return;
+      if (!sb || !window._tenantId || window._invoiceJobChannel || window._authRole === 'field' || (currentUser && !hasPerm('edit_auftrag') && !hasPerm('edit_prices'))) return;
       window._invoiceJobChannel = sb.channel('mosaos-job-invoices-' + window._tenantId)
         .on('postgres_changes', {
           event:'UPDATE', schema:'public', table:'plan_jobs',
@@ -1193,6 +1197,9 @@
       await loadTenantId();
       try { await window.MosaDB?.init(); } catch (e) { console.warn('[MosaDB] init', e); }
       await refreshAuthStatus();
+      // Die echte Login-Rolle muss vor Hintergrundprozessen wie der
+      // Rechnungsautomatik gelten, nicht erst vor dem abschliessenden Rendern.
+      applyAuthProfile();
       // Rückkehr von Stripe-Checkout behandeln
       if (window.MosaBilling) {
         const r = window.MosaBilling.handleReturn(() => { applyFeatureFlags(); renderModuleSettings(); });
@@ -1215,8 +1222,6 @@
       // Branche aus dem gesyncten Firmenprofil übernehmen (vor dem Neu-Rendern).
       applyVerticalFromCompany();
       applyCompanyBranding();
-      // Login → festes Büro-Profil + Rolle, Umschalter sperren (gewinnt über Demo-Auswahl)
-      applyAuthProfile();
       watchCompletedJobsForInvoices();
       applyFeatureFlags();
       applyVerticalNavLabels();

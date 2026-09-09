@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const read=p=>fs.readFileSync(p,'utf8');
 const app=read('app/app.html'),mobile=read('app/mobile.html'),sync=read('app/db-sync.js');
-const offerten=read('app/app-offerten.js'),routen=read('app/app-routen.js');
+const offerten=read('app/app-offerten.js'),routen=read('app/app-routen.js'),konto=read('app/app-konto.js');
 function section(s,start,end){const i=s.indexOf(start);assert(i>=0);const j=s.indexOf(end,i+start.length);assert(j>i);return s.slice(i,j);}
 for(const file of ['app/app.html','app/mobile.html'])for(const m of read(file).matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g))new vm.Script(m[1]);
 for(const file of ['app/app-i18n.js','app/db-sync.js',...fs.readdirSync('app').filter(f=>/^app-.*\.js$/.test(f)).map(f=>'app/'+f)])new vm.Script(read(file));
@@ -33,4 +33,7 @@ vm.runInContext('let MY_TASKS=[];'+section(mobile,'    async function loadMyTask
 await mc.loadMyTasks({id:'employee'});assert.equal(rendered,1);assert.deepEqual(Array.from(filters),['employee','office']);
 for(const table of ['office_users','tasks']){failure=table;await mc.loadMyTasks({id:'employee'});assert.equal(rendered,1);assert.match(el('mTasks').textContent,/nicht geladen/);assert.equal(typeof el('mTasks').child.onclick,'function');}
 failure=null;await el('mTasks').child.onclick();assert.equal(rendered,2);
-console.log('Regression checks passed: JS syntax, Abo horizon/idempotence/permissions, PDF aspect ratios/fallback, series sync round-trip, mobile errors/retry.');
+const invoiceStart=section(konto,'    async function processPendingJobInvoices(', '    // ── Mock-Mails');
+assert.match(invoiceStart,/window\._authRole === 'field'/);
+assert(konto.indexOf('      applyAuthProfile();') < konto.indexOf('        try { await processPendingJobInvoices();'));
+console.log('Regression checks passed: JS syntax, Abo horizon/idempotence/permissions, PDF aspect ratios/fallback, series sync round-trip, mobile errors/retry, field invoice guard.');
