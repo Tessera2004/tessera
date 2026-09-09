@@ -12,12 +12,12 @@
   /* Akzentfarbe. --swiss-rgb speist alle rgba()-Schatten und Schleier,
      --swiss-on ist die Schrift auf gefüllter Akzentfläche. Die Branchen-
      Landingpages überschreiben diese vier Werte (branch-farben.css). */
-  --swiss: #DA291C;
-  --swiss-bright: #FF4A3D;
-  --swiss-rgb: 218, 41, 28;
+  --swiss: #E11D2A;
+  --swiss-bright: #F33A46;
+  --swiss-rgb: 225, 29, 42;
   --swiss-on: #ffffff;
   --swiss-soft: rgba(var(--swiss-rgb), 0.15);
-  --brand-red: #DA291C;   /* Wortmarke — bleibt rot, auch wenn die Seite
+  --brand-red: #E11D2A;   /* Wortmarke — bleibt rot, auch wenn die Seite
                              einen Branchen-Akzent hat (branch-farben.css) */
 
   /* Surfaces (dark) */

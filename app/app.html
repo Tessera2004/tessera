@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MosaOS — Aarau</title>
+  <title>MosaOS — Büro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=22" />
+  <link rel="stylesheet" href="styles.css?v=26" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -19,15 +19,15 @@
   <script src="mail-config.js?v=2"></script>
   <script src="db-sync.js?v=5"></script>
   <script src="stripe-config.js"></script>
-  <script src="billing.js?v=5"></script>
+  <script src="billing.js?v=6"></script>
   <script src="presets.js?v=9"></script>
-  <script src="demo-data.js?v=3"></script>
-  <script src="app-i18n.js?v=47"></script>
+  <script src="demo-data.js?v=4"></script>
+  <script src="app-i18n.js?v=48"></script>
   <script src="tour.js?v=6" defer></script>
 </head>
 <body>
   <div id="demoNotice" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10000;background:#fff;color:#171717;border:1px solid #ddd;border-radius:999px;padding:8px 10px 8px 14px;font-size:12px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.24);align-items:center;gap:12px;white-space:nowrap;">Beispieldemo · Änderungen bleiben in diesem Browser <button type="button" onclick="MosaDemo.leave()" style="border:0;border-radius:999px;background:#E11D2A;color:#fff;padding:7px 10px;font:inherit;cursor:pointer;">Eigene Firma starten</button></div>
-  <script>if (localStorage.getItem('cc-demo-active') === '1' && new URLSearchParams(location.search).get('demo') === '1') document.getElementById('demoNotice').style.display = 'flex';</script>
+  <script>if (localStorage.getItem('cc-demo-active') === '1' && new URLSearchParams(location.search).get('demo') === '1') { document.documentElement.classList.add('demo-active'); document.getElementById('demoNotice').style.display = 'flex'; }</script>
   <div class="app-shell">
     <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
@@ -243,7 +243,7 @@
             <option value="es">ES</option>
             <option value="en">EN</option>
           </select>
-          <button class="btn-icon" data-term="feldAnsichtTitel" data-term-attr="title" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html','_blank')">
+          <button class="btn-icon" data-term="feldAnsichtTitel" data-term-attr="title" title="Reiniger-Ansicht öffnen" onclick="window.open('mobile.html' + (localStorage.getItem('cc-demo-active') === '1' ? '?demo=1' : ''),'_blank')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </button>
           <button class="btn btn-accent" data-i18n="common.newAuftrag" onclick="openModal('newAuftrag')">+ Neuer Auftrag</button>
@@ -1208,7 +1208,7 @@
             <div id="calcBeispiel" style="font-size:12px; color:var(--text-subtle); margin-top:4px;"></div>
             <div class="field" style="margin-top:14px;">
               <label data-i18n="calc.startAddr">Startpunkt der Routen</label>
-              <input type="text" id="calcStartAdresse" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" />
+              <input type="text" id="calcStartAdresse" data-i18n-ph="wiz.addressPh" placeholder="Strasse Hausnr., PLZ Ort" />
               <div style="font-size:11.5px; color:var(--text-subtle); margin-top:5px;" data-i18n="calc.startHint">
                 Leer lassen heisst: die Firmenadresse. Die Anfahrt zum ersten Einsatz zählt dann bei „Routen optimieren" mit.
               </div>
@@ -1386,7 +1386,7 @@
                 </div>
                 <div>
                   <div class="price-card-title" data-i18n="price.fenster.t">Fensterreinigung</div>
-                  <div class="price-card-sub" data-i18n="price.fenster.s">Innen, außen, mit/ohne Leiter</div>
+                  <div class="price-card-sub" data-i18n="price.fenster.s">Innen, aussen, mit/ohne Leiter</div>
                 </div>
               </div>
               <div class="price-card-body">
@@ -1674,7 +1674,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
               </div>
               <div class="svc-card-title" data-i18n="price.fenster.t">Fensterreinigung</div>
-              <div class="svc-card-desc" data-i18n="wiz.svcFensterDesc">Innen, außen, mit oder ohne Leiter — flexibel.</div>
+              <div class="svc-card-desc" data-i18n="wiz.svcFensterDesc">Innen, aussen, mit oder ohne Leiter — flexibel.</div>
             </button>
 
             <button type="button" class="svc-card" data-svc="bau" style="--svc-color: var(--svc-bau); --svc-color-soft: var(--svc-bau-soft);" onclick="selectService('bau')">
@@ -1797,7 +1797,7 @@
               <div class="opt-row">
                 <button type="button" class="opt-chip on" data-default-choice onclick="toggleOne(this)" data-i18n="wiz.areaInOut">Innen + Außen</button>
                 <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaInOnly">Nur innen</button>
-                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaOutOnly">Nur außen</button>
+                <button type="button" class="opt-chip" onclick="toggleOne(this)" data-i18n="wiz.areaOutOnly">Nur aussen</button>
               </div>
             </div>
             <div class="field">
@@ -1936,10 +1936,10 @@
           </div>
           <div class="field wizard-main-item">
             <label data-i18n="wiz.address">Adresse</label>
-            <input type="text" id="wizAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" />
+            <input type="text" id="wizAddress" data-i18n-ph="wiz.addressPh" placeholder="Strasse Hausnr., PLZ Ort" />
           </div>
           <div class="field wizard-main-item" style="position: relative;">
-            <label data-i18n="wiz.customer">Kunde</label>
+            <label for="offKunde" data-i18n="wiz.customer">Kunde</label>
             <input type="text" id="wizCustomer" autocomplete="off"
               data-i18n-ph="wiz.customerPh" placeholder="Name oder bestehenden Kunden wählen…"
               oninput="wizKundeSuchen(this.value)" onfocus="wizKundeSuchen(this.value)"
@@ -2142,18 +2142,18 @@
             <div id="offKundenListe" class="wiz-kundenliste" style="display:none;"></div>
           </div>
           <div class="field">
-            <label data-i18n="th.date">Datum</label>
+            <label for="offDatum" data-i18n="th.date">Datum</label>
             <input type="date" id="offDatum" oninput="renderOffertTemplate()" />
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
           <div class="field">
-            <label data-term="adresseObjekt">Adresse / Objekt</label>
-            <input type="text" id="offAdresse" data-i18n-ph="wiz.addressPh" placeholder="Straße Hausnr., PLZ Ort" oninput="renderOffertTemplate()" />
+            <label for="offAdresse" data-term="adresseObjekt">Adresse / Objekt</label>
+            <input type="text" id="offAdresse" data-i18n-ph="wiz.addressPh" placeholder="Strasse Hausnr., PLZ Ort" oninput="renderOffertTemplate()" />
           </div>
           <div class="field">
-            <label id="offPreisLabel" data-i18n="off.totalPrice">Gesamtpreis</label>
+            <label for="offPreis" id="offPreisLabel" data-i18n="off.totalPrice">Gesamtpreis</label>
             <input type="number" id="offPreis" placeholder="0" step="1" oninput="offPreisBeruehrt = true; renderOffertTemplate();" />
           </div>
         </div>
@@ -2161,7 +2161,7 @@
         <!-- B7: Menge, damit der Preis aus der Preisliste kommen kann -->
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
           <div class="field">
-            <label id="offMengeLabel" data-i18n="off.qty">Menge</label>
+            <label for="offMenge" id="offMengeLabel" data-i18n="off.qty">Menge</label>
             <input type="number" id="offMenge" value="1" min="0" step="0.5"
               oninput="offPreisAusPreisliste()" />
           </div>
@@ -2247,7 +2247,7 @@
         </div>
         <div class="field">
           <label data-i18n="wiz.address">Adresse</label>
-          <input type="text" id="custAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Nr., PLZ Ort" />
+          <input type="text" id="custAddress" data-i18n-ph="wiz.addressPh" placeholder="Strasse Nr., PLZ Ort" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field">
@@ -2295,7 +2295,7 @@
         </div>
         <div class="field">
           <label data-i18n="site.address">Adresse / Baustelle</label>
-          <input type="text" id="siteAddress" data-i18n-ph="wiz.addressPh" placeholder="Straße Nr., PLZ Ort" />
+          <input type="text" id="siteAddress" data-i18n-ph="wiz.addressPh" placeholder="Strasse Nr., PLZ Ort" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="field"><label data-i18n="site.orderType">Auftragsart</label><input type="text" id="siteType" data-i18n-ph="site.orderTypePh" placeholder="z. B. Sanitär, Heizung, Elektro" /></div>
@@ -4034,7 +4034,7 @@
     .mail-provider-card.is-disabled { cursor: default; opacity: .62; }
     .mail-provider-card.is-disabled:hover { transform: none; border-color: var(--border); box-shadow: none; }
     @media (max-width: 600px) {
-      #demoNotice { width: calc(100vw - 16px); bottom: 8px !important; border-radius: 14px !important; white-space: normal !important; justify-content: space-between; }
+      #demoNotice { position:relative !important; left:auto !important; bottom:auto !important; transform:none !important; width:auto; margin:8px; border-radius:14px !important; white-space:normal !important; justify-content:space-between; }
       #demoNotice button { flex: 0 0 auto; }
     }
     .mail-provider-icon {
@@ -4209,12 +4209,12 @@
     <!-- Der App-Code, aufgeteilt nach Bereich. Reihenfolge zaehlt:
        gewoehnliche Skripte, gemeinsamer Namensraum, kein Hoisting
        ueber Dateigrenzen hinweg. -->
-  <script src="app-basis.js?v=5"></script>
+  <script src="app-basis.js?v=7"></script>
   <script src="app-benutzer.js?v=4"></script>
   <script src="app-planung.js?v=4"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
-  <script src="app-firma-basis.js?v=1"></script>
+  <script src="app-firma-basis.js?v=2"></script>
   <script src="app-fahrzeuge.js?v=3"></script>
   <script src="app-aufgaben.js?v=4"></script>
   <script src="app-mitarbeiter.js?v=5"></script>

@@ -3029,7 +3029,8 @@ tr:hover td { background: var(--bg); }
      abgeschnitten und der Auftrags-Button unbrauchbar schmal. */
   .topbar-actions .theme-toggle,
   .topbar-actions .skin-toggle,
-  .topbar-actions .btn-icon[data-term="feldAnsichtTitel"] { display: none; }
+  .topbar-actions .btn-icon[data-term="feldAnsichtTitel"],
+  .topbar-actions .user-switcher { display: none; }
   .topbar-actions [data-lang-select] { height: 30px; padding: 0 4px; font-size: 12px; }
   .first-steps { padding:16px; }
   .first-step { padding:8px; gap:8px; }
@@ -3635,3 +3636,24 @@ body.modal-open #demoNotice{display:none!important}
 .activity-item{width:100%;grid-template-columns:36px minmax(0,1fr) auto 18px;border-left:0;border-right:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.activity-item:hover{transform:translateY(-1px);filter:brightness(1.08)}.activity-open{align-self:center;color:var(--activity-color);font-size:18px;font-weight:700}
 @media(max-width:900px){.task-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.notification-panel{position:fixed;top:62px;right:10px;left:10px;width:auto}.task-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.task-toolbar{align-items:stretch;flex-direction:column}.task-toolbar .search,.task-toolbar select{width:100%!important}}
+
+/* Kleine Bildschirme: Inhaltsbereiche dürfen ihre Eltern nie verbreitern. */
+.main,.content,.view,.page-header,.card,.table-wrap{min-width:0;max-width:100%}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+html.demo-active .main{padding-bottom:76px}
+@media(max-width:760px){
+  html.demo-active .main{padding-bottom:24px}
+  .day-timeline{overflow:hidden}
+  .timeline-row{grid-template-columns:52px minmax(0,1fr)}
+  .timeline-hour{padding:13px 8px;font-size:11px}
+  .timeline-events{min-width:0;padding:8px;gap:7px}
+  .job-card{grid-template-columns:28px minmax(0,1fr);gap:8px;padding:10px;align-items:start}
+  .job-card .jteam{width:28px;height:28px}
+  .job-card .jname{font-size:12.5px;overflow-wrap:anywhere}
+  .job-card .jmeta,.job-card .jassigned{white-space:normal;overflow-wrap:anywhere}
+  .job-card .jright{grid-column:2;text-align:left;white-space:normal;display:flex;gap:8px;align-items:baseline}
+  .plan-status-card{align-items:flex-start;flex-wrap:wrap}
+  #baustellenBoard{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  #baustellenBoard>div{min-width:0}
+  #baustellenBoard>div>div:first-child{align-items:flex-start!important;flex-wrap:wrap}
+}

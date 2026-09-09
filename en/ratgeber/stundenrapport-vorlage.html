@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Which details a job report or time-and-materials sheet must contain to hold up in a dispute — structure, example and the most common mistakes." />
   <meta name="keywords" content="job report, time and materials sheet, job report template, trades report form, work report Switzerland, billing time and materials" />
-  <title>The job report: what belongs on it (with template) | MosaOS</title>
+  <title>The job report: what belongs on it | MosaOS</title>
   <link rel="canonical" href="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html" />
   <link rel="alternate" hreflang="de" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html" />
   <link rel="alternate" hreflang="fr" href="https://mosaos.ch/fr/ratgeber/stundenrapport-vorlage.html" />
@@ -15,7 +15,7 @@
   <link rel="alternate" hreflang="x-default" href="https://mosaos.ch/ratgeber/stundenrapport-vorlage.html" />
   <link rel="icon" type="image/svg+xml" href="../../logo/favicon.svg" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="The job report: what belongs on it (with template) | MosaOS" />
+  <meta property="og:title" content="The job report: what belongs on it | MosaOS" />
   <meta property="og:description" content="Which details a job report or time-and-materials sheet must contain to hold up in a dispute — structure, example and the most common mistakes." />
   <meta property="og:url" content="https://mosaos.ch/en/ratgeber/stundenrapport-vorlage.html" />
   <meta property="og:image" content="https://mosaos.ch/assets/og/index-en.jpg" />
@@ -30,7 +30,7 @@
     /* Die Uebersicht braucht Platz fuer drei Karten nebeneinander,
        der Lesetext dagegen eine schmale Spalte. */
     .rg-wrap.wide { max-width: 1080px; }
-    .rg-head { padding: 120px 0 32px; }
+    .rg-head { padding-top: 120px; padding-bottom: 32px; }
     .rg-head .eyebrow { color: var(--swiss); font-weight: 600; font-size: 13px;
       letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
     .rg-head h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15;
@@ -58,6 +58,11 @@
     @media (max-width: 860px) {
       .nav-actions { display: flex; gap: 8px; align-items: center; }
       .rg-head { padding-top: 96px; }
+      .nav-actions .btn-ghost { display: inline-flex; }
+    }
+    @media (max-width: 600px) {
+      .nav-actions .lang-switch { display: none; }
+      .rg-wrap { padding-left: 20px; padding-right: 20px; }
     }
     .rg-cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr));
       margin: 40px 0 72px; }

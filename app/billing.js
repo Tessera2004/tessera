@@ -63,13 +63,13 @@ window.MosaBilling = (function () {
   }
 
   async function startCheckout(modules) {
-    const t = await accessToken();
-    if (!t) { alert(t('billing.loginFirst', 'Bitte zuerst einloggen, um zu abonnieren.')); return; }
+    const token = await accessToken();
+    if (!token) { alert(t('billing.loginFirst', 'Bitte zuerst einloggen, um zu abonnieren.')); return; }
     const base = location.href.split('?')[0].split('#')[0];
     try {
       const res = await fetch(cfg().functionsUrl + '/create-checkout', {
         method: 'POST',
-        headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ modules, successUrl: base + '?billing=success', cancelUrl: base + '?billing=cancel' }),
       });
       const j = await res.json();
@@ -79,12 +79,12 @@ window.MosaBilling = (function () {
   }
 
   async function openPortal() {
-    const t = await accessToken();
-    if (!t) { alert(t('billing.loginPlain', 'Bitte zuerst einloggen.')); return; }
+    const token = await accessToken();
+    if (!token) { alert(t('billing.loginPlain', 'Bitte zuerst einloggen.')); return; }
     try {
       const res = await fetch(cfg().functionsUrl + '/create-portal', {
         method: 'POST',
-        headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ returnUrl: location.href.split('?')[0].split('#')[0] }),
       });
       const j = await res.json();

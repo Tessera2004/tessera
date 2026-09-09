@@ -144,12 +144,21 @@
     });
 
     navItems.forEach(item => {
+      item.setAttribute('role', 'button');
+      item.setAttribute('aria-current', item.classList.contains('active') ? 'page' : 'false');
+      item.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        }
+      });
       item.addEventListener('click', e => {
         e.preventDefault();
         const target = item.dataset.view;
-        navItems.forEach(n => n.classList.remove('active'));
+        navItems.forEach(n => { n.classList.remove('active'); n.setAttribute('aria-current', 'false'); });
         views.forEach(v => v.classList.remove('active'));
         item.classList.add('active');
+        item.setAttribute('aria-current', 'page');
         document.querySelector(`.view[data-view="${target}"]`).classList.add('active');
         titleEl.textContent = topbarTitle(target);
         window.scrollTo(0, 0);
@@ -686,3 +695,25 @@
       localStorage.setItem('cc-prices', JSON.stringify(prices));
       try { window.MosaDB?.push('company_prices', prices); } catch {}
     }
+
+    // Dynamische Editoren werden per JavaScript eingesetzt. Ergänzt für jedes
+    // sichtbare Formularfeld ohne verknüpftes Label einen zugänglichen Namen.
+    (function installFormAccessibility() {
+      const enhance = (root) => {
+        (root || document).querySelectorAll?.('input:not([type="hidden"]), select, textarea').forEach((field) => {
+          if (field.labels?.length || field.getAttribute('aria-label') || field.getAttribute('aria-labelledby')) return;
+          const box = field.closest('.field, label, .modal-body, .settings-card');
+          const label = box?.querySelector('label, .field-label');
+          const name = label?.textContent?.trim() || field.placeholder?.trim() || field.name || field.id;
+          if (name) field.setAttribute('aria-label', name.replace(/\s+/g, ' '));
+        });
+      };
+      const start = () => {
+        enhance(document);
+        new MutationObserver((changes) => changes.forEach((change) => change.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) enhance(node);
+        }))).observe(document.body, { childList: true, subtree: true });
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+      else start();
+    }());

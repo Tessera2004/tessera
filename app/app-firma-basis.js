@@ -20,13 +20,13 @@
     // ============ Firma (Stammdaten) — früh definiert, da chf()/Lokalisierung darauf zugreifen ============
     const COMPANY_KEY = 'cc-company-v1';
     const DEFAULT_COMPANY = {
-      name: 'MosaOS AG',
-      addr1: 'Bahnhofstrasse 10',
-      addr2: '5000 Aarau',
+      name: 'Meine Firma',
+      addr1: '',
+      addr2: '',
       country: 'CH',
-      iban: 'CH93 0076 2011 6238 5295 7',   // Demo-IBAN — bitte ersetzen
-      mwst: 'CHE-123.456.789',
-      contact: 'info@mosaos.ch · +41 62 824 00 00'
+      iban: '',
+      mwst: '',
+      contact: ''
     };
     function loadCompany() {
       try {

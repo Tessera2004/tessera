@@ -10,11 +10,12 @@
       [
         'cc-employees-v1', 'cc-teams-v1', 'cc-customers-v1', 'cc-plan-jobs-v1',
         'cc-users', 'cc-currentUser', 'cc-company-v1', 'cc-features-v1',
-        'cc-tasks-v1', 'cc-tour-nie', 'cc-demo-active'
+        'cc-tasks-v1', 'cc-tour-nie', 'cc-demo-active', 'cc-demo-date'
       ].forEach((key) => localStorage.removeItem(key));
       location.href = 'onboarding.html';
     }
   };
+  const dateKey = new Date().toLocaleDateString('sv-SE');
   const coreKeys = ['cc-employees-v1', 'cc-customers-v1', 'cc-plan-jobs-v1'];
   const hasOwnData = coreKeys.some((key) => {
     try {
@@ -22,8 +23,7 @@
       return Array.isArray(value) ? value.length > 0 : value && Object.keys(value).length > 0;
     } catch { return false; }
   });
-  if (hasOwnData) return;
-  const dateKey = new Date().toLocaleDateString('sv-SE');
+  if (hasOwnData && localStorage.getItem('cc-demo-date') === dateKey) return;
   const employees = [
     { id: 'demo-e1', firstName: 'Nina', lastName: 'Meier', email: 'nina@demo.mosaos.ch', role: 'field', teamId: 'demo-t1', status: 'aktiv', canDrive: true },
     { id: 'demo-e2', firstName: 'Sofia', lastName: 'Rossi', email: 'sofia@demo.mosaos.ch', role: 'field', teamId: 'demo-t1', status: 'aktiv', canDrive: false },
@@ -54,5 +54,6 @@
   localStorage.setItem('cc-tasks-v1', JSON.stringify([{ id: 'demo-task1', title: 'Schlüssel für Praxis nachbestellen', description: 'Hauswart bis 15 Uhr zurückrufen', assignee: 'demo-admin', dueDate: dateKey, priority: 'hoch', done: false }]));
   localStorage.setItem('cc-tour-nie', '1');
   localStorage.setItem('cc-demo-active', '1');
+  localStorage.setItem('cc-demo-date', dateKey);
 
 }());

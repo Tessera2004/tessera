@@ -30,7 +30,7 @@
     /* Die Uebersicht braucht Platz fuer drei Karten nebeneinander,
        der Lesetext dagegen eine schmale Spalte. */
     .rg-wrap.wide { max-width: 1080px; }
-    .rg-head { padding: 120px 0 32px; }
+    .rg-head { padding-top: 120px; padding-bottom: 32px; }
     .rg-head .eyebrow { color: var(--swiss); font-weight: 600; font-size: 13px;
       letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
     .rg-head h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15;
@@ -58,6 +58,11 @@
     @media (max-width: 860px) {
       .nav-actions { display: flex; gap: 8px; align-items: center; }
       .rg-head { padding-top: 96px; }
+      .nav-actions .btn-ghost { display: inline-flex; }
+    }
+    @media (max-width: 600px) {
+      .nav-actions .lang-switch { display: none; }
+      .rg-wrap { padding-left: 20px; padding-right: 20px; }
     }
     .rg-cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(280px,100%), 1fr));
       margin: 40px 0 72px; }
