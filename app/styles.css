@@ -3393,6 +3393,25 @@ html[data-skin="buero"] .job-card {
 html[data-skin="buero"] .job-card:hover { box-shadow: none; }
 html[data-skin="buero"] .timeline-hour { background: var(--surface-2); }
 
+/* Einsatzplanung: oben nur die tatsaechliche Tagesnavigation. Sekundaere
+   Teamdetails bleiben erreichbar, nehmen aber nicht permanent Raum ein. */
+.plan-header-actions,
+.plan-team-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.team-status-bar.is-collapsed .team-status-grid { display: none; }
+.team-status-bar.is-collapsed { padding-bottom: 12px; }
+@media (max-width: 760px) {
+  .plan-header-actions { width: 100%; }
+  .plan-header-actions .btn { flex: 1 1 auto; }
+  .plan-header-actions #autoPlanBtn { flex-basis: 100%; }
+  .team-status-head { align-items: flex-start; gap: 10px; }
+  .plan-team-actions { justify-content: flex-end; }
+}
+
 
 /* ============================================================
    Geführte Tour (tour.js)

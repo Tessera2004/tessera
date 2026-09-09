@@ -577,6 +577,14 @@
       }).join('');
     }
 
+    function togglePlanTeamStatus() {
+      const bar = document.getElementById('teamStatusBar');
+      const button = document.getElementById('teamStatusToggle');
+      if (!bar) return;
+      const collapsed = bar.classList.toggle('is-collapsed');
+      if (button) button.textContent = collapsed ? 'Details anzeigen' : 'Details ausblenden';
+    }
+
     function renderDayTimeline() {
       const wrap = document.getElementById('dayTimeline');
       if (!wrap) return;
@@ -619,12 +627,12 @@
             return e ? empShort(e) : '?';
           }).join(', ');
           const statusLabel = j.status === 'provisorisch' ? tt('job.statusProvisional','Provisorisch') : j.status === 'beendet' ? tt('job.statusFinished','Beendet') : tt('job.statusDefinitive','Definitiv');
-          return `<div class="job-card svc-${j.svc}" data-job-status="${j.status}" onclick="openJobEditor('${j._dateKey}', ${j._idx})" title="Klicken zum Bearbeiten">
-            <div class="jteam" style="background: ${team ? team.color : '#9CA3AF'};">${team ? team.short : '–'}</div>
+          return `<div class="job-card svc-${safeAttr(j.svc || 'unterhalt')}" data-job-status="${safeAttr(j.status)}" onclick="openJobEditor('${safeAttr(j._dateKey)}', ${j._idx})" title="Klicken zum Bearbeiten">
+            <div class="jteam" style="background: ${safeAttr(team ? team.color : '#9CA3AF')};">${escapeHtml(team ? team.short : '–')}</div>
             <div class="jbody">
-              <div class="jname">${j.objekt} <span class="badge badge-neutral" style="font-size:10px;margin-left:5px;">${statusLabel}</span></div>
-              <div class="jmeta">${j.ort}</div>
-              <div class="jassigned">${assignedNames || (j.status === 'provisorisch' ? `<em>${tt('job.notFieldYet','Noch kein Feldeinsatz')}</em>` : `<em style="color: var(--danger);">${tt('est.noStaffAssigned','Keine Mitarbeiter zugewiesen')}</em>`)}</div>
+              <div class="jname">${escapeHtml(j.objekt)} <span class="badge badge-neutral" style="font-size:10px;margin-left:5px;">${escapeHtml(statusLabel)}</span></div>
+              <div class="jmeta">${escapeHtml(j.ort)}</div>
+              <div class="jassigned">${assignedNames ? escapeHtml(assignedNames) : (j.status === 'provisorisch' ? `<em>${escapeHtml(tt('job.notFieldYet','Noch kein Feldeinsatz'))}</em>` : `<em style="color: var(--danger);">${escapeHtml(tt('est.noStaffAssigned','Keine Mitarbeiter zugewiesen'))}</em>`)}</div>
             </div>
             <div class="jright">
               <div class="jdur">${j.start} – ${fmtHM(endMin)}</div>

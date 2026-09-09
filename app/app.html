@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20" />
+  <link rel="stylesheet" href="styles.css?v=21" />
   <!-- jsPDF für Offerten-/Rechnungs-PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- QR-Code für Schweizer QR-Rechnung -->
@@ -381,12 +381,10 @@
               <h1 class="page-title" data-i18n="nav.planung">Einsatzplanung</h1>
               <p class="page-subtitle" id="planSubtitle">Lade…</p>
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div class="plan-header-actions">
               <button class="btn btn-secondary" data-i18n="plan.prevWeek" onclick="planShiftWeek(-1)">← Vorwoche</button>
               <button class="btn btn-secondary" data-i18n="plan.today" onclick="planGoToday()">Heute</button>
               <button class="btn btn-secondary" data-i18n="plan.nextWeek" onclick="planShiftWeek(1)">Nächste Woche →</button>
-              <button class="btn btn-secondary" onclick="openTeamManager(true)">+ Neues Team</button>
-              <button class="btn btn-secondary" onclick="tagesCrewZuruecksetzen()" data-i18n="plan.resetDay">Tag zurücksetzen</button>
               <button class="btn btn-accent" id="autoPlanBtn" onclick="runAutoPlan()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 <span data-i18n="plan.optimize">Routen optimieren</span>
@@ -417,13 +415,16 @@
           </div>
 
           <!-- Team-Status-Zeile -->
-          <div class="team-status-bar">
+          <div class="team-status-bar is-collapsed" id="teamStatusBar">
             <div class="team-status-head">
               <div>
                 <div class="team-status-title"><span data-i18n="plan.teamsLabel">Teams · </span><span id="dayLabel">heute</span></div>
                 <div class="team-status-sub" id="teamStatusSummary">Lade…</div>
               </div>
-              <button class="btn btn-ghost" onclick="navTo('mitarbeiter')" style="font-size: 12px;" data-i18n="plan.manageTeamsLink">Teams verwalten →</button>
+              <div class="plan-team-actions">
+                <button class="btn btn-ghost" id="teamStatusToggle" onclick="togglePlanTeamStatus()" style="font-size:12px;">Details anzeigen</button>
+                <button class="btn btn-ghost" onclick="navTo('mitarbeiter')" style="font-size: 12px;" data-i18n="plan.manageTeamsLink">Teams verwalten →</button>
+              </div>
             </div>
             <div class="team-status-grid" id="teamStatusGrid">
               <!-- via JS -->
@@ -4197,7 +4198,7 @@
        ueber Dateigrenzen hinweg. -->
   <script src="app-basis.js?v=5"></script>
   <script src="app-benutzer.js?v=4"></script>
-  <script src="app-planung.js?v=3"></script>
+  <script src="app-planung.js?v=4"></script>
   <script src="app-kunden.js?v=1"></script>
   <script src="app-branchen.js?v=1"></script>
   <script src="app-firma-basis.js?v=1"></script>
