@@ -19,3 +19,6 @@
 - [ ] Confirm that Mail-Assistent remains `draft_only` and that no background path can send messages.
 - [ ] Configure `mail-sync` every 30 minutes and `mail-retention` daily with `MAIL_CRON_SECRET` in a header, never in the URL.
 - [ ] Test an expired Gmail history cursor and a backlog above the processing limit; neither may silently lose messages.
+- [ ] Set a dedicated `OPENAI_API_KEY`, confirm Responses requests use `store: false`, and configure an account-level spend limit.
+- [ ] Run prompt-injection fixtures and verify unknown knowledge references, invalid schemas and high-risk categories are rejected or escalated.
+- [ ] Confirm the OpenAI provider and actual data handling terms are listed in the reviewed privacy documents before real mail is processed.

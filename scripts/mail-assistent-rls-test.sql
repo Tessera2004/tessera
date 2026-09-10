@@ -50,6 +50,11 @@ begin
   if private.has_mail_permission('mail.delete_everything') then
     raise exception 'unknown mail permission was accepted';
   end if;
+  begin
+    perform public.claim_mail_message_for_analysis();
+    raise exception 'analysis queue was callable as authenticated user';
+  exception when insufficient_privilege then null;
+  end;
 end $$;
 
 -- Mandant B darf weder Einstellungen noch Wissen von Mandant A sehen.

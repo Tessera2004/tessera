@@ -22,6 +22,8 @@ const mailStatus = read('supabase/functions/mail-account-status/index.ts');
 const mailDisconnect = read('supabase/functions/mail-disconnect/index.ts');
 const mailSync = read('supabase/functions/mail-sync/index.ts');
 const mailRetention = read('supabase/functions/mail-retention/index.ts');
+const mailAnalysisMigration = read('supabase/migrations/202609100007_mail_analysis.sql');
+const mailAnalyse = read('supabase/functions/mail-analyse/index.ts');
 const headers = read('_headers');
 const allText = [...fs.readdirSync(root), ...fs.readdirSync(path.join(root, 'app')).map(f => 'app/' + f)]
   .filter(f => fs.statSync(path.join(root, f)).isFile())
@@ -62,6 +64,13 @@ assert(mailSync.includes(".eq('mail_account_id', accountId).eq('tenant_id', tena
 assert(mailSync.includes('GMAIL_BACKLOG_TOO_LARGE'), 'Mail sync must fail visibly instead of skipping a large backlog');
 assert(!/messages\/send|sendMail/.test(mailSync), 'Background mail sync must not contain a send path');
 assert(mailRetention.includes("req.headers.get('x-cron-secret')") && mailRetention.includes(".lt('retention_until'"), 'Mail retention must authenticate and enforce expiry');
+assert(mailAnalysisMigration.includes('for update of m skip locked'), 'Mail analysis queue must claim messages atomically');
+assert(mailAnalysisMigration.includes('grant execute on function public.claim_mail_message_for_analysis() to service_role'), 'Mail analysis claim must be service-role only');
+assert(mailAnalyse.includes("req.headers.get('x-cron-secret')") && mailAnalyse.includes("Deno.env.get('MAIL_CRON_SECRET')"), 'Mail analysis must authenticate scheduler calls');
+assert(mailAnalyse.includes('store: false'), 'OpenAI mail responses must not be stored by the Responses API');
+assert(mailAnalyse.includes("type: 'json_schema'") && mailAnalyse.includes('strict: true'), 'OpenAI mail output must use strict structured output');
+assert(!/messages\/send|sendMail/.test(mailAnalyse), 'Background mail analysis must not contain a send path');
+assert(!/tools:\s*\[[^\]]/.test(mailAnalyse), 'Mail analysis must not give the model tools');
 assert(headers.includes('Content-Security-Policy:'), 'Cloudflare CSP is required');
 assert(headers.includes('X-Frame-Options: DENY'), 'Clickjacking protection is required');
 assert(!/(sk_live_|sk_test_|service_role\s*[:=]\s*['"][^'"]+)/i.test(allText), 'A secret-looking key is committed');

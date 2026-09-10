@@ -6,7 +6,7 @@ Status: technische Planung, noch nicht produktiv umgesetzt. Der produktive Einsa
 
 ## Umsetzungsstand
 
-Etappen 1 und 2 sind im Repository vorbereitet, aber bewusst noch nicht deployt:
+Etappen 1 bis 3 sind im Repository vorbereitet, aber bewusst noch nicht deployt:
 
 - Datenbankmigration mit Tabellen, RLS, eigenen Mailrechten und mandantenbindenden Fremdschlüsseln;
 - AES-256-GCM-Verschlüsselung mit Mandantenkontext und Schlüsselversion;
@@ -16,6 +16,12 @@ Etappen 1 und 2 sind im Repository vorbereitet, aber bewusst noch nicht deployt:
 - idempotente Speicherung mit verschlüsseltem Inhalt und mandantengebundenem Absender-Hash;
 - sichtbarer Abbruch statt still übersprungener Nachrichten bei einem zu grossen Rückstand;
 - automatischer Löschlauf für abgelaufene Nachrichten, Entwürfe und technische Laufdaten;
+- atomare Analyse-Queue ohne doppelte KI-Aufrufe bei parallelen Cron-Läufen;
+- regelbasierter Filter für automatische Abwesenheitsantworten;
+- OpenAI Responses API mit `store: false`, ohne Tools und mit strengem JSON-Schema;
+- begrenzte Auswahl freigegebener Wissenseinträge und passender Kunden-/Einsatzdaten;
+- nachgelagerte Prüfung von Wissensquellen und zwingende Eskalation risikoreicher Kategorien;
+- monatliches Tokenlimit pro Mandant, standardmässig 5 Millionen Token;
 - statische Sicherheitsprüfungen, Kryptografie-Test und ausführbarer RLS-Negativtest.
 
 Noch offen sind das Setzen der Secrets, die Anwendung auf einer separaten Staging-Datenbank, der dortige RLS-Test und die Einrichtung der beiden Scheduler-Aufrufe. Lokal ist derzeit kein Docker oder Podman vorhanden; deshalb wurde die Migration noch nicht gegen eine laufende lokale Supabase-Datenbank ausgeführt.

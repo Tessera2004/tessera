@@ -51,5 +51,8 @@ verify_jwt = false
 [functions.mail-retention]
 verify_jwt = false
 
+[functions.mail-analyse]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false

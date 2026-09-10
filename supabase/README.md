@@ -20,6 +20,8 @@ Etappe 1 erwartet folgende Supabase-Secrets:
 - `MAIL_TOKEN_ENCRYPTION_KEY` – ein base64url-codierter, zufaelliger 32-Byte-Schluessel
 - `MAIL_CONTACT_HASH_SALT` – ein unabhaengiger, zufaelliger Wert mit mindestens 32 Zeichen
 - `MAIL_CRON_SECRET` – ein unabhaengiger, zufaelliger Wert fuer Scheduler-Aufrufe
+- `OPENAI_API_KEY` – separater serverseitiger API-Schluessel, niemals ein ChatGPT-/Codex-Login
+- `OPENAI_MAIL_MODEL` – optional; Standard ist `gpt-5.6-luna`
 
 Der Verschluesselungsschluessel darf nach dem ersten gespeicherten Postfach nicht
 einfach ersetzt werden. Eine Rotation braucht eine kontrollierte Neuverschluesselung
@@ -34,7 +36,11 @@ werden nach dem Staging-Test zwei POST-Aufrufe mit dem Header
 `x-cron-secret: <MAIL_CRON_SECRET>` eingerichtet:
 
 - `mail-sync`: alle 30 Minuten;
+- `mail-analyse`: alle 30 Minuten, wenige Minuten nach `mail-sync`;
 - `mail-retention`: taeglich, bei `more: true` erneut aufrufen.
 
 Der Cron-Secret darf weder als URL-Parameter noch im Repository stehen. Solange
 `mail_agent_settings.enabled` false ist, ruft der Sync keine Gmail-Nachrichten ab.
+Die OpenAI-Anfrage setzt `store: false`, verwendet keine Tools und verlangt ein
+striktes JSON-Schema. Der API-Schluessel wird erst benoetigt, wenn Etappe 3 in
+Staging getestet wird.
