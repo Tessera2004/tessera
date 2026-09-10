@@ -65,3 +65,9 @@ verify_jwt = true
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Oeffentlich: Ein Gast auf der Website des Kunden bucht ohne Konto. Der
+# Schutz liegt in der Function selbst — Honigtopf, Ratsperre je IP-Hash und
+# die Pruefung, dass die gewaehlte Zeit ueberhaupt eine Oeffnungszeit ist.
+[functions.zeitfenster]
+verify_jwt = false
