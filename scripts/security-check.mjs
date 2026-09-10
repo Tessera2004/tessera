@@ -25,6 +25,7 @@ const mailRetention = read('supabase/functions/mail-retention/index.ts');
 const mailAnalysisMigration = read('supabase/migrations/202609100007_mail_analysis.sql');
 const mailAnalyse = read('supabase/functions/mail-analyse/index.ts');
 const mailDeliveryMigration = read('supabase/migrations/202609100008_mail_review_delivery.sql');
+const mailPermissionHierarchy = read('supabase/migrations/202609100009_mail_permission_hierarchy.sql');
 const mailInbox = read('supabase/functions/mail-inbox/index.ts');
 const mailDraftSave = read('supabase/functions/mail-draft-save/index.ts');
 const mailSend = read('supabase/functions/mail-send/index.ts');
@@ -80,6 +81,7 @@ assert(mailDraftSave.includes(".rpc('save_mail_draft_review'") && mailDeliveryMi
 assert(mailSend.includes(".rpc('claim_mail_draft_delivery'") && mailSend.includes(".rpc('finish_mail_draft_delivery'"), 'Mail delivery must claim and finish atomically');
 assert(mailSend.includes("setDeliveryState(tenantId, claimedMessageId, 'delivery_unknown'") && mailRetention.includes(".eq('status', 'sending')"), 'Uncertain and interrupted mail delivery must never be retried silently');
 assert(mailSend.includes('gmail.googleapis.com/gmail/v1/users/me/messages/send'), 'Only explicit mail delivery may call Gmail send');
+assert(mailPermissionHierarchy.includes("custom_perms ? 'admin_email'") && mailPermissionHierarchy.includes("?| array['view_email','review_email','send_email']"), 'Custom mail permissions must follow the safe hierarchy');
 assert(headers.includes('Content-Security-Policy:'), 'Cloudflare CSP is required');
 assert(headers.includes('X-Frame-Options: DENY'), 'Clickjacking protection is required');
 assert(!/(sk_live_|sk_test_|service_role\s*[:=]\s*['"][^'"]+)/i.test(allText), 'A secret-looking key is committed');

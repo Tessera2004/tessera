@@ -30,6 +30,10 @@
       { key: 'edit_prices',    label: 'Preise ändern' },
       { key: 'edit_objekte',   label: 'Kunden / Objekte bearbeiten' },
       { key: 'edit_users',     label: 'Team & Rollen verwalten' },
+      { key: 'view_email',     label: 'E-Mails lesen' },
+      { key: 'review_email',   label: 'Mail-Entwürfe bearbeiten' },
+      { key: 'send_email',     label: 'Mail-Entwürfe senden' },
+      { key: 'admin_email',    label: 'Mail-Assistent verwalten' },
       { key: 'delete_offerts', label: 'Löschen' }
     ];
     const ROLES_KEY = 'cc-roles-v1';

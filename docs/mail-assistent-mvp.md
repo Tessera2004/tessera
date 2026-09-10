@@ -253,6 +253,13 @@ Versandversuch wird der Zustand als `delivery_unknown` gesperrt und nicht automa
 wiederholt. Angemeldete Produktkonten verwenden keine im Browser gespeicherten
 Provider-Tokens mehr; der alte direkte Pfad bleibt nur für den expliziten Demo-Modus.
 
+Umsetzungsstand Einrichtung (lokal, noch nicht produktiv ausgerollt):
+Mail-Administratoren können in den MosaOS-Einstellungen den Entwurfsbetrieb
+aktivieren, Ton, Signatur und Aufbewahrung festlegen sowie einzelne belegte
+Wissenseinträge mit Quelle freigeben. Neue Einträge sind nicht automatisch
+freigegeben. Eigene Rollen bieten getrennte Rechte zum Lesen, Prüfen, Senden und
+Verwalten; höhere Mailrechte schliessen die dafür notwendigen Leserechte ein.
+
 Der vorhandene `x-cron-secret`-Ansatz der Funktion `zeitfenster` kann als Muster dienen. Cron- und Provider-Endpunkte dürfen keine normalen Browser-CORS-Endpunkte sein.
 
 ## KI-Vertrag
