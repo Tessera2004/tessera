@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Nimmt product-film-v2.html deterministisch als MP4 auf.
+"""Nimmt eine HTML-Motion-Graphic deterministisch als MP4 auf.
 
 Kein Cloud-Dienst und keine generative Video-API: Chromium rendert die echte
 HTML-Motion-Graphic, Playwright zeichnet sie auf und das lokale ffmpeg wandelt
@@ -27,7 +27,12 @@ def main() -> None:
     parser.add_argument(
         "--ausgabe",
         type=Path,
-        default=ROOT.parent / "tmp" / "produktvideo-v2" / "MosaOS-Produktfilm-V2.mp4",
+        default=ROOT.parent / "tmp" / "produktvideo-v3" / "MosaOS-Produktfilm-V3.mp4",
+    )
+    parser.add_argument(
+        "--quelle",
+        default="product-film-v3.html",
+        help="HTML-Datei relativ zum Repository (Vorgabe: product-film-v3.html)",
     )
     args = parser.parse_args()
     args.ausgabe.parent.mkdir(parents=True, exist_ok=True)
@@ -55,10 +60,10 @@ def main() -> None:
                 )
                 page = context.new_page()
                 page.goto(
-                    "http://127.0.0.1:8768/product-film-v2.html",
+                    f"http://127.0.0.1:8768/{args.quelle}",
                     wait_until="networkidle",
                 )
-                page.wait_for_timeout(32_400)
+                page.wait_for_timeout(29_400)
                 video = page.video
                 page.close()
                 context.close()
