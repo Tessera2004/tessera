@@ -15,6 +15,7 @@ window.MosaBilling = (function () {
   // Modulname: eigener Schluessel, sonst der Navigationsname, sonst Deutsch
   const modLabel = (m) => t('mod.' + m.key + '.label', t('nav.' + m.key, m.label));
   function client() {
+    if (window.MOSAOS_DEMO_MODE) return null;
     try { if (typeof getSupabase === 'function') return getSupabase(); } catch {}
     return window.SB || null;
   }

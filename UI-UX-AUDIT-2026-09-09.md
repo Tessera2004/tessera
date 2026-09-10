@@ -20,6 +20,8 @@ Am 9. September 2026 wurde der priorisierte Massnahmenblock direkt umgesetzt:
 
 Die vollständige Regression umfasste erneut alle **194 Zustände**. Sie fand nach dem ersten Korrekturlauf noch genau zwei horizontale Überläufe: Produktvideo und Baustellenansicht. Beide wurden danach korrigiert und gezielt bei 390 und 1440 Pixeln nachgemessen; Website, Ratgeber, Produktvideo, Büroplanung, Baustellen und Feld-Demo entsprechen nun exakt der jeweiligen Viewportbreite und erzeugten keine JavaScript-Seitenfehler. Zusätzlich bestanden `scripts/app-pruefen.py`, Security-Check und Handover-Regression. Die Abo-Funktionen liefern ohne Sitzung nun kontrolliert zurück statt mit `t is not a function` abzustürzen.
 
+**Datenschutz-Nachtrag vom 10. September 2026:** Ein angemeldeter Browser konnte beim Öffnen von `?demo=1` zuvor seine vorhandenen lokalen beziehungsweise synchronisierten Firmendaten behalten. Der Demo-Modus sichert nun vorhandene App-Daten, ersetzt sie vollständig durch klar fiktive `.invalid`-/Musterangaben, sperrt Supabase-, Billing- und Sync-Zugriffe und stellt die lokalen Daten beim Verlassen wieder her. Ein isolierter Browsertest mit rein synthetischen Markierungswerten bestätigte: keine Anzeige der vorherigen Werte, null Supabase-Anfragen, keine Sync-Warteschlange aus Demo-Änderungen und vollständige Wiederherstellung beim Verlassen.
+
 ## Prüfumfang und Grenzen
 
 - 75 HTML-Seiten ausserhalb der Büro-Hauptdatei: deutsche Website, Sprachfassungen DE/FR/IT/ES/EN, Branchen, Ratgeber, Kontakt, Rechtstexte, Fehler-/Bestätigungsseiten, Login, Onboarding, Einladung, Check-in, Mitarbeiter-Login und vier Produktfilm-Seiten.

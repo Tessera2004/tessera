@@ -12,7 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
-  <script src="db-sync.js?v=5"></script>
+  <script src="db-sync.js?v=6"></script>
   <script src="presets.js?v=9"></script>
   <script src="app-i18n.js?v=49"></script>
   <style>
@@ -1132,6 +1132,7 @@
     }
 
     function loadMobileDemo() {
+      window.MOSAOS_DEMO_MODE = true;
       window._fieldUser = 'nina@demo.mosaos.ch';
       window._myEmpId = 'demo-e1';
       window._tenantId = 'demo';

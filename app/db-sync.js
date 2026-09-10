@@ -272,6 +272,7 @@
   'use strict';
 
   function getSb() {
+    if (window.MOSAOS_DEMO_MODE) return null;
     // Nutze denselben Client wie app.html (gemeinsame Auth-Session)
     if (typeof window.getSupabase === 'function') {
       try { const c = window.getSupabase(); if (c) return c; } catch {}
@@ -670,6 +671,7 @@
   // ── Push (fire & forget) ─────────────────────────────────
 
   async function push(type, data, fromQueue = false) {
+    if (window.MOSAOS_DEMO_MODE) return true;
     const sb = getSb();
     if (!sb) { if (!fromQueue) enqueue(type, data); return false; }
     const tid = await getTid();
@@ -745,6 +747,7 @@
   const MAX_VERSUCHE = 5;
 
   async function flushQueue() {
+    if (window.MOSAOS_DEMO_MODE) return;
     const queue = lsGet(SYNC_QUEUE_KEY, []);
     if (!Array.isArray(queue) || !queue.length) { setSyncState('synced'); return; }
     const remaining = [];
@@ -775,6 +778,7 @@
   // ── Remove ───────────────────────────────────────────────
 
   async function remove(table, id) {
+    if (window.MOSAOS_DEMO_MODE) return true;
     const sb = getSb();
     if (!sb) { enqueue('__delete__', { table, id }); return false; }
     const tid = await getTid();

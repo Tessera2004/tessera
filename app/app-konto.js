@@ -832,6 +832,7 @@
     // SUPABASE CLIENT
     // ============================================================
     function getSupabase() {
+      if (window.MOSAOS_DEMO_MODE) return null;
       // Bevorzuge dedizierten Config-Eintrag; falle auf supabase-client.js (window.SB) zurück
       const cfg = window.MOSAOS_SUPABASE;
       if (cfg?.url && cfg?.anonKey && window.supabase) {
