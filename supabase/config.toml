@@ -44,5 +44,12 @@ verify_jwt = true
 [functions.mail-disconnect]
 verify_jwt = true
 
+# Nur fuer den Scheduler; beide Functions pruefen zusaetzlich MAIL_CRON_SECRET.
+[functions.mail-sync]
+verify_jwt = false
+
+[functions.mail-retention]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false

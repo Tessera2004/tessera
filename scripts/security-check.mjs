@@ -20,6 +20,8 @@ const mailOauthStart = read('supabase/functions/mail-oauth-start/index.ts');
 const mailOauthCallback = read('supabase/functions/mail-oauth-callback/index.ts');
 const mailStatus = read('supabase/functions/mail-account-status/index.ts');
 const mailDisconnect = read('supabase/functions/mail-disconnect/index.ts');
+const mailSync = read('supabase/functions/mail-sync/index.ts');
+const mailRetention = read('supabase/functions/mail-retention/index.ts');
 const headers = read('_headers');
 const allText = [...fs.readdirSync(root), ...fs.readdirSync(path.join(root, 'app')).map(f => 'app/' + f)]
   .filter(f => fs.statSync(path.join(root, f)).isFile())
@@ -54,6 +56,12 @@ assert(!/return json\(\{[^}]*token/is.test(mailOauthCallback), 'Mail OAuth callb
 assert(mailEntitlement.includes("modules.includes('email')") && mailEntitlement.includes("modules.includes('komplett')"), 'Mail entitlement must recognise email and complete plans');
 assert(mailStatus.includes("select('id,provider,email,status,last_synced_at,last_error_code,created_at')"), 'Mail status endpoint must select only safe account fields');
 assert(mailDisconnect.includes(".eq('id', accountId).eq('tenant_id', auth.tenantId)"), 'Mail disconnect must bind account to authenticated tenant');
+assert(mailSync.includes("req.headers.get('x-cron-secret')") && mailSync.includes("Deno.env.get('MAIL_CRON_SECRET')"), 'Mail sync must authenticate scheduler calls');
+assert(mailSync.includes('decryptMailValue(') && mailSync.includes("Deno.env.get('MAIL_CONTACT_HASH_SALT')"), 'Mail sync must decrypt server-side and use a keyed sender hash');
+assert(mailSync.includes(".eq('mail_account_id', accountId).eq('tenant_id', tenantId)"), 'Mail sync lookups must bind account and tenant');
+assert(mailSync.includes('GMAIL_BACKLOG_TOO_LARGE'), 'Mail sync must fail visibly instead of skipping a large backlog');
+assert(!/messages\/send|sendMail/.test(mailSync), 'Background mail sync must not contain a send path');
+assert(mailRetention.includes("req.headers.get('x-cron-secret')") && mailRetention.includes(".lt('retention_until'"), 'Mail retention must authenticate and enforce expiry');
 assert(headers.includes('Content-Security-Policy:'), 'Cloudflare CSP is required');
 assert(headers.includes('X-Frame-Options: DENY'), 'Clickjacking protection is required');
 assert(!/(sk_live_|sk_test_|service_role\s*[:=]\s*['"][^'"]+)/i.test(allText), 'A secret-looking key is committed');

@@ -17,3 +17,5 @@
 - [ ] Run `scripts/mail-assistent-rls-test.sql` against the staging test database and retain the result.
 - [ ] Register the exact `mail-oauth-callback` redirect URI and complete the required Google verification before a customer mailbox is connected.
 - [ ] Confirm that Mail-Assistent remains `draft_only` and that no background path can send messages.
+- [ ] Configure `mail-sync` every 30 minutes and `mail-retention` daily with `MAIL_CRON_SECRET` in a header, never in the URL.
+- [ ] Test an expired Gmail history cursor and a backlog above the processing limit; neither may silently lose messages.
