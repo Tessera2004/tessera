@@ -27,12 +27,18 @@ def main() -> None:
     parser.add_argument(
         "--ausgabe",
         type=Path,
-        default=ROOT.parent / "tmp" / "produktvideo-v3" / "MosaOS-Produktfilm-V3.mp4",
+        default=ROOT.parent / "tmp" / "produktvideo-v4" / "MosaOS-Produktfilm-V4.mp4",
     )
     parser.add_argument(
         "--quelle",
-        default="product-film-v3.html",
-        help="HTML-Datei relativ zum Repository (Vorgabe: product-film-v3.html)",
+        default="product-film-v4.html",
+        help="HTML-Datei relativ zum Repository (Vorgabe: product-film-v4.html)",
+    )
+    parser.add_argument(
+        "--dauer",
+        type=float,
+        default=36.3,
+        help="Ausgabedauer in Sekunden (Vorgabe: 36.3)",
     )
     args = parser.parse_args()
     args.ausgabe.parent.mkdir(parents=True, exist_ok=True)
@@ -63,7 +69,7 @@ def main() -> None:
                     f"http://127.0.0.1:8768/{args.quelle}",
                     wait_until="networkidle",
                 )
-                page.wait_for_timeout(29_400)
+                page.wait_for_timeout(int((args.dauer + 0.4) * 1000))
                 video = page.video
                 page.close()
                 context.close()
@@ -71,13 +77,40 @@ def main() -> None:
                 webm = Path(video.path())
 
             zwischen = Path(tmp) / "film.webm"
+            stumm = Path(tmp) / "film-stumm.mp4"
             shutil.copy2(webm, zwischen)
             subprocess.run(
                 [
                     str(FFMPEG), "-y", "-i", str(zwischen),
+                    "-t", str(args.dauer),
                     "-c:v", "libx264", "-preset", "slow", "-crf", "18",
                     "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-                    "-an", str(args.ausgabe),
+                    "-an", str(stumm),
+                ],
+                check=True,
+            )
+            sound_filter = (
+                "[1:a]volume=0.055,lowpass=f=190[base];"
+                "[2:a]highpass=f=220,lowpass=f=5200,"
+                "volume='0.012+0.095*(between(t,4.0,5.7)+between(t,10.4,12.1)+"
+                "between(t,21.0,23.1)+between(t,31.1,32.8))':eval=frame[air];"
+                "[3:a]volume='0.075*(between(t,7.0,7.11)+between(t,18.8,18.93)+"
+                "between(t,26.2,26.33)+between(t,33.0,33.13))':eval=frame[tick];"
+                "[base][air][tick]amix=inputs=3:normalize=0,alimiter=limit=0.82[a]"
+            )
+            subprocess.run(
+                [
+                    str(FFMPEG), "-y", "-i", str(stumm),
+                    "-f", "lavfi", "-i",
+                    f"sine=frequency=52:sample_rate=48000:duration={args.dauer}",
+                    "-f", "lavfi", "-i",
+                    f"anoisesrc=color=pink:sample_rate=48000:duration={args.dauer}",
+                    "-f", "lavfi", "-i",
+                    f"sine=frequency=720:sample_rate=48000:duration={args.dauer}",
+                    "-filter_complex", sound_filter,
+                    "-map", "0:v:0", "-map", "[a]", "-t", str(args.dauer),
+                    "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                    "-movflags", "+faststart", str(args.ausgabe),
                 ],
                 check=True,
             )
