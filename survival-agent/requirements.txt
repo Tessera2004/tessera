@@ -1,0 +1,5 @@
+# Nur noetig fuer den API-Modus (ohne --mock):
+anthropic>=1.0.0
+python-dotenv>=1.0.0
+# Nur noetig fuer die optionalen Telegram-Benachrichtigungen:
+requests>=2.31.0
