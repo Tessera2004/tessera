@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MosaOS — Produktfilm V2</title>
+  <style>
+    :root{--red:#e11d2a;--ink:#08090c;--panel:#141519;--line:#292a30;--soft:#a8a29e;--dur:32s}
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050507;color:#fff;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .film{position:relative;width:100vw;height:100vh;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 20% 12%,#52131b55,transparent 31%),radial-gradient(circle at 82% 76%,#22252f99,transparent 34%),var(--ink)}
+    .film:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.22;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 85%)}
+    .grain{position:absolute;inset:-100%;z-index:20;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");animation:grain .22s steps(2) infinite}
+    .top{position:absolute;z-index:15;top:46px;left:64px;right:64px;display:flex;align-items:center;justify-content:space-between}.wordmark{display:flex;align-items:center;gap:11px;font-size:28px;font-weight:800;letter-spacing:-.055em}.wordmark strong{color:var(--red)}.tiles{display:grid;grid-template-columns:repeat(2,9px);gap:3px}.tiles i{width:9px;height:9px;border-radius:2px;background:#fff}.tiles i:last-child{position:relative;background:var(--red)}.tiles i:last-child:before,.tiles i:last-child:after{content:"";position:absolute;inset:4px 2px;height:1px;background:#fff}.tiles i:last-child:after{inset:2px 4px;width:1px;height:5px}.top small{font-size:14px;color:#8f8f98;letter-spacing:.08em;text-transform:uppercase}.timeline{position:absolute;z-index:18;left:64px;right:64px;bottom:42px;height:2px;background:#ffffff1a}.timeline:after{content:"";display:block;width:100%;height:100%;background:var(--red);transform-origin:left;animation:progress var(--dur) linear both}.scene{position:absolute;inset:0;display:grid;align-items:center;padding:120px 7vw 100px;opacity:0;pointer-events:none}.copy{position:relative;z-index:5;max-width:660px}.kicker{display:flex;align-items:center;gap:10px;margin-bottom:24px;color:#ff6f78;font-size:15px;font-weight:750;letter-spacing:.15em;text-transform:uppercase}.kicker:before{content:"";width:30px;height:2px;background:var(--red)}h1{margin:0;font-size:clamp(64px,6.4vw,118px);line-height:.91;letter-spacing:-.068em;font-weight:800}h2{margin:0;font-size:clamp(50px,5vw,88px);line-height:.96;letter-spacing:-.058em}p{font-size:24px;line-height:1.45;color:#b4b2b3;max-width:620px}.red{color:#ff3542}.stage{position:absolute;z-index:3}.screen{position:relative;overflow:hidden;border:1px solid #ffffff1c;background:#131417;border-radius:22px;box-shadow:0 45px 130px #000c,0 0 0 9px #ffffff05}.screen img{display:block;width:100%;height:100%;object-fit:cover;object-position:top left}.browserbar{height:38px;display:flex;align-items:center;gap:8px;padding:0 15px;border-bottom:1px solid #ffffff12;background:#191a1f}.browserbar i{width:8px;height:8px;border-radius:50%;background:#3a3b42}.browserbar i:first-child{background:var(--red)}.browserbar span{margin-left:12px;color:#74747e;font-size:11px}.callout{position:absolute;z-index:8;display:flex;align-items:center;gap:13px;padding:15px 19px;border:1px solid #ffffff20;border-radius:14px;background:#191a1eee;box-shadow:0 18px 50px #0008;backdrop-filter:blur(15px);font-size:16px;font-weight:650}.callout b{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#e11d2a22;color:#ff5661}.check{color:#50d890}.scene-intro{animation:intro var(--dur) both}.intro-copy{margin:auto;text-align:center}.intro-copy .kicker{justify-content:center}.intro-copy .kicker:before{display:none}.intro-copy p{margin:28px auto 0}.orbit{position:absolute;inset:0}.orbit span{position:absolute;width:120px;height:120px;border-radius:26px;border:1px solid #ffffff12;background:#ffffff08;display:grid;place-items:center;color:#c7c7ce;font-size:13px;letter-spacing:.05em;animation:float 4s ease-in-out infinite}.orbit span:before{display:block;font-size:28px;margin-bottom:4px}.orbit span:nth-child(1){left:10%;top:23%;animation-delay:-1s}.orbit span:nth-child(2){right:12%;top:19%;animation-delay:-2.2s}.orbit span:nth-child(3){left:17%;bottom:16%;animation-delay:-.4s}.orbit span:nth-child(4){right:18%;bottom:14%;animation-delay:-3s}.orbit .o1:before{content:"01"}.orbit .o2:before{content:"02"}.orbit .o3:before{content:"03"}.orbit .o4:before{content:"04"}
+    .scene-plan{grid-template-columns:.82fr 1.18fr;animation:plan var(--dur) both}.plan-stage{right:-3vw;top:17vh;width:58vw;transform:perspective(1400px) rotateY(-8deg) rotateX(2deg)}.plan-stage .screen{aspect-ratio:16/10}.plan-stage img{animation:planpan var(--dur) both}.c1{right:39vw;top:25vh;animation:call1 var(--dur) both}.c2{right:7vw;bottom:17vh;animation:call2 var(--dur) both}
+    .scene-field{grid-template-columns:1.05fr .95fr;animation:field var(--dur) both}.field-copy{margin-left:auto;max-width:650px}.desk{left:-10vw;top:16vh;width:58vw;transform:perspective(1300px) rotateY(10deg) rotateX(2deg)}.desk .screen{aspect-ratio:16/10}.phone{left:36vw;top:17vh;width:15vw;min-width:230px;aspect-ratio:390/844;padding:9px;border-radius:44px;background:#27282e;box-shadow:0 35px 100px #000d;transform:rotate(4deg)}.phone:before{content:"";position:absolute;z-index:3;top:15px;left:50%;width:33%;height:22px;transform:translateX(-50%);border-radius:20px;background:#050506}.phone img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:35px}.pulse{position:absolute;left:43.5vw;top:31vh;width:16px;height:16px;border-radius:50%;background:#4fe09c;box-shadow:0 0 0 0 #4fe09c88;animation:pulse var(--dur) both}.c3{left:33vw;bottom:17vh;animation:call3 var(--dur) both}
+    .scene-close{animation:close var(--dur) both}.close-copy{max-width:660px}.invoice-stage{right:3vw;top:17vh;width:57vw;transform:perspective(1400px) rotateY(-7deg)}.invoice-stage .screen{aspect-ratio:16/10}.flowline{position:absolute;right:9vw;bottom:16vh;display:flex;align-items:center;gap:0}.flowline span{padding:14px 18px;border:1px solid #ffffff1a;background:#15161acc;font-size:15px;font-weight:650}.flowline span:first-child{border-radius:12px 0 0 12px}.flowline span:last-child{border-radius:0 12px 12px 0}.flowline i{width:46px;height:1px;background:linear-gradient(90deg,var(--red),#ffffff30)}
+    .scene-end{animation:end var(--dur) both;text-align:center}.end-card{margin:auto}.end-card>.wordmark{width:max-content;margin:0 auto 42px;font-size:42px}.end-card>.wordmark .tiles{grid-template-columns:repeat(2,13px);gap:4px}.end-card>.wordmark .tiles i{width:13px;height:13px}.end-card>.wordmark .tiles i:last-child:before{inset:6px 3px}.end-card>.wordmark .tiles i:last-child:after{inset:3px 6px;width:1px;height:7px}.end-card h2{font-size:clamp(65px,7vw,124px)}.end-card p{margin:26px auto 34px}.cta{display:inline-flex;align-items:center;gap:12px;padding:16px 24px;border-radius:999px;background:#fff;color:#101114;font-size:18px;font-weight:750}.cta:after{content:"→";color:var(--red);font-size:24px}.url{margin-top:26px;color:#777780;font-size:16px;letter-spacing:.08em}
+    @keyframes intro{0%{opacity:1}13%{opacity:1}16%,100%{opacity:0;transform:scale(.96)}}
+    @keyframes plan{0%,14%{opacity:0;transform:translateY(25px)}18%{opacity:1;transform:none}35%{opacity:1}39%,100%{opacity:0;transform:translateX(-25px)}}
+    @keyframes field{0%,36%{opacity:0;transform:translateY(25px)}40%{opacity:1;transform:none}57%{opacity:1}61%,100%{opacity:0;transform:scale(.98)}}
+    @keyframes close{0%,58%{opacity:0;transform:translateY(25px)}62%{opacity:1;transform:none}77%{opacity:1}81%,100%{opacity:0;transform:translateX(-25px)}}
+    @keyframes end{0%,78%{opacity:0;transform:scale(1.05)}83%,100%{opacity:1;transform:none}}
+    @keyframes progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    @keyframes planpan{0%,18%{transform:scale(1.03) translateY(0)}35%,100%{transform:scale(1.09) translateY(-3%)}}
+    @keyframes call1{0%,20%{opacity:0;transform:translateY(16px)}24%,35%{opacity:1;transform:none}39%,100%{opacity:0}}
+    @keyframes call2{0%,25%{opacity:0;transform:translateY(16px)}29%,35%{opacity:1;transform:none}39%,100%{opacity:0}}
+    @keyframes call3{0%,43%{opacity:0;transform:translateY(16px)}47%,57%{opacity:1;transform:none}61%,100%{opacity:0}}
+    @keyframes pulse{0%,42%{box-shadow:0 0 0 0 #4fe09c88}47%{box-shadow:0 0 0 34px #4fe09c00}48%,100%{box-shadow:0 0 0 0 #4fe09c00}}
+    @keyframes float{50%{transform:translateY(-14px) rotate(2deg)}}@keyframes grain{0%{transform:translate(1%,1%)}25%{transform:translate(-2%,1%)}50%{transform:translate(1%,-2%)}75%{transform:translate(2%,2%)}}
+    @media(prefers-reduced-motion:reduce){*{animation-play-state:paused!important}}
+  </style>
+</head>
+<body>
+  <main class="film">
+    <div class="grain"></div>
+    <div class="top"><div class="wordmark"><span class="tiles"><i></i><i></i><i></i><i></i></span><span>Mosa<strong>OS</strong></span></div><small>Software für Reinigungsbetriebe</small></div>
+
+    <section class="scene scene-intro">
+      <div class="orbit"><span class="o1">Planung</span><span class="o2">Team</span><span class="o3">Nachweise</span><span class="o4">Finanzen</span></div>
+      <div class="copy intro-copy"><div class="kicker">Wenn alles zusammengehört</div><h1>Dein Betrieb.<br><span class="red">Ein System.</span></h1><p>MosaOS verbindet Büro und Reinigungsteams – vom ersten Auftrag bis zur Rechnung.</p></div>
+    </section>
+
+    <section class="scene scene-plan">
+      <div class="copy"><div class="kicker">01 · Planen</div><h2>Heute sehen,<br>was heute zählt.</h2><p>Einsätze, Teams und freie Zeiten in einer klaren Übersicht.</p></div>
+      <div class="stage plan-stage"><div class="screen"><div class="browserbar"><i></i><i></i><i></i><span>mosaos.ch · Einsatzplanung</span></div><img src="marketing/video/assets/planung.png" alt="MosaOS Einsatzplanung"></div></div>
+      <div class="callout c1"><b>3</b> Einsätze geplant</div><div class="callout c2"><b class="check">✓</b> Team verfügbar</div>
+    </section>
+
+    <section class="scene scene-field">
+      <div class="stage desk"><div class="screen"><div class="browserbar"><i></i><i></i><i></i><span>Büro · Live-Übersicht</span></div><img src="marketing/video/assets/dashboard.png" alt="MosaOS Dashboard"></div></div>
+      <div class="stage phone"><img src="marketing/video/assets/planung-mobile.png" alt="MosaOS auf dem Smartphone"></div><span class="pulse"></span>
+      <div class="callout c3"><b class="check">✓</b> Büro und Team synchron</div>
+      <div class="copy field-copy"><div class="kicker">02 · Arbeiten</div><h2>Draussen erledigt.<br>Im Büro sichtbar.</h2><p>Auftrag, Route, Arbeitszeit und Nachweis begleiten dein Team auf dem Smartphone.</p></div>
+    </section>
+
+    <section class="scene scene-close">
+      <div class="copy close-copy"><div class="kicker">03 · Abschliessen</div><h2>Weniger nachfragen.<br>Schneller abrechnen.</h2><p>Aus erledigter Arbeit wird ein sauberer Abschluss – ohne Medienbruch.</p></div>
+      <div class="stage invoice-stage"><div class="screen"><div class="browserbar"><i></i><i></i><i></i><span>mosaos.ch · Rechnungen</span></div><img src="marketing/video/assets/rechnungen.png" alt="MosaOS Rechnungen"></div></div>
+      <div class="flowline"><span>Auftrag</span><i></i><span>Nachweis</span><i></i><span>Rechnung</span></div>
+    </section>
+
+    <section class="scene scene-end"><div class="end-card"><div class="wordmark"><span class="tiles"><i></i><i></i><i></i><i></i></span><span>Mosa<strong>OS</strong></span></div><h2>Damit dein Betrieb<br><span class="red">einfach läuft.</span></h2><p>Planung, Team, Kunden und Finanzen an einem Ort.</p><span class="cta">MosaOS kennenlernen</span><div class="url">MOSAOS.CH</div></div></section>
+    <div class="timeline"></div>
+  </main>
+</body>
+</html>
