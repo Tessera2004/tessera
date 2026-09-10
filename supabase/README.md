@@ -44,3 +44,12 @@ Der Cron-Secret darf weder als URL-Parameter noch im Repository stehen. Solange
 Die OpenAI-Anfrage setzt `store: false`, verwendet keine Tools und verlangt ein
 striktes JSON-Schema. Der API-Schluessel wird erst benoetigt, wenn Etappe 3 in
 Staging getestet wird.
+
+Etappe 4 ergaenzt die JWT-geschuetzten Functions `mail-inbox`,
+`mail-draft-save` und `mail-send`. Der Browser erhaelt weiterhin keine
+Provider-Tokens. Ein Versand wird erst nach dem bestaetigten Benutzerklick
+atomar beansprucht. `delivery_unknown` und haengengebliebene `sending`-Claims
+werden nicht automatisch wiederholt. Vor dem Produktivbetrieb muessen die
+Migrationen `202609100006` bis `202609100008` sowie alle Mail-Functions gemeinsam
+in Staging ausgerollt und dort mit zwei gleichzeitig angemeldeten Benutzern auf
+Doppelklick-/Parallelbearbeitung getestet werden.

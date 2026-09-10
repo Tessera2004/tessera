@@ -24,7 +24,7 @@ export function withCors(handler: (req: Request) => Response | Promise<Response>
 export const corsHeaders = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGINS[0],
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Vary': 'Origin',
 };
 
@@ -49,4 +49,3 @@ export function randomToken(bytes = 32) {
   const raw = crypto.getRandomValues(new Uint8Array(bytes));
   return btoa(String.fromCharCode(...raw)).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
 }
-

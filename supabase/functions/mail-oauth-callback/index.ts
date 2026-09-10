@@ -59,7 +59,16 @@ Deno.serve(async (req) => {
   try {
     const { data: membership, error: membershipError } = await db.from('tenant_users')
       .select('role').eq('user_id', claimed.user_id).eq('tenant_id', claimed.tenant_id).maybeSingle();
-    if (membershipError || membership?.role !== 'admin') throw new Error('AUTHORIZATION_REVOKED');
+    if (membershipError || !membership) throw new Error('AUTHORIZATION_REVOKED');
+    let mayAdminMail = membership.role === 'admin';
+    if (!mayAdminMail && membership.role) {
+      const { data: settings } = await db.from('company_settings').select('roles')
+        .eq('tenant_id', claimed.tenant_id).maybeSingle();
+      const roles = Array.isArray(settings?.roles) ? settings.roles : [];
+      const custom = roles.find((role: Record<string, unknown>) => role?.key === membership.role);
+      mayAdminMail = Array.isArray(custom?.perms) && custom.perms.includes('admin_email');
+    }
+    if (!mayAdminMail) throw new Error('AUTHORIZATION_REVOKED');
     if (!await tenantHasMailModule(claimed.tenant_id)) throw new Error('MAIL_MODULE_REQUIRED');
 
     const clientId = Deno.env.get('GMAIL_OAUTH_CLIENT_ID') || '';

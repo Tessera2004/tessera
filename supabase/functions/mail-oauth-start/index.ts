@@ -2,6 +2,7 @@ import { json, options, randomToken, sha256, withCors } from '../_shared/http.ts
 import { adminClient, authenticatedTenant } from '../_shared/supabase.ts';
 import { encryptMailValue, mailEncryptionKeyVersion } from '../_shared/mail-crypto.ts';
 import { tenantHasMailModule } from '../_shared/mail-entitlement.ts';
+import { hasMailPermission } from '../_shared/mail-user.ts';
 
 const GMAIL_SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
@@ -27,7 +28,7 @@ Deno.serve(withCors(async (req) => {
 
   try {
     const auth = await authenticatedTenant(req);
-    if (auth.role !== 'admin') return json({ error: 'FORBIDDEN' }, 403);
+    if (!await hasMailPermission(req, 'mail.admin')) return json({ error: 'FORBIDDEN' }, 403);
     if (!await tenantHasMailModule(auth.tenantId)) return json({ error: 'MAIL_MODULE_REQUIRED' }, 402);
     const clientId = Deno.env.get('GMAIL_OAUTH_CLIENT_ID') || '';
     const redirectUri = Deno.env.get('MAIL_OAUTH_REDIRECT_URI') || '';
@@ -78,7 +79,7 @@ Deno.serve(withCors(async (req) => {
   } catch (error) {
     const code = error instanceof Error ? error.message : 'INTERNAL';
     if (code === 'UNAUTHORIZED') return json({ error: code }, 401);
-    if (code === 'NO_TENANT') return json({ error: code }, 403);
+    if (code === 'NO_TENANT' || code === 'MAIL_PERMISSION_CHECK_FAILED') return json({ error: 'FORBIDDEN' }, 403);
     return json({ error: 'INTERNAL' }, 500);
   }
 }));

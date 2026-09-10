@@ -23,6 +23,12 @@ Deno.serve(async (req) => {
   }
   const db = adminClient();
   const now = new Date().toISOString();
+  // Ein abgebrochener Prozess nach dem Gmail-Aufruf darf nie automatisch
+  // erneut senden. Ein alter Claim wird deshalb als unklar sichtbar gemacht.
+  const staleDelivery = new Date(Date.now() - 10 * 60000).toISOString();
+  await db.from('mail_messages').update({
+    status: 'delivery_unknown', delivery_error_code: 'DELIVERY_WORKER_INTERRUPTED',
+  }).eq('status', 'sending').lt('updated_at', staleDelivery);
   const { data: due, error } = await db.from('mail_messages').select('id,tenant_id')
     .lt('retention_until', now).order('retention_until').limit(1000);
   if (error) return response({ error: 'DATABASE_ERROR' }, 500);

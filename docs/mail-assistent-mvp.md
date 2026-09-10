@@ -244,6 +244,15 @@ Technisches Protokoll ohne vollständige Nachrichtentexte: Laufzeit, Status, Feh
 - `mail-analyse`: klassifiziert eine gespeicherte Nachricht und erstellt den Entwurf mit streng begrenztem Firmenkontext.
 - `mail-retention`: löscht fällige Nachrichten und Entwürfe und protokolliert den Lauf.
 
+Umsetzungsstand Phase 4 (lokal, noch nicht produktiv ausgerollt): Die App lädt
+Konten, Nachrichten und entschlüsselte Entwürfe ausschliesslich über JWT-geschützte
+Edge Functions. Bearbeitete Betreffe und Texte werden serverseitig verschlüsselt
+gespeichert. Erst der bestätigte Klick auf „Senden“ beansprucht den Entwurf atomar
+und ruft Gmail auf. Doppelklicks werden abgewiesen; bei einem Netzabbruch nach dem
+Versandversuch wird der Zustand als `delivery_unknown` gesperrt und nicht automatisch
+wiederholt. Angemeldete Produktkonten verwenden keine im Browser gespeicherten
+Provider-Tokens mehr; der alte direkte Pfad bleibt nur für den expliziten Demo-Modus.
+
 Der vorhandene `x-cron-secret`-Ansatz der Funktion `zeitfenster` kann als Muster dienen. Cron- und Provider-Endpunkte dürfen keine normalen Browser-CORS-Endpunkte sein.
 
 ## KI-Vertrag

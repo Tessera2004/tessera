@@ -24,6 +24,10 @@ const mailSync = read('supabase/functions/mail-sync/index.ts');
 const mailRetention = read('supabase/functions/mail-retention/index.ts');
 const mailAnalysisMigration = read('supabase/migrations/202609100007_mail_analysis.sql');
 const mailAnalyse = read('supabase/functions/mail-analyse/index.ts');
+const mailDeliveryMigration = read('supabase/migrations/202609100008_mail_review_delivery.sql');
+const mailInbox = read('supabase/functions/mail-inbox/index.ts');
+const mailDraftSave = read('supabase/functions/mail-draft-save/index.ts');
+const mailSend = read('supabase/functions/mail-send/index.ts');
 const headers = read('_headers');
 const allText = [...fs.readdirSync(root), ...fs.readdirSync(path.join(root, 'app')).map(f => 'app/' + f)]
   .filter(f => fs.statSync(path.join(root, f)).isFile())
@@ -49,11 +53,11 @@ assert(mailCrypto.includes("{ name: 'AES-GCM'"), 'Mail secrets must use authenti
 assert(mailCrypto.includes('additionalData: additionalData(context)'), 'Mail encryption must bind ciphertext to tenant context');
 assert(mailCrypto.includes("Deno.env.get('MAIL_TOKEN_ENCRYPTION_KEY')"), 'Mail encryption key must come from a server secret');
 assert(!/localStorage|sessionStorage/.test(mailCrypto), 'Mail crypto must never use browser storage');
-assert(mailOauthStart.includes('authenticatedTenant(req)') && mailOauthStart.includes("auth.role !== 'admin'"), 'Starting mail OAuth must require a tenant admin');
+assert(mailOauthStart.includes('authenticatedTenant(req)') && mailOauthStart.includes("hasMailPermission(req, 'mail.admin')"), 'Starting mail OAuth must require mail administration permission');
 assert(mailOauthStart.includes('tenantHasMailModule(auth.tenantId)'), 'Starting mail OAuth must require the paid or trial mail module');
 assert(mailOauthStart.includes("code_challenge_method: 'S256'"), 'Mail OAuth must use PKCE');
 assert(mailOauthCallback.includes(".is('consumed_at', null)") && mailOauthCallback.includes(".gt('expires_at'"), 'Mail OAuth state must be one-time and expiring');
-assert(mailOauthCallback.includes("membership?.role !== 'admin'") && mailOauthCallback.includes('tenantHasMailModule(claimed.tenant_id)'), 'Mail OAuth callback must recheck admin membership and module entitlement');
+assert(mailOauthCallback.includes('mayAdminMail') && mailOauthCallback.includes("custom.perms.includes('admin_email')") && mailOauthCallback.includes('tenantHasMailModule(claimed.tenant_id)'), 'Mail OAuth callback must recheck mail administration membership and module entitlement');
 assert(!/return json\(\{[^}]*token/is.test(mailOauthCallback), 'Mail OAuth callback must never return provider tokens');
 assert(mailEntitlement.includes("modules.includes('email')") && mailEntitlement.includes("modules.includes('komplett')"), 'Mail entitlement must recognise email and complete plans');
 assert(mailStatus.includes("select('id,provider,email,status,last_synced_at,last_error_code,created_at')"), 'Mail status endpoint must select only safe account fields');
@@ -71,6 +75,11 @@ assert(mailAnalyse.includes('store: false'), 'OpenAI mail responses must not be 
 assert(mailAnalyse.includes("type: 'json_schema'") && mailAnalyse.includes('strict: true'), 'OpenAI mail output must use strict structured output');
 assert(!/messages\/send|sendMail/.test(mailAnalyse), 'Background mail analysis must not contain a send path');
 assert(!/tools:\s*\[[^\]]/.test(mailAnalyse), 'Mail analysis must not give the model tools');
+assert(mailInbox.includes("hasMailPermission(req, 'mail.read')") && mailInbox.includes('decryptMailValue('), 'Mail inbox must authorise and decrypt only server-side');
+assert(mailDraftSave.includes(".rpc('save_mail_draft_review'") && mailDeliveryMigration.includes('for update;'), 'Mail draft review must be saved under a database lock');
+assert(mailSend.includes(".rpc('claim_mail_draft_delivery'") && mailSend.includes(".rpc('finish_mail_draft_delivery'"), 'Mail delivery must claim and finish atomically');
+assert(mailSend.includes("setDeliveryState(tenantId, claimedMessageId, 'delivery_unknown'") && mailRetention.includes(".eq('status', 'sending')"), 'Uncertain and interrupted mail delivery must never be retried silently');
+assert(mailSend.includes('gmail.googleapis.com/gmail/v1/users/me/messages/send'), 'Only explicit mail delivery may call Gmail send');
 assert(headers.includes('Content-Security-Policy:'), 'Cloudflare CSP is required');
 assert(headers.includes('X-Frame-Options: DENY'), 'Clickjacking protection is required');
 assert(!/(sk_live_|sk_test_|service_role\s*[:=]\s*['"][^'"]+)/i.test(allText), 'A secret-looking key is committed');

@@ -21,10 +21,40 @@
 
     const MAIL_ACCOUNTS_KEY = 'cc-mail-accounts-v1';
     const MAIL_CACHE_KEY    = 'cc-mail-cache-v1';
-    function loadMailAccounts() { try { const v = JSON.parse(localStorage.getItem(MAIL_ACCOUNTS_KEY)); return Array.isArray(v) ? v : []; } catch { return []; } }
+    let secureMailAccounts = [];
+    let secureMails = [];
+    let secureMailError = '';
+    let mailOAuthReturned = false;
+    window._secureMailMode = false;
+    function mailUsesSecureBackend() {
+      return window._secureMailMode || (!!window._authEmail && !window.MOSAOS_DEMO_MODE);
+    }
+    function loadMailAccounts() {
+      if (mailUsesSecureBackend()) return secureMailAccounts;
+      try { const v = JSON.parse(localStorage.getItem(MAIL_ACCOUNTS_KEY)); return Array.isArray(v) ? v : []; } catch { return []; }
+    }
     function saveMailAccounts(a) { localStorage.setItem(MAIL_ACCOUNTS_KEY, JSON.stringify(a)); }
     function loadMailCache() { try { return JSON.parse(localStorage.getItem(MAIL_CACHE_KEY)) || {}; } catch { return {}; } }
     function saveMailCache(c) { localStorage.setItem(MAIL_CACHE_KEY, JSON.stringify(c)); }
+
+    async function mailFunction(name, options = {}) {
+      const sb = getSupabase();
+      const session = sb ? (await sb.auth.getSession()).data.session : null;
+      if (!session) throw new Error('Bitte zuerst anmelden.');
+      const base = window.SUPA_URL || window.MOSAOS_SUPABASE?.url || '';
+      const response = await fetch(`${base}/functions/v1/${name}${options.query || ''}`, {
+        method: options.method || 'GET',
+        headers: { Authorization: 'Bearer ' + session.access_token, ...(options.body ? { 'Content-Type':'application/json' } : {}) },
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(result.error || `MAIL_HTTP_${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
+      return result;
+    }
 
     function invoiceMailbox() {
       return loadMailAccounts().find(a => a && a.email && a.token && ['gmail','outlook'].includes(a.provider)) || null;
@@ -183,6 +213,7 @@
     function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
     function getAllMails() {
+      if (mailUsesSecureBackend()) return secureMails.slice().sort((a,b) => new Date(b.date) - new Date(a.date));
       const cache = loadMailCache();
       // Echtes Produktverhalten: Ohne angebundenes Postfach keine erfundenen Kundennachrichten.
       // Mock-Mails können nur bewusst für interne Präsentationen eingeschaltet werden.
@@ -215,19 +246,19 @@
         { type:'gmail',   name:'Gmail',         sub:'Google Workspace & Gmail',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24"><path fill="#EA4335" d="M1 6.5l11 7 11-7V18a2 2 0 01-2 2H3a2 2 0 01-2-2V6.5z"/><path fill="#4285F4" d="M23 5.5L12 12.5 1 5.5A2 2 0 013 4h18a2 2 0 012 1.5z"/></svg>`,
           bg:'#fff', border:'1px solid #e5e7eb',
-          ready:!!cfg.gmail?.clientId },
+          ready:mailUsesSecureBackend() || !!cfg.gmail?.clientId },
         { type:'outlook', name:'Outlook',        sub:'Microsoft 365 & Outlook.com',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#0078D4"/><path fill="white" d="M13 5h7v5h-7zM13 11h7v5h-7zM13 17h7v3h-7zM4 5h8v15H4z"/><circle fill="#0078D4" cx="8" cy="12" r="2.5"/></svg>`,
           bg:'#0078D4', border:'none',
-          ready:!!cfg.outlook?.clientId },
+          ready:!mailUsesSecureBackend() && !!cfg.outlook?.clientId },
         { type:'icloud',  name:'iCloud Mail',    sub:'Apple iCloud (IMAP via Proxy)',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#1d9bf0"/><path fill="white" d="M18 14a4 4 0 00-3-3.87V10a5 5 0 00-10 0v.13A4 4 0 006 18h12a4 4 0 000-4z"/></svg>`,
           bg:'#1d9bf0', border:'none',
-          ready:!!cfg.imap?.proxyUrl },
+          ready:!mailUsesSecureBackend() && !!cfg.imap?.proxyUrl },
         { type:'imap',    name:'Webmail / IMAP', sub:'Beliebiger IMAP-Server',
           icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#6366f1"/><path fill="white" d="M4 8h16v10H4zM4 8l8 6 8-6"/></svg>`,
           bg:'#6366f1', border:'none',
-          ready:!!cfg.imap?.proxyUrl },
+          ready:!mailUsesSecureBackend() && !!cfg.imap?.proxyUrl },
       ];
       el.innerHTML = providers.map(p => `
         <div class="mail-provider-card${p.ready ? '' : ' is-disabled'}" ${p.ready ? `onclick="connectProvider('${p.type}')"` : 'aria-disabled="true"'}>
@@ -249,11 +280,11 @@
       const unread = allMails.filter(m => !m.isRead).length;
 
       const sub = document.getElementById('mailSubtitle');
-      if (sub) sub.textContent = accounts.length
+      if (sub) sub.textContent = secureMailError || (accounts.length
         ? `${accounts.length} ${tt('sub.connected','verbunden')} · ${allMails.length} ${tt('sub.mails','Mails')} · ${unread} ${tt('sub.unread','ungelesen')}`
-        : tt('mail.emptyTitle', 'Kein Postfach verbunden');
+        : tt('mail.emptyTitle', 'Kein Postfach verbunden'));
       const cfg = window.MOSAOS_MAIL || {};
-      const mailAvailable = !!(cfg.gmail?.clientId || cfg.outlook?.clientId || cfg.imap?.proxyUrl);
+      const mailAvailable = mailUsesSecureBackend() || !!(cfg.gmail?.clientId || cfg.outlook?.clientId || cfg.imap?.proxyUrl);
       const connectButton = document.getElementById('mailConnectButton');
       if (connectButton && !accounts.length) {
         connectButton.disabled = !mailAvailable;
@@ -325,6 +356,8 @@
           </div>
           <div class="mail-item-meta">
             <span class="mail-item-date">${fmtMailTime(m.date)}</span>
+            ${m.draft && m.status !== 'sent' ? '<span class="mail-task-chip">Entwurf</span>' : ''}
+            ${m.status === 'sent' ? '<span class="mail-task-chip">Gesendet</span>' : ''}
             ${hasTask ? '<span class="mail-task-chip">✓ Aufgabe</span>' : ''}
           </div>
         </div>`;
@@ -336,6 +369,8 @@
       // Als gelesen markieren (Demo)
       const mi = MOCK_MAILS.findIndex(m => m.id === id);
       if (mi >= 0) MOCK_MAILS[mi].isRead = true;
+      const secureMail = secureMails.find(m => m.id === id);
+      if (secureMail) secureMail.isRead = true;
       renderMailList();
       showMailDetail(id);
       // Badge aktualisieren
@@ -343,7 +378,9 @@
       const b = document.getElementById('mailNavBadge');
       if (b) { b.textContent = u; b.style.display = u > 0 ? '' : 'none'; }
       const s = document.getElementById('mailSubtitle');
-      if (s) s.textContent = `${tt('sub.demoAccount','Demo-Konto')} · ${getAllMails().length} ${tt('sub.mails','Mails')} · ${u} ${tt('sub.unread','ungelesen')}`;
+      if (s) s.textContent = mailUsesSecureBackend()
+        ? `${loadMailAccounts().length} ${tt('sub.connected','verbunden')} · ${getAllMails().length} ${tt('sub.mails','Mails')} · ${u} ${tt('sub.unread','ungelesen')}`
+        : `${tt('sub.demoAccount','Demo-Konto')} · ${getAllMails().length} ${tt('sub.mails','Mails')} · ${u} ${tt('sub.unread','ungelesen')}`;
     }
 
     function showMailDetail(id) {
@@ -372,7 +409,11 @@
                    <select id="mailTaskAssignee" class="mail-task-assignee-sel" title="Zuweisen an">${userOpts}</select>
                    <button class="btn btn-accent" onclick="mailToTask('${id}')">→ Als Aufgabe</button>
                  </div>`}
-            <button class="btn btn-secondary" onclick="startMailReply('${id}')">↩ Antworten</button>
+            ${mail.status === 'sent'
+              ? '<span style="font-size:13px;color:var(--text-subtle);font-weight:600;">Antwort gesendet</span>'
+              : mail.status === 'delivery_unknown'
+                ? '<span style="font-size:13px;color:var(--warning);font-weight:600;">Versandstatus unklar – nicht erneut senden</span>'
+                : `<button class="btn btn-secondary" onclick="startMailReply('${id}')">↩ Antworten</button>`}
           </div>
           <div id="mailReplyPanel" style="display:none;"></div>
         </div>`;
@@ -398,15 +439,22 @@
       const panel = document.getElementById('mailReplyPanel');
       if (!mail || !panel) return;
       const reSubject = mail.subject.startsWith('Re:') ? mail.subject : 'Re: ' + mail.subject;
+      const draft = mail.draft || null;
+      const missing = Array.isArray(draft?.missingInformation) ? draft.missingInformation : [];
       panel.style.display = '';
       panel.innerHTML = `
         <div class="mail-reply-panel">
-          <div class="mail-reply-header">Antwort verfassen</div>
+          <div class="mail-reply-header">${draft ? 'KI-Entwurf prüfen' : 'Antwort verfassen'}</div>
+          ${draft ? `<div class="mail-draft-safety ${mail.needsHuman ? 'needs-human' : ''}">
+            <strong>${mail.needsHuman ? 'Manuelle Prüfung erforderlich' : 'Entwurf – Versand nur nach deinem Klick'}</strong>
+            · Sicherheit: ${_esc(draft.confidence || 'niedrig')}
+            ${missing.length ? `<div>Offene Angaben: ${_esc(missing.join(' · '))}</div>` : ''}
+          </div>` : ''}
           <div class="mail-reply-meta">
             <div><strong>An:</strong> ${_esc(mail.fromName||mail.from)} &lt;${_esc(mail.from)}&gt;</div>
-            <div><strong>Betreff:</strong> ${_esc(reSubject)}</div>
+            <label><strong>Betreff:</strong><input id="mailReplySubject" class="mail-reply-subject" maxlength="1000" value="${_esc(draft?.subject || reSubject)}"></label>
           </div>
-          <textarea id="mailReplyBody" class="mail-reply-textarea" placeholder="Antwort schreiben…"></textarea>
+          <textarea id="mailReplyBody" class="mail-reply-textarea" maxlength="8000" placeholder="Antwort schreiben…">${_esc(draft?.body || '')}</textarea>
           <div class="mail-reply-footer">
             <button class="btn btn-secondary" onclick="cancelMailReply()">Abbrechen</button>
             <button class="btn btn-accent" id="mailReplySendBtn" onclick="sendMailReply('${mailId}')">Senden ↗</button>
@@ -425,16 +473,32 @@
       const bodyEl = document.getElementById('mailReplyBody');
       const body = bodyEl?.value.trim();
       if (!body) { toast('Bitte Antwort eingeben', 'error'); bodyEl?.focus(); return; }
+      const subjectEl = document.getElementById('mailReplySubject');
+      const subject = subjectEl?.value.trim();
+      if (!subject) { toast('Bitte Betreff eingeben', 'error'); subjectEl?.focus(); return; }
 
       const btn = document.getElementById('mailReplySendBtn');
       if (btn) { btn.disabled = true; btn.textContent = 'Senden…'; }
 
       const accounts = loadMailAccounts();
       const acc = accounts.find(a => a.id === mail.accountId);
-      const reSubject = mail.subject.startsWith('Re:') ? mail.subject : 'Re: ' + mail.subject;
+      const reSubject = subject;
 
       try {
-        if (!acc || mail.accountId === 'demo') {
+        if (mailUsesSecureBackend()) {
+          if (!confirm(`Antwort an ${mail.fromName || mail.from} jetzt wirklich senden?`)) {
+            if (btn) { btn.disabled = false; btn.textContent = 'Senden ↗'; }
+            return;
+          }
+          const saved = await mailFunction('mail-draft-save', { method:'POST', body: {
+            messageId: mail.id, draftId: mail.draft?.id || null, subject: reSubject, body,
+          }});
+          await mailFunction('mail-send', { method:'POST', body: { draftId: saved.draftId } });
+          cancelMailReply();
+          toast('✓ Antwort sicher über Gmail gesendet');
+          await refreshConnectedMailboxes();
+          showMailDetail(mailId);
+        } else if (!acc || mail.accountId === 'demo') {
           await new Promise(r => setTimeout(r, 600)); // simulierter Netzwerkaufruf
           cancelMailReply();
           toast(`✓ ${tt('toastdyn.replyToPre','Antwort an')} ${mail.fromName||mail.from} ${tt('toastdyn.replySentDemo','gesendet (Demo-Modus)')}`);
@@ -452,6 +516,20 @@
           toast('✓ Antwort gesendet');
         }
       } catch(e) {
+        if (mailUsesSecureBackend() && e.message === 'DELIVERY_UNKNOWN') {
+          cancelMailReply();
+          toast('Versandstatus unklar – MosaOS sendet nicht automatisch erneut.', 'error');
+          await refreshConnectedMailboxes();
+          showMailDetail(mailId);
+          return;
+        }
+        if (mailUsesSecureBackend() && e.message === 'ALREADY_SENT_OR_NOT_READY') {
+          cancelMailReply();
+          toast('Dieser Entwurf wurde bereits versendet oder wird gerade verarbeitet.', 'error');
+          await refreshConnectedMailboxes();
+          showMailDetail(mailId);
+          return;
+        }
         toast(tt('toastdyn.sendFailed','Senden fehlgeschlagen') + ': ' + e.message, 'error');
         if (btn) { btn.disabled = false; btn.textContent = 'Senden ↗'; }
       }
@@ -537,6 +615,16 @@
     }
 
     async function connectGmail() {
+      if (mailUsesSecureBackend()) {
+        try {
+          const started = await mailFunction('mail-oauth-start', { method:'POST', body:{ returnPath:'/app/app.html?view=email' } });
+          if (!started.url) throw new Error('MAIL_OAUTH_NOT_CONFIGURED');
+          window.location.assign(started.url);
+        } catch (e) {
+          toast('Sichere Gmail-Verbindung konnte nicht gestartet werden: ' + e.message, 'error');
+        }
+        return;
+      }
       const cid = window.MOSAOS_MAIL?.gmail?.clientId;
       if (!cid) { toast('Gmail Client-ID fehlt — in mail-config.js eintragen.', 'error'); return; }
       const scope = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
@@ -640,6 +728,29 @@
     let mailRefreshRunning = false;
     async function refreshConnectedMailboxes() {
       if (mailRefreshRunning) return;
+      const sb = getSupabase();
+      const session = sb ? (await sb.auth.getSession()).data.session : null;
+      if (session && !window.MOSAOS_DEMO_MODE) {
+        window._secureMailMode = true;
+        mailRefreshRunning = true;
+        secureMailError = '';
+        try {
+          const status = await mailFunction('mail-account-status');
+          secureMailAccounts = status.accounts || [];
+          const inbox = await mailFunction('mail-inbox', { query:'?limit=50' });
+          secureMails = inbox.messages || [];
+        } catch (e) {
+          secureMails = [];
+          secureMailError = e.message === 'MAIL_MODULE_REQUIRED'
+            ? 'Das E-Mail-Modul ist für diesen Mandanten nicht aktiv.'
+            : e.message === 'FORBIDDEN' ? 'Für dieses Konto fehlt die Mail-Berechtigung.'
+            : 'Sichere Mail-Anbindung ist noch nicht verfügbar.';
+        } finally {
+          mailRefreshRunning = false;
+          renderMailView();
+        }
+        return;
+      }
       const accounts = loadMailAccounts().filter(a => a.token);
       if (!accounts.length) return;
       mailRefreshRunning = true;
@@ -700,8 +811,16 @@
       finally { if (btn) { btn.disabled=false; btn.textContent='Verbinden'; } }
     }
 
-    function disconnectMailAccount(accId) {
+    async function disconnectMailAccount(accId) {
       if (!confirm('Postfach trennen?')) return;
+      if (mailUsesSecureBackend()) {
+        try {
+          await mailFunction('mail-disconnect', { method:'POST', body:{ accountId:accId } });
+          toast('Postfach sicher getrennt');
+          await refreshConnectedMailboxes();
+        } catch (e) { toast('Postfach konnte nicht getrennt werden: ' + e.message, 'error'); }
+        return;
+      }
       saveMailAccounts(loadMailAccounts().filter(a => a.id !== accId));
       const c = loadMailCache(); delete c[accId]; saveMailCache(c);
       if (mailSelectedId) { const mail = getAllMails().find(m => m.id === mailSelectedId); if (!mail) { mailSelectedId = null; document.getElementById('mailDetailContent').style.display='none'; document.getElementById('mailDetailPlaceholder').style.display=''; } }
@@ -769,6 +888,17 @@
           applyFeatureFlags();
           renderModuleSettings();
         } catch {}
+      }
+      const mailReturnUrl = new URL(window.location.href);
+      const mailConnected = mailReturnUrl.searchParams.get('mail_connected');
+      const mailError = mailReturnUrl.searchParams.get('mail_error');
+      if (mailConnected || mailError) {
+        mailOAuthReturned = true;
+        mailReturnUrl.searchParams.delete('mail_connected');
+        mailReturnUrl.searchParams.delete('mail_error');
+        history.replaceState(null, '', mailReturnUrl.pathname + mailReturnUrl.search + mailReturnUrl.hash);
+        if (mailConnected) toast('✓ Gmail sicher verbunden');
+        else toast('Gmail-Verbindung fehlgeschlagen: ' + mailError, 'error');
       }
     }
 
@@ -1237,6 +1367,9 @@
         if (typeof renderDashboard === 'function') renderDashboard();
         const active = document.querySelector('.nav-item.active[data-view]');
         if (active) active.click();
+        if (mailOAuthReturned || new URL(window.location.href).searchParams.get('view') === 'email') {
+          document.querySelector('.nav-item[data-view="email"]')?.click();
+        }
       } catch {}
     })();
 

@@ -54,5 +54,14 @@ verify_jwt = false
 [functions.mail-analyse]
 verify_jwt = false
 
+[functions.mail-inbox]
+verify_jwt = true
+
+[functions.mail-draft-save]
+verify_jwt = true
+
+[functions.mail-send]
+verify_jwt = true
+
 [functions.stripe-webhook]
 verify_jwt = false

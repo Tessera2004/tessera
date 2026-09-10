@@ -126,5 +126,8 @@ export function gmailMessageToPayload(message: Record<string, unknown>) {
     receivedAt,
     body: messageBody(payload) || String(message.snippet || '').replaceAll('\u0000', '').slice(0, 100000),
     snippet: String(message.snippet || '').replaceAll('\u0000', '').slice(0, 2000),
+    messageId: header(headers, 'Message-ID').replaceAll('\u0000', '').slice(0, 1000),
+    references: header(headers, 'References').replaceAll('\u0000', '').slice(0, 4000),
+    isRead: !((Array.isArray(message.labelIds) ? message.labelIds : []).map(String).includes('UNREAD')),
   };
 }

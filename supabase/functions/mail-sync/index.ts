@@ -2,6 +2,7 @@ import { adminClient } from '../_shared/supabase.ts';
 import { decryptMailValue, encryptMailValue, mailEncryptionKeyVersion } from '../_shared/mail-crypto.ts';
 import { tenantHasMailModule } from '../_shared/mail-entitlement.ts';
 import { gmailMessageIdsFromHistory, gmailMessageToPayload } from '../_shared/mail-sync-core.ts';
+import { refreshGmailAccessToken } from '../_shared/gmail-auth.ts';
 
 const MAX_ACCOUNTS_PER_RUN = 50;
 const MAX_MESSAGES_PER_ACCOUNT = 100;
@@ -29,28 +30,6 @@ async function senderHash(email: string) {
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(salt), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(email.trim().toLowerCase()));
   return [...new Uint8Array(signature)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-async function refreshGmailAccessToken(refreshToken: string) {
-  const clientId = Deno.env.get('GMAIL_OAUTH_CLIENT_ID') || '';
-  const clientSecret = Deno.env.get('GMAIL_OAUTH_CLIENT_SECRET') || '';
-  if (!clientId || !clientSecret) throw new Error('MAIL_OAUTH_NOT_CONFIGURED');
-  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  });
-  const token = await tokenResponse.json().catch(() => ({}));
-  if (!tokenResponse.ok || !token.access_token) {
-    if (token.error === 'invalid_grant') throw new Error('GMAIL_REAUTH_REQUIRED');
-    throw new Error('GMAIL_TOKEN_REFRESH_FAILED');
-  }
-  return String(token.access_token);
 }
 
 async function gmailJson(url: URL | string, accessToken: string) {

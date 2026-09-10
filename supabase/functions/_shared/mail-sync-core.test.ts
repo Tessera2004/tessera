@@ -16,6 +16,7 @@ Deno.test('Gmail payload extracts headers and prefers plain text', () => {
         { name: 'From', value: '"Anna Muster" <ANNA@example.ch>' },
         { name: 'To', value: 'info@firma.ch' },
         { name: 'Subject', value: 'Anfrage' },
+        { name: 'Message-ID', value: '<gmail-123@example.ch>' },
       ],
       parts: [
         { mimeType: 'text/plain', body: { data: encoded('Guten Tag\nIch brauche eine Reinigung.') } },
@@ -28,6 +29,8 @@ Deno.test('Gmail payload extracts headers and prefers plain text', () => {
   assert(result.fromName === 'Anna Muster', 'sender name missing');
   assert(result.subject === 'Anfrage', 'subject missing');
   assert(result.body.includes('Ich brauche eine Reinigung.'), 'plain body missing');
+  assert(result.messageId === '<gmail-123@example.ch>', 'message id missing');
+  assert(result.isRead === true, 'read state wrong');
   assert(!result.body.includes('HTML-Alternative'), 'HTML alternative should not duplicate plain text');
 });
 

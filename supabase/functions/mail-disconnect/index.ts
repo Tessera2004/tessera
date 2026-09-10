@@ -1,13 +1,14 @@
 import { json, options, withCors } from '../_shared/http.ts';
 import { adminClient, authenticatedTenant } from '../_shared/supabase.ts';
 import { decryptMailValue, mailEncryptionKeyVersion } from '../_shared/mail-crypto.ts';
+import { hasMailPermission } from '../_shared/mail-user.ts';
 
 Deno.serve(withCors(async (req) => {
   const preflight = options(req); if (preflight) return preflight;
   if (req.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
   try {
     const auth = await authenticatedTenant(req);
-    if (auth.role !== 'admin') return json({ error: 'FORBIDDEN' }, 403);
+    if (!await hasMailPermission(req, 'mail.admin')) return json({ error: 'FORBIDDEN' }, 403);
     const body = await req.json().catch(() => ({}));
     const accountId = String(body.accountId || '');
     if (!/^[0-9a-f-]{36}$/i.test(accountId)) return json({ error: 'INVALID_INPUT' }, 400);
@@ -53,7 +54,7 @@ Deno.serve(withCors(async (req) => {
   } catch (error) {
     const code = error instanceof Error ? error.message : 'INTERNAL';
     if (code === 'UNAUTHORIZED') return json({ error: code }, 401);
-    if (code === 'NO_TENANT') return json({ error: code }, 403);
+    if (code === 'NO_TENANT' || code === 'MAIL_PERMISSION_CHECK_FAILED') return json({ error: 'FORBIDDEN' }, 403);
     if (code === 'MAIL_DECRYPTION_FAILED' || code === 'MAIL_ENCRYPTION_KEY_INVALID') {
       return json({ error: 'MAIL_SECRET_UNAVAILABLE' }, 500);
     }
