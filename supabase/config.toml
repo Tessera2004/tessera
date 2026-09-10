@@ -30,5 +30,19 @@ verify_jwt = true
 [functions.send-job-invoice]
 verify_jwt = true
 
+[functions.mail-oauth-start]
+verify_jwt = true
+
+# Google ruft diesen Endpunkt nach der Zustimmung ohne MosaOS-JWT auf. Der
+# Schutz ist der einmalige, gehashte und nach zehn Minuten ablaufende OAuth-State.
+[functions.mail-oauth-callback]
+verify_jwt = false
+
+[functions.mail-account-status]
+verify_jwt = true
+
+[functions.mail-disconnect]
+verify_jwt = true
+
 [functions.stripe-webhook]
 verify_jwt = false

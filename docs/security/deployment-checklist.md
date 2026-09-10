@@ -12,4 +12,8 @@
 - [ ] Run `npm test`, dependency scanning and a manual browser smoke test.
 - [ ] Have the German legal documents and DPA reviewed by a Swiss professional.
 - [ ] Publish the current processor list and create an incident contact rota.
-
+- [ ] Apply the Mail-Assistent migration to staging before deploying any mail function.
+- [ ] Set Gmail OAuth and mail-encryption secrets only in Supabase; confirm none reach browser responses or logs.
+- [ ] Run `scripts/mail-assistent-rls-test.sql` against the staging test database and retain the result.
+- [ ] Register the exact `mail-oauth-callback` redirect URI and complete the required Google verification before a customer mailbox is connected.
+- [ ] Confirm that Mail-Assistent remains `draft_only` and that no background path can send messages.
