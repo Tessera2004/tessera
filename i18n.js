@@ -956,7 +956,7 @@
       'faq.qr.f': 'Puis-je émettre des factures QR suisses ?',
       'faq.qr.a': 'Oui. L\'intervention terminée devient une facture PDF avec code QR suisse. Vous suivez le statut d\'un coup d\'œil : ouverte, envoyée, payée.',
       'faq.setup.f': 'Combien de temps prend la mise en place ?',
-      'faq.setup.a': 'En général moins de 30 minutes. Vous choisissez votre secteur, créez l\'équipe et les premiers clients, et pouvez planifier immédiatement. Les listes de clients existantes peuvent être importées.',
+      'faq.setup.a': 'En général moins de 30 minutes. Vous choisissez votre secteur, créez l\'équipe et les premiers clients, et pouvez planifier immédiatement. MosaOS ne propose pas encore d\'importation générale des listes de clients.',
       /* Hero métier : barre de modules, intitulé et légende de la capture */
       'br.mod.mail': 'E-mails',
       'br.mod.calls': 'Journal d\'appels',
@@ -1553,7 +1553,7 @@
       'faq.qr.f': 'Posso emettere fatture QR svizzere?',
       'faq.qr.a': 'Sì. Dall\'intervento concluso nasce la fattura in PDF con codice QR svizzero. Lo stato è sempre visibile: aperta, inviata, pagata.',
       'faq.setup.f': 'Quanto dura la configurazione?',
-      'faq.setup.a': 'Di norma meno di 30 minuti. Scegli il settore, crei team e primi clienti e puoi pianificare subito. Gli elenchi clienti esistenti si possono importare.',
+      'faq.setup.a': 'Di norma meno di 30 minuti. Scegli il settore, crei team e primi clienti e puoi pianificare subito. MosaOS non offre ancora un\'importazione generale degli elenchi clienti.',
       /* Hero di settore: barra moduli, titolo e didascalia dello screenshot */
       'br.mod.mail': 'E-mail',
       'br.mod.calls': 'Registro chiamate',
@@ -2150,7 +2150,7 @@
       'faq.qr.f': '¿Puedo emitir facturas QR suizas?',
       'faq.qr.a': 'Sí. Del servicio terminado sale la factura en PDF con código QR suizo. El estado se ve de un vistazo: abierta, enviada, pagada.',
       'faq.setup.f': '¿Cuánto tarda la puesta en marcha?',
-      'faq.setup.a': 'Normalmente menos de 30 minutos. Eliges tu sector, creas el equipo y los primeros clientes, y ya puedes planificar. Las listas de clientes existentes se pueden importar.',
+      'faq.setup.a': 'Normalmente menos de 30 minutos. Eliges tu sector, creas el equipo y los primeros clientes, y ya puedes planificar. MosaOS todavía no ofrece una importación general de listas de clientes.',
       /* Hero por sector: barra de módulos, título y pie de la captura */
       'br.mod.mail': 'Correos',
       'br.mod.calls': 'Registro de llamadas',
@@ -2747,7 +2747,7 @@
       'faq.qr.f': 'Can I issue Swiss QR invoices?',
       'faq.qr.a': 'Yes. The completed job becomes a PDF invoice with a Swiss QR code. You see the status at a glance: open, sent, paid.',
       'faq.setup.f': 'How long does setup take?',
-      'faq.setup.a': 'Usually under 30 minutes. You pick your industry, add your team and first customers, and can start planning right away. Existing customer lists can be imported.',
+      'faq.setup.a': 'Usually under 30 minutes. You pick your industry, add your team and first customers, and can start planning right away. MosaOS does not yet offer a general customer-list import.',
       /* Industry hero: module bar, screenshot label and caption */
       'br.mod.mail': 'Emails',
       'br.mod.calls': 'Call log',

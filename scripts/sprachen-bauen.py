@@ -196,13 +196,26 @@ def bearbeite(roh, seite, lang, titel=None, beschr=None):
     return s
 
 
-def deutsch_ergaenzen():
-    """Die deutschen Seiten bleiben die gepflegte Quelle. Sie werden nur
-       um hreflang, og:locale und das FAQ-Schema ergänzt — nie aus dem
-       gerenderten DOM zurückgeschrieben."""
+def deutsch_ergaenzen(seite):
+    """Die deutschen Seiten bleiben die gepflegte Quelle. FAQ-Texte werden
+       aus i18n.js eingesetzt, damit Roh-HTML und FAQ-Schema keine
+       Platzhalter an Suchmaschinen ausliefern."""
     for datei in SEITEN:
         pfad = os.path.join(WURZEL, datei)
         s = io.open(pfad, encoding='utf-8').read()
+        if 'data-i18n="faq.preis.f"' in s:
+            seite.goto(f'{QUELLE}/{datei}', wait_until='load')
+            seite.evaluate("window.MOSAOS_I18N.apply('de')")
+            for frage in FRAGEN:
+                for typ, tag in [('f', 'h3'), ('a', 'p')]:
+                    schluessel = f'faq.{frage}.{typ}'
+                    wert = seite.locator(f'[data-i18n="{schluessel}"]').text_content()
+                    if not wert or wert.strip() in ('Frage', 'Antwort'):
+                        raise ValueError(f'FAQ-Übersetzung fehlt: {schluessel} in {datei}')
+                    muster = rf'(<{tag} data-i18n="{re.escape(schluessel)}">).*?(</{tag}>)'
+                    s, anzahl = re.subn(muster, lambda m: m.group(1) + html.escape(wert.strip(), quote=False) + m.group(2), s, count=1, flags=re.S)
+                    if anzahl != 1:
+                        raise ValueError(f'FAQ-Feld fehlt: {schluessel} in {datei}')
         s = re.sub(r'\s*<link rel="alternate" hreflang="[^"]*"[^>]*>', '', s)
         s = re.sub(r'\s*<script type="application/ld\+json">\s*\{\s*"@context": "https://schema.org",\s*"@type": "FAQPage".*?</script>', '', s, flags=re.S)
         s = vorschaubild(s, datei, 'de')
@@ -213,10 +226,10 @@ def deutsch_ergaenzen():
 
 
 def main():
-    deutsch_ergaenzen()
     with sync_playwright() as p:
         browser = p.chromium.launch()
         seite = browser.new_page(viewport={'width': 1440, 'height': 900}, locale='de-CH')
+        deutsch_ergaenzen(seite)
 
         for lang in [l for l in SPRACHEN if l != 'de']:
             # Nur die von diesem Skript verwalteten Seiten überschreiben.

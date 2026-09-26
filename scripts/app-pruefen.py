@@ -24,6 +24,7 @@ Aufruf:  python3 scripts/app-pruefen.py
 Rückgabe: 0 wenn alles sauber, 1 bei Befunden.
 """
 import json
+import html
 import pathlib
 import re
 import subprocess
@@ -208,6 +209,79 @@ def pruefe_migrationen():
     print(f'  {len(list(ordner.glob("*.sql")))} Migrationen geprüft')
 
 
+# ------------------------------------------------------------- Website-FAQ
+def pruefe_website_faq():
+    """Roh-HTML und FAQ-Schema müssen in allen Sprachen übereinstimmen."""
+    dateien = ('index.html', 'werkstatt.html', 'handwerk.html',
+               'garten.html', 'reinigung.html', 'schaedlingsbekaempfung.html')
+    sprachen = ('de', 'fr', 'it', 'es', 'en')
+    fragen = ('preis', 'test', 'daten', 'mobil', 'qr', 'setup')
+    geprueft = 0
+
+    for sprache in sprachen:
+        for datei in dateien:
+            pfad = WURZEL / ('' if sprache == 'de' else sprache) / datei
+            if not pfad.exists():
+                befund('Website-FAQ', f'{sprache}/{datei} fehlt')
+                continue
+            quelltext = pfad.read_text(encoding='utf-8')
+            sichtbare = []
+            for frage in fragen:
+                paar = []
+                for typ, tag in (('f', 'h3'), ('a', 'p')):
+                    muster = rf'<{tag} data-i18n="faq\.{frage}\.{typ}">(.*?)</{tag}>'
+                    treffer = re.search(muster, quelltext, re.S)
+                    if not treffer:
+                        befund('Website-FAQ', f'{sprache}/{datei}: faq.{frage}.{typ} fehlt')
+                        break
+                    wert = html.unescape(re.sub(r'<[^>]+>', '', treffer.group(1))).strip()
+                    if wert in ('Frage', 'Antwort') or not wert:
+                        befund('Website-FAQ', f'{sprache}/{datei}: faq.{frage}.{typ} ist ein Platzhalter')
+                    paar.append(wert)
+                if len(paar) == 2:
+                    sichtbare.append(tuple(paar))
+
+            schemas = []
+            for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', quelltext, re.S):
+                try:
+                    daten = json.loads(block)
+                except json.JSONDecodeError as e:
+                    befund('Website-FAQ', f'{sprache}/{datei}: ungültiges JSON-LD ({e})')
+                    continue
+                if daten.get('@type') == 'FAQPage':
+                    schemas.append(daten)
+            if len(schemas) != 1:
+                befund('Website-FAQ', f'{sprache}/{datei}: {len(schemas)} FAQ-Schemas statt 1')
+                continue
+            strukturierte = [(e.get('name'), (e.get('acceptedAnswer') or {}).get('text'))
+                            for e in schemas[0].get('mainEntity', [])]
+            if strukturierte != sichtbare or len(sichtbare) != len(fragen):
+                befund('Website-FAQ', f'{sprache}/{datei}: sichtbare FAQ und Schema weichen ab')
+            geprueft += 1
+    print(f'  {geprueft} FAQ-Seiten geprüft')
+
+
+def pruefe_website_cache():
+    """Nach i18n.js-Änderungen dürfen Seiten keine alte Version laden."""
+    geaendert = subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', 'i18n.js'],
+                                cwd=WURZEL).returncode == 1
+    if not geaendert:
+        print('  i18n.js unverändert')
+        return
+    geprueft = 0
+    for pfad in sorted(WURZEL.glob('*.html')):
+        jetzt = re.search(r'i18n\.js\?v=(\d+)', pfad.read_text(encoding='utf-8'))
+        if not jetzt:
+            continue
+        alt = subprocess.run(['git', 'show', f'HEAD:{pfad.name}'],
+                             cwd=WURZEL, capture_output=True, text=True)
+        vorher = re.search(r'i18n\.js\?v=(\d+)', alt.stdout) if alt.returncode == 0 else None
+        if vorher and int(jetzt.group(1)) <= int(vorher.group(1)):
+            befund('Website-Cache', f'{pfad.name}: i18n.js-Version nicht erhöht')
+        geprueft += 1
+    print(f'  {geprueft} deutsche Seiten auf i18n.js-Version geprüft')
+
+
 # ------------------------------------------------------------------ Lauf
 def main():
     print('App prüfen\n')
@@ -215,7 +289,9 @@ def main():
                      ('Sprachen', pruefe_sprachen),
                      ('Sync-Typen', pruefe_synctypen),
                      ('Cache-Versionen', pruefe_cache_versionen),
-                     ('Migrationen', pruefe_migrationen)]:
+                     ('Migrationen', pruefe_migrationen),
+                     ('Website-FAQ', pruefe_website_faq),
+                     ('Website-Cache', pruefe_website_cache)]:
         print(f'→ {name}')
         try:
             fn()
