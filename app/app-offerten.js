@@ -67,59 +67,15 @@
 
     // Preis aus derselben Preisliste, die auch der Auftrag-Assistent nutzt
     function offPreisAusPreisliste(erzwingen = false) {
-      const feld = document.getElementById('offPreis');
-      const hinweis = document.getElementById('offPreisHinweis');
-      const label = document.getElementById('offMengeLabel');
+      const feld=document.getElementById('offPreis'),hinweis=document.getElementById('offPreisHinweis'),label=document.getElementById('offMengeLabel');
       if (!feld) return;
-      let def = genericServiceDef(currentOffertService);
-      if (!def && !isGenericVertical()) {
-        def = {
-          unterhalt: { unit: 'h', price: getPrice('unterhalt-rate'), minQty: 0, fee: 0 },
-          end: { unit: 'qm', price: getPrice('end-qm'), minQty: 0, fee: 0 },
-          fenster: { unit: 'h', price: getPrice('fenster-rate'), minQty: getPrice('fenster-min'), fee: 0 },
-          bau: { unit: 'qm', price: getPrice('bau-qm'), minQty: 0, fee: 0 },
-          fassade: { unit: 'qm', price: getPrice('fassade-stator'), minQty: getPrice('fassade-min'), fee: 0 }
-        }[currentOffertService];
-      }
-      const waehrung = coLocale(loadCompany()).cur;
-      if (!def) {
-        if (hinweis) hinweis.textContent = tt('off.noPrice', 'Für diese Leistung ist kein Preis hinterlegt.');
-        if (label) label.textContent = tt('off.qty', 'Menge');
-        return;
-      }
-      const einheit = def.unit === 'h' ? 'h' : (def.unit === 'qm' ? 'qm' : 'flat');
-      if (label) label.textContent = einheit === 'h' ? tt('off.hours', 'Stunden')
-                                   : einheit === 'qm' ? tt('off.sqm', 'Fläche in m²')
-                                   : tt('off.qty', 'Menge');
-      const grund = Number(def.price) || 0;
-      const mindest = Number(def.minQty) || 0;
-      const anfahrt = Number(def.fee) || 0;
-      let menge = parseFloat(document.getElementById('offMenge')?.value) || 1;
-      let preis, text;
-      if (einheit === 'h') {
-        const echte = Math.max(menge, mindest);
-        preis = echte * grund;
-        text = `${echte} × ${waehrung} ${grund}` + (echte > menge ? ` (${tt('price.row.minHours','Mindestbuchung')})` : '');
-      } else if (einheit === 'qm') {
-        preis = menge * grund;
-        text = `${menge} m² × ${waehrung} ${grund}`;
-      } else {
-        preis = menge * grund;
-        text = menge > 1 ? `${menge} × ${waehrung} ${grund}` : `${waehrung} ${grund}`;
-      }
-      if (einheit !== 'h' && mindest > 0 && preis < mindest) {
-        preis = mindest;
-        text += ` · ${tt('price.row.minOrder','Mindestauftrag')} ${waehrung} ${mindest}`;
-      }
-      if (anfahrt > 0) { preis += anfahrt; text += ` + ${waehrung} ${anfahrt} ${tt('price.row.fee','Anfahrt')}`; }
-      preis = Math.round(preis * 20) / 20;
-      if (hinweis) hinweis.textContent = text;
-      // Einen von Hand gesetzten Preis nur auf ausdruecklichen Wunsch ersetzen
-      if (!offPreisBeruehrt || erzwingen) {
-        feld.value = preis;
-        offPreisBeruehrt = false;
-        renderOffertTemplate();
-      }
+      const def=servicePricingDefinition(currentOffertService);
+      if (!def) { if(hinweis)hinweis.textContent='Für diese Leistung ist kein Preis hinterlegt.'; return; }
+      if(label)label.textContent=def.unit==='h'?'Personenstunden':def.unit==='qm'?'Fläche in m²':'Menge';
+      const quantity=Number(document.getElementById('offMenge')?.value||1);
+      const result=calculateServicePrice(currentOffertService,quantity);
+      if(hinweis)hinweis.textContent=result.lines.map(l=>l.label+': '+l.amount.toFixed(2)).join(' · ')+' '+coLocale(loadCompany()).cur+' netto';
+      if(!offPreisBeruehrt||erzwingen){feld.value=result.total;offPreisBeruehrt=false;renderOffertTemplate();}
     }
 
     // Logo oben links ins PDF, gibt die x-Position fuer den Text zurueck
@@ -441,6 +397,7 @@ ${coSig}`;
       currentOffertImages = [];
       currentOffertHistory = [];
       currentOffertOriginal = null;
+      document.getElementById('offMenge').value = 1;
 
       const firstSvc = setupOffertChips();   // Chips je Branche aufbauen
       const offerts = JSON.parse(localStorage.getItem('cc-offerts') || '[]');
@@ -455,6 +412,7 @@ ${coSig}`;
           document.getElementById('offKunde').value = off.kunde || '';
           document.getElementById('offAdresse').value = off.adresse || '';
           document.getElementById('offPreis').value = off.preis || '';
+          document.getElementById('offMenge').value = off.quantity ?? 1;
           document.getElementById('offDatum').value = off.datum || todayISO();
           document.getElementById('offText').value = off.text || '';
           document.getElementById('offText').dataset.manuallyEdited = 'true';
@@ -568,6 +526,8 @@ ${coSig}`;
         kunde: customerName,
         adresse: document.getElementById('offAdresse').value.trim(),
         preis: document.getElementById('offPreis').value,
+        quantity: Number(document.getElementById('offMenge')?.value || 1),
+        pricing: calculateServicePrice(currentOffertService,Number(document.getElementById('offMenge')?.value || 1),[],Number(document.getElementById('offPreis').value || 0)),
         datum: document.getElementById('offDatum').value || todayISO(),
         text: document.getElementById('offText').value.trim(),
         images: currentOffertImages,
@@ -1544,6 +1504,8 @@ ${coSig}`;
           team: status === 'provisorisch' ? null : (isCleaning ? (teamByDate[dk] || null) : (assignTeam || null)),
           svc: wizService || 'unterhalt',
           price: finalPrice,
+          pricing: calcPriceForService(),
+          planning: {flexible:!!document.getElementById('wizFlexible')?.checked,earliest:'07:00',latest:'19:00'},
           addons: (typeof collectWizardAddons === 'function') ? collectWizardAddons() : [],
           crew: isCleaning ? requestedCrew : 1,
           assigned: status === 'provisorisch' ? [] : (isCleaning ? assignedByDate[dk] : undefined),
@@ -1586,5 +1548,6 @@ ${coSig}`;
         document.getElementById('wizNext').textContent = 'Weiter →';
         ['termName', 'wizAddress', 'wizNote', 'wizDeadline'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         const wd = document.getElementById('wizDate'); if (wd) wd.value = '';
+        const flexible = document.getElementById('wizFlexible'); if (flexible) flexible.checked = false;
       }, 400);
     }

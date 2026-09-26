@@ -1,7 +1,10 @@
 import { json, options, withCors } from '../_shared/http.ts';
 import { adminClient, authenticatedTenant, userClient } from '../_shared/supabase.ts';
+import { decryptMailValue, mailEncryptionKeyVersion } from '../_shared/mail-crypto.ts';
+import { refreshGmailAccessToken } from '../_shared/gmail-auth.ts';
+import { tenantHasMailModule } from '../_shared/mail-entitlement.ts';
+import { hasMailPermission } from '../_shared/mail-user.ts';
 
-const MAX_PDF_BASE64 = 10_000_000;
 
 function bytesToBase64(bytes: Uint8Array) {
   let binary = '';
@@ -25,96 +28,64 @@ async function sendGmail(token: string, from: string, to: string, subject: strin
   const raw = bytesToBase64(new TextEncoder().encode(mime)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
   return await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
     method:'POST', headers:{ Authorization:'Bearer ' + token, 'Content-Type':'application/json' },
-    body: JSON.stringify({ raw })
-  });
-}
-
-async function sendOutlook(token: string, to: string, subject: string, text: string, filename: string, pdf: string) {
-  return await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
-    method:'POST', headers:{ Authorization:'Bearer ' + token, 'Content-Type':'application/json' },
-    body: JSON.stringify({ message: {
-      subject, body:{ contentType:'Text', content:text },
-      toRecipients:[{ emailAddress:{ address:to } }],
-      attachments:[{ '@odata.type':'#microsoft.graph.fileAttachment', name:filename, contentType:'application/pdf', contentBytes:pdf }]
-    }, saveToSentItems:true })
+    body: JSON.stringify({ raw }), signal: AbortSignal.timeout(30000)
   });
 }
 
 Deno.serve(withCors(async req => {
-  const preflight = options(req); if (preflight) return preflight;
-  if (req.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
-
+  const preflight=options(req); if(preflight) return preflight;
+  if(req.method!=='POST') return json({error:'METHOD_NOT_ALLOWED'},405);
+  let tenantId='', invoiceId='', sending=false;
+  const admin=adminClient();
+  const state=async(status:string)=>{
+    if(!invoiceId) return;
+    const {error}=await admin.from('job_invoices').update({delivery_status:status})
+      .eq('id',invoiceId).eq('tenant_id',tenantId).eq('delivery_status','sending');
+    if(error) console.error('Invoice state recording failed',error.code);
+  };
   try {
-    const { tenantId } = await authenticatedTenant(req);
-    const body = await req.json().catch(() => ({}));
-    const jobId = String(body.jobId || '');
-    const pdfBase64 = String(body.pdfBase64 || '');
-    const connectedMailbox = String(body.connectedMailbox || '').trim().toLowerCase();
-    const provider = String(body.provider || '');
-    const accessToken = String(body.accessToken || '');
-    if (!jobId || !pdfBase64 || !connectedMailbox || !accessToken || !['gmail','outlook'].includes(provider)) return json({ error: 'INVALID_INPUT' }, 400);
-    if (pdfBase64.length > MAX_PDF_BASE64) return json({ error: 'PDF_TOO_LARGE' }, 413);
-    if (!/^[A-Za-z0-9+/=]+$/.test(pdfBase64) || !pdfBase64.startsWith('JVBERi0')) return json({ error: 'INVALID_PDF' }, 400);
-
-    const client = userClient(req);
-    const { data: claimedRows, error: claimError } = await client
-      .rpc('claim_job_invoice_delivery', { p_job_id: jobId });
-    if (claimError) throw claimError;
-    const claimed = claimedRows?.[0] || null;
-    if (!claimed) return json({ error: 'ALREADY_CLAIMED_OR_NOT_SENDABLE' }, 409);
-
-    const admin = adminClient();
-    const { data: customer } = await admin.from('customers').select('email,first_name,last_name')
-      .eq('id', claimed.customer_id).eq('tenant_id', tenantId).maybeSingle();
-    const recipient = String(customer?.email || '').trim().toLowerCase();
-    if (!recipient) {
-      await admin.from('plan_jobs').update({ invoice_status: 'failed', invoice_send_error: 'Kunden-E-Mail fehlt' })
-        .eq('id', jobId).eq('tenant_id', tenantId);
-      return json({ error: 'CUSTOMER_EMAIL_MISSING' }, 422);
+    tenantId=(await authenticatedTenant(req)).tenantId;
+    if(!await hasMailPermission(req,'mail.send')) return json({error:'FORBIDDEN'},403);
+    if(!await tenantHasMailModule(tenantId)) return json({error:'MAIL_MODULE_REQUIRED'},402);
+    const body=await req.json();
+    const client=userClient(req);
+    // User-scoped read enforces the invoice finance permission in addition to mail.send.
+    const {data:invoice,error}=await client.from('job_invoices').select('*').eq('tenant_id',tenantId).eq('job_id',String(body.jobId || '')).maybeSingle();
+    if(error || !invoice?.pdf_base64) return json({error:'ISSUED_INVOICE_REQUIRED'},422);
+    const {data:account,error:accountError}=await admin.from('mail_accounts').select('*')
+      .eq('tenant_id',tenantId).eq('id',String(body.accountId || '')).eq('provider','gmail').eq('status','active').maybeSingle();
+    if(accountError || !account || Number(account.token_key_version)!==mailEncryptionKeyVersion()) return json({error:'MAILBOX_AUTH_INVALID'},422);
+    const recipient=String(invoice.document.email || '');
+    const from=String(account.email || '');
+    const email=/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/;
+    if(!email.test(recipient) || !email.test(from)) return json({error:'INVALID_EMAIL'},422);
+    const refresh=await decryptMailValue(String(account.encrypted_refresh_token),`refresh-token:${tenantId}:${account.id}:gmail`);
+    const token=await refreshGmailAccessToken(refresh);
+    // Atomic claim: another tab, a retry or a double click can never send twice.
+    const {data:claimed,error:claimError}=await admin.from('job_invoices').update({delivery_status:'sending'})
+      .eq('id',invoice.id).eq('tenant_id',tenantId).in('delivery_status',['pending','failed']).select('id').maybeSingle();
+    if(claimError) throw claimError;
+    if(!claimed) return json({error:'ALREADY_SENT_OR_DELIVERY_UNCERTAIN'},409);
+    invoiceId=invoice.id;
+    const number=String(invoice.number).replace(/[^A-Za-z0-9-]/g,'');
+    sending=true;
+    const response=await sendGmail(token,from,recipient,'Rechnung '+number,
+      'Guten Tag\n\nIm Anhang finden Sie Ihre Rechnung '+number+'.\n\nFreundliche Grüsse\n'+String(invoice.document.company?.name || ''),
+      'Rechnung_'+number+'.pdf',invoice.pdf_base64);
+    if(!response.ok){
+      await state(response.status>=500?'delivery_unknown':'failed');
+      return json({error:response.status>=500?'DELIVERY_UNKNOWN':'MAIL_SEND_REJECTED'},502);
     }
-
-    const invoiceNumber = String(claimed.invoice_number ||
-      `${String(claimed.date_key).replaceAll('-', '')}-${jobId.slice(-4)}`.toUpperCase())
-      .replace(/[\r\n]/g, ' ').trim().slice(0, 100);
-    const name = [customer?.first_name, customer?.last_name].filter(Boolean).join(' ') || claimed.objekt || '';
-    const filename = `Rechnung_${invoiceNumber.replace(/[^A-Za-z0-9._-]/g, '_')}.pdf`;
-    const subject = `Rechnung ${invoiceNumber}`;
-    const text = `Guten Tag${name ? ' ' + name : ''}\n\nIm Anhang finden Sie die Rechnung ${invoiceNumber}.\n\nFreundliche Grüsse`;
-    try {
-      const profileUrl = provider === 'gmail'
-        ? 'https://gmail.googleapis.com/gmail/v1/users/me/profile'
-        : 'https://graph.microsoft.com/v1.0/me?$select=mail,userPrincipalName';
-      const profileResponse = await fetch(profileUrl, { headers:{ Authorization:'Bearer ' + accessToken } });
-      const profile = await profileResponse.json().catch(() => ({}));
-      const authenticatedMailbox = String(provider === 'gmail' ? profile.emailAddress : (profile.mail || profile.userPrincipalName || '')).toLowerCase();
-      if (!profileResponse.ok || authenticatedMailbox !== connectedMailbox) {
-        await admin.from('plan_jobs').update({ invoice_status:'failed', invoice_send_error:'Postfach-Autorisierung abgelaufen oder ungueltig' })
-          .eq('id', jobId).eq('tenant_id', tenantId).eq('invoice_status','sending');
-        return json({ error:'MAILBOX_AUTH_INVALID' }, 401);
-      }
-      const sent = provider === 'gmail'
-        ? await sendGmail(accessToken, authenticatedMailbox, recipient, subject, text, filename, pdfBase64)
-        : await sendOutlook(accessToken, recipient, subject, text, filename, pdfBase64);
-      if (!sent.ok) {
-        const detail = `${provider} ${sent.status}: ${(await sent.text()).slice(0, 500)}`;
-        await admin.from('plan_jobs').update({ invoice_status:'failed', invoice_send_error:detail })
-          .eq('id', jobId).eq('tenant_id', tenantId).eq('invoice_status','sending');
-        return json({ error:'SEND_FAILED', detail }, 502);
-      }
-    } catch (mailError) {
-      const detail = mailError instanceof Error ? mailError.message : 'Transportfehler';
-      await admin.from('plan_jobs').update({ invoice_status:'delivery_unknown', invoice_send_error:detail })
-        .eq('id', jobId).eq('tenant_id', tenantId).eq('invoice_status','sending');
-      return json({ error:'DELIVERY_UNKNOWN', detail }, 502);
-    }
-
-    const sentAt = new Date().toISOString();
-    await admin.from('plan_jobs').update({ invoice_status: 'sent', invoice_sent_at: sentAt, invoice_send_error: null })
-      .eq('id', jobId).eq('tenant_id', tenantId).eq('invoice_status', 'sending');
-    return json({ ok: true, sentAt, recipient });
-  } catch (e) {
-    const message = e instanceof Error ? e.message : 'UNKNOWN';
-    return json({ error: message === 'UNAUTHORIZED' ? 'UNAUTHORIZED' : message === 'NO_TENANT' ? 'NO_TENANT' : 'INTERNAL' },
-      message === 'UNAUTHORIZED' ? 401 : message === 'NO_TENANT' ? 403 : 500);
+    const sentAt=new Date().toISOString();
+    const {data:recorded,error:recordError}=await admin.from('job_invoices').update({delivery_status:'sent',sent_at:sentAt})
+      .eq('id',invoiceId).eq('tenant_id',tenantId).eq('delivery_status','sending').select('id').maybeSingle();
+    if(recordError || !recorded){await state('delivery_unknown');return json({error:'DELIVERY_UNKNOWN'},502);}
+    await admin.from('plan_jobs').update({invoice_status:'sent',invoice_number:number,invoice_sent_at:sentAt,invoice_send_error:null})
+      .eq('id',String(body.jobId)).eq('tenant_id',tenantId);
+    return json({ok:true,sentAt,recipient});
+  } catch(error){
+    await state(sending?'delivery_unknown':'failed');
+    const code=error instanceof Error?error.message:'INTERNAL';
+    return json({error:sending?'DELIVERY_UNKNOWN':code==='UNAUTHORIZED'?'UNAUTHORIZED':'INVOICE_SEND_FAILED'},code==='UNAUTHORIZED'?401:502);
   }
 }));

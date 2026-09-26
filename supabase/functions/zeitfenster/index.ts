@@ -17,6 +17,7 @@
 import { sha256, randomToken } from '../_shared/http.ts';
 import { adminClient, userClient } from '../_shared/supabase.ts';
 import { sendeMail } from '../_shared/mail.ts';
+import {slotMinutes,serviceDuration,overlaps,calendarEvent} from '../_shared/booking-slots.ts';
 
 // Absichtlich jede Herkunft, anders als bei den MosaOS-Functions.
 //
@@ -95,6 +96,7 @@ type Betrieb = {
   zeitzone: string;
   oeffnungszeiten: Record<string, string[]>;
   leistungen: string[];
+  service_details?: Record<string,{duration:number;buffer:number}>;
   geschlossen: string[];
   vorlauf_stunden: number;
   horizont_tage: number;
@@ -106,18 +108,20 @@ type Betrieb = {
 async function ladeBetrieb(slug: string): Promise<Betrieb | null> {
   const db = adminClient();
   const { data } = await db.from('zf_betriebe')
-    .select('id,name,benachrichtigung_email,zeitzone,oeffnungszeiten,leistungen,geschlossen,vorlauf_stunden,horizont_tage,verwaltung_token_hash,logo_url,farbe')
+    .select('id,name,benachrichtigung_email,zeitzone,oeffnungszeiten,leistungen,service_details,geschlossen,vorlauf_stunden,horizont_tage,verwaltung_token_hash,logo_url,farbe')
     .eq('slug', slug).eq('aktiv', true).maybeSingle();
   return (data as Betrieb) ?? null;
 }
 
 // Freie Zeiten je Tag im Zeitraum: Oeffnungszeiten minus Belegtes, minus
 // geschlossene Tage, minus alles vor der Vorlauffrist.
-async function freieZeiten(betrieb: Betrieb, von: string, bis: string) {
+async function freieZeiten(betrieb: Betrieb, von: string, bis: string, leistung='') {
   const db = adminClient();
-  const { data: belegt } = await db.from('zf_buchungen')
-    .select('datum,zeit').eq('betrieb_id', betrieb.id)
-    .neq('status', 'abgesagt').gte('datum', von).lte('datum', bis);
+  const { data: belegt, error } = await db.from('zf_buchungen')
+    .select('datum,zeit,duration_minutes,buffer_minutes').eq('betrieb_id', betrieb.id)
+    .neq('status', 'abgesagt').gte('datum', plusTage(von,-1)).lte('datum', bis);
+  if(error) throw error; // A failed read must never expose all appointments as free.
+  const service=serviceDuration(betrieb.service_details,leistung);
 
   const genommen = new Set(
     (belegt ?? []).map((b) => `${b.datum} ${String(b.zeit).slice(0, 5)}`),
@@ -137,6 +141,7 @@ async function freieZeiten(betrieb: Betrieb, von: string, bis: string) {
     if (d > spaetestens || geschlossen.has(d)) continue;
     const zeiten = (betrieb.oeffnungszeiten?.[wochentag(d)] ?? [])
       .filter((z) => !genommen.has(`${d} ${z}`))
+      .filter(z=>!(belegt || []).some(b=>overlaps(slotMinutes(d,z),service.duration+service.buffer,slotMinutes(b.datum,String(b.zeit)),b.duration_minutes+b.buffer_minutes)))
       .filter((z) => `${d}T${z}` >= fruehestens);
     if (zeiten.length) tage[d] = zeiten;
   }
@@ -184,8 +189,9 @@ async function konfiguration(url: URL) {
     logoUrl: betrieb.logo_url,
     farbe: betrieb.farbe,
     leistungen: betrieb.leistungen ?? [],
+    serviceDetails: betrieb.service_details ?? {},
     horizontBis: plusTage(heute, betrieb.horizont_tage),
-    tage: await freieZeiten(betrieb, von, bis > plusTage(von, 92) ? plusTage(von, 92) : bis),
+    tage: await freieZeiten(betrieb, von, bis > plusTage(von, 92) ? plusTage(von, 92) : bis,url.searchParams.get('leistung') || betrieb.leistungen?.[0] || ''),
   });
 }
 
@@ -207,6 +213,8 @@ async function buchen(req: Request) {
   const telefon = String(body.telefon || '').trim().slice(0, 40);
   const notiz = String(body.notiz || '').trim().slice(0, 1000);
   const leistung = String(body.leistung || '').trim().slice(0, 100);
+  if(betrieb.leistungen.length && !betrieb.leistungen.includes(leistung))return json({error:'INVALID_SERVICE'},400);
+  const service=serviceDuration(betrieb.service_details,leistung);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(datum) || !/^\d{2}:\d{2}$/.test(zeit)) {
     return json({ error: 'TERMIN_UNGUELTIG' }, 400);
@@ -237,7 +245,7 @@ async function buchen(req: Request) {
   // 23505: die Sperre in der Datenbank hat zugeschlagen. Genau der Fall, in
   // dem zwei Gaeste gleichzeitig denselben freien Slot vor sich hatten.
   if (error) {
-    if ((error as { code?: string }).code === '23505') {
+    if (['23505','23P01'].includes((error as { code?: string }).code || '')) {
       return json({ error: 'SLOT_BELEGT' }, 409);
     }
     console.error('Buchung nicht gespeichert:', error);
@@ -287,6 +295,7 @@ async function buchen(req: Request) {
   return json({
     ok: true,
     id: gebucht.id,
+    calendar:calendarEvent(gebucht.id,datum,zeit,service.duration,betrieb.zeitzone,(leistung || 'Termin')+' – '+betrieb.name),
     // Damit die Seite den Absagelink auch dann zeigen kann, wenn die Mail
     // im Spam landet oder Brevo gerade nicht erreichbar ist.
     stornoLink,
@@ -441,7 +450,7 @@ async function verwalten(req: Request) {
   if (error) {
     // Auf 'bestaetigt' zurueckzusetzen kann an der Sperre scheitern, wenn der
     // frei gewordene Platz inzwischen neu vergeben wurde.
-    if ((error as { code?: string }).code === '23505') return json({ error: 'SLOT_BELEGT' }, 409);
+    if (['23505','23P01'].includes((error as { code?: string }).code || '')) return json({ error: 'SLOT_BELEGT' }, 409);
     return json({ error: 'INTERN' }, 500);
   }
   return json({ ok: true });

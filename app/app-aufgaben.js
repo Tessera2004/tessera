@@ -876,6 +876,8 @@
       setz('calcProRaum', f.proRaum);
       setz('calcBauProQm', f.bauProQm);
       setz('calcStartAdresse', f.startAdresse || '');
+      setz('calcShiftStart',f.shiftStart || '07:00');setz('calcShiftEnd',f.shiftEnd || '19:00');
+      setz('calcBreakStart',f.breakStart || '12:00');setz('calcBreakMinutes',f.breakMinutes ?? 30);
       zeitfaktorenBeispiel();
     }
 
@@ -892,11 +894,20 @@
 
     function zeitfaktorenSpeichern() {
       if (!requirePerm('edit_prices', 'Zeitberechnung')) return;
+      const start=document.getElementById('calcShiftStart').value || '07:00';
+      const end=document.getElementById('calcShiftEnd').value || '19:00';
+      const pause=document.getElementById('calcBreakStart').value || '12:00';
+      if(end<=start || pause<start || pause>=end){toast('Bitte Arbeitsende nach Arbeitsbeginn und die Pause innerhalb der Arbeitszeit wählen.','error');return;}
       const zahl = (id, standard) => {
         const z = parseFloat(document.getElementById(id)?.value);
         return (Number.isFinite(z) && z >= 0) ? z : standard;
       };
       speichereZeitfaktoren({
+        ...ladeZeitfaktoren(),
+        shiftStart:document.getElementById('calcShiftStart').value || '07:00',
+        shiftEnd:document.getElementById('calcShiftEnd').value || '19:00',
+        breakStart:document.getElementById('calcBreakStart').value || '12:00',
+        breakMinutes:Math.min(180,zahl('calcBreakMinutes',30)),
         proQm: zahl('calcProQm', ZEITFAKTOREN_STANDARD.proQm),
         proRaum: zahl('calcProRaum', ZEITFAKTOREN_STANDARD.proRaum),
         bauProQm: zahl('calcBauProQm', ZEITFAKTOREN_STANDARD.bauProQm),

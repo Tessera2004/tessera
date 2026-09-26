@@ -1,0 +1,25 @@
+/* Focus on tasks, readable secondary copy and persistent failure feedback. */
+[hidden],.settings-panel[hidden]{display:none!important}
+.settings-jump{display:flex!important;gap:8px;overflow-x:auto;padding-bottom:10px}
+.view[data-view="einstellungen"]>.settings-jump{overflow-x:auto;max-width:100%;min-width:0;padding-bottom:10px}
+.view[data-view="einstellungen"]>.settings-jump a{display:flex;white-space:nowrap;min-width:130px;min-height:48px}
+.settings-jump a{flex:0 0 auto;min-width:130px;padding:12px!important;border-radius:8px}
+.settings-jump a span,.settings-jump a small{display:none!important}
+.settings-jump [aria-selected="true"]{background:var(--surface-2);border-color:var(--text-muted)!important;box-shadow:inset 0 -2px var(--accent)}
+.settings-panel{max-width:1120px}
+.settings-panel .card{margin-top:8px!important}
+@media(max-width:480px){.settings-panel .company-fields{grid-template-columns:1fr!important}}
+.field label,.card-subtitle,.jmeta,.jassigned,.kpi-meta,.user-role{font-size:13px!important;line-height:1.5}
+[data-skin="buero"]{--text-subtle:#aaa8ac;--text-muted:#c6c4c8}
+.settings-panel input:not([type=checkbox]):not([type=color]),.settings-panel select{min-height:44px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.save-state{position:sticky;top:0;z-index:90;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#332819;color:#fff1d0;padding:12px 18px;border-bottom:1px solid #a88748;font-size:14px}
+.save-state span{flex:1;min-width:190px}.save-state button{color:inherit;background:transparent;border:1px solid currentColor;border-radius:6px;padding:8px 12px;cursor:pointer}
+.save-state[data-state=error]{background:#401f24;color:#ffe5e9;border-color:#bd6775}
+.quality-dialog{color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:14px;width:min(760px,calc(100vw - 32px));max-height:85vh;padding:24px;box-shadow:0 24px 80px #0006}
+.quality-dialog::backdrop{background:#0009}.quality-dialog p{font-size:14px;line-height:1.6;color:var(--text-muted)}
+.quality-table{overflow:auto;margin:20px 0}.quality-table table{width:100%}.quality-table td,.quality-table th{text-align:left;padding:12px 8px}
+.quality-actions{display:flex;justify-content:flex-end;gap:12px}.quality-dialog [role=alert]{padding:12px;border:1px solid var(--danger);border-radius:8px}
+#dashDataArea{display:flex;flex-direction:column}#dashDataArea>.grid-2{order:-1;margin-bottom:24px}
+@media(max-width:760px){.settings-jump a{min-width:130px!important;font-size:13px}.settings-panel .card{padding:18px!important}.quality-dialog{padding:16px}.table-wrap{overflow-x:auto}.table-wrap table{min-width:580px}.btn{min-height:40px}input,textarea,select{font-size:16px!important}.save-state{position:relative}.kpi-grid{gap:10px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}

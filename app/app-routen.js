@@ -23,14 +23,16 @@
     async function geocodeAddress(address) {
       if (!address || !address.trim()) return null;
       const cache = loadGeoCache();
-      const key = address.trim().toLowerCase();
-      if (cache[key] !== undefined) return cache[key]; // kann auch null sein (nicht gefunden)
+      const country=(loadCompany().country || 'CH').toLowerCase();
+      const key = country+':'+address.trim().toLowerCase();
+      if (cache[key]) return cache[key];
       try {
-        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ch&q=' + encodeURIComponent(address);
+        await new Promise(resolve=>setTimeout(resolve,1100));
+        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes='+encodeURIComponent(country)+'&q=' + encodeURIComponent(address);
         const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
         const data = await res.json();
         const coord = (data && data[0]) ? { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) } : null;
-        cache[key] = coord; saveGeoCache(cache);
+        if(coord){cache[key] = coord; saveGeoCache(cache);}
         return coord;
       } catch (e) { return null; }
     }
@@ -45,10 +47,11 @@
     const _travelCache = {};
     function _travelKey(a, b) { return `${a.lat.toFixed(4)},${a.lon.toFixed(4)};${b.lat.toFixed(4)},${b.lon.toFixed(4)}`; }
     function travelMinutes(a, b) {
-      if (!a || !b) return 8;
+      if (!a || !b) return Infinity;
+      if (a.lat===b.lat && a.lon===b.lon) return 0;
       const k = _travelKey(a, b);
       if (_travelCache[k] !== undefined) return _travelCache[k];
-      return Math.round(haversineKm(a, b) / 60 * 60) + 3; // Fallback: 60 km/h Durchschnitt
+      return Infinity; // Unknown roads must never look like short drives.
     }
     // OSRM Table API: echte Auto-Fahrzeiten für alle Koordinaten-Paare auf einmal
     async function prefetchTravelTimes(coords) {
@@ -61,7 +64,7 @@
         if (data.code === 'Ok' && data.durations) {
           for (let i = 0; i < valid.length; i++)
             for (let j = 0; j < valid.length; j++)
-              if (i !== j) _travelCache[_travelKey(valid[i], valid[j])] = Math.round(data.durations[i][j] / 60) + 3;
+              if (i !== j) _travelCache[_travelKey(valid[i], valid[j])] = Number.isFinite(data.durations[i][j]) ? Math.ceil(data.durations[i][j] / 60) + 3 : Infinity;
         }
       } catch { /* Netz-Fehler → Fallback in travelMinutes() */ }
     }
@@ -97,126 +100,72 @@
       return [co.addr1, co.addr2].filter(Boolean).join(', ') || null;
     }
 
-    function optimizeTeamOrder(jobs, startCoord) {
-      const n = jobs.length;
-      if (n <= 1) {
-        const hin = (startCoord && jobs[0]) ? travelMinutes(startCoord, jobs[0].coord) : 0;
-        return { order: jobs.slice(), travel: hin, lateness: 0 };
-      }
-      const t0 = Math.min(...jobs.map(j => parseHM(j.start)));
-      const evaluate = (order) => {
-        let t = t0, travel = 0, lateness = 0;
-        for (let i = 0; i < order.length; i++) {
-          if (i === 0 && startCoord) {
-            const hin = travelMinutes(startCoord, order[0].coord);
-            travel += hin;   // Anfahrt zaehlt zum Fahrweg, verschiebt aber
-                             // nicht den ersten Start - dort wird losgefahren
-          }
-          if (i > 0) { const tt = travelMinutes(order[i - 1].coord, order[i].coord); t += tt; travel += tt; }
-          const end = t + (order[i].duration || 60);
-          if (order[i].deadlineMin != null && end > order[i].deadlineMin) lateness += (end - order[i].deadlineMin);
-          t = end;
+    function optimizeTeamOrder(jobs,startCoord,settings) {
+      const proposed=MosaRoute.propose(jobs,(a,b)=>travelMinutes(a?.coord || startCoord,b?.coord || startCoord),settings);
+      return {...proposed,order:proposed.schedule,lateness:proposed.conflicts.length};
+    }
+    let routeProposal=null,routeUndo=null;
+    async function runAutoPlan(){
+      if(!requirePerm('edit_auftrag','Routen prüfen'))return;
+      const btn=document.getElementById('autoPlanBtn'),original=btn.innerHTML;
+      btn.disabled=true;btn.textContent='Routen prüfen …';
+      try{
+        routeProposal=null;
+        const before=JSON.stringify(loadPlanJobs());
+        const dateKey=isoDate(planCurrentDate), all=getJobsForDate(planCurrentDate).filter(istDefinitiverFeldeinsatz);
+        if(!all.length){toast('Keine definitiven Einsätze an diesem Tag.');return;}
+        if(all.some(j=>!j.team))throw Error('Bitte unzugewiesene Einsätze zuerst einem Team zuweisen.');
+        const depot=await geocodeAddress(routenStartAdresse());
+        if(!depot)throw Error('Startadresse fehlt oder wurde nicht gefunden. Bitte in Einstellungen → Ablauf prüfen.');
+        const proposals=[],conflicts=[];
+        for(const teamId of [...new Set(all.map(j=>j.team))]){
+          const jobs=all.filter(j=>j.team===teamId),available=teamMembersOnDay(teamId,dateKey);
+          if(!available.length || jobs.some(j=>(j.plannedCrew || 1)>Math.min(available.length,j.assigned?.length || 0)))conflicts.push('Team '+teamId+': zu wenig verfügbare Mitarbeiter.');
+          for(const j of jobs){j.coord=await geocodeAddress(j.ort);if(!j.coord)throw Error('Adresse nicht gefunden: '+j.ort);}
+          await prefetchTravelTimes([depot,...jobs.map(j=>j.coord)]);
+          const f=ladeZeitfaktoren(), settings={start:parseHM(f.shiftStart || '07:00'),end:parseHM(f.shiftEnd || '19:00'),breakStart:parseHM(f.breakStart || '12:00'),breakMinutes:Number(f.breakMinutes ?? 30)};
+          const proposal=optimizeTeamOrder(jobs,depot,settings);
+          conflicts.push(...proposal.conflicts);proposals.push(...proposal.schedule);
         }
-        return { travel, lateness };
-      };
-      const candidates = (n <= 7) ? permute(jobs) : [greedyNN(jobs)];
-      let best = null, bestScore = Infinity;
-      for (const ord of candidates) {
-        const { travel, lateness } = evaluate(ord);
-        const score = lateness * 100000 + travel; // Übergabe-Termine zuerst, dann Fahrweg minimieren
-        if (score < bestScore) { bestScore = score; best = { order: ord, travel, lateness }; }
+        if(JSON.stringify(loadPlanJobs())!==before)throw Error('Plan wurde während der Berechnung geändert. Bitte neu berechnen.');
+        routeProposal={dateKey,jobs:proposals,before,conflicts};
+        let dialog=document.getElementById('routeReview');
+        if(!dialog){dialog=document.createElement('dialog');dialog.id='routeReview';dialog.className='quality-dialog';document.body.append(dialog);}
+        dialog.innerHTML='<h2>Routenvorschlag prüfen</h2><p>Feste Termine bleiben fest. Fahrzeiten ohne Verkehrslage, inklusive Rückfahrt und geplanter Pause.</p>'+
+          (conflicts.length?'<div role="alert">'+conflicts.map(escapeHtml).join('<br>')+'</div>':'')+
+          '<div class="quality-table"><table><thead><tr><th>Einsatz</th><th>Bisher</th><th>Vorschlag</th></tr></thead><tbody>'+
+          proposals.map(j=>'<tr><td>'+escapeHtml(j.objekt)+'</td><td>'+escapeHtml(j.start)+'</td><td>'+fmtHM(j.proposedStart)+(j.planning?.flexible?' · flexibel':' · fest')+'</td></tr>').join('')+
+          '</tbody></table></div><div class="quality-actions"><button id="routeClose" class="btn btn-secondary">Schliessen</button><button id="routeApply" class="btn btn-accent">Übernehmen</button></div>';
+        dialog.querySelector('#routeClose').onclick=()=>dialog.close();
+        dialog.querySelector('#routeApply').disabled=conflicts.length>0;
+        dialog.querySelector('#routeApply').onclick=applyRouteProposal;
+        dialog.showModal();
+      }catch(error){toast(error.message,'error');}
+      finally{btn.innerHTML=original;btn.disabled=false;}
+    }
+    async function applyRouteProposal(){
+      if(!requirePerm('edit_auftrag','Routenvorschlag übernehmen') || !routeProposal || routeProposal.conflicts.length)return;
+      if(JSON.stringify(loadPlanJobs())!==routeProposal.before){toast('Plan wurde inzwischen geändert. Bitte neu berechnen.','error');return;}
+      const all=loadPlanJobs(),p=routeProposal;
+      for(const j of p.jobs){
+        const raw=(all[p.dateKey] || []).find(x=>x.id===(j._jobId || j.id));
+        if(!raw){toast('Demo-/Alt-Einsatz kann nicht automatisch verschoben werden.','error');return;}
+        raw.start=fmtHM(j.proposedStart);
+        raw.end=fmtHM(j.proposedStart+Number(raw.duration || 60));
       }
-      return best;
+      routeUndo={before:p.before,after:JSON.stringify(all)};
+      await savePlanJobsAll(all);document.getElementById('routeReview').close();renderPlanung();
+      toast('Routenvorschlag übernommen. Rückgängig ist bis zur nächsten Planänderung möglich.');
+      let undo=document.getElementById('routeUndo');
+      if(!undo){undo=document.createElement('button');undo.id='routeUndo';undo.className='btn btn-secondary';undo.textContent='Route rückgängig';undo.onclick=undoRouteProposal;document.getElementById('autoPlanBtn').after(undo);}
+      undo.hidden=false;
+    }
+    async function undoRouteProposal(){
+      if(!requirePerm('edit_auftrag','Route rückgängig') || !routeUndo)return;
+      if(JSON.stringify(loadPlanJobs())!==routeUndo.after){toast('Plan wurde inzwischen geändert. Rückgängig deshalb gesperrt.','error');return;}
+      await savePlanJobsAll(JSON.parse(routeUndo.before));routeUndo=null;document.getElementById('routeUndo').hidden=true;renderPlanung();
     }
 
-    async function runAutoPlan() {
-      const btn = document.getElementById('autoPlanBtn');
-      const original = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Berechne Routen…';
-      try {
-        const dateKey = isoDate(planCurrentDate);
-        const allJobs = getJobsForDate(planCurrentDate).filter(istDefinitiverFeldeinsatz);
-        if (allJobs.length === 0) { toast('Keine Einsätze an diesem Tag'); return; }
-
-        // Auto-Zuweisung: Jobs ohne Team auf verfügbare Teams verteilen (Load-Balancing)
-        const teamsAvail = PLAN_TEAMS.filter(t => EMPLOYEES.some(e => e.teamId === t.id));
-        const unassigned = allJobs.filter(j => !j.team);
-        if (teamsAvail.length > 0 && unassigned.length > 0) {
-          // Aktuelle Gesamtdauer pro Team (für gleichmässige Verteilung)
-          const teamLoad = {};
-          teamsAvail.forEach(t => {
-            teamLoad[t.id] = allJobs.filter(j => j.team === t.id).reduce((s, j) => s + (j.duration || 60), 0);
-          });
-          unassigned.forEach(j => {
-            const pick = teamsAvail.reduce((a, b) => teamLoad[a.id] <= teamLoad[b.id] ? a : b);
-            teamLoad[pick.id] += (j.duration || 60);
-            // Zuweisung dauerhaft speichern
-            if (j._added) updatePlanJob(dateKey, j._jobId, { team: pick.id });
-            else setJobOverride(dateKey, j._idx, { team: pick.id });
-            j.team = pick.id; // in-memory für nachfolgende Gruppierung
-          });
-        }
-
-        // C2 — Startpunkt der Routen: die Adresse aus den Einstellungen
-        let startCoord = null;
-        const startAdresse = routenStartAdresse();
-        if (startAdresse) {
-          try { startCoord = await geocodeAddress(startAdresse); } catch {}
-        }
-
-        // nach Team gruppieren
-        const byTeam = {};
-        allJobs.forEach(j => { const k = j.team || '_none'; (byTeam[k] = byTeam[k] || []).push(j); });
-
-        let travelBefore = 0, travelAfter = 0, optimizedTeams = 0, lateWarn = false;
-        for (const teamId of Object.keys(byTeam)) {
-          const jobs = byTeam[teamId];
-          // Adressen geocoden (Nominatim: max 1/s → kleine Pause bei neuen Adressen)
-          for (const j of jobs) {
-            const cache = loadGeoCache();
-            const wasCached = cache[(j.ort || '').trim().toLowerCase()] !== undefined;
-            j.coord = await geocodeAddress(j.ort);
-            j.deadlineMin = j.deadline ? parseHM(j.deadline) : null;
-            if (!wasCached && j.ort) await new Promise(r => setTimeout(r, 1100));
-          }
-          // Echte Auto-Fahrzeiten per OSRM vorberechnen (driving mode, reale Strecke)
-          await prefetchTravelTimes(jobs.map(j => j.coord));
-
-          // Fahrzeit VORHER (aktuelle Reihenfolge nach Startzeit)
-          const before = jobs.slice().sort((a, b) => parseHM(a.start) - parseHM(b.start));
-          if (startCoord && before[0]) travelBefore += travelMinutes(startCoord, before[0].coord);
-          for (let i = 1; i < before.length; i++) travelBefore += travelMinutes(before[i - 1].coord, before[i].coord);
-
-          const opt = optimizeTeamOrder(jobs, startCoord);
-          travelAfter += opt.travel;
-          if (opt.lateness > 0) lateWarn = true;
-
-          // Neue Startzeiten entlang optimierter Reihenfolge setzen
-          let t = Math.min(...jobs.map(j => parseHM(j.start)));
-          opt.order.forEach((j, i) => {
-            if (i > 0) t += travelMinutes(opt.order[i - 1].coord, j.coord);
-            const start = fmtHM(t);
-            if (j._added) updatePlanJob(dateKey, j._jobId, { start });
-            else setJobOverride(dateKey, j._idx, { start });
-            t += (j.duration || 60);
-          });
-          if (jobs.length >= 2) optimizedTeams++;
-        }
-
-        renderPlanung();
-        const saved = Math.max(0, Math.round(travelBefore - travelAfter));
-        let msg = optimizedTeams > 0
-          ? `✓ ${optimizedTeams} Route${optimizedTeams > 1 ? 'n' : ''} optimiert` + (saved > 0 ? ` · ~${saved} min Fahrzeit gespart` : '')
-          : '✓ Routen aktualisiert';
-        if (lateWarn) msg += ' · Übergabe-Termine knapp';
-        toast(msg);
-      } catch (e) {
-        toast(tt('toastdyn.optFailed','Optimierung fehlgeschlagen') + ': ' + e.message, 'error');
-      } finally {
-        btn.innerHTML = original; btn.disabled = false;
-      }
-    }
 
     // ============ Neuer Auftrag speichern ============
     function saveAuftrag() {
@@ -576,12 +525,17 @@
     function saveIstHours(o) { localStorage.setItem(IST_KEY, JSON.stringify(o)); }
     // Stabiler Schlüssel pro Job: Datum + Objekt + Startzeit
     function nkJobKey(j) { return (j._dateKey || '') + '|' + (j.objekt || '?') + '|' + (j.start || ''); }
-    function nkGetIst(j) { const v = loadIstHours()[nkJobKey(j)]; return (v == null ? null : Number(v)); }
+    function nkTimeKey(j) { return (j._jobId || j.id) ? 'job:'+(j._jobId || j.id) : nkJobKey(j); }
+    function nkGetIst(j) { const local=loadIstHours();const v=j.actualHours ?? local[nkTimeKey(j)] ?? local[nkJobKey(j)]; return (v == null ? null : Number(v)); }
     function nkSetIst(key, val) {
       const o = loadIstHours();
       const h = parseFloat(String(val).replace(',', '.'));
       if (val === '' || isNaN(h) || h < 0) { delete o[key]; } else { o[key] = h; }
       saveIstHours(o);
+      if(key.startsWith('job:'))for(const [date,jobs] of Object.entries(loadPlanJobs())){
+        const job=jobs.find(j=>'job:'+j.id===key);
+        if(job){delete o[nkJobKey({...job,_dateKey:date})];saveIstHours(o);updatePlanJob(date,job.id,{actualHours:o[key] ?? null});break;}
+      }
     }
 
     function nkMonthDefault() {
@@ -623,12 +577,12 @@
         return;
       }
 
-      let sumSoll = 0, sumIst = 0, sumPriceWithIst = 0, erfasst = 0, ueber = 0;
+      let sumSoll = 0, sumRecordedSoll = 0, sumIst = 0, sumPriceWithIst = 0, erfasst = 0, ueber = 0;
       const rows = jobs.map(j => {
-        const sollH = (j.duration || 0) / 60;
+        const sollH = (j.duration || 0) / 60 * (j.plannedCrew || j.crew || j.assigned?.length || 1);
         const price = Number(j.price || 0);
         const ist = nkGetIst(j);
-        const key = nkJobKey(j);
+        const key = nkTimeKey(j);
         sumSoll += sollH;
 
         const dLabel = (() => {
@@ -642,6 +596,7 @@
         let statusCell = '<span class="badge badge-neutral" style="background:var(--surface-2); color:var(--text-subtle);">' + tt('sub.open', 'offen') + '</span>';
 
         if (ist != null) {
+          sumRecordedSoll += sollH;
           erfasst++;
           sumIst += ist;
           sumPriceWithIst += price;
@@ -667,7 +622,7 @@
           <td>${dLabel}</td>
           <td><strong>${escapeHtml(j.objekt || '—')}</strong>${kunde && kunde !== j.objekt ? `<br/><span style="font-size:12px;color:var(--text-subtle);">${escapeHtml(kunde)}</span>` : ''}</td>
           <td style="text-align:right;">${(Math.round(sollH * 10) / 10).toFixed(1)}</td>
-          <td style="text-align:right;"><input class="nk-ist-input${ist != null ? ' filled' : ''}" type="number" min="0" step="0.25" value="${ist != null ? ist : ''}" placeholder="–" data-key="${escapeHtml(key)}" /></td>
+          <td style="text-align:right;"><input class="nk-ist-input${ist != null ? ' filled' : ''}" type="number" min="0" step="0.25" value="${ist != null ? ist : ''}" placeholder="–" aria-label="Ist-Personenstunden, Summe aller Mitarbeiter" title="Summe der Arbeitsstunden aller Mitarbeiter" data-key="${escapeHtml(key)}" /></td>
           <td style="text-align:right;">${deltaCell}</td>
           <td style="text-align:right;">${price ? price.toFixed(0) + '.–' : '—'}</td>
           <td style="text-align:right;">${rateCell}</td>
@@ -686,7 +641,7 @@
       });
 
       // Summen
-      const diff = sumIst - sumSoll;
+      const diff = sumIst - sumRecordedSoll;
       document.getElementById('nkSoll').textContent = fmtH(sumSoll);
       document.getElementById('nkIst').textContent = fmtH(sumIst);
       document.getElementById('nkIstMeta').textContent = tt('nk.recordedOf', '{n} von {t} Einsätzen erfasst').replace('{n}', erfasst).replace('{t}', jobs.length);

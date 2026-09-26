@@ -156,24 +156,10 @@
       setTimeout(() => { fillCompanyForm(); renderModuleSettings(); populateVerticalSelect(); applyPriceSection(); refreshMfaStatus(); }, 50);
     });
 
-    // Schweizer QR-Code-Payload (SPC, Version 0200) — kombinierte Adressen (K), Referenztyp NON
+    // Schweizer QR-Code-Payload (SPC, Version 0200) — strukturierte Adressen (S), Referenztyp NON
     function buildSwissQrPayload(c, debtor, amount, message) {
-      const L = [];
-      L.push('SPC', '0200', '1');
-      L.push((c.iban || '').replace(/\s/g, ''));
-      L.push('K', c.name || '', c.addr1 || '', c.addr2 || '', '', '', c.country || 'CH');
-      L.push('', '', '', '', '', '');                       // Endkreditor (ungenutzt)
-      L.push(Number(amount).toFixed(2), 'CHF');
-      if (debtor && debtor.name) {
-        L.push('K', debtor.name, debtor.addr1 || '', debtor.addr2 || '', '', '', 'CH');
-      } else {
-        L.push('', '', '', '', '', '', '');
-      }
-      L.push('NON', '', message || '');
-      L.push('EPD');
-      return L.join('\r\n');
+      return MosaInvoice.swissPayload(c, debtor, amount, message);
     }
-
     // QR-Code als PNG-DataURL (qrcode-generator: Auto-Version bis 40, kein Längen-Limit)
     function qrDataUrl(text) {
       return new Promise((resolve, reject) => {
@@ -183,7 +169,7 @@
           qr.addData(text);
           qr.make();
           const count = qr.getModuleCount();
-          const cell = 8, quiet = 4;
+          const cell = 8, quiet = 0; // PDF reserves the 5 mm quiet zone outside the 46 mm code.
           const px = (count + quiet * 2) * cell;
           const cv = document.createElement('canvas');
           cv.width = px; cv.height = px;
@@ -216,121 +202,117 @@
       return btoa(binary);
     }
 
+    function downloadInvoicePdf(base64, filename) {
+      const bytes = Uint8Array.from(atob(base64), char => char.charCodeAt(0));
+      const url = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'}));
+      const link = document.createElement('a'); link.href=url; link.download=filename; link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+
     async function generateInvoiceForJob(job, dateKey, options = {}) {
-      const pm = job.paymethod || 'rechnung';
-      if (pm !== 'rechnung') {
-        toast(pm === 'bar' ? 'Barzahlung — keine Rechnung nötig' : 'Twint — keine QR-Rechnung nötig', 'error');
-        return null;
-      }
-      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-Bibliothek lädt noch — kurz warten', 'error'); return null; }
-
-      const c = loadCompany();
-      const L = coLocale(c);
-      const cust = job._customer;
-      const debtorAddr = splitAddress(cust ? (cust.address || '') : (job.ort || ''));
-      const debtor = { name: cust ? customerDisplayName(cust) : (job.objekt || 'Kunde'), addr1: debtorAddr.addr1, addr2: debtorAddr.addr2 };
-
-      const netto = Number(job.price || 0);
-      const mwst = netto * L.vat;
-      const brutto = netto + mwst;
-      const invNr = (dateKey.replace(/-/g, '') + '-' + String(job.id || '').slice(-4)).toUpperCase();
-      const message = `Rechnung ${invNr} · ${job.objekt || ''}`.trim();
-
-      let qrUrl = null;
-      if (L.payment === 'qr') {
-        try { qrUrl = await qrDataUrl(buildSwissQrPayload(c, debtor, brutto, message)); }
-        catch (e) { toast('QR-Code konnte nicht erzeugt werden', 'error'); return null; }
-      }
-
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-      const W = doc.internal.pageSize.getWidth();
-      const H = doc.internal.pageSize.getHeight();
-      const M = 20;
-      let y = M;
-
-      // Header Firma — mit eigenem Logo und eigener Markenfarbe
-      const mf = hexZuRgb(c.brandColor) || [225, 29, 42];
-      const tx = pdfLogo(doc, c, M, y);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(mf[0], mf[1], mf[2]);
-      doc.text(c.name || 'Firma', tx, y);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(120);
-      doc.text(`${c.addr1 || ''}, ${c.addr2 || ''}`, W - M, y - 2, { align: 'right' });
-      if (c.contact) doc.text(c.contact, W - M, y + 2, { align: 'right' });
-      if (c.mwst) doc.text(L.vatIdLabel + ' ' + c.mwst, W - M, y + 6, { align: 'right' });
-      y += 14;
-      doc.setDrawColor(mf[0], mf[1], mf[2]); doc.setLineWidth(0.6); doc.line(M, y, W - M, y); y += 10;
-
-      // Titel + Empfänger
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(20);
-      doc.text('Rechnung', M, y);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(120);
-      doc.text('Nr. ' + invNr, W - M, y - 4, { align: 'right' });
-      doc.text('Datum: ' + new Date(dateKey + 'T00:00:00').toLocaleDateString(L.dateLoc, { day: '2-digit', month: 'long', year: 'numeric' }), W - M, y, { align: 'right' });
-      y += 12;
-      doc.setFontSize(8.5); doc.setTextColor(120); doc.text('AN', M, y); y += 5;
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(20); doc.text(debtor.name, M, y); y += 5;
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-      if (debtor.addr1) { doc.text(debtor.addr1, M, y); y += 5; }
-      if (debtor.addr2) { doc.text(debtor.addr2, M, y); y += 5; }
-      y += 6;
-
-      // B8 — eigener Text ueber der Position
-      const eigenerText = ladeVorlagen().rechnungText;
-      if (eigenerText) {
-        doc.setFontSize(9.5); doc.setTextColor(80);
-        const zeilen = doc.splitTextToSize(platzhalterFuellen(eigenerText, { kunde: debtor.name }), W - 2 * M);
-        doc.text(zeilen, M, y);
-        y += zeilen.length * 5 + 4;
-        doc.setTextColor(20);
-      }
-
-      // Positionstabelle
-      const hours = (job.duration || 0) / 60;
-      const rate = hours > 0 ? netto / hours : 0;
-      doc.setFontSize(8.5); doc.setTextColor(120);
-      doc.text('LEISTUNG', M, y); doc.text('STD', W - M - 60, y, { align: 'right' });
-      doc.text('À ' + L.cur, W - M - 32, y, { align: 'right' }); doc.text('BETRAG', W - M, y, { align: 'right' });
-      y += 2; doc.setDrawColor(220); doc.setLineWidth(0.3); doc.line(M, y, W - M, y); y += 6;
-      doc.setFontSize(10); doc.setTextColor(30);
-      const svcLbl = (typeof svcShortLabels !== 'undefined' && svcShortLabels[job.svc]) || job.svc || 'Reinigung';
-      doc.text(`${svcLbl} — ${job.objekt || ''}`.slice(0, 60), M, y);
-      doc.text(hours.toFixed(2), W - M - 60, y, { align: 'right' });
-      doc.text(rate.toFixed(2), W - M - 32, y, { align: 'right' });
-      doc.text(netto.toFixed(2), W - M, y, { align: 'right' });
-      y += 10;
-
-      // Summen
-      doc.setDrawColor(220); doc.line(W - M - 70, y, W - M, y); y += 6;
-      doc.setFontSize(9.5); doc.setTextColor(80);
-      doc.text('Netto', W - M - 40, y, { align: 'right' }); doc.setTextColor(20); doc.text(netto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
-      if (L.mwstPflichtig) {
-        doc.setTextColor(80); doc.text(L.vatLabel, W - M - 40, y, { align: 'right' });
-        doc.setTextColor(20); doc.text(mwst.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' }); y += 6;
-      }
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(mf[0], mf[1], mf[2]);
-      doc.text('Total', W - M - 40, y, { align: 'right' }); doc.text(brutto.toFixed(2) + ' ' + L.cur, W - M, y, { align: 'right' });
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
-      const ibanPay = (c.iban || '').replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
-      // B8 — eigene Zahlungsbedingungen, sonst der Standardsatz
-      const eigeneBed = ladeVorlagen().rechnungBedingungen;
-      doc.text(eigeneBed
-        ? doc.splitTextToSize(platzhalterFuellen(eigeneBed, {}), W - 2 * M)
-        : (L.payment === 'qr'
-            ? 'Zahlbar innert 30 Tagen mit beiliegendem QR-Einzahlschein.'
-            : `Zahlbar innert 30 Tagen auf folgendes Konto: IBAN ${ibanPay}`), M, y + 8);
-      // Ohne Steuerpflicht gehört der gesetzliche Hinweis auf den Beleg
-      if (!L.mwstPflichtig) doc.text(L.steuerHinweis, M, y + 13);
-
-      // ---- Zahlteil: CH = Swiss-QR-Einzahlschein, DE/AT = SEPA-Zahlblock ----
-      if (L.payment === 'qr') drawQrSlip(doc, c, debtor, brutto, message, qrUrl, W, H);
-      else drawSepaBlock(doc, c, debtor, brutto, message, L, W, H);
-
-      const filename = `Rechnung_${invNr}.pdf`;
-      const pdfBase64 = pdfArrayBufferToBase64(doc.output('arraybuffer'));
-      if (options.download !== false) doc.save(filename);
-      if (options.quiet !== true) toast(tt('toastdyn.invoiceCreated','✓ Rechnung erstellt') + ' — ' + invNr);
-      return { doc, invNr, filename, pdfBase64 };
+      try {
+        if ((job.paymethod || 'rechnung') !== 'rechnung') throw Error('Für Bar/TWINT bitte eine Quittung erstellen.');
+        if (!window.jspdf?.jsPDF) throw Error('PDF-Bibliothek lädt noch.');
+        const jobId=job._jobId || job.id, sb=getSupabase();
+        const online=!!window._authEmail && !window.MOSAOS_DEMO_MODE;
+        let record=null;
+        if (online) {
+          const result=await sb.from('job_invoices').select('*').eq('job_id',jobId).eq('tenant_id',window._tenantId).maybeSingle();
+          if (result.error) throw Error('Rechnungsarchiv nicht verfügbar. Die neue Datenbank-Migration muss zuerst eingerichtet werden.');
+          record=result.data;
+        }
+        if (!record && job.invoiceNumber) throw Error('Diese ältere Rechnung wurde bereits erstellt. Bitte das ursprüngliche PDF verwenden; keine neue Rechnung mit aktuellen Daten erzeugen.');
+        let c=loadCompany(), L=coLocale(c);
+        const customer=job._customer || loadCustomers().find(x=>x.id===job.customerId);
+        const addr=splitAddress(customer?.address || job.ort || '');
+        let snapshot=record?.document || {
+          company:JSON.parse(JSON.stringify(c)), locale:JSON.parse(JSON.stringify(L)),
+          debtor:{name:customer ? customerDisplayName(customer) : job.objekt, ...addr,country:c.country || 'CH'},
+          email:customer?.email || '', net:MosaInvoice.money(job.price),
+          tax:MosaInvoice.money(Number(job.price)*L.vat),
+          gross:MosaInvoice.money(Number(job.price)+MosaInvoice.money(Number(job.price)*L.vat)),
+          currency:L.cur, lines:MosaInvoice.lines(job), serviceDate:dateKey,
+          intro:platzhalterFuellen(ladeVorlagen().rechnungText || '',{kunde:customer ? customerDisplayName(customer) : job.objekt}),
+          terms:platzhalterFuellen(ladeVorlagen().rechnungBedingungen || '',{}),
+          createdAt:new Date().toISOString()
+        };
+        // Validate before reserving a number, including the structured addresses.
+        if (snapshot.locale.payment==='qr') MosaInvoice.swissPayload(snapshot.company,snapshot.debtor,snapshot.gross,'Rechnung');
+        else MosaInvoice.iban(snapshot.company.iban);
+        if (options.issue && !record) {
+          if (!online) throw Error('Im Demo-Modus sind nur Rechnungsentwürfe möglich.');
+          if (job.status!=='beendet') throw Error('Bitte den Einsatz zuerst abschliessen.');
+          await window.MosaDB?.flush();
+          if (JSON.parse(localStorage.getItem('mosaos-sync-queue-v1') || '[]').length) throw Error('Bitte zuerst alle Änderungen synchronisieren.');
+          const result=await sb.rpc('issue_job_invoice',{p_job_id:jobId,p_document:snapshot});
+          if (result.error) throw Error('Rechnung konnte nicht ausgestellt werden: '+result.error.message);
+          record=result.data; snapshot=record.document;
+        }
+        const issued=!!record, invNr=record?.number || 'ENTWURF';
+        const filename=(issued?'Rechnung_':'Rechnungsentwurf_')+(record?.number || String(jobId).replace(/[^a-zA-Z0-9_-]/g,'_'))+'.pdf';
+        if (record?.pdf_base64) {
+          if (options.download!==false) downloadInvoicePdf(record.pdf_base64,filename);
+          return {invNr,filename,pdfBase64:record.pdf_base64,issued,email:snapshot.email};
+        }
+        c=snapshot.company; L=snapshot.locale;
+        const debtor=snapshot.debtor, message='Rechnung '+invNr;
+        const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'mm',format:'a4'});
+        const W=210,H=297,M=20;
+        let y=22;
+        const space=height=>{if(y+height>H-22){doc.addPage();y=22;}};
+        const paragraph=(text,size=10,bold=false,width=W-2*M)=>{
+          doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.setTextColor(30);
+          const leading=Math.max(5,size*0.3528*1.25);
+          for(const line of doc.splitTextToSize(String(text || ''),width)){space(leading);doc.text(line,M,y);y+=leading;}
+          y+=3;
+        };
+        paragraph(c.name || 'Firma',18,true);
+        paragraph([c.addr1,c.addr2,c.contact,c.mwst ? L.vatIdLabel+' '+c.mwst : ''].filter(Boolean).join('\n'),9);
+        paragraph(issued?'Rechnung '+invNr:'Rechnungsentwurf – nicht zur Zahlung',18,true);
+        paragraph('Belegdatum: '+new Date(record?.issued_at || snapshot.createdAt).toLocaleDateString(L.dateLoc)+' · Leistungsdatum: '+new Date(snapshot.serviceDate+'T00:00:00').toLocaleDateString(L.dateLoc),9);
+        paragraph([debtor.name,debtor.addr1,debtor.addr2].filter(Boolean).join('\n'),11);
+        if(snapshot.intro) paragraph(snapshot.intro);
+        space(30);
+        paragraph('Leistung / Menge / Einzelpreis / Betrag',9,true);
+        for(const line of snapshot.lines){
+          doc.setFontSize(10);doc.setFont('helvetica','normal');
+          const label=doc.splitTextToSize(line.label || 'Leistung',105);
+          space(label.length*5+14);
+          doc.text(label,M,y);doc.text(Number(line.amount).toFixed(2)+' '+L.cur,W-M,y,{align:'right'});
+          y+=label.length*5;
+          const unit={h:'Personenstunden',qm:'m²',flat:'pauschal','%':'%'}[line.unit] || line.unit;
+          paragraph(line.unit==='%' ? Number(line.quantity).toFixed(2)+' % von '+(Number(line.rate)*100).toFixed(2)+' '+L.cur : Number(line.quantity).toFixed(2)+' '+unit+' × '+Number(line.rate).toFixed(2)+' '+L.cur,9);
+        }
+        space(28);
+        paragraph('Netto: '+snapshot.net.toFixed(2)+' '+L.cur,10);
+        if(L.mwstPflichtig) paragraph(L.vatLabel+': '+snapshot.tax.toFixed(2)+' '+L.cur,10);
+        paragraph('Total: '+snapshot.gross.toFixed(2)+' '+L.cur,13,true);
+        if(!L.mwstPflichtig) paragraph(L.steuerHinweis || '',9);
+        paragraph(snapshot.terms || 'Zahlbar innert 30 Tagen.',9);
+        if(issued){
+          const reserve=L.payment==='qr'?113:70;
+          if(y>H-reserve){doc.addPage();y=22;paragraph('Zahlungsangaben zu Rechnung '+invNr,12,true);}
+          if(L.payment==='qr'){
+            const qr=await qrDataUrl(buildSwissQrPayload(c,debtor,snapshot.gross,message));
+            drawQrSlip(doc,c,debtor,snapshot.gross,message,qr,W,H);
+          } else drawSepaBlock(doc,c,debtor,snapshot.gross,message,L,W,H);
+        } else paragraph('Bitte prüfen. Erst „Ausstellen“ vergibt eine Rechnungsnummer und fixiert dieses Dokument.',9);
+        const pages=doc.getNumberOfPages();
+        for(let page=1;page<=pages;page++){
+          doc.setPage(page);doc.setFontSize(8);doc.setTextColor(100);
+          // Payment slip on the final page must remain untouched.
+          doc.text(invNr+' · '+page+'/'+pages,M,10);
+        }
+        let pdfBase64=pdfArrayBufferToBase64(doc.output('arraybuffer'));
+        if(issued){
+          const result=await sb.rpc('store_job_invoice_pdf',{p_job_id:jobId,p_pdf:pdfBase64});
+          if(result.error) throw Error('Nummer reserviert, PDF noch nicht archiviert. Bitte erneut öffnen: '+result.error.message);
+          pdfBase64=result.data; // A concurrent request may have archived the original first.
+        }
+        if(options.download!==false) downloadInvoicePdf(pdfBase64,filename);
+        if(options.quiet!==true) toast(issued?'Originalrechnung heruntergeladen — '+invNr:'Rechnungsentwurf heruntergeladen');
+        return {invNr,filename,pdfBase64,issued,email:snapshot.email};
+      } catch(error){toast(error.message,'error');return null;}
     }
 
     // Bar-/TWINT-Zahlungen erhalten einen einfachen, steuerlich konsistenten
@@ -387,7 +369,7 @@
       doc.line(0, top, W, top);                 // obere Trennlinie (Schere)
       doc.line(sep, top, sep, H);               // vertikale Trennung
       doc.setFontSize(7); doc.setTextColor(120);
-      doc.text('✂ Vor der Einzahlung abzutrennen', W / 2, top - 2, { align: 'center' });
+      doc.text('Vor der Einzahlung abzutrennen', W / 2, top - 2, { align: 'center' });
 
       const ibanFmt = (c.iban || '').replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
       const payTo = `${c.name}\n${c.addr1}\n${c.addr2}`;
@@ -400,14 +382,15 @@
       doc.setFontSize(6); doc.setFont('helvetica', 'bold'); doc.text('Konto / Zahlbar an', x, yy); yy += 3;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
       doc.text(ibanFmt, x, yy); yy += 3.5;
-      doc.text(doc.splitTextToSize(payTo, sep - 10), x, yy); yy += 13;
+      const creditorReceipt=doc.splitTextToSize(payTo,sep-10);
+      doc.text(creditorReceipt,x,yy);yy+=creditorReceipt.length*3.5+3;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.text('Zahlbar durch', x, yy); yy += 3;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
       doc.text(doc.splitTextToSize(payBy || '—', sep - 10), x, yy);
       let yc = H - 25;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.text('Währung', x, yc); doc.text('Betrag', x + 18, yc); yc += 3.5;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text('CHF', x, yc); doc.text(Number(amount).toFixed(2), x + 18, yc);
-      doc.setFontSize(6); doc.setFont('helvetica', 'bold'); doc.text('Annahmestelle', W / 2 - 6, H - 8, { align: 'right' });
+      doc.setFontSize(6); doc.setFont('helvetica', 'bold'); doc.text('Annahmestelle', sep-5, H - 8, { align: 'right' });
 
       // --- Zahlteil (rechts) ---
       let px = sep + 5, py = top + 7;
@@ -417,6 +400,7 @@
       const qrSize = 46, qx = px, qy = py + 5;
       if (qrUrl) doc.addImage(qrUrl, 'PNG', qx, qy, qrSize, qrSize);
       const cx = qx + qrSize / 2, cy = qy + qrSize / 2;
+      doc.setFillColor(255, 255, 255); doc.rect(cx - 4, cy - 4, 8, 8, 'F');
       doc.setFillColor(0, 0, 0); doc.rect(cx - 3.5, cy - 3.5, 7, 7, 'F');
       doc.setFillColor(255, 255, 255); doc.rect(cx - 1, cy - 2.5, 2, 5, 'F'); doc.rect(cx - 2.5, cy - 1, 5, 2, 'F');
       // Betrag unter QR
@@ -428,9 +412,12 @@
       let ix = qx + qrSize + 8, iy = py + 5;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.text('Konto / Zahlbar an', ix, iy); iy += 3;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(ibanFmt, ix, iy); iy += 3.5;
-      doc.text(doc.splitTextToSize(payTo, W - ix - 5), ix, iy); iy += 14;
+      const creditorPayment=doc.splitTextToSize(payTo,W-ix-5);
+      doc.text(creditorPayment,ix,iy);iy+=creditorPayment.length*3.5+3;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.text('Zusätzliche Informationen', ix, iy); iy += 3;
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.text(doc.splitTextToSize(message || '', W - ix - 5), ix, iy); iy += 8;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+      const paymentMessage=doc.splitTextToSize(message || '',W-ix-5);
+      doc.text(paymentMessage,ix,iy);iy+=paymentMessage.length*3.5+4;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.text('Zahlbar durch', ix, iy); iy += 3;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(doc.splitTextToSize(payBy || '—', W - ix - 5), ix, iy);
     }

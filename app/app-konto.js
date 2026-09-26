@@ -57,7 +57,7 @@
     }
 
     function invoiceMailbox() {
-      return loadMailAccounts().find(a => a && a.email && a.token && ['gmail','outlook'].includes(a.provider)) || null;
+      return loadMailAccounts().find(a => a && a.id && a.email && a.status === 'active' && a.provider === 'gmail') || null;
     }
 
     async function persistJobBilling(job, dateKey, patch) {
@@ -76,75 +76,13 @@
         return;
       }
 
-      const created = await generateInvoiceForJob(job, dateKey, { download: false, quiet: true });
-      if (!created) return;
-      const createdAt = job.invoiceCreatedAt || new Date().toISOString();
-      const invoiceNumber = job.invoiceNumber || created.invNr;
-      const persisted = await persistJobBilling(job, dateKey, { invoiceNumber, invoiceCreatedAt: createdAt, invoiceStatus: job.invoiceStatus || 'pending' });
-
-      const customer = job._customer || loadCustomers().find(c => c.id === job.customerId);
-      const mailbox = invoiceMailbox();
-      let fallback = '';
-      if (!customer?.email) fallback = tt('job.invoiceNoCustomerEmail','Kunden-E-Mail fehlt — Rechnung wurde erstellt und heruntergeladen.');
-      else if (!mailbox) fallback = tt('job.invoiceNoSendMailbox','Kein sendefähiges Gmail-/Outlook-Postfach verbunden — Rechnung wurde erstellt und heruntergeladen.');
-      const sb = getSupabase();
-      const session = sb ? (await sb.auth.getSession()).data.session : null;
-      if (!fallback && !persisted) fallback = tt('job.invoiceSyncPending','Rechnung konnte noch nicht mit dem Server abgeglichen werden — PDF wurde heruntergeladen, kein Mailversand gestartet.');
-      if (!fallback && !session) fallback = tt('job.invoiceNoSession','Nicht angemeldet — Rechnung wurde erstellt und heruntergeladen.');
-      if (fallback) {
-        created.doc.save(created.filename);
-        await persistJobBilling(job, dateKey, { invoiceStatus: 'failed', invoiceSendError: fallback });
-        toast(fallback, 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch((window.SUPA_URL || '') + '/functions/v1/send-job-invoice', {
-          method: 'POST',
-          headers: { Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobId: job._jobId || job.id, pdfBase64: created.pdfBase64,
-            connectedMailbox: mailbox.email, provider: mailbox.provider, accessToken: mailbox.token })
-        });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          if (response.status === 409) {
-            toast(tt('job.invoiceAlreadyClaimed','Rechnung ist bereits versendet oder wird gerade verarbeitet.'), 'error');
-            return;
-          }
-          const unknown = result.error === 'DELIVERY_UNKNOWN';
-          const msg = unknown
-            ? tt('job.invoiceDeliveryUnknown','Versandstatus unklar — kein automatischer Neuversand, damit keine Doppelmail entsteht.')
-            : `${tt('job.invoiceSendFailed','Automatischer Versand fehlgeschlagen')} (${result.detail || result.error || response.status}).`;
-          await persistJobBilling(job, dateKey, { invoiceStatus: unknown ? 'delivery_unknown' : 'failed', invoiceSendError: msg });
-          created.doc.save(created.filename);
-          toast(msg + ' ' + tt('job.invoiceDownloaded','PDF wurde heruntergeladen.'), 'error');
-          return;
-        }
-        await persistJobBilling(job, dateKey, { invoiceStatus: 'sent', invoiceSentAt: result.sentAt || new Date().toISOString(), invoiceSendError: null });
-        toast(tt('job.invoiceSent','✓ Rechnung erstellt und sicher versendet') + ' — ' + invoiceNumber);
-      } catch (e) {
-        // Ein Netzabbruch nach dem Absenden ist absichtlich "unklar" und wird
-        // nie automatisch wiederholt. Das verhindert Doppelversand.
-        const msg = tt('job.invoiceDeliveryUnknown','Versandstatus unklar — kein automatischer Neuversand, damit keine Doppelmail entsteht.');
-        await persistJobBilling(job, dateKey, { invoiceStatus: 'delivery_unknown', invoiceSendError: msg });
-        created.doc.save(created.filename);
-        toast(msg + ' ' + tt('job.invoiceDownloaded','PDF wurde heruntergeladen.'), 'error');
-      }
+      // Completion creates a task for the office, never a bill or an outgoing email.
+      toast('Einsatz abgeschlossen. Rechnung unter „Rechnungen“ prüfen und bewusst ausstellen.');
     }
 
     async function processPendingJobInvoices() {
-      // Feldkonten duerfen Auftraege abschliessen, aber weder Rechnungen
-      // erzeugen noch deren Status zurueckschreiben. Beim Start muss die
-      // Rechnungsautomatik deshalb auch clientseitig konsequent ausbleiben.
-      if (window._authRole === 'field' || (currentUser && !hasPerm('edit_auftrag') && !hasPerm('edit_prices'))) return;
-      const all = loadPlanJobs();
-      for (const [dateKey, jobs] of Object.entries(all)) {
-        for (const raw of (jobs || [])) {
-          if (raw.status !== 'beendet' || raw.paymethod !== 'rechnung' || raw.invoiceStatus !== 'pending') continue;
-          const customer = loadCustomers().find(c => c.id === raw.customerId) || null;
-          await handleCompletedJob({ ...raw, _added: true, _jobId: raw.id, _dateKey: dateKey, _customer: customer }, dateKey);
-        }
-      }
+      // No background issuing/sending: office explicitly previews each document.
+      if (typeof renderRechnungen === 'function') renderRechnungen();
     }
 
     function watchCompletedJobsForInvoices() {
@@ -916,6 +854,11 @@
       closeUserMenu();
       const sb = getSupabase();
       if (window._authEmail && sb) {
+        await window.MosaDB?.flush();
+        if (JSON.parse(localStorage.getItem('mosaos-sync-queue-v1') || '[]').length) {
+          toast('Noch nicht alle Änderungen sind in der Cloud. Bitte zuerst synchronisieren oder über den Speicherstatus sichern. Danach erneut abmelden.','error');
+          return;
+        }
         if (!confirm('Abmelden? Zur Sicherheit werden die lokal gespeicherten Daten auf diesem Gerät entfernt. Sie bleiben in der Cloud gesichert und werden beim nächsten Login automatisch neu geladen.')) return;
         try { await sb.auth.signOut(); } catch {}
         try { clearLocalCache(); } catch {}
@@ -1208,22 +1151,40 @@
       return out.sort((a,b) => a._dateKey.localeCompare(b._dateKey));
     }
 
-    function renderRechnungen() {
+    let invoiceRenderVersion=0;
+    async function renderRechnungen() {
+      const renderVersion=++invoiceRenderVersion;
       const selEl = document.getElementById('invMonth');
       if (!selEl) return;
       if (!selEl.value) selEl.value = nkMonthDefault();
       const ym = selEl.value;
       const jobs = collectRechnungsJobs(ym);
+      if(window._authEmail && !window.MOSAOS_DEMO_MODE && jobs.length){
+        try{
+          const ids=jobs.map(j=>j._jobId || j.id).filter(Boolean);
+          const {data,error}=await getSupabase().from('job_invoices').select('job_id,number,document,delivery_status,sent_at').eq('tenant_id',window._tenantId).in('job_id',ids);
+          if(renderVersion!==invoiceRenderVersion)return;
+          if(error)throw error;
+          const archive=new Map((data || []).map(row=>[row.job_id,row]));
+          jobs.forEach(j=>{j._invoice=archive.get(j._jobId || j.id);});
+        }catch{
+          const body=document.getElementById('invBody');
+          if(body)body.innerHTML='<tr><td colspan="5" role="alert">Rechnungsarchiv nicht erreichbar. Bitte Verbindung und Datenbank-Aktualisierung prüfen; es werden keine Ersatzbeträge angezeigt.</td></tr>';
+          return;
+        }
+      }
       const filter = document.getElementById('invStatusFilter')?.value || 'alle';
       const statuses = loadInvoiceStatuses();
       const invL = coLocale(loadCompany());
       // Währung im Tabellenkopf folgt dem Firmenland (CHF/EUR) — Platzhalter {cur} ersetzen.
       const thAmt = document.getElementById('invThAmount');
       if (thAmt) thAmt.textContent = tt('inv.thAmount', 'Betrag ({cur} inkl.)').replace('{cur}', invL.cur);
-      const sumOf = arr => arr.reduce((s, j) => s + (Number(j.price||0) * (1 + invL.vat)), 0);
-      const fmtChf = n => n.toFixed(2) + ' ' + invL.cur;
+      const amount=j=>j._invoice ? Number(j._invoice.document.gross) : Number(j.price || 0)*(1+invL.vat);
+      const currency=j=>j._invoice?.document.currency || invL.cur;
+      const sumOf = arr => {const totals={};arr.forEach(j=>{const c=currency(j);totals[c]=(totals[c] || 0)+amount(j);});return totals;};
+      const fmtChf = totals => Object.entries(totals).map(([c,n])=>n.toFixed(2)+' '+escapeHtml(c)).join(' / ') || '0.00 '+invL.cur;
 
-      const rechnungsStatus = j => statuses[j._jobKey] || (j.invoiceStatus === 'sent' ? 'gesendet' : 'offen');
+      const rechnungsStatus = j => statuses[j._jobKey] || ((j._invoice?.delivery_status==='sent' || j.invoiceStatus === 'sent') ? 'gesendet' : 'offen');
       const offen    = jobs.filter(j => rechnungsStatus(j) === 'offen');
       const gesendet = jobs.filter(j => rechnungsStatus(j) === 'gesendet');
       const bezahlt  = jobs.filter(j => statuses[j._jobKey] === 'bezahlt');
@@ -1260,25 +1221,47 @@
       const ST_LABELS = { offen: 'Offen', gesendet: 'Gesendet', bezahlt: 'Bezahlt ✓' };
       body.innerHTML = visibleJobs.map(j => {
         const stored = statuses[j._jobKey];
-        const st = stored || (j.invoiceStatus === 'sent' ? 'gesendet' : 'offen');
-        const netto  = Number(j.price || 0);
-        const brutto = (netto * (1 + invL.vat)).toFixed(2);
+        const st = rechnungsStatus(j);
+        const brutto = amount(j).toFixed(2)+' '+escapeHtml(currency(j));
         const dFmt   = new Date(j._dateKey + 'T00:00:00').toLocaleDateString(invL.dateLoc, { day:'2-digit', month:'2-digit', year:'numeric' });
         const custName = j._customer ? customerDisplayName(j._customer) : (j.objekt || '—');
         const jkSafe = j._jobKey.replace(/'/g, "\\'");
         const dkSafe = j._dateKey;
         return `<tr>
           <td>${dFmt}</td>
-          <td><strong>${escapeHtml(j.objekt||'—')}</strong><br><span style="font-size:11.5px;color:var(--text-subtle);">${escapeHtml(custName)}</span></td>
+          <td><strong>${escapeHtml(j.objekt||'—')}</strong><br><span style="font-size:13px;color:var(--text-subtle);">${escapeHtml(custName)} · ${j._invoice ? escapeHtml(j._invoice.number) : 'Noch nicht ausgestellt'}</span></td>
           <td style="text-align:right;font-variant-numeric:tabular-nums;">${brutto}</td>
-          <td><span class="inv-status-badge inv-status-${st}" onclick="cycleInvoiceStatus('${jkSafe}','${st}')" title="${st === 'offen' ? 'Gesendet folgt automatisch nach erfolgreichem Versand' : 'Klicken: gesendet ↔ bezahlt'}">${ST_LABELS[st]}</span></td>
+          <td><span class="inv-status-badge inv-status-${st}" onclick="cycleInvoiceStatus('${jkSafe}','${st}')" title="${st === 'offen' ? 'Versand nur nach deiner Bestätigung' : 'Klicken: gesendet ↔ bezahlt'}">${ST_LABELS[st]}</span></td>
           <td style="text-align:right;">
-            ${st !== 'bezahlt'
-              ? `<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="generateInvoiceForJobFromKey('${jkSafe}','${dkSafe}')">PDF ↓</button>${j.invoiceStatus === 'failed' ? `<div style="font-size:10px;color:var(--danger);margin-top:4px;max-width:220px;">${escapeHtml(j.invoiceSendError || tt('job.invoiceSendFailed','Versand fehlgeschlagen'))}</div>` : ''}${j.invoiceStatus === 'delivery_unknown' ? `<div style="font-size:10px;color:var(--warning);margin-top:4px;max-width:220px;">${escapeHtml(tt('job.invoiceDeliveryUnknownShort','Versandstatus unklar — nicht erneut gesendet'))}</div>` : ''}`
-              : '<span style="color:var(--text-subtle);font-size:12px;">—</span>'}
+            <button class="btn btn-secondary" onclick="generateInvoiceForJobFromKey('${jkSafe}','${dkSafe}')">PDF / Vorschau</button>
+            ${j.status === 'beendet' && st==='offen' ? `${!j._invoice ? `<button class="btn btn-secondary" onclick="issueInvoiceFromKey('${jkSafe}','${dkSafe}')">Ausstellen</button>` : ''}
+            <button class="btn btn-secondary" onclick="sendInvoiceFromKey('${jkSafe}','${dkSafe}')">Per E-Mail senden</button>` : ''}
+            ${j.invoiceSendError ? `<div role="status">${escapeHtml(j.invoiceSendError)}</div>` : ''}
           </td>
         </tr>`;
       }).join('');
+    }
+
+    async function issueInvoiceFromKey(jobKey,dateKey) {
+      if (!requirePerm('edit_prices','Rechnung ausstellen')) return;
+      const job=getJobsForDate(new Date(dateKey)).find(j=>nkJobKey({...j,_dateKey:dateKey})===jobKey);
+      if (!job || !confirm('Vorschau geprüft? Rechnung verbindlich ausstellen und unveränderlich archivieren?')) return;
+      await generateInvoiceForJob(job,dateKey,{issue:true});
+      renderRechnungen();
+    }
+    async function sendInvoiceFromKey(jobKey,dateKey) {
+      if (!requirePerm('edit_prices','Rechnung versenden')) return;
+      const job=getJobsForDate(new Date(dateKey)).find(j=>nkJobKey({...j,_dateKey:dateKey})===jobKey);
+      const mailbox=invoiceMailbox();
+      if (!job || !mailbox) { toast('Bitte zuerst ein sicheres Gmail-Postfach verbinden.','error');return; }
+      const invoice=await generateInvoiceForJob(job,dateKey,{download:false,quiet:true});
+      if (!invoice?.issued) {toast('Bitte die Vorschau prüfen und zuerst die Rechnung ausstellen.','error');return;}
+      if (!invoice.email || !confirm('Rechnung '+invoice.invNr+' als PDF von '+mailbox.email+' an '+invoice.email+' senden?')) return;
+      try {
+        const result=await mailFunction('send-job-invoice',{method:'POST',body:{jobId:job._jobId || job.id,accountId:mailbox.id}});
+        await persistJobBilling(job,dateKey,{invoiceNumber:invoice.invNr,invoiceStatus:'sent',invoiceSentAt:result.sentAt,invoiceSendError:null});
+        renderRechnungen();toast('Rechnung versendet.');
+      } catch(error) {toast('Versand nicht bestätigt: '+error.message+'. Nicht automatisch erneut senden.','error');}
     }
 
     function generateInvoiceForJobFromKey(jobKey, dateKey) {
@@ -1295,11 +1278,12 @@
       const jobs = collectRechnungsJobs(ym).filter(j => (statuses[j._jobKey] || (j.invoiceStatus === 'sent' ? 'gesendet' : 'offen')) === 'offen');
       if (!jobs.length) { toast('Keine offenen Rechnungen im Monat'); return; }
       toast(`${tt('toastdyn.creating','Erstelle')} ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} …`);
+      let created = 0;
       for (const j of jobs) {
-        await generateInvoiceForJob(j, j._dateKey);
+        if (await generateInvoiceForJob(j, j._dateKey)) created++;
         await new Promise(r => setTimeout(r, 500));
       }
-      toast(`✓ ${jobs.length} PDF${jobs.length > 1 ? 's' : ''} ${tt('job.pdfsCreated','erstellt')}`);
+      toast(`${created} von ${jobs.length} PDFs erstellt.`, created === jobs.length ? undefined : 'error');
     }
 
     document.querySelector('.nav-item[data-view="rechnungen"]')?.addEventListener('click', () => {

@@ -19,25 +19,20 @@
     // ============ Preis-System ============
     const defaultPrices = {
       'unterhalt-rate': 35, 'unterhalt-min': 1, 'unterhalt-fee': 0,
-      'end-qm': 3.2, 'end-min': 250, 'end-fee': 25,
+      'end-rate': 45, 'end-qm': 3.2, 'end-min': 250, 'end-fee': 25,
       'end-fenster': 35, 'end-backofen': 35, 'end-kuehlschrank': 25, 'end-balkon': 30, 'end-keller': 30,
       'fenster-rate': 40, 'fenster-leiter': 15, 'fenster-hubsteiger': 150, 'fenster-min': 2, 'fenster-fee': 20,
       'fenster-rahmen': 30, 'fenster-rolladen': 40, 'fenster-baenke': 20,
-      'bau-qm': 2.8, 'bau-min': 400, 'bau-fee': 35,
+      'bau-rate': 55, 'bau-qm': 2.8, 'bau-min': 400, 'bau-fee': 35,
       'bau-schutt': 120, 'bau-container': 250, 'bau-estrich': 90, 'bau-kleber': 90,
       'fassade-stator': 8.5, 'fassade-algen': 3.5, 'fassade-impraeg': 4.0, 'fassade-graffiti': 12,
       'fassade-hubsteiger': 180, 'fassade-geruest': 350, 'fassade-seil': 220, 'fassade-min': 800
     };
 
     function loadPrices() {
-      const saved = JSON.parse(localStorage.getItem('cc-prices') || '{}');
-      // Migration: altes Stundensatz-Modell (end-rate/bau-rate) → €/m².
-      // end-min/bau-min wurden von „Stunden" auf „€ Mindestauftrag" umgewidmet.
-      if (saved['end-rate'] !== undefined || saved['bau-rate'] !== undefined) {
-        delete saved['end-rate']; delete saved['bau-rate'];
-        delete saved['end-min'];  delete saved['bau-min'];
-        localStorage.setItem('cc-prices', JSON.stringify(saved));
-      }
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem('cc-prices') || '{}'); } catch {}
+      // Current hourly and area prices coexist. Never infer a migration from a live field.
       Object.entries(defaultPrices).forEach(([key, val]) => {
         const el = document.querySelector(`[data-price="${key}"]`);
         if (el) el.value = saved[key] !== undefined ? saved[key] : val;
@@ -95,7 +90,7 @@
     }
 
     function collectWizardAddons() {
-      return Array.from(document.querySelectorAll(`#modal-newAuftrag [data-addon-price].on`)).map(chip => ({
+      return Array.from(document.querySelectorAll(`.svc-options[data-svc-opts="${wizService}"] [data-addon-price].on`)).map(chip => ({
         key: chip.dataset.addonPrice,
         label: wizardAddonLabel(chip),
         kind: chip.dataset.addonKind || 'flat',
@@ -126,15 +121,23 @@
     // oder nach Zeit rechnet.
     function getPriceMode(dienst) {
       try {
-        const d = JSON.parse(localStorage.getItem('cc-price-modes') || '{}');
+        const prices = JSON.parse(localStorage.getItem('cc-prices') || '{}');
+        const d = prices._modes || JSON.parse(localStorage.getItem('cc-price-modes') || '{}');
         return d[dienst] || 'qm';
       } catch { return 'qm'; }
     }
 
     function setPriceMode(dienst, modus) {
+      if (!['end','bau'].includes(dienst) || !['std','qm'].includes(modus)) return;
+      if (!requirePerm('edit_prices', 'Preise')) return;
+      const prices = JSON.parse(localStorage.getItem('cc-prices') || '{}');
       let d = {}; try { d = JSON.parse(localStorage.getItem('cc-price-modes') || '{}'); } catch {}
+      d = {...d,...prices._modes};
       d[dienst] = modus;
       localStorage.setItem('cc-price-modes', JSON.stringify(d));
+      prices._modes = d;
+      localStorage.setItem('cc-prices', JSON.stringify(prices));
+      window.MosaDB?.push('company_prices', prices);
       renderPriceModes();
       if (typeof toast === 'function') {
         toast(modus === 'std' ? 'Wird jetzt nach Stunden abgerechnet.'
@@ -166,11 +169,13 @@
       localStorage.setItem('cc-prices', JSON.stringify(data));
     }
 
-    function savePrices() {
+    async function savePrices() {
       if (!requirePerm('edit_prices', 'Preise')) return;
       onPriceChange();
-      try { window.MosaDB?.push('company_prices', JSON.parse(localStorage.getItem('cc-prices')) || {}); } catch {}
-      toast(`✓ ${tt('toastdyn.pricesSavedA','Preise gespeichert (von ')}${getUserName(currentUser)}${tt('toastdyn.pricesSavedB',') — gelten ab nächstem Auftrag')}`);
+      try {
+        const saved=await window.MosaDB?.push('company_prices', JSON.parse(localStorage.getItem('cc-prices')) || {});
+        toast(saved ? 'Preise gespeichert — gelten ab nächstem Auftrag.' : 'Preise lokal gespeichert. Die Cloud-Synchronisierung steht noch aus.');
+      } catch { toast('Preise noch nicht synchronisiert. Bitte den Speicherstatus prüfen.','error'); }
     }
 
     let priceOverrideActive = false;
@@ -315,214 +320,79 @@
       if (gilt) auf15Runden(el);
     }, true);
 
+    function servicePricingDefinition(service) {
+      const custom = genericServiceDef(service);
+      if (isGenericVertical() || custom?.isCustom) {
+        if (!custom) return null;
+        return {unit:custom.unit || 'flat',rate:genericServicePrice(service),
+          minQty:custom.unit === 'h' ? Number(custom.minQty)||0 : 0,
+          minTotal:custom.unit !== 'h' ? Number(custom.minQty)||0 : 0,fee:Number(custom.fee)||0};
+      }
+      const hourly = (name) => ({unit:'h',rate:getPrice(name+'-rate'),minQty:getPrice(name+'-min'),fee:getPrice(name+'-fee')});
+      if (service === 'unterhalt' || service === 'fenster') return hourly(service);
+      if (service === 'end' || service === 'bau') return {
+        unit:getPriceMode(service)==='std'?'h':'qm',
+        rate:getPrice(service+(getPriceMode(service)==='std'?'-rate':'-qm')),
+        minTotal:getPrice(service+'-min'),fee:getPrice(service+'-fee')};
+      if (service === 'fassade') return {unit:'qm',rate:getPrice('fassade-stator'),minTotal:getPrice('fassade-min'),fee:0};
+      return null;
+    }
+
+    function calculateServicePrice(service, quantity, addons = [], override) {
+      const def = servicePricingDefinition(service);
+      if (!def) return null;
+      return MosaPricing.calculate({...def,quantity,addons,override,
+        label:(typeof svcShortLabels !== 'undefined' && svcShortLabels[service]) || service});
+    }
+
     function wizCalcPrice() {
-      const hoursEl = document.getElementById('wizDuration');
-      const out = document.getElementById('wizPriceCalc');
-      const hint = document.getElementById('wizPriceHint');
-      const currency = coLocale(loadCompany()).cur;
-      // Generische Branchen: Stundensatz × Dauer ODER Pauschale × Anzahl.
-      if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
-        if (priceOverrideActive) {
-          const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
-          if (out) out.textContent = currency + ' ' + ov.toFixed(2);
-          if (hint) hint.textContent = 'eigener Preis';
-          return ov;
-        }
-        const def = genericServiceDef(wizService);
-        const base = genericServicePrice(wizService);
-        const mindest = Number(def?.minQty) || 0;
-        const anfahrt = Number(def?.fee) || 0;
-        let price, htxt;
-        if (def && def.unit === 'h') {
-          const roh = parseFloat(hoursEl?.value) || 0;
-          const hours = Math.max(roh, mindest);      // Mindestbuchung
-          price = Math.round((hours * base) * 20) / 20;
-          htxt = `${String(hours).replace('.', ',')} Std × ${currency} ${base}`
-               + (hours > roh ? ` (Mindestbuchung)` : '');
-        } else if (def && def.unit === 'qm') {
-          const qm = parseInt(document.getElementById('wizGenericQty')?.value) || 1;
-          price = Math.round((base * qm) * 20) / 20;
-          htxt = `${qm} m² × ${currency} ${base}`;
-        } else {
-          const qty = parseInt(document.getElementById('wizGenericQty')?.value) || 1;
-          price = Math.round((base * qty) * 20) / 20;
-          htxt = qty > 1 ? `${qty} × ${currency} ${base} pauschal` : `Pauschale ${currency} ${base}`;
-        }
-        // Mindestauftrag bei m² und Pauschale, danach die Anfahrt
-        if (def && def.unit !== 'h' && mindest > 0 && price < mindest) {
-          price = mindest;
-          htxt += ` · Mindestauftrag ${currency} ${mindest}`;
-        }
-        if (anfahrt > 0) {
-          price = Math.round((price + anfahrt) * 20) / 20;
-          htxt += ` + ${currency} ${anfahrt} Anfahrt`;
-        }
-        if (out) out.textContent = currency + ' ' + price.toFixed(2);
-        if (hint) hint.textContent = htxt;
-        return price;
-      }
-      if (priceOverrideActive) {
-        const ov = parseFloat(document.getElementById('priceOverride')?.value) || 0;
-        if (out) out.textContent = currency + ' ' + ov.toFixed(2);
-        if (hint) hint.textContent = 'eigener Preis';
-        return ov;
-      }
-      const detailed = calcPriceForService();
-      if (!detailed) return 0;
-      const price = Math.round(detailed.total * 20) / 20;
-      if (out) out.textContent = currency + ' ' + price.toFixed(2);
-      if (hint) hint.textContent = detailed.rateStr + (detailed.fee ? ` + ${currency} ${detailed.fee} Anfahrt/Zusätze` : '');
-      return price;
+      const result = calcPriceForService();
+      if (!result) return 0;
+      const cur = coLocale(loadCompany()).cur;
+      const out = document.getElementById('wizPriceCalc'), hint = document.getElementById('wizPriceHint');
+      if (out) out.textContent = cur + ' ' + result.total.toFixed(2);
+      if (hint) hint.textContent = result.rateStr + ' · netto' + (result.manual ? ' · Preis manuell vereinbart' : '');
+      return result.total;
     }
 
     function calcPriceForService(fromDetails = false) {
       if (!wizService) return null;
-      const currency = coLocale(loadCompany()).cur;
-
-      let mins = 0;
-      let rate = 0;
-      let minHours = 0;
-      let fee = 0;
-      let breakdown = [];
-      const crew = Math.max(1, parseInt(document.getElementById('wizCrew')?.value) || 1);
-      let laborMins = 0;
-
-      if (wizService === 'unterhalt') {
-        // :nth-of-type(2) traf nie etwas — jedes Feld sitzt in einem eigenen
-        // Container, ist dort also das erste seiner Art. Die eingegebene Dauer
-        // wurde deshalb ignoriert und immer mit 90 Minuten gerechnet.
-        const area = parseInt(document.querySelector('.svc-options[data-svc-opts="unterhalt"] input[type="number"]')?.value || 120);
-        laborMins = Math.max(30, Math.round(area * 0.75));
-        mins = fromDetails ? Math.max(15, Math.ceil((laborMins / crew) / 15) * 15) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 1.5) * 60);
-        rate = getPrice('unterhalt-rate');
-        minHours = getPrice('unterhalt-min');
-        fee = getPrice('unterhalt-fee');
-      }
-
-      else if (wizService === 'end') {
-        const flaeche = parseInt(document.getElementById('endFlaeche')?.value || 65);
-        const raeume = parseInt(document.getElementById('endRaeume')?.value || 2);
-        const qmPrice = getPrice('end-qm');
-        let addMins = 0;
-        document.querySelectorAll('.add-task.on').forEach(t => addMins += parseInt(t.dataset.time || 0));
-        const feeEnd = getPrice('end-fee');
-        const minAuftrag = getPrice('end-min');
-        const vorgeschlagen = grunddauer(flaeche, raeume) + addMins;
-        const durMins = fromDetails ? Math.max(15, Math.ceil((vorgeschlagen / crew) / 15) * 15) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / crew / 60) * 60);
-        // Der Betrieb entscheidet in den Einstellungen, ob nach Flaeche oder
-        // nach Zeit abgerechnet wird. Die Dauer bleibt in beiden Faellen gleich.
-        const nachStunden = getPriceMode('end') === 'std';
-        const stundensatz = getPrice('end-rate');
-        const personalMins = fromDetails ? vorgeschlagen : durMins * crew;
-        const base = nachStunden ? (personalMins / 60) * stundensatz : flaeche * qmPrice;
-        const usedMin = base < minAuftrag;
-        return {
-          total: Math.max(base, minAuftrag) + feeEnd + selectedFixedAddons('.svc-options[data-svc-opts="end"]'),
-          mins: durMins,
-          laborMins: personalMins,
-          dur: crew > 1 ? `${(durMins/60).toFixed(2).replace('.', ',')} h Einsatz · ${(personalMins/60).toFixed(2).replace('.', ',')} Personalstunden` : `${Math.floor(durMins/60)}h ${durMins%60}min`,
-          rateStr: nachStunden
-            ? `${crew} Pers. × ${(durMins/60).toFixed(2).replace('.', ',')} h × ${currency} ${stundensatz}`
-            : `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
-          fee: feeEnd,
-          showFee: feeEnd > 0,
-          minApplied: usedMin,
-          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} ${currency}` : null,
-          breakdown: []
-        };
-      }
-
-      else if (wizService === 'fenster') {
-        const count = parseInt(document.querySelector('.svc-options[data-svc-opts="fenster"] input[type="number"]')?.value || 24);
-        laborMins = Math.max(30, count * 5);
-        mins = fromDetails ? Math.max(15, Math.ceil((laborMins / crew) / 15) * 15) : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || 2) * 60);
-        rate = getPrice('fenster-rate');
-        // check if "mit Leiter" or "Hubsteiger" selected
-        const leiterChips = document.querySelectorAll('.svc-options[data-svc-opts="fenster"] .opt-row:first-of-type .opt-chip.on');
-        const leiterText = leiterChips[0]?.textContent || '';
-        if (leiterText.includes('Leiter')) {
-          const aufschlag = wizardAddonUnitPrice(leiterChips[0]);
-          rate = rate * (1 + aufschlag / 100);
-          breakdown.push(`+${aufschlag}% Leiter-Aufschlag`);
-        }
-        minHours = getPrice('fenster-min');
-        fee = getPrice('fenster-fee');
-        fee += selectedFixedAddons('.svc-options[data-svc-opts="fenster"]');
-      }
-
-      else if (wizService === 'bau') {
-        const flaeche = parseInt(document.querySelector('.svc-options[data-svc-opts="bau"] input[type="number"]')?.value || 200);
-        const cleaners = crew;
-        const qmPrice = getPrice('bau-qm');
-        const feeBau = getPrice('bau-fee');
-        const minAuftrag = getPrice('bau-min');
-        const nachStundenBau = getPriceMode('bau') === 'std';
-        const satzBau = getPrice('bau-rate');
-        const personalMins = Math.round(flaeche * ladeZeitfaktoren().bauProQm);
-        const vorgeschlagen = Math.max(15, Math.ceil((personalMins / cleaners) / 15) * 15);
-        const durMins = fromDetails ? vorgeschlagen : Math.round((parseFloat(document.getElementById('wizDuration')?.value) || vorgeschlagen / 60) * 60);
-        const billedPersonalMins = fromDetails ? personalMins : durMins * cleaners;
-        const base = nachStundenBau ? (billedPersonalMins / 60) * satzBau : flaeche * qmPrice;
-        const usedMin = base < minAuftrag;
-        return {
-          total: Math.max(base, minAuftrag) + feeBau + selectedFixedAddons('.svc-options[data-svc-opts="bau"]'),
-          mins: durMins,
-          laborMins: billedPersonalMins,
-          dur: cleaners > 1 ? `${(durMins/60).toFixed(2).replace('.', ',')} h Einsatz · ${(billedPersonalMins/60).toFixed(2).replace('.', ',')} Personalstunden` : `${Math.floor(durMins/60)}h ${durMins%60}min`,
-          rateStr: nachStundenBau
-            ? `${cleaners} Pers. × ${(durMins/60).toFixed(2).replace('.', ',')} h × ${currency} ${satzBau}`
-            : `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
-          fee: feeBau,
-          showFee: feeBau > 0,
-          minApplied: usedMin,
-          minStr: usedMin ? `Mindestauftrag ${minAuftrag.toFixed(2)} ${currency}` : null,
-          breakdown: cleaners > 1 ? [`${cleaners} ${VT('feldMitarbeiterPlural')}`] : []
-        };
-      }
-
-      else if (wizService === 'fassade') {
-        const flaeche = parseInt(document.querySelector('.svc-options[data-svc-opts="fassade"] input[type="number"]')?.value || 350);
-        let qmPrice = 0;
-        const verfahren = document.querySelectorAll('.svc-options[data-svc-opts="fassade"] .opt-row:first-of-type .opt-chip.on');
-        verfahren.forEach(chip => {
-          const t = chip.textContent;
-          if (t.includes('Stator')) qmPrice += wizardAddonUnitPrice(chip);
-          if (t.includes('Algen')) qmPrice += wizardAddonUnitPrice(chip);
-          if (t.includes('Imprägn')) qmPrice += wizardAddonUnitPrice(chip);
-          if (t.includes('Graffiti')) qmPrice += wizardAddonUnitPrice(chip);
-        });
-        const subtotal = qmPrice * flaeche;
-        const minAuftrag = getPrice('fassade-min');
-        const usedMin = subtotal < minAuftrag;
-        return {
-          total: Math.max(subtotal, minAuftrag) + selectedFixedAddons('.svc-options[data-svc-opts="fassade"]'),
-          dur: '~' + Math.round(flaeche * 0.4) + ' min',
-          rateStr: `${qmPrice.toFixed(2)} ${currency}/m² × ${flaeche} m²`,
-          fee: 0,
-          showFee: false,
-          minApplied: usedMin,
-          minStr: usedMin ? `${minAuftrag.toFixed(2)} ${currency}` : null
-        };
-      }
-
-      const personalMins = fromDetails ? (laborMins || mins * crew) : mins * crew;
-      const hours = personalMins / 60;
-      const billedHours = Math.max(hours, minHours);
-      const minApplied = hours < minHours;
-      const subtotal = billedHours * rate + fee;
-
-      return {
-        total: subtotal,
-        mins: mins,
-        laborMins: personalMins,
-        dur: crew > 1 ? `${(mins/60).toFixed(2).replace('.', ',')} h Einsatz · ${(personalMins/60).toFixed(2).replace('.', ',')} Personalstunden` : `${Math.floor(mins/60)}h ${mins%60}min`,
-        rateStr: `${crew} Pers. × ${(mins/60).toFixed(2).replace('.', ',')} h × ${rate.toFixed(2)} ${currency}/h`,
-        fee: fee,
-        showFee: fee > 0,
-        minApplied: minApplied,
-        minStr: minApplied ? `${minHours} h Pauschale` : null,
-        breakdown: breakdown
+      const def = servicePricingDefinition(wizService);
+      if (!def) return null;
+      const generic = isGenericVertical() || genericServiceDef(wizService)?.isCustom;
+      const crew = generic ? 1 : Math.max(1,parseInt(document.getElementById('wizCrew')?.value)||1);
+      const inputNumber = (selector, fallback) => {
+        const value = Number(document.querySelector(selector)?.value);
+        return Number.isFinite(value) && value > 0 ? value : fallback;
       };
+      let area = inputNumber('.svc-options[data-svc-opts="'+wizService+'"] input[type="number"]',1);
+      let laborMins = 90;
+      if (wizService === 'end') {
+        area=inputNumber('#endFlaeche',65);
+        laborMins=grunddauer(area,inputNumber('#endRaeume',2));
+        document.querySelectorAll('.svc-options[data-svc-opts="end"] .add-task.on').forEach(t=>laborMins+=Number(t.dataset.time)||0);
+      } else if (wizService === 'bau') laborMins=area*ladeZeitfaktoren().bauProQm;
+      else if (wizService === 'unterhalt') laborMins=Math.max(30,area*.75);
+      else if (wizService === 'fenster') laborMins=Math.max(30,area*5);
+      else if (wizService === 'fassade') laborMins=area*.4;
+      const suggested=Math.max(15,Math.ceil(laborMins/crew/15)*15);
+      const mins=fromDetails?suggested:Math.round(inputNumber('#wizDuration',suggested/60)*60);
+      // The displayed duration is the billed duration, including quarter-hour rounding.
+      const personalMins=mins*crew;
+      const quantity=generic ? (def.unit==='h'?mins/60:inputNumber('#wizGenericQty',1)) : def.unit==='h'?personalMins/60:area;
+      const chips=Array.from(document.querySelectorAll('.svc-options[data-svc-opts="'+wizService+'"] [data-addon-price].on'));
+      const addons=generic?[]:chips.filter(chip=>wizService!=='fassade'||chip.dataset.addonKind!=='qm')
+        .map(chip=>({key:chip.dataset.addonPrice,label:wizardAddonLabel(chip),kind:chip.dataset.addonKind||'flat',price:wizardAddonUnitPrice(chip)}));
+      if (wizService==='fassade') def.rate=chips.filter(chip=>chip.dataset.addonKind==='qm')
+        .reduce((sum,chip)=>sum+wizardAddonUnitPrice(chip),0);
+      const override=priceOverrideActive?Number(document.getElementById('priceOverride')?.value||0):undefined;
+      const result=MosaPricing.calculate({...def,quantity,addons,override,
+        label:(typeof svcShortLabels!=='undefined'&&svcShortLabels[wizService])||wizService});
+      const cur=coLocale(loadCompany()).cur;
+      return {...result,mins,laborMins:personalMins,dur:(mins/60).toFixed(2)+' h Einsatz · '+(personalMins/60).toFixed(2)+' Personenstunden',
+        rateStr:quantity+' '+(def.unit==='qm'?'m²':def.unit==='h'?'Personenstunden':'×')+' × '+def.rate.toFixed(2)+' '+cur,
+        showFee:result.fee>0,minStr:result.minApplied?'Mindestbuchung / Mindestauftrag berücksichtigt':null,
+        breakdown:result.lines.slice(1).map(line=>line.label+': '+line.amount.toFixed(2)+' '+cur)};
     }
 
     function updatePriceSummary() {
@@ -572,11 +442,12 @@
     }
 
     function togglePriceOverride() {
+      const automaticPrice = !priceOverrideActive ? calcPriceForService() : null;
       priceOverrideActive = !priceOverrideActive;
       const field = document.getElementById('priceOverrideField');
       field.style.display = priceOverrideActive ? 'flex' : 'none';
       if (priceOverrideActive) {
-        const p = calcPriceForService();
+        const p = automaticPrice;
         document.getElementById('priceOverride').value = p ? p.total.toFixed(2) : '';
       }
       updatePriceSummary();

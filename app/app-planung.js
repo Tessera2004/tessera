@@ -216,11 +216,11 @@
     // Mitarbeiter eines Teams an einem bestimmten Tag (Tages-Crew überschreibt Stamm)
     function teamMembersOnDay(teamId, dateKey) {
       const dc = getDayCrew(dateKey);
-      if (!dc) return EMPLOYEES.filter(e => e.teamId === teamId);
+      if (!dc) return EMPLOYEES.filter(e => e.teamId === teamId && (e.status || 'aktiv')==='aktiv');
       const absent = new Set(dc.absent || []);
       const ass = dc.assignments || {};
       return EMPLOYEES.filter(e => {
-        if (absent.has(e.id)) return false;
+        if (absent.has(e.id) || (e.status || 'aktiv')!=='aktiv') return false;
         const dayTeam = ass[e.id] || e.teamId;
         return dayTeam === teamId;
       });
@@ -286,6 +286,7 @@
           };
         }
         const merged = { ...base, ...j, ...ov, customerId: custId };
+        merged.plannedCrew = Math.max(Number(merged.crew) || 1, merged.assigned?.length || 0);
         merged.status = normalisiereAuftragsstatus(merged.status, dateKey);
         // Customer-Objekt mitliefern (für UI), aber NICHT in localStorage zurückschreiben
         merged._customer = cust || null;
@@ -319,6 +320,7 @@
       const addedJobs = (loadPlanJobs()[dateKey] || []).map((j) => {
         const cust = j.customerId ? customers.find(c => c.id === j.customerId) : null;
         const merged = { ...j, status: normalisiereAuftragsstatus(j.status, dateKey), customerId: j.customerId || null, _customer: cust || null, _added: true, _jobId: j.id, _dateKey: dateKey };
+        merged.plannedCrew = Math.max(Number(merged.crew) || 1, merged.assigned?.length || 0);
         const team = PLAN_TEAMS.find(t => t.id === merged.team);
         if (merged.status === 'provisorisch') {
           merged.assigned = [];
@@ -639,7 +641,7 @@
               <div>${durStr.trim()}</div>
             </div>
           </div>`;
-        }).join('') : '<div class="timeline-empty">— frei —</div>';
+        }).join('') : '<div class="timeline-empty">'+(jobs.some(j=>parseHM(j.start)<h*60 && parseHM(j.start)+j.duration>h*60)?'Einsatz läuft weiter':'Kein Einsatzbeginn in dieser Stunde')+'</div>';
 
         rows.push(`<div class="timeline-row ${isNow ? 'is-now' : ''}">
           <div class="timeline-hour ${isNow ? 'is-now' : ''}">${String(h).padStart(2,'0')}:00</div>

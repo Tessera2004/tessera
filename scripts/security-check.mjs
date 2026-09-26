@@ -40,7 +40,9 @@ assert(checkin.includes("'/functions/v1/checkin'"), 'Check-in must use the harde
 assert(app.includes("'/functions/v1/create-checkin-token'"), 'QR creation must request a server token');
 assert(app.includes("'/functions/v1/create-invite'"), 'Invites must use a server token');
 assert(invoiceDelivery.includes('authenticatedTenant(req)'), 'Invoice delivery must require an authenticated tenant');
-assert(invoiceDelivery.includes(".rpc('claim_job_invoice_delivery'"), 'Invoice delivery must atomically claim a job');
+assert(invoiceDelivery.includes("update({delivery_status:'sending'})") && invoiceDelivery.includes(".in('delivery_status',['pending','failed']).select('id').maybeSingle()") && invoiceDelivery.includes('if(!claimed)'), 'Invoice delivery must atomically claim only unsent archived invoices');
+assert(invoiceDelivery.includes('invoice.pdf_base64') && invoiceDelivery.includes('invoice.document.email') && !invoiceDelivery.includes('body.pdf'), 'Delivery must use the immutable invoice and recipient, never a browser-supplied attachment');
+assert(invoiceDelivery.includes("sending?'delivery_unknown'") && invoiceDelivery.includes('ALREADY_SENT_OR_DELIVERY_UNCERTAIN'), 'Uncertain delivery must block automatic retries');
 assert(!/body\.(recipient|to|email)/.test(invoiceDelivery), 'Invoice recipient must not be accepted from the browser');
 assert(jobLifecycle.includes("j.invoice_status = 'pending'"), 'Invoice claim must only accept pending jobs');
 for (const table of ['mail_accounts','mail_oauth_states','mail_messages','mail_drafts']) {

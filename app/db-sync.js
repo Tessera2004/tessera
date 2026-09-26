@@ -384,6 +384,8 @@
         assigned: r.assigned || [], noteOffice: r.note_office,
         noteCrew: r.note_crew, seriesId: r.series_id || null, recurring: r.recurring || null,
         status: r.status || 'provisorisch', completedAt: r.completed_at || null,
+        pricing: r.details?.pricing || null, crew: r.details?.crew || 1, addons:r.details?.addons || [],
+        deadline:r.details?.deadline || '', planning:r.details?.planning || {},actualHours:r.details?.actualHours ?? null,
         invoiceNumber: r.invoice_number || null, invoiceStatus: r.invoice_status || null,
         invoiceCreatedAt: r.invoice_created_at || null, invoiceSentAt: r.invoice_sent_at || null,
         invoiceSendError: r.invoice_send_error || null, receiptCreatedAt: r.receipt_created_at || null });
@@ -495,10 +497,11 @@
         if (!j.id) return;
         rows.push({ id: j.id, tenant_id: tid, date_key: dateKey,
           customer_id: j.customerId || null, objekt: j.objekt || null,
-          ort: j.ort || null, svc: j.svc || null, price: j.price || null,
+          ort: j.ort || null, svc: j.svc || null, price: j.price ?? null,
           paymethod: j.paymethod || 'rechnung', start_time: j.start || null,
           end_time: j.end || null, duration: j.duration || null,
           team: j.team || null, assigned: j.assigned || [],
+          details: {pricing:j.pricing || null,crew:j.crew || 1,addons:j.addons || [],deadline:j.deadline || '',planning:j.planning || {},actualHours:j.actualHours ?? null},
           note_office: j.noteOffice || null, note_crew: j.noteCrew || null,
           series_id: j.seriesId || null, recurring: j.recurring || null,
           status: j.status || 'provisorisch', completed_at: j.completedAt || null,
@@ -518,14 +521,23 @@
   }
 
   const SYNC_QUEUE_KEY = 'mosaos-sync-queue-v1';
+  let initBaseline = null;
+  function assertUnchanged(key) {
+    if (initBaseline && localStorage.getItem(key) !== initBaseline[key]) {
+      throw new Error('Während des Ladens wurde lokal weitergearbeitet. Diese Änderungen wurden erhalten; bitte nach der Synchronisierung neu laden.');
+    }
+  }
   function setSyncState(state, detail) {
+    if (state === 'synced' && lsGet(SYNC_QUEUE_KEY, []).length) state = 'pending';
+    window._mosaSyncState={state,detail:detail || null};
     window.dispatchEvent(new CustomEvent('mosaos-sync-state', { detail: { state, detail: detail || null } }));
   }
   function enqueue(type, data) {
     const queue = lsGet(SYNC_QUEUE_KEY, []);
-    queue.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(), type, data, attempts: 0, queuedAt: new Date().toISOString() });
-    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue.slice(-250)));
+    queue.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(), tenantId: window._tenantId || null, type, data, attempts: 0, queuedAt: new Date().toISOString() });
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
     setSyncState('pending', queue.length);
+    return queue[queue.length - 1].id;
   }
   async function dbCall(query) {
     const result = await query;
@@ -536,6 +548,7 @@
   // Array-Tabelle: Remote-Rows + lokal-nur-vorhandene (per id) zusammenführen,
   // localStorage aktualisieren, die lokalen Neuzugänge nach Supabase pushen.
   async function mergeArray(key, remoteRows, rowToObj, pushType) {
+    assertUnchanged(key);
     let local = lsGet(key, []);
     if (!Array.isArray(local)) local = [];
     const remote = (remoteRows || []).map(rowToObj);
@@ -548,6 +561,7 @@
 
   // plan_jobs ist ein Dict { dateKey: [jobs] } — gleiche Logik per Job-id.
   async function mergeJobs(remoteRows) {
+    assertUnchanged('cc-plan-jobs-v1');
     const local = lsGet('cc-plan-jobs-v1', {});
     const remoteDict = unflattenJobs(remoteRows || []);
     const remoteIds = new Set((remoteRows || []).map(r => r.id));
@@ -579,12 +593,17 @@
   // ── dbInit ───────────────────────────────────────────────
 
   async function dbInit() {
+    if (initBaseline) return;
     const sb = getSb();
     if (!sb) return;
     const tid = await getTid();
     if (!tid) { window._dbReady = false; return; }
 
     try {
+      await flushQueue();
+      if (lsGet(SYNC_QUEUE_KEY, []).length) throw new Error('Ausstehende Änderungen zuerst synchronisieren; lokale Daten bleiben erhalten.');
+      const keys=['cc-users','cc-employees-v1','cc-teams-v1','cc-customers-v1','cc-tasks-v1','cc-reports-v1','cc-plan-jobs-v1','cc-company-v1','cc-prices','cc-features-v1','cc-roles-v1','cc-custom-services-v1','cc-vorlagen-v1','cc-zeitfaktoren-v1','cc-vehicles-v1','cc-workorders-v1','cc-tires-v1','cc-baitstations-v1','cc-sites-v1','cc-workreports-v1','cc-pestprotocols-v1'];
+      initBaseline=Object.fromEntries(keys.map(key=>[key,localStorage.getItem(key)]));
       const [ouR, empR, teamR, custR, jobR, taskR, repR, settR] = await Promise.all([
         sb.from('office_users').select('*').eq('tenant_id', tid),
         sb.from('employees').select('*').eq('tenant_id', tid),
@@ -595,6 +614,9 @@
         sb.from('reports').select('*').eq('tenant_id', tid),
         sb.from('company_settings').select('*').eq('tenant_id', tid).maybeSingle()
       ]);
+      for (const result of [ouR, empR, teamR, custR, jobR, taskR, repR, settR]) {
+        if (result.error) throw result.error;
+      }
 
       // Merge: Remote + lokal-nur-vorhandene Datensätze; lokale werden hochgeladen.
       // So gehen lokal (im Demo-Modus) angelegte Daten beim Login nicht verloren,
@@ -609,19 +631,26 @@
 
       // Firmen-Einstellungen: Remote anwenden, fehlende Teile aus lokal hochladen
       const settP = settR.data?.profile, settPr = settR.data?.prices, settFt = settR.data?.features, settRl = settR.data?.roles, settCs = settR.data?.custom_services, settTp = settR.data?.templates, settTf = settR.data?.time_factors;
+      assertUnchanged('cc-company-v1');
       if (settP && Object.keys(settP).length) localStorage.setItem('cc-company-v1', JSON.stringify(settP));
       else { const lp = lsGet('cc-company-v1', {}); if (Object.keys(lp).length) await push('company_profile', lp); }
+      assertUnchanged('cc-prices');
       if (settPr && Object.keys(settPr).length) localStorage.setItem('cc-prices', JSON.stringify(settPr));
       else { const lp = lsGet('cc-prices', {}); if (Object.keys(lp).length) await push('company_prices', lp); }
+      assertUnchanged('cc-features-v1');
       if (settFt && Object.keys(settFt).length) localStorage.setItem('cc-features-v1', JSON.stringify(settFt));
       else { const lp = lsGet('cc-features-v1', {}); if (Object.keys(lp).length) await push('company_features', lp); }
+      assertUnchanged('cc-roles-v1');
       if (Array.isArray(settRl) && settRl.length) localStorage.setItem('cc-roles-v1', JSON.stringify(settRl));
       else { const lp = lsGet('cc-roles-v1', []); if (Array.isArray(lp) && lp.length) await push('company_roles', lp); }
+      assertUnchanged('cc-custom-services-v1');
       if (Array.isArray(settCs)) localStorage.setItem('cc-custom-services-v1', JSON.stringify(settCs));
       else { const lp = lsGet('cc-custom-services-v1', []); if (Array.isArray(lp) && lp.length) await push('company_custom_services', lp); }
       // Eigene Textvorlagen und Zeitfaktoren — sonst sieht ein zweites Geraet sie nie
+      assertUnchanged('cc-vorlagen-v1');
       if (settTp && Object.keys(settTp).length) localStorage.setItem('cc-vorlagen-v1', JSON.stringify(settTp));
       else { const lp = lsGet('cc-vorlagen-v1', {}); if (Object.keys(lp).length) await push('company_templates', lp); }
+      assertUnchanged('cc-zeitfaktoren-v1');
       if (settTf && Object.keys(settTf).length) localStorage.setItem('cc-zeitfaktoren-v1', JSON.stringify(settTf));
       else { const lp = lsGet('cc-zeitfaktoren-v1', {}); if (Object.keys(lp).length) await push('company_time_factors', lp); }
 
@@ -665,6 +694,8 @@
       window._dbReady = false;
       setSyncState('error', err.message);
       console.warn('[MosaDB] Sync fehlgeschlagen (offline?):', err.message);
+    } finally {
+      initBaseline = null;
     }
   }
 
@@ -672,6 +703,11 @@
 
   async function push(type, data, fromQueue = false) {
     if (window.MOSAOS_DEMO_MODE) return true;
+    if (!fromQueue) {
+      const id = enqueue(type, data);
+      await flushQueue();
+      return !lsGet(SYNC_QUEUE_KEY, []).some(item => item.id === id);
+    }
     const sb = getSb();
     if (!sb) { if (!fromQueue) enqueue(type, data); return false; }
     const tid = await getTid();
@@ -714,17 +750,10 @@
         await dbCall(sb.from('reports').upsert(reportToRow(data, tid), { onConflict: 'id' }));
       } else if (type === 'company_profile' || type === 'company_prices' || type === 'company_features' || type === 'company_roles' || type === 'company_custom_services' || type === 'company_templates' || type === 'company_time_factors') {
         // Lese erst die anderen Felder, damit sie nicht überschrieben werden
-        const { data: cur } = await sb.from('company_settings').select('profile,prices,features,roles,custom_services,templates,time_factors')
-          .eq('tenant_id', tid).maybeSingle();
-        const row = { tenant_id: tid,
-          profile:  type === 'company_profile'  ? data : (cur?.profile  || {}),
-          prices:   type === 'company_prices'   ? data : (cur?.prices   || {}),
-          features: type === 'company_features' ? data : (cur?.features || {}),
-          roles:    type === 'company_roles'    ? data : (cur?.roles    || []),
-          custom_services: type === 'company_custom_services' ? data : (cur?.custom_services || []),
-          templates: type === 'company_templates' ? data : (cur?.templates || {}),
-          time_factors: type === 'company_time_factors' ? data : (cur?.time_factors || {}),
-          updated_at: new Date().toISOString() };
+        // Only update the requested column; concurrent saves in another section survive.
+        const column = {company_profile:'profile',company_prices:'prices',company_features:'features',
+          company_roles:'roles',company_custom_services:'custom_services',company_templates:'templates',company_time_factors:'time_factors'}[type];
+        const row = {tenant_id:tid,[column]:data,updated_at:new Date().toISOString()};
         await dbCall(sb.from('company_settings').upsert(row, { onConflict: 'tenant_id' }));
       } else {
         throw new Error('Unbekannter Sync-Typ: ' + type);
@@ -739,62 +768,65 @@
     }
   }
 
-  // Nach so vielen vergeblichen Versuchen wird ein Eintrag verworfen. Ohne
-  // Grenze blieb er ewig liegen und scheiterte bei jedem Laden neu — etwa
-  // wenn er Daten enthielt, die die Datenbank grundsaetzlich ablehnt. Das
-  // erzeugte endlose Fehlermeldungen, die mit dem aktuellen Zustand der App
-  // nichts mehr zu tun hatten.
+  // Failed writes stay in the outbox until explicitly retried. Never report them as saved.
   const MAX_VERSUCHE = 5;
-
-  async function flushQueue() {
-    if (window.MOSAOS_DEMO_MODE) return;
-    const queue = lsGet(SYNC_QUEUE_KEY, []);
-    if (!Array.isArray(queue) || !queue.length) { setSyncState('synced'); return; }
-    const remaining = [];
-    let aufgegeben = 0;
-    for (const item of queue) {
-      const versuche = item.attempts || 0;
-      if (versuche >= MAX_VERSUCHE) { aufgegeben++; continue; }
-      const ok = await push(item.type, item.data, true);
-      if (!ok) remaining.push({ ...item, attempts: versuche + 1, lastAttemptAt: new Date().toISOString() });
-    }
-    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(remaining));
-    if (aufgegeben) {
-      console.warn('[MosaDB] ' + aufgegeben + ' Aenderung(en) nach ' + MAX_VERSUCHE
-        + ' Versuchen verworfen. Sie liessen sich nicht speichern.');
-    }
-    setSyncState(remaining.length ? 'pending' : 'synced', remaining.length);
+  let queueFlight = null;
+  function flushQueue() {
+    if (window.MOSAOS_DEMO_MODE) return Promise.resolve();
+    if (queueFlight) return queueFlight;
+    queueFlight = drainQueue().finally(() => { queueFlight = null; });
+    return queueFlight;
   }
-
-  // Die Warteschlange von Hand leeren — fuer den Fall, dass alte Eintraege
-  // Daten enthalten, die es so nicht mehr gibt.
+  async function drainQueue() {
+    while (true) {
+      const queue = lsGet(SYNC_QUEUE_KEY, []);
+      if (!queue.length) { setSyncState('synced'); return; }
+      const item = queue[0];
+      const tenantId = await getTid();
+      if (!tenantId || item.tenantId !== tenantId) {
+        setSyncState('error', 'Zuordnung der ausstehenden Änderungen zum Konto nicht bestätigt. Sicherung exportieren; nichts wurde an einen anderen Betrieb übertragen.');
+        return;
+      }
+      if ((item.attempts || 0) >= MAX_VERSUCHE) {
+        setSyncState('error', queue.length + ' Änderung(en) noch nicht gespeichert. Bitte erneut versuchen oder Sicherung exportieren.');
+        return;
+      }
+      const ok = await push(item.type, item.data, true);
+      // Re-read: changes added while the network was busy must not be overwritten.
+      const latest = lsGet(SYNC_QUEUE_KEY, []);
+      const index = latest.findIndex(x => x.id === item.id);
+      if (index < 0) continue;
+      if (ok) latest.splice(index, 1);
+      else latest[index] = {...latest[index],attempts:(item.attempts||0)+1,lastAttemptAt:new Date().toISOString()};
+      localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(latest));
+      if (!ok) { setSyncState('error', latest.length + ' Änderung(en) lokal gesichert, aber noch nicht auf dem Server.'); return; }
+    }
+  }
+  function retryQueue() {
+    const queue=lsGet(SYNC_QUEUE_KEY,[]).map(item=>({...item,attempts:0}));
+    localStorage.setItem(SYNC_QUEUE_KEY,JSON.stringify(queue));
+    return flushQueue();
+  }
+  function exportQueue() {
+    const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),changes:lsGet(SYNC_QUEUE_KEY,[])},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob), link=document.createElement('a');
+    link.href=url;link.download='MosaOS-nicht-gespeicherte-Aenderungen.json';link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
   function warteschlangeLeeren() {
-    const anzahl = (lsGet(SYNC_QUEUE_KEY, []) || []).length;
-    localStorage.setItem(SYNC_QUEUE_KEY, '[]');
+    const queue=lsGet(SYNC_QUEUE_KEY,[]);
+    if (!queue.length || !confirm('Nicht übertragene Änderungen wirklich verwerfen? Zuerst die Sicherung exportieren.')) return 0;
+    exportQueue();
+    localStorage.setItem(SYNC_QUEUE_KEY,'[]');
     setSyncState('synced');
-    return anzahl;
+    return queue.length;
   }
 
   // ── Remove ───────────────────────────────────────────────
 
   async function remove(table, id) {
-    if (window.MOSAOS_DEMO_MODE) return true;
-    const sb = getSb();
-    if (!sb) { enqueue('__delete__', { table, id }); return false; }
-    const tid = await getTid();
-    if (!tid) { enqueue('__delete__', { table, id }); return false; }
-    try {
-      await dbCall(sb.from(table).delete().eq('id', id).eq('tenant_id', tid));
-      setSyncState('synced');
-      return true;
-    } catch (err) {
-      enqueue('__delete__', { table, id });
-      setSyncState('error', err.message);
-      console.warn('[MosaDB] Remove fehlgeschlagen:', table, id, err.message);
-      return false;
-    }
+    return push('__delete__', {table, id});
   }
-
   window.addEventListener('online', flushQueue);
-  window.MosaDB = { init: dbInit, push, remove, flush: flushQueue, leeren: warteschlangeLeeren };
+  window.MosaDB = { init: dbInit, push, remove, flush: retryQueue, exportQueue, leeren: warteschlangeLeeren };
 })();
