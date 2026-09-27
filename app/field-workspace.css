@@ -1,0 +1,12 @@
+/* Field work: readable job cards and reachable actions, including narrow phones. */
+.device-frame{box-shadow:none;border-radius:16px;max-width:480px}
+.mobile-route{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.stop{align-items:flex-start;gap:14px;padding:18px 12px;border-radius:12px}
+.stop-body{min-width:0;flex:1}.stop-name,.stop-addr{overflow-wrap:anywhere;line-height:1.5}
+.stop-name{font-size:16px}.stop-addr,.stop-duration,.stop-hint{font-size:13px!important}
+.stop-body>.btn{margin-top:10px}.stop-actions{gap:8px;flex-wrap:wrap}.stop-actions .btn{min-height:48px}
+.stop.active{border:1px solid var(--text-muted);background:var(--surface-2)}
+.stop.done{opacity:1}.stop.done .stop-name{color:var(--text-muted)}
+.qr-overlay{position:fixed;overflow-y:auto}
+.checklist-overlay,.protocol-overlay{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+@media(max-width:360px){.stop{display:flex;flex-direction:column}.stop>div:first-child{display:flex;align-items:center;gap:10px}.stop-body{width:100%}.mobile-route-title{flex-wrap:wrap}.mobile-header{padding:20px 16px}}

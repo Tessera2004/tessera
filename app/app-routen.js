@@ -357,6 +357,7 @@
       let todayJobs = [];
       try { todayJobs = getJobsForDate(new Date()).sort((a, b) => String(a.start || '').localeCompare(String(b.start || ''))); } catch (e) {}
       set('kpiEinsaetze', todayJobs.length);
+      window.MosaWorkspace?.dashboard(todayJobs, isNewWorkspace);
       const todayBody = document.getElementById('dashTodayBody');
       if (todayBody) {
         window._dashboardTodayJobs = todayJobs;
@@ -370,10 +371,10 @@
             ? tt('job.statusProvisional', 'Provisorisch')
             : status === 'beendet' ? tt('job.statusFinished', 'Beendet') : tt('job.statusDefinitive', 'Definitiv');
           const badgeClass = status === 'beendet' ? 'badge-success' : (status === 'provisorisch' ? 'badge-warning' : 'badge-neutral');
-          return `<tr onclick="openDashboardTodayJob(${index})" style="cursor:pointer;">
-            <td>${escapeHtml(job.start || '—')}</td>
-            <td><strong>${escapeHtml(job.objekt || job.ort || tt('act.job', 'Einsatz'))}</strong>${job.ort ? `<div style="font-size:12px;color:var(--text-subtle);">${escapeHtml(job.ort)}</div>` : ''}</td>
-            <td>${escapeHtml(assigned || '—')}</td>
+          return `<tr>
+            <td data-label="Zeit">${escapeHtml(job.start || '—')}</td>
+            <td class="dash-job-name"><button type="button" class="workspace-job-link" onclick="openDashboardTodayJob(${index})">${escapeHtml(job.objekt || job.ort || tt('act.job', 'Einsatz'))}</button>${job.ort ? `<div style="font-size:12px;color:var(--text-subtle);">${escapeHtml(job.ort)}</div>` : ''}</td>
+            <td data-label="Team">${escapeHtml(assigned || '—')}</td>
             <td><span class="badge ${badgeClass}">${escapeHtml(statusLabel)}</span></td>
           </tr>`;
         }).join('') : `<tr><td colspan="4" style="text-align:center; padding:28px; color:var(--text-subtle);">${escapeHtml(tt('dash.noJobs', 'Noch keine Einsätze geplant.'))}</td></tr>`;

@@ -91,7 +91,7 @@
         const rueckrufBadge = openCalls > 0
           ? `<span class="kunde-badge"><span class="dot" style="background: var(--warning);"></span>${openCalls} Rückruf${openCalls === 1 ? '' : 'e'} offen</span>`
           : '';
-        return `<div class="kunde-card" onclick="openCustomerDetail('${safeAttr(c.id)}')">
+        return `<button type="button" class="kunde-card" data-customer-id="${safeAttr(c.id)}">
           <div class="kunde-avatar">${escapeHtml(customerInitials(c))}</div>
           <div style="flex: 1; min-width: 0;">
             <div class="kunde-name">${escapeHtml(customerDisplayName(c))}</div>
@@ -99,8 +99,9 @@
             <div class="kunde-meta">${escapeHtml(c.phone || '—')} · ${(c.calls?.length || 0)} Anrufe</div>
           </div>
           ${rueckrufBadge}
-        </div>`;
+        </button>`;
       }).join('');
+      grid.querySelectorAll('[data-customer-id]').forEach(button => button.onclick = () => openCustomerDetail(button.dataset.customerId));
     }
 
     function openCustomerEditor(id) {

@@ -293,13 +293,14 @@
       document.getElementById('custDetailTitle').textContent = customerDisplayName(c);
       document.getElementById('custDetailSubtitle').textContent = c.note || c.address || '';
       document.getElementById('custDetailInfo').innerHTML = `
-        <div class="cust-info-row"><span>Adresse</span><strong>${c.address || '—'}</strong></div>
-        <div class="cust-info-row"><span>Telefon</span><strong>${c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : '—'}</strong></div>
-        <div class="cust-info-row"><span>E-Mail</span><strong>${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '—'}</strong></div>
-        <div class="cust-info-row"><span>Notiz</span><strong>${c.note || '—'}</strong></div>
+        <div class="cust-info-row"><span>Adresse</span><strong>${escapeHtml(c.address || '—')}</strong></div>
+        <div class="cust-info-row"><span>Telefon</span><strong>${c.phone ? `<a href="tel:${escapeHtml(c.phone)}">${escapeHtml(c.phone)}</a>` : '—'}</strong></div>
+        <div class="cust-info-row"><span>E-Mail</span><strong>${c.email ? `<a href="mailto:${escapeHtml(c.email)}">${escapeHtml(c.email)}</a>` : '—'}</strong></div>
+        <div class="cust-info-row"><span>Notiz</span><strong>${escapeHtml(c.note || '—')}</strong></div>
       `;
       renderCustomerOfferts(c);
       renderCallLog(c);
+      window.MosaWorkspace?.resetCustomer();
       openModal('customerDetail');
     }
 
@@ -310,10 +311,11 @@
       const offers = JSON.parse(localStorage.getItem('cc-offerts') || '[]')
         .filter(o => o.customerId === c.id || (!o.customerId && ((o.kunde || '').trim().toLowerCase() === name || (c.address && o.adresse === c.address))))
         .sort((a, b) => String(b.updated || b.datum || '').localeCompare(String(a.updated || a.datum || '')));
-      wrap.innerHTML = offers.length ? offers.map(o => `<button type="button" class="cust-offert-item" onclick="closeModal('customerDetail');openOffertEditor('${o.id}')">
+      wrap.innerHTML = offers.length ? offers.map(o => `<button type="button" class="cust-offert-item" data-offer-id="${escapeHtml(o.id)}">
         <span><strong>${escapeHtml(serviceTitle(o.service))}</strong><small>${escapeHtml(formatDateDE(o.datum))} · ${escapeHtml(o.status || 'Entwurf')}</small></span>
         <b>${Number(o.preis || 0).toFixed(2)} ${coLocale(loadCompany()).cur}</b><span aria-hidden="true">→</span>
       </button>`).join('') : '<div class="cust-offert-empty">Noch keine Offerte für diesen Kunden gespeichert.</div>';
+      wrap.querySelectorAll('[data-offer-id]').forEach(button=>button.onclick=()=>{closeModal('customerDetail');openOffertEditor(button.dataset.offerId);});
     }
 
     function openOffertForCurrentCustomer() {
@@ -356,13 +358,13 @@
             ${statusBadge}
           </div>
           <div class="call-rows">
-            <div><span class="call-lbl">Wer hat angerufen:</span> <strong>${wer}</strong></div>
-            <div><span class="call-lbl">Verlangte nach:</span> <strong>${verlangteNach}</strong></div>
-            <div><span class="call-lbl">Wer hat angenommen:</span> <strong>${angenommenVon}</strong></div>
+            <div><span class="call-lbl">Wer hat angerufen:</span> <strong>${escapeHtml(wer)}</strong></div>
+            <div><span class="call-lbl">Verlangte nach:</span> <strong>${escapeHtml(verlangteNach)}</strong></div>
+            <div><span class="call-lbl">Wer hat angenommen:</span> <strong>${escapeHtml(angenommenVon)}</strong></div>
           </div>
-          ${text ? `<div class="call-summary">„${text}"</div>` : ''}
+          ${text ? `<div class="call-summary">„${escapeHtml(text)}"</div>` : ''}
           <div style="margin-top:8px; display:flex; justify-content:flex-end;">
-            <button class="btn btn-ghost btn-sm" onclick='createTaskFromCall(${callArgs})'>${taskBtnLabel}</button>
+            <button class="btn btn-ghost btn-sm" onclick='createTaskFromCall(${escapeHtml(callArgs)})'>${taskBtnLabel}</button>
           </div>
         </div>`;
       }).join('');
