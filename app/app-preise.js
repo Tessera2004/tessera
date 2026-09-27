@@ -396,6 +396,7 @@
     }
 
     function updatePriceSummary() {
+      window.MosaDesign?.renderPrice();
       // Generische Branchen: Summe aus dem jeweiligen Firmenland, Reinigungs-Detailzeilen aus.
       if (isGenericVertical() || genericServiceDef(wizService)?.isCustom) {
         const price = wizCalcPrice();
@@ -469,6 +470,8 @@
     document.addEventListener('input', (e) => {
       if (e.target.id === 'wizCrew') {
         _syncWizDuration();
+        updatePriceSummary();
+      } else if (e.target.id === 'wizDuration') {
         updatePriceSummary();
       } else if (e.target.closest('.svc-options') || e.target.id === 'priceOverride') {
         if (e.target.closest('.svc-options')) _syncWizDuration();

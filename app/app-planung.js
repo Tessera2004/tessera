@@ -596,6 +596,7 @@
       subtitle.textContent = `${fmtDayHeader(planCurrentDate)} · ${tt('date.cw','KW')} ${weekNo} · ${jobs.length} ${tt('plan.jobs','Einsätze')} · ${PLAN_TEAMS.length} ${tt('plan.teams','Teams')}`;
 
       if (jobs.length === 0) {
+        wrap.classList.remove('plan-board', 'is-agenda');
         wrap.innerHTML = `<div style="padding: 60px 24px; text-align: center; color: var(--text-subtle);">
           <div style="margin-bottom: 12px; display:flex; justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-subtle);opacity:.6;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div style="font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px;">${tt('est.noJobsPlanned','Keine Einsätze geplant')}</div>
@@ -604,7 +605,8 @@
         return;
       }
 
-      // Gruppieren nach Stunden-Slots (06:00, 07:00, ...)
+      if (window.MosaDesign) { window.MosaDesign.renderPlan(wrap,jobs); return; }
+      // Fallback, falls die Darstellungs-Erweiterung noch nicht geladen ist.
       const today = new Date(); today.setHours(0,0,0,0);
       const isCurrentDay = isSameDay(planCurrentDate, today);
       const nowHour = new Date().getHours();

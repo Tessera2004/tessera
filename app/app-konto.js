@@ -1228,15 +1228,15 @@
         const jkSafe = j._jobKey.replace(/'/g, "\\'");
         const dkSafe = j._dateKey;
         return `<tr>
-          <td>${dFmt}</td>
-          <td><strong>${escapeHtml(j.objekt||'—')}</strong><br><span style="font-size:13px;color:var(--text-subtle);">${escapeHtml(custName)} · ${j._invoice ? escapeHtml(j._invoice.number) : 'Noch nicht ausgestellt'}</span></td>
-          <td style="text-align:right;font-variant-numeric:tabular-nums;">${brutto}</td>
-          <td><span class="inv-status-badge inv-status-${st}" onclick="cycleInvoiceStatus('${jkSafe}','${st}')" title="${st === 'offen' ? 'Versand nur nach deiner Bestätigung' : 'Klicken: gesendet ↔ bezahlt'}">${ST_LABELS[st]}</span></td>
-          <td style="text-align:right;">
+          <td data-label="Datum">${dFmt}</td>
+          <td class="invoice-customer"><strong>${escapeHtml(j.objekt||'—')}</strong><br><span style="font-size:13px;color:var(--text-subtle);">${escapeHtml(custName)} · ${j._invoice ? escapeHtml(j._invoice.number) : 'Noch nicht ausgestellt'}</span></td>
+          <td class="invoice-amount" data-label="Betrag inkl. Steuer" style="text-align:right;font-variant-numeric:tabular-nums;">${brutto}</td>
+          <td data-label="Zahlungsstatus"><button type="button" class="inv-status-badge inv-status-${st}" onclick="cycleInvoiceStatus('${jkSafe}','${st}')" title="${st === 'offen' ? 'Versand nur nach deiner Bestätigung' : 'Klicken: gesendet ↔ bezahlt'}">${ST_LABELS[st]}</button></td>
+          <td class="invoice-action-cell" style="text-align:right;"><div class="invoice-actions">
             <button class="btn btn-secondary" onclick="generateInvoiceForJobFromKey('${jkSafe}','${dkSafe}')">PDF / Vorschau</button>
             ${j.status === 'beendet' && st==='offen' ? `${!j._invoice ? `<button class="btn btn-secondary" onclick="issueInvoiceFromKey('${jkSafe}','${dkSafe}')">Ausstellen</button>` : ''}
             <button class="btn btn-secondary" onclick="sendInvoiceFromKey('${jkSafe}','${dkSafe}')">Per E-Mail senden</button>` : ''}
-            ${j.invoiceSendError ? `<div role="status">${escapeHtml(j.invoiceSendError)}</div>` : ''}
+            </div>${j.invoiceSendError ? `<div role="status">${escapeHtml(j.invoiceSendError)}</div>` : ''}
           </td>
         </tr>`;
       }).join('');
